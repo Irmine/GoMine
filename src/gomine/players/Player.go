@@ -1,9 +1,9 @@
-package playerPkg
+package players
 
-import "gomine/entityPkg"
+import "gomine/entities"
 
 type player struct {
-	*entityPkg.Entity
+	*entities.Entity
 	playerName string
 	displayName string
 }

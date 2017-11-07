@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"gomine/serverPkg"
+	"gomine"
 	time2 "time"
 )
 
@@ -10,7 +10,7 @@ var currentTick int = 0
 
 func main() {
 
-	var server = serverPkg.NewServer()
+	var server = gomine.NewServer()
 	server.Start()
 	var tickDuration = 50 * int64(time2.Millisecond)
 
