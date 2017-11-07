@@ -61,6 +61,9 @@ func main() {
 	// Other shutdown code.
 }
 
+/**
+ * Checks if the Go installation meets the requirements of GoMine.
+ */
 func checkRequirements() bool {
 	var version = runtime.Version()
 	if version != "go1.9.2" {

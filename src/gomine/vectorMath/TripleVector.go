@@ -8,42 +8,79 @@ type TripleVector struct {
 	z float64
 }
 
-func (vector *TripleVector) getX() float64 {
+/**
+ * Returns the X value of this TripleVector.
+ */
+func (vector *TripleVector) GetX() float64 {
 	return vector.x
 }
 
-func (vector *TripleVector) setX(value float64) {
+/**
+ * Sets the X value of this TripleVector.
+ */
+func (vector *TripleVector) SetX(value float64) {
 	vector.x = value
 }
 
-func (vector *TripleVector) getY() float64 {
+/**
+ * Returns the Y value of this TripleVector.
+ */
+func (vector *TripleVector) GetY() float64 {
 	return vector.y
 }
 
-func (vector *TripleVector) setY(value float64) {
+/**
+ * Sets the Y value of this TripleVector.
+ */
+func (vector *TripleVector) SetY(value float64) {
 	vector.y = value
 }
 
-func (vector *TripleVector) getZ() float64 {
+/**
+ * Returns the Z value of this TripleVector.
+ */
+func (vector *TripleVector) GetZ() float64 {
 	return vector.z
 }
 
-func (vector *TripleVector) setZ(value float64) {
+/**
+ * Sets the Z value of this TripleVector.
+ */
+func (vector *TripleVector) SetZ(value float64) {
 	vector.z = value
 }
 
-func (vector *TripleVector) addVector(vector2 TripleVector) TripleVector {
+/**
+ * Adds the given vector to the current vector and creates a NEW TripleVector.
+ */
+func (vector *TripleVector) AddVector(vector2 TripleVector) TripleVector {
 	return TripleVector{vector.x + vector2.x, vector.y + vector2.y, vector.z + vector2.z}
 }
 
-func (vector *TripleVector) add(x float64, y float64, z float64) TripleVector {
+/**
+ * Adds the given xyz values to the current vector and creates a NEW TripleVector.
+ */
+func (vector *TripleVector) Add(x float64, y float64, z float64) TripleVector {
 	return TripleVector{vector.x + x, vector.y + y, vector.z + z}
 }
 
-func (vector *TripleVector) subtract(x float64, y float64, z float64) TripleVector {
+/**
+ * Subtracts the given vector from the current vector and creates a NEW TripleVector.
+ */
+func (vector *TripleVector) SubtractVector(vector2 TripleVector) TripleVector {
+	return TripleVector{vector.x - vector2.x, vector.y - vector2.y, vector.z - vector2.z}
+}
+
+/**
+ * Subtracts the given xyz values from the current vector and creates a NEW TripleVector.
+ */
+func (vector *TripleVector) Subtract(x float64, y float64, z float64) TripleVector {
 	return vector.add(-x, -y, -z)
 }
 
-func (vector *TripleVector) abs() TripleVector {
+/**
+ * Returns a new TripleVector with the current values made absolute.
+ */
+func (vector *TripleVector) Abs() TripleVector {
 	return TripleVector{math.Abs(vector.x), math.Abs(vector.y), math.Abs(vector.z)}
 }
