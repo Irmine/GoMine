@@ -1,4 +1,4 @@
-package entityPkg
+package entities
 
 type attribute struct {
 	name string

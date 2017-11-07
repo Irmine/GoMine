@@ -1,4 +1,4 @@
-package entityPkg
+package entities
 
 type attributeMap struct {
 	attributes map[int]attribute

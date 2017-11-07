@@ -1,4 +1,4 @@
-package serverPkg
+package gomine
 
 type server struct {
 	isRunning bool

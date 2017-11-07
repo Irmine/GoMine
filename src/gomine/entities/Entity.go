@@ -1,4 +1,4 @@
-package entityPkg
+package entities
 
 type EntityInterface interface {
 	getId() int
