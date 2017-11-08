@@ -18,21 +18,21 @@ type Logger struct {
 	prefix string
 	path   string
 	file   *os.File
+	debugMode bool
 }
 
 /**
  * Returns a new logger with the given prefix and output file.
  */
-func NewLogger(prefix string, outputDir string) Logger {
+func NewLogger(prefix string, outputDir string, debugMode bool) Logger {
 	var path = outputDir + "gomine.log"
-	var _, error = os.Stat(path)
-	var file, fileError = os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	var file, fileError = os.OpenFile(path, os.O_APPEND | os.O_CREATE | os.O_WRONLY, 0644)
 
 	if fileError != nil {
-		panic(error)
+		panic(fileError)
 	}
 
-	return Logger{prefix, path, file}
+	return Logger{prefix, path, file, debugMode}
 }
 
 /**
@@ -55,6 +55,41 @@ func (logger Logger) Log(message string, logLevel string) {
 	fmt.Println(line)
 
 	go logger.write(line)
+}
+
+/**
+ * Logs a debug message.
+ */
+func (logger Logger) Debug(message string) {
+	logger.Log(message, Debug)
+}
+
+/**
+ * Logs an info message.
+ */
+func (logger Logger) Info(message string) {
+	logger.Log(message, Info)
+}
+
+/**
+ * Logs an alert.
+ */
+func (logger Logger) Alert(message string) {
+	logger.Log(message, Alert)
+}
+
+/**
+ * Logs a warning message.
+ */
+func (logger Logger) Warning(message string) {
+	logger.Log(message, Warning)
+}
+
+/**
+ * Logs a critical warning message.
+ */
+func (logger Logger) Critical(message string) {
+	logger.Log(message, Critical)
 }
 
 /**

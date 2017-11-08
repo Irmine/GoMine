@@ -4,6 +4,7 @@ import (
 	"errors"
 	"gomine/tasks"
 	"gomine/utils"
+	"gomine/resources"
 )
 
 type Server struct {
@@ -12,6 +13,7 @@ type Server struct {
 	serverPath string
 	scheduler  tasks.Scheduler
 	logger     utils.Logger
+	config 	   *resources.GoMineConfig
 }
 
 var started bool = false
@@ -26,13 +28,12 @@ func NewServer(serverPath string) (Server, error) {
 		return errorServer, errors.New("cannot create a second server")
 	}
 
-	var server = Server{
-		false,
-		20,
-		serverPath,
-		tasks.NewScheduler(),
-		utils.NewLogger("GoMine", serverPath),
-	}
+	var server = Server{}
+	server.tickRate = 20
+	server.serverPath = serverPath
+	server.config = resources.NewGoMineConfig(serverPath)
+	server.scheduler = tasks.NewScheduler()
+	server.logger = utils.NewLogger("GoMine", serverPath, server.GetConfiguration().DebugMode)
 
 	return server, nil
 }
@@ -48,7 +49,7 @@ func (server *Server) IsRunning() bool {
  * Starts the server.
  */
 func (server *Server) Start() {
-	server.GetLogger().Log("Server is starting...", utils.Info)
+	server.GetLogger().Info("Server is starting...")
 
 	server.isRunning = true
 }
@@ -57,7 +58,7 @@ func (server *Server) Start() {
  * Shuts down the server.
  */
 func (server *Server) Shutdown() {
-	server.GetLogger().Log("Server is shutting down.", utils.Info)
+	server.GetLogger().Info("Server is shutting down.")
 
 	server.isRunning = false
 }
@@ -102,6 +103,13 @@ func (server *Server) GetServerPath() string {
  */
 func (server *Server) GetLogger() utils.Logger {
 	return server.logger
+}
+
+/**
+ * Returns the configuration of GoMine.
+ */
+func (server *Server) GetConfiguration() *resources.GoMineConfig {
+	return server.config
 }
 
 /**

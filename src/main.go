@@ -7,7 +7,6 @@ import (
 	"runtime"
 	"os"
 	"path/filepath"
-	"gomine/utils"
 )
 
 var currentTick int = 0
@@ -20,7 +19,7 @@ func main() {
 
 	var server, error = gomine.NewServer(serverPath)
 	if error != nil {
-		server.GetLogger().Log("Another instance of the server is already running.", utils.Critical)
+		server.GetLogger().Critical("Another instance of the server is already running.")
 		return
 	}
 
@@ -29,7 +28,7 @@ func main() {
 	var tickDrop = 20
 
 	for {
-		var tickDuration = int(1.0/float32(server.GetTickRate())*1000) * int(time2.Millisecond)
+		var tickDuration = int(1.0 / float32(server.GetTickRate()) * 1000) * int(time2.Millisecond)
 		var nextTime = time2.Now().Add(time2.Duration(tickDuration))
 
 		server.Tick(currentTick)
@@ -39,10 +38,10 @@ func main() {
 		if diff > 0 {
 			tickDrop--
 
-			if tickDrop < 0 && server.GetTickRate() != 20 && diff > 5*int64(time2.Millisecond) {
+			if tickDrop < 0 && server.GetTickRate() != 20 && diff > 5 * int64(time2.Millisecond) {
 				server.SetTickRate(server.GetTickRate() + 1)
 
-				server.GetLogger().Log("Elevating tick rate to: "+string(server.GetTickRate()), utils.Debug)
+				server.GetLogger().Debug("Elevating tick rate to: " + string(server.GetTickRate()))
 			}
 
 			time2.Sleep(time2.Duration(diff))
@@ -51,7 +50,7 @@ func main() {
 
 			if tickDrop > 40 {
 				server.SetTickRate(server.GetTickRate() - 1)
-				server.GetLogger().Log("Lowering tick rate to: "+string(server.GetTickRate()), utils.Debug)
+				server.GetLogger().Debug("Lowering tick rate to: " + string(server.GetTickRate()))
 			}
 		}
 
