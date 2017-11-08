@@ -1,7 +1,6 @@
 package tasks
 
 type Task struct {
-
 }
 
 func onRun() {

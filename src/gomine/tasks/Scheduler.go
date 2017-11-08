@@ -1,7 +1,7 @@
 package tasks
 
 type Scheduler struct {
-	delayedTasks map[int]Task
+	delayedTasks   map[int]Task
 	repeatingTasks map[int]Task
 }
 

@@ -7,17 +7,17 @@ import (
 )
 
 const (
-	Debug = "debug"
-	Info = "info"
-	Alert = "alert"
-	Warning = "warning"
+	Debug    = "debug"
+	Info     = "info"
+	Alert    = "alert"
+	Warning  = "warning"
 	Critical = "critical"
 )
 
 type Logger struct {
 	prefix string
-	path string
-	file *os.File
+	path   string
+	file   *os.File
 }
 
 /**
@@ -26,7 +26,7 @@ type Logger struct {
 func NewLogger(prefix string, outputDir string) Logger {
 	var path = outputDir + "gomine.log"
 	var _, error = os.Stat(path)
-	var file, fileError = os.OpenFile(path, os.O_APPEND | os.O_CREATE | os.O_WRONLY, 0644)
+	var file, fileError = os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 
 	if fileError != nil {
 		panic(error)

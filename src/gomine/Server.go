@@ -6,12 +6,12 @@ import (
 	"gomine/utils"
 )
 
-type server struct {
-	isRunning bool
-	tickRate int
+type Server struct {
+	isRunning  bool
+	tickRate   int
 	serverPath string
-	scheduler tasks.Scheduler
-	logger utils.Logger
+	scheduler  tasks.Scheduler
+	logger     utils.Logger
 }
 
 var started bool = false
@@ -20,13 +20,13 @@ var started bool = false
  * Creates a new server.
  * Will report an error if a server is already existent.
  */
-func NewServer(serverPath string) (server, error) {
-	var errorServer server
+func NewServer(serverPath string) (Server, error) {
+	var errorServer Server
 	if started {
 		return errorServer, errors.New("cannot create a second server")
 	}
 
-	var server = server{
+	var server = Server{
 		false,
 		20,
 		serverPath,
@@ -40,63 +40,67 @@ func NewServer(serverPath string) (server, error) {
 /**
  * Returns whether the server is running or not.
  */
-func (server *server) IsRunning() bool {
+func (server *Server) IsRunning() bool {
 	return server.isRunning
 }
 
 /**
  * Starts the server.
  */
-func (server *server) Start() {
+func (server *Server) Start() {
+	server.GetLogger().Log("Server is starting...", utils.Info)
+
 	server.isRunning = true
 }
 
 /**
  * Shuts down the server.
  */
-func (server *server) Shutdown() {
+func (server *Server) Shutdown() {
+	server.GetLogger().Log("Server is shutting down.", utils.Info)
+
 	server.isRunning = false
 }
 
 /**
  * Returns the tick rate of the server.
  */
-func (server *server) GetTickRate() int {
+func (server *Server) GetTickRate() int {
 	return server.tickRate
 }
 
 /**
  * Resets the tick value back to the default. (20)
  */
-func (server *server) ResetTickRate() {
+func (server *Server) ResetTickRate() {
 	server.tickRate = 20
 }
 
 /**
  * Internal. Not to be used by plugins.
  */
-func (server *server) SetTickRate(tickRate int) {
+func (server *Server) SetTickRate(tickRate int) {
 	server.tickRate = tickRate
 }
 
 /**
  * Returns the scheduler used for scheduling tasks.
  */
-func (server *server) GetScheduler() *tasks.Scheduler {
+func (server *Server) GetScheduler() *tasks.Scheduler {
 	return &server.scheduler
 }
 
 /**
  * Returns the path the src folder is located in.
  */
-func (server *server) GetServerPath() string {
+func (server *Server) GetServerPath() string {
 	return server.serverPath
 }
 
 /**
  * Returns the server logger. Logs with a [GoMine] prefix.
  */
-func (server *server) GetLogger() utils.Logger {
+func (server *Server) GetLogger() utils.Logger {
 	return server.logger
 }
 
@@ -104,6 +108,6 @@ func (server *server) GetLogger() utils.Logger {
  * Internal. Not to be used by plugins.
  * Ticks the entire server. (Entities, block entities etc.)
  */
-func (server *server) Tick(currentTick int) {
+func (server *Server) Tick(currentTick int) {
 	server.GetScheduler().DoTick()
 }

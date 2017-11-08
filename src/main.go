@@ -24,13 +24,12 @@ func main() {
 		return
 	}
 
-	server.GetLogger().Log("Server is starting...", utils.Info)
 	server.Start()
 
 	var tickDrop = 20
 
 	for {
-		var tickDuration = int(1.0 / float32(server.GetTickRate()) * 1000) * int(time2.Millisecond)
+		var tickDuration = int(1.0/float32(server.GetTickRate())*1000) * int(time2.Millisecond)
 		var nextTime = time2.Now().Add(time2.Duration(tickDuration))
 
 		server.Tick(currentTick)
@@ -40,10 +39,10 @@ func main() {
 		if diff > 0 {
 			tickDrop--
 
-			if tickDrop < 0 && server.GetTickRate() != 20 && diff > 5 * int64(time2.Millisecond) {
+			if tickDrop < 0 && server.GetTickRate() != 20 && diff > 5*int64(time2.Millisecond) {
 				server.SetTickRate(server.GetTickRate() + 1)
 
-				server.GetLogger().Log("Elevating tick rate to: " + string(server.GetTickRate()), utils.Debug)
+				server.GetLogger().Log("Elevating tick rate to: "+string(server.GetTickRate()), utils.Debug)
 			}
 
 			time2.Sleep(time2.Duration(diff))
@@ -52,12 +51,11 @@ func main() {
 
 			if tickDrop > 40 {
 				server.SetTickRate(server.GetTickRate() - 1)
-				server.GetLogger().Log("Lowering tick rate to: " + string(server.GetTickRate()), utils.Debug)
+				server.GetLogger().Log("Lowering tick rate to: "+string(server.GetTickRate()), utils.Debug)
 			}
 		}
 
 		if !server.IsRunning() {
-			server.GetLogger().Log("Server is shutting down.", utils.Info)
 			server.Shutdown()
 			break
 		}

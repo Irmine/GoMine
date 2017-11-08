@@ -5,7 +5,7 @@ type EntityInterface interface {
 }
 
 type Entity struct {
-	nameTag string
+	nameTag      string
 	attributeMap attributeMap
 }
 

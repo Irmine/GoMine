@@ -6,6 +6,7 @@ type DoubleVector struct {
 	x float64
 	y float64
 }
+
 /**
  * Returns the X value of this DoubleVector.
  */

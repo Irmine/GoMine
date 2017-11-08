@@ -4,4 +4,3 @@ type DataPacket interface {
 	Encode()
 	Decode()
 }
-

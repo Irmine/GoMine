@@ -1,8 +1,8 @@
 package entities
 
 type attribute struct {
-	name string
-	value float32
+	name         string
+	value        float32
 	defaultValue float32
 }
 

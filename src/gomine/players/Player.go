@@ -4,7 +4,7 @@ import "gomine/entities"
 
 type player struct {
 	*entities.Entity
-	playerName string
+	playerName  string
 	displayName string
 }
 
