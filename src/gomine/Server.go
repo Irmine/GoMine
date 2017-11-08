@@ -3,12 +3,15 @@ package gomine
 import (
 	"errors"
 	"gomine/tasks"
+	"gomine/utils"
 )
 
 type server struct {
 	isRunning bool
 	tickRate int
+	serverPath string
 	scheduler tasks.Scheduler
+	logger utils.Logger
 }
 
 var started bool = false
@@ -17,15 +20,19 @@ var started bool = false
  * Creates a new server.
  * Will report an error if a server is already existent.
  */
-func NewServer() (server, error) {
+func NewServer(serverPath string) (server, error) {
 	var errorServer server
 	if started {
 		return errorServer, errors.New("cannot create a second server")
 	}
 
-	var server = server{}
-	server.tickRate = 20
-	server.scheduler = tasks.NewScheduler()
+	var server = server{
+		false,
+		20,
+		serverPath,
+		tasks.NewScheduler(),
+		utils.NewLogger("GoMine", serverPath),
+	}
 
 	return server, nil
 }
@@ -75,8 +82,22 @@ func (server *server) SetTickRate(tickRate int) {
 /**
  * Returns the scheduler used for scheduling tasks.
  */
-func (server *server) GetScheduler() tasks.Scheduler {
-	return server.scheduler
+func (server *server) GetScheduler() *tasks.Scheduler {
+	return &server.scheduler
+}
+
+/**
+ * Returns the path the src folder is located in.
+ */
+func (server *server) GetServerPath() string {
+	return server.serverPath
+}
+
+/**
+ * Returns the server logger. Logs with a [GoMine] prefix.
+ */
+func (server *server) GetLogger() utils.Logger {
+	return server.logger
 }
 
 /**

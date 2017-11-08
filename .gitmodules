@@ -1,0 +1,3 @@
+[submodule "src/goraklib"]
+	path = src/goraklib
+	url = https://github.com/Irmine/GoRakLib

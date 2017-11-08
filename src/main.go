@@ -5,6 +5,9 @@ import (
 	"gomine"
 	time2 "time"
 	"runtime"
+	"os"
+	"path/filepath"
+	"gomine/utils"
 )
 
 var currentTick int = 0
@@ -13,12 +16,15 @@ func main() {
 	if !checkRequirements() {
 		return
 	}
+	var serverPath = scanServerPath()
 
-	var server, error = gomine.NewServer()
+	var server, error = gomine.NewServer(serverPath)
 	if error != nil {
-		fmt.Println("Another instance of the server is already running.")
+		server.GetLogger().Log("Another instance of the server is already running.", utils.Critical)
 		return
 	}
+
+	server.GetLogger().Log("Server is starting...", utils.Info)
 	server.Start()
 
 	var tickDrop = 20
@@ -36,7 +42,8 @@ func main() {
 
 			if tickDrop < 0 && server.GetTickRate() != 20 && diff > 5 * int64(time2.Millisecond) {
 				server.SetTickRate(server.GetTickRate() + 1)
-				fmt.Println("Elevating tick rate to:", server.GetTickRate())
+
+				server.GetLogger().Log("Elevating tick rate to: " + string(server.GetTickRate()), utils.Debug)
 			}
 
 			time2.Sleep(time2.Duration(diff))
@@ -45,13 +52,13 @@ func main() {
 
 			if tickDrop > 40 {
 				server.SetTickRate(server.GetTickRate() - 1)
-				fmt.Println("Lowering tick rate to:", server.GetTickRate())
+				server.GetLogger().Log("Lowering tick rate to: " + string(server.GetTickRate()), utils.Debug)
 			}
 		}
 
 		if !server.IsRunning() {
+			server.GetLogger().Log("Server is shutting down.", utils.Info)
 			server.Shutdown()
-			fmt.Println("Server shut down.")
 			break
 		}
 
@@ -59,6 +66,16 @@ func main() {
 	}
 
 	// Other shutdown code.
+}
+
+func scanServerPath() string {
+	var executable, error = os.Executable()
+	if error != nil {
+		panic(error)
+	}
+	var serverPath = filepath.Dir(filepath.Dir(executable))
+
+	return serverPath
 }
 
 /**
