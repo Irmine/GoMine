@@ -1,37 +1,39 @@
 package worlds
 
-import "gomine"
+import (
+	"gomine/interfaces"
+)
 
 type Level struct {
-	server     gomine.Server
+	server     interfaces.IServer
 	name       string
-	dimensions map[int]Dimension
+	dimensions map[int]interfaces.IDimension
 }
 
 /**
  * Returns a new Level with the given level name.
  */
-func NewLevel(levelName string, server gomine.Server) Level {
-	return Level{server, levelName, make(map[int]Dimension)}
+func NewLevel(levelName string, server interfaces.IServer) *Level {
+	return &Level{server, levelName, make(map[int]interfaces.IDimension)}
 }
 
 /**
  * Returns the server.
  */
-func (level *Level) getServer() gomine.Server {
+func (level *Level) GetServer() interfaces.IServer {
 	return level.server
 }
 
 /**
  * Returns the name of this level.
  */
-func (level *Level) getName() string {
+func (level *Level) GetName() string {
 	return level.name
 }
 
 /**
  * Returns a map containing the dimensions of this level.
  */
-func (level *Level) getDimension() map[int]Dimension {
+func (level *Level) GetDimensions() map[int]interfaces.IDimension {
 	return level.dimensions
 }

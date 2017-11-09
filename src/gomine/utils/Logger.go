@@ -24,7 +24,7 @@ type Logger struct {
 /**
  * Returns a new logger with the given prefix and output file.
  */
-func NewLogger(prefix string, outputDir string, debugMode bool) Logger {
+func NewLogger(prefix string, outputDir string, debugMode bool) *Logger {
 	var path = outputDir + "gomine.log"
 	var file, fileError = os.OpenFile(path, os.O_APPEND | os.O_CREATE | os.O_WRONLY, 0644)
 
@@ -32,26 +32,18 @@ func NewLogger(prefix string, outputDir string, debugMode bool) Logger {
 		panic(fileError)
 	}
 
-	return Logger{prefix, path, file, debugMode}
+	return &Logger{prefix, path, file, debugMode}
 }
 
 /**
  * Logs the given message with the given log level.
  */
 func (logger Logger) Log(message string, logLevel string) {
-	var line = "[" + logger.prefix + "]"
-
-	switch logLevel {
-	case Debug:
-		// TODO: Add a configuration file to enable debug.
-		break
-	default:
-		line += "[" + strings.Title(logLevel) + "] "
-		break
+	if logLevel == Debug && !logger.debugMode {
+		return
 	}
 
-	line += message
-
+	var line = "[" + logger.prefix + "][" + strings.Title(logLevel) + "] " + message
 	fmt.Println(line)
 
 	go logger.write(line)

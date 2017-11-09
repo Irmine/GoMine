@@ -5,35 +5,48 @@ import (
 	"gomine/tasks"
 	"gomine/utils"
 	"gomine/resources"
+	"gomine/worlds"
+	"os"
+	"gomine/interfaces"
+)
+
+const (
+	GoMineVersion = "0.0.1"
+	ApiVersion = "0.0.1"
 )
 
 type Server struct {
 	isRunning  bool
 	tickRate   int
 	serverPath string
-	scheduler  tasks.Scheduler
-	logger     utils.Logger
+	scheduler  *tasks.Scheduler
+	logger     *utils.Logger
 	config 	   *resources.GoMineConfig
+
+	levels map[int]interfaces.ILevel
 }
 
 var started bool = false
+
+var counter int = 0
 
 /**
  * Creates a new server.
  * Will report an error if a server is already existent.
  */
-func NewServer(serverPath string) (Server, error) {
+func NewServer(serverPath string) (*Server, error) {
 	var errorServer Server
 	if started {
-		return errorServer, errors.New("cannot create a second server")
+		return &errorServer, errors.New("cannot create a second server")
 	}
 
-	var server = Server{}
+	var server = &Server{}
 	server.tickRate = 20
 	server.serverPath = serverPath
 	server.config = resources.NewGoMineConfig(serverPath)
 	server.scheduler = tasks.NewScheduler()
 	server.logger = utils.NewLogger("GoMine", serverPath, server.GetConfiguration().DebugMode)
+	server.levels = make(map[int]interfaces.ILevel)
 
 	return server, nil
 }
@@ -49,7 +62,7 @@ func (server *Server) IsRunning() bool {
  * Starts the server.
  */
 func (server *Server) Start() {
-	server.GetLogger().Info("Server is starting...")
+	server.GetLogger().Info("GoMine " + GoMineVersion + " is now starting...")
 
 	server.isRunning = true
 }
@@ -88,7 +101,7 @@ func (server *Server) SetTickRate(tickRate int) {
  * Returns the scheduler used for scheduling tasks.
  */
 func (server *Server) GetScheduler() *tasks.Scheduler {
-	return &server.scheduler
+	return server.scheduler
 }
 
 /**
@@ -101,7 +114,7 @@ func (server *Server) GetServerPath() string {
 /**
  * Returns the server logger. Logs with a [GoMine] prefix.
  */
-func (server *Server) GetLogger() utils.Logger {
+func (server *Server) GetLogger() *utils.Logger {
 	return server.logger
 }
 
@@ -110,6 +123,56 @@ func (server *Server) GetLogger() utils.Logger {
  */
 func (server *Server) GetConfiguration() *resources.GoMineConfig {
 	return server.config
+}
+
+/**
+ * Returns all loaded levels in the server.
+ */
+func (server *Server) GetLoadedLevels() map[int]interfaces.ILevel {
+	return server.levels
+}
+
+/**
+ * Returns whether a level is loaded or not.
+ */
+func (server *Server) IsLevelLoaded(levelName string) bool {
+	for _, level := range server.levels  {
+		if level.GetName() == levelName {
+			return true
+		}
+	}
+	return false
+}
+
+/**
+ * Returns whether a level is generated or not. (Includes loaded levels)
+ */
+func (server *Server) IsLevelGenerated(levelName string) bool {
+	if server.IsLevelLoaded(levelName) {
+		return true
+	}
+	var path = server.GetServerPath() + "worlds/" + levelName
+	var _, error = os.Stat(path)
+	if error != nil {
+		return false
+	}
+	return true
+}
+
+/**
+ * Loads a generated world. Returns true if the level was loaded successfully.
+ */
+func (server *Server) LoadLevel(levelName string) bool {
+	if !server.IsLevelGenerated(levelName) {
+		return false
+	}
+	if server.IsLevelLoaded(levelName) {
+		return false
+	}
+	var levels = server.levels
+	levels[counter] = worlds.NewLevel(levelName, server)
+	counter++
+	return true
 }
 
 /**

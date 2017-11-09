@@ -14,8 +14,8 @@ type Dimension struct {
 /**
  * Returns a new dimension with the given dimension ID.
  */
-func NewDimension(level Level, dimensionId int) Dimension {
-	return Dimension{dimensionId, level}
+func NewDimension(level Level, dimensionId int) *Dimension {
+	return &Dimension{dimensionId, level}
 }
 
 /**

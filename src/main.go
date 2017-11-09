@@ -12,6 +12,7 @@ import (
 var currentTick int = 0
 
 func main() {
+	var startTime = time2.Now()
 	if !checkRequirements() {
 		return
 	}
@@ -24,6 +25,8 @@ func main() {
 	}
 
 	server.Start()
+	var startupTime = time2.Now().Sub(startTime)
+	server.GetLogger().Info("Server startup done! Took: " + startupTime.String())
 
 	var tickDrop = 20
 
@@ -70,7 +73,7 @@ func scanServerPath() string {
 	if error != nil {
 		panic(error)
 	}
-	var serverPath = filepath.Dir(filepath.Dir(executable))
+	var serverPath = filepath.Dir(filepath.Dir(executable)) + "/"
 
 	return serverPath
 }
