@@ -4,3 +4,6 @@
 [submodule "src/libraries/yaml"]
 	path = src/libraries/yaml
 	url = https://github.com/go-yaml/yaml
+[submodule "src/libraries/nbt"]
+	path = src/libraries/nbt
+	url = https://github.com/Nightgunner5/go.nbt

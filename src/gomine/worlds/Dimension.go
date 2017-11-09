@@ -1,33 +1,47 @@
 package worlds
 
+import "gomine/interfaces"
+
 const (
-	Overworld = 0
-	Nether    = 1
-	End       = 2
+	OverworldId = 0
+	NetherId    = 1
+	EndId	    = 2
 )
 
 type Dimension struct {
+	name 		string
 	dimensionId int
-	level       Level
+	level       interfaces.ILevel
 }
 
 /**
  * Returns a new dimension with the given dimension ID.
  */
-func NewDimension(level Level, dimensionId int) *Dimension {
-	return &Dimension{dimensionId, level}
+func NewDimension(name string, dimensionId int, level *Level) *Dimension {
+	return &Dimension{name, dimensionId, level}
 }
 
 /**
  * Returns the dimension ID of this dimension.
  */
-func (dimension *Dimension) getDimensionId() int {
+func (dimension *Dimension) GetDimensionId() int {
 	return dimension.dimensionId
+}
+
+/**
+ * Returns the name of this dimension.
+ */
+func (dimension *Dimension) GetName() string {
+	return dimension.name
 }
 
 /**
  * Returns the level this dimension is in.
  */
-func (dimension *Dimension) getLevel() Level {
+func (dimension *Dimension) GetLevel() interfaces.ILevel {
 	return dimension.level
+}
+
+func (dimension *Dimension) TickDimension() {
+
 }

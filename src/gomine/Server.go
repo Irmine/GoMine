@@ -181,4 +181,7 @@ func (server *Server) LoadLevel(levelName string) bool {
  */
 func (server *Server) Tick(currentTick int) {
 	server.GetScheduler().DoTick()
+	for _, level := range server.levels  {
+		level.TickLevel()
+	}
 }
