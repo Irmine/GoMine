@@ -5,4 +5,5 @@ type ICommand interface {
 	GetPermission() string
 	GetAliases() []string
 	Execute(string) bool
+	Parse(string) (string, bool)
 }

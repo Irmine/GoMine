@@ -35,11 +35,16 @@ func (reader *ConsoleReader) ReadLine(holder interfaces.ICommandHolder) string {
 /**
  * Attempts to execute the command entered in the console.
  */
-func (reader *ConsoleReader) attemptReadCommand(commandName string, holder interfaces.ICommandHolder) bool {
+func (reader *ConsoleReader) attemptReadCommand(commandText string, holder interfaces.ICommandHolder) bool {
+	var args = strings.Split(commandText, " ")
+	var commandName = args[0]
 	if !holder.IsCommandRegistered(commandName) {
 		return false
 	}
 	var command, _ = holder.GetCommand(commandName)
-	command.Execute(commandName)
+	var parsedInput, valid = command.Parse(commandText)
+	if valid {
+		command.Execute(parsedInput)
+	}
 	return true
 }
