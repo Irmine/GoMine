@@ -8,6 +8,8 @@ import (
 	"gomine/worlds"
 	"os"
 	"gomine/interfaces"
+	"gomine/commands"
+	"gomine/commands/defaults"
 )
 
 const (
@@ -20,8 +22,10 @@ type Server struct {
 	tickRate   int
 	serverPath string
 	scheduler  *tasks.Scheduler
-	logger     *utils.Logger
+	logger     interfaces.ILogger
 	config 	   *resources.GoMineConfig
+	consoleReader *utils.ConsoleReader
+	commandHolder interfaces.ICommandHolder
 
 	levels map[int]interfaces.ILevel
 }
@@ -47,8 +51,19 @@ func NewServer(serverPath string) (*Server, error) {
 	server.scheduler = tasks.NewScheduler()
 	server.logger = utils.NewLogger("GoMine", serverPath, server.GetConfiguration().DebugMode)
 	server.levels = make(map[int]interfaces.ILevel)
+	server.consoleReader = utils.NewConsoleReader()
+	server.commandHolder = commands.NewCommandHolder()
+
+	server.RegisterDefaultCommands()
 
 	return server, nil
+}
+
+/**
+ * Registers all default commands.
+ */
+func (server *Server) RegisterDefaultCommands() {
+	server.commandHolder.RegisterCommand(defaults.NewStop(server))
 }
 
 /**
@@ -68,9 +83,12 @@ func (server *Server) Start() {
 }
 
 /**
- * Shuts down the server.
+ * Shuts down the server if it is running.
  */
 func (server *Server) Shutdown() {
+	if !server.isRunning {
+		return
+	}
 	server.GetLogger().Info("Server is shutting down.")
 
 	server.isRunning = false
@@ -114,7 +132,7 @@ func (server *Server) GetServerPath() string {
 /**
  * Returns the server logger. Logs with a [GoMine] prefix.
  */
-func (server *Server) GetLogger() *utils.Logger {
+func (server *Server) GetLogger() interfaces.ILogger {
 	return server.logger
 }
 
@@ -176,6 +194,20 @@ func (server *Server) LoadLevel(levelName string) bool {
 }
 
 /**
+ * Returns the console command reader.
+ */
+func (server *Server) GetConsoleReader() *utils.ConsoleReader {
+	return server.consoleReader
+}
+
+/**
+ * Returns the command holder.
+ */
+func (server *Server) GetCommandHolder() interfaces.ICommandHolder {
+	return server.commandHolder
+}
+
+/**
  * Internal. Not to be used by plugins.
  * Ticks the entire server. (Entities, block entities etc.)
  */
@@ -184,4 +216,5 @@ func (server *Server) Tick(currentTick int) {
 	for _, level := range server.levels  {
 		level.TickLevel()
 	}
+	server.consoleReader.ReadLine(server.GetCommandHolder())
 }

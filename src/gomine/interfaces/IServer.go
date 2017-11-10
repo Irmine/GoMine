@@ -2,7 +2,6 @@ package interfaces
 
 import (
 	"gomine/tasks"
-	"gomine/utils"
 	"gomine/resources"
 )
 
@@ -15,8 +14,9 @@ type IServer interface {
 	ResetTickRate()
 	GetScheduler() *tasks.Scheduler
 	GetServerPath() string
-	GetLogger() *utils.Logger
+	GetLogger() ILogger
 	GetConfiguration() *resources.GoMineConfig
+	GetCommandHolder() ICommandHolder
 	GetLoadedLevels() map[int]ILevel
 	IsLevelLoaded(string) bool
 	IsLevelGenerated(string) bool
