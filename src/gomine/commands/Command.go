@@ -2,7 +2,9 @@ package commands
 
 import (
 	"gomine/interfaces"
-	"fmt"
+	"reflect"
+	"strings"
+	"strconv"
 )
 
 type Command struct {
@@ -10,13 +12,22 @@ type Command struct {
 	permission string
 	aliases []string
 	arguments []interfaces.ICommandArgument
+	usage string
 }
 
 /**
  * Returns a new base command.
  */
 func NewCommand(name string, permission string, aliases []string) *Command {
-	return &Command{name, permission, aliases, []interfaces.ICommandArgument{}}
+	return &Command{name: name, permission: permission, aliases: aliases}
+}
+
+/**
+ * Returns the usage of this command.
+ */
+func (command *Command) GetUsage() string {
+	command.parseUsage()
+	return command.usage
 }
 
 /**
@@ -62,14 +73,46 @@ func (command *Command) AppendArgument(argument interfaces.ICommandArgument) {
 }
 
 /**
+ * Parses the usage into a readable and clear one.
+ */
+func (command *Command) parseUsage() {
+	if command.usage == "" {
+		var usage = "Usage: /" + command.GetName() + " "
+		for _, argument := range command.GetArguments() {
+			if argument.IsOptional() {
+				usage += "["
+			} else {
+				usage += "<"
+			}
+			var argName = strings.ToLower(reflect.TypeOf(argument).Elem().Name())
+			var argType = strings.Replace(strings.Replace(argName, "enum", "", -1), "arg", "", -1)
+
+			usage += argument.GetName() + ": " + argType
+			if argument.GetInputAmount() > 1 && argType != "string" {
+				usage += "(" + strconv.Itoa(argument.GetInputAmount()) + ")"
+			}
+
+			if argument.IsOptional() {
+				usage += "]"
+			} else {
+				usage += ">"
+			}
+			usage += " "
+		}
+		command.usage = usage
+	}
+}
+
+/**
  * Checks and parses the values of a command.
  */
-func (command *Command) Parse(commandArgs []string, server interfaces.IServer) ([]interfaces.ICommandArgument, bool) {
+func (command *Command) Parse(sender interfaces.ICommandSender, commandArgs []string, server interfaces.IServer) ([]interfaces.ICommandArgument, bool) {
 	var stringIndex = 0
 	if len(commandArgs) == 0 {
 		if len(command.GetArguments()) == 0 {
 			return command.GetArguments(), true
 		}
+		sender.SendMessage(command.GetUsage())
 		return nil, false
 	}
 	for _, argument := range command.GetArguments() {
@@ -79,12 +122,12 @@ func (command *Command) Parse(commandArgs []string, server interfaces.IServer) (
 		for i < argument.GetInputAmount() {
 			if len(commandArgs) < stringIndex + i + 1 {
 				if !argument.IsOptional() {
-					fmt.Println("My line is too short")
+					sender.SendMessage(command.GetUsage())
 					return nil, false
 				}
 			} else {
 				if !argument.IsValidValue(commandArgs[stringIndex + i], server) {
-					fmt.Println("My value isn't valid")
+					sender.SendMessage(command.GetUsage())
 					return nil, false
 				}
 				output = append(output, commandArgs[stringIndex + i])

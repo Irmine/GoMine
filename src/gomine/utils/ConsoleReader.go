@@ -45,7 +45,7 @@ func (reader *ConsoleReader) attemptReadCommand(commandText string, server inter
 	}
 
 	var command, _ = holder.GetCommand(commandName)
-	var parsedInput, valid = command.Parse(args[1:], server)
+	var parsedInput, valid = command.Parse(server, args[1:], server)
 
 	if valid {
 		command.Execute(server, parsedInput)

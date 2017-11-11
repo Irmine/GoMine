@@ -1,6 +1,9 @@
 package arguments
 
-import "gomine/interfaces"
+import (
+	"gomine/interfaces"
+	"strings"
+)
 
 type StringArg struct {
 	*Argument
@@ -25,4 +28,15 @@ func (argument *StringArg) IsValidValue(value string, server interfaces.IServer)
  */
 func (argument *StringArg) ConvertValue(value string, server interfaces.IServer) interface{} {
 	return value
+}
+
+/**
+ * Sets the output value of this argument.
+ */
+func (argument *StringArg) SetOutput(value interface{}) {
+	if slice, ok := value.([]string); ok {
+		argument.output = strings.Join(slice, " ")
+	} else {
+		argument.output = value
+	}
 }

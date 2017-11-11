@@ -65,6 +65,8 @@ func main() {
 		currentTick++
 	}
 
+	time2.Sleep(time2.Duration(time2.Millisecond))
+
 	// Other shutdown code.
 }
 
@@ -73,7 +75,7 @@ func scanServerPath() string {
 	if error != nil {
 		panic(error)
 	}
-	var serverPath = filepath.Dir(filepath.Dir(executable)) + "/"
+	var serverPath = filepath.Dir(executable) + "/"
 
 	return serverPath
 }
