@@ -36,31 +36,31 @@ func (vector *DoubleVector) SetY(value float64) {
 }
 
 /**
- * Adds the given vector to the current vector and returns a NEW DoubleVector.
+ * Adds the given vector to the current vector and returns a new DoubleVector.
  */
 func (vector *DoubleVector) AddVector(vector2 DoubleVector) DoubleVector {
 	return DoubleVector{vector.x + vector2.x, vector.y + vector2.y}
 }
 
 /**
- * Adds the given xyz values to the current vector and returns a NEW DoubleVector.
+ * Adds the given xyz values to the current vector and returns a new DoubleVector.
  */
 func (vector *DoubleVector) Add(x float64, y float64) DoubleVector {
 	return DoubleVector{vector.x + x, vector.y + y}
 }
 
 /**
- * Subtracts the given vector from the current vector and returns a NEW DoubleVector.
+ * Subtracts the given vector from the current vector and returns a new DoubleVector.
  */
 func (vector *DoubleVector) SubtractVector(vector2 DoubleVector) DoubleVector {
-	return vector.add(-vector2.x, -vector2.y)
+	return vector.Add(-vector2.x, -vector2.y)
 }
 
 /**
- * Subtracts the given xyz values from the current vector and returns a NEW DoubleVector.
+ * Subtracts the given xyz values from the current vector and returns a new DoubleVector.
  */
 func (vector *DoubleVector) Subtract(x float64, y float64) DoubleVector {
-	return vector.add(-x, -y)
+	return vector.Add(-x, -y)
 }
 
 /**

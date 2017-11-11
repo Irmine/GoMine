@@ -64,6 +64,7 @@ func NewServer(serverPath string) (*Server, error) {
  */
 func (server *Server) RegisterDefaultCommands() {
 	server.commandHolder.RegisterCommand(defaults.NewStop(server))
+	server.commandHolder.RegisterCommand(defaults.NewTest(server))
 }
 
 /**
@@ -216,5 +217,5 @@ func (server *Server) Tick(currentTick int) {
 	for _, level := range server.levels  {
 		level.TickLevel()
 	}
-	server.consoleReader.ReadLine(server.GetCommandHolder())
+	server.consoleReader.ReadLine(server)
 }
