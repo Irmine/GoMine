@@ -25,7 +25,7 @@ func NewTest(server interfaces.IServer) TestCommand {
 	return test
 }
 
-func (command TestCommand) Execute(arguments []interfaces.ICommandArgument) bool {
+func (command TestCommand) Execute(sender interfaces.ICommandSender, arguments []interfaces.ICommandArgument) bool {
 	fmt.Println(arguments[0].GetOutput())
 	fmt.Println(arguments[1].GetOutput())
 	return true

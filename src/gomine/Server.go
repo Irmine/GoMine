@@ -209,6 +209,21 @@ func (server *Server) GetCommandHolder() interfaces.ICommandHolder {
 }
 
 /**
+ * Returns if the server has a given permission.
+ * Always returns true to satisfy the ICommandSender interface.
+ */
+func (server *Server) HasPermission(string) bool {
+	return true
+}
+
+/**
+ * Sends a message to the server to satisfy the ICommandSender interface.
+ */
+func (server *Server) SendMessage(message string) {
+	server.GetLogger().Info(message)
+}
+
+/**
  * Internal. Not to be used by plugins.
  * Ticks the entire server. (Entities, block entities etc.)
  */

@@ -4,6 +4,6 @@ type ICommand interface {
 	GetName() string
 	GetPermission() string
 	GetAliases() []string
-	Execute([]ICommandArgument) bool
+	Execute(ICommandSender, []ICommandArgument) bool
 	Parse([]string, IServer) ([]ICommandArgument, bool)
 }

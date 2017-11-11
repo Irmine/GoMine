@@ -21,5 +21,7 @@ type IServer interface {
 	IsLevelLoaded(string) bool
 	IsLevelGenerated(string) bool
 	LoadLevel(string) bool
+	HasPermission(string) bool
+	SendMessage(message string)
 	Tick(int)
 }
