@@ -9,6 +9,7 @@ import (
 const (
 	Debug    = "debug"
 	Info     = "info"
+	Notice   = "notice"
 	Alert    = "alert"
 	Warning  = "warning"
 	Critical = "critical"
@@ -36,58 +37,68 @@ func NewLogger(prefix string, outputDir string, debugMode bool) *Logger {
 }
 
 /**
- * Logs the given message with the given log level.
+ * Logs the given message with the given log level and color.
  */
-func (logger Logger) Log(message string, logLevel string) {
+func (logger *Logger) Log(message string, logLevel string, color string) {
 	if logLevel == Debug && !logger.debugMode {
 		return
 	}
 
-	var line = "[" + logger.prefix + "][" + strings.Title(logLevel) + "] " + message
-	fmt.Println(line)
+	var prefix = "[" + logger.prefix + "]"
+	var level = "[" + strings.Title(logLevel) + "] "
+
+	var line = prefix + level + message
+	fmt.Println(prefix + color + level + message + AnsiReset)
 
 	go logger.write(line)
 }
 
 /**
+ * Logs a notice message.
+ */
+func (logger *Logger) Notice(message string) {
+	logger.Log(message, Notice, AnsiYellow)
+}
+
+/**
  * Logs a debug message.
  */
-func (logger Logger) Debug(message string) {
-	logger.Log(message, Debug)
+func (logger *Logger) Debug(message string) {
+	logger.Log(message, Debug, AnsiBrightYellow)
 }
 
 /**
  * Logs an info message.
  */
-func (logger Logger) Info(message string) {
-	logger.Log(message, Info)
+func (logger *Logger) Info(message string) {
+	logger.Log(message, Info, AnsiBrightCyan)
 }
 
 /**
  * Logs an alert.
  */
-func (logger Logger) Alert(message string) {
-	logger.Log(message, Alert)
+func (logger *Logger) Alert(message string) {
+	logger.Log(message, Alert, AnsiBrightRed)
 }
 
 /**
  * Logs a warning message.
  */
-func (logger Logger) Warning(message string) {
-	logger.Log(message, Warning)
+func (logger *Logger) Warning(message string) {
+	logger.Log(message, Warning, AnsiBrightRed + AnsiBold)
 }
 
 /**
  * Logs a critical warning message.
  */
-func (logger Logger) Critical(message string) {
-	logger.Log(message, Critical)
+func (logger *Logger) Critical(message string) {
+	logger.Log(message, Critical, AnsiBrightRed + AnsiUnderlined + AnsiBold)
 }
 
 /**
  * Writes the given line to the log and appends a new line.
  */
-func (logger Logger) write(line string) {
+func (logger *Logger) write(line string) {
 	logger.file.WriteString(line + "\n")
 	logger.file.Sync()
 }

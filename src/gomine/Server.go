@@ -220,7 +220,7 @@ func (server *Server) HasPermission(string) bool {
  * Sends a message to the server to satisfy the ICommandSender interface.
  */
 func (server *Server) SendMessage(message string) {
-	server.GetLogger().Info(message)
+	server.GetLogger().Notice(message)
 }
 
 /**
