@@ -73,6 +73,10 @@ func ReadShort(buffer *[]byte, offset *int) (int16) {
 	len2 := len(bytes)
 	v = len2
 	for i = 0; i < uint(len2) * 8; i += 8 {
+		if i == 0 {
+			out = int(bytes[v])
+			continue
+		}
 		out |= int(bytes[v]) << i
 		v--
 	}
@@ -95,6 +99,10 @@ func ReadInt(buffer *[]byte, offset *int) (int32) {
 	len2 := len(bytes)
 	v = len2
 	for i = 0; i < uint(len2) * 8; i += 8 {
+		if i == 0 {
+			out = int(bytes[v])
+			continue
+		}
 		out |= int(bytes[v]) << i
 		v--
 	}
@@ -117,6 +125,10 @@ func ReadLong(buffer *[]byte, offset *int) (int64) {
 	len2 := len(bytes)
 	v = len2
 	for i = 0; i < uint(len2) * 8; i += 8 {
+		if i == 0 {
+			out = int(bytes[v])
+			continue
+		}
 		out |= int(bytes[v]) << i
 		v--
 	}
@@ -139,6 +151,10 @@ func ReadUnsignedLong(buffer *[]byte, offset *int) (uint64) {
 	len2 := len(bytes)
 	v = len2
 	for i = 0; i < uint(len2) * 8; i += 8 {
+		if i == 0 {
+			out = int(bytes[v])
+			continue
+		}
 		out |= int(bytes[v]) << i
 		v--
 	}
@@ -161,6 +177,10 @@ func ReadFloat(buffer *[]byte, offset *int) (float32) {
 	len2 := len(bytes)
 	v = len2
 	for i = 0; i < uint(len2) * 8; i += 8 {
+		if i == 0 {
+			out = int(bytes[v])
+			continue
+		}
 		out |= int(bytes[v]) << i
 		v--
 	}
@@ -183,6 +203,10 @@ func ReadDouble(buffer *[]byte, offset *int) (float64) {
 	len2 := len(bytes)
 	v = len2
 	for i = 0; i < uint(len2) * 8; i += 8 {
+		if i == 0 {
+			out = int(bytes[v])
+			continue
+		}
 		out |= int(bytes[v]) << i
 		v--
 	}

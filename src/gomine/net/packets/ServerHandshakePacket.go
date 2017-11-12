@@ -1,27 +1,29 @@
 package packets
 
-import "gomine/utils"
+import (
+	"gomine/utils"
+	"gomine/net"
+)
 
 type ServerHandshakePacket struct {
 	DataPacket
 	Buffer []byte
 	Offset int
 	NetId  byte
-	Jtw    string
+	Jwt    string
 }
 
 func NewServerHandshakePacket() DataPacket {
-	pk := ServerHandshakePacket{
-		NetId: 0x04,
-	}
-	pk.Offset = len(pk.Buffer)
+	pk := ServerHandshakePacket{}
+	pk.Offset = 0
+	pk.NetId = net.ServerHandshake
 	return pk
 }
 
 func (pk *ServerHandshakePacket) Encode()  {
-	utils.WriteString(&pk.Buffer, pk.Jtw)
+	utils.WriteString(&pk.Buffer, pk.Jwt)
 }
 
 func (pk *ServerHandshakePacket) Decode()  {
-	pk.Jtw = utils.ReadString(&pk.Buffer, &pk.Offset)
+	pk.Jwt = utils.ReadString(&pk.Buffer, &pk.Offset)
 }
