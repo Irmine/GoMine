@@ -1,14 +1,15 @@
 package packets
 
+import "gomine/net"
+
 type ClientHandshakePacket struct {
 	DataPacket
 	NetId byte
 }
 
 func Packet() DataPacket {
-	pk := ClientHandshakePacket{
-		NetId: 0x04,
-	}
+	pk := ClientHandshakePacket{}
+	pk.NetId = net.ClientHandshake
 	return pk
 }
 
