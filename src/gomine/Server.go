@@ -232,5 +232,5 @@ func (server *Server) Tick(currentTick int) {
 	for _, level := range server.levels  {
 		level.TickLevel()
 	}
-	server.consoleReader.ReadLine(server)
+	go server.consoleReader.ReadLine(server)
 }

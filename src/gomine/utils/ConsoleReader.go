@@ -9,19 +9,24 @@ import (
 
 type ConsoleReader struct {
 	reader *bufio.Reader
+	reading bool
 }
 
 /**
  * Returns a new Console Reader.
  */
 func NewConsoleReader() *ConsoleReader {
-	return &ConsoleReader{bufio.NewReader(os.Stdin)}
+	return &ConsoleReader{bufio.NewReader(os.Stdin), false}
 }
 
 /**
  * Reads any commands if entered.
  */
 func (reader *ConsoleReader) ReadLine(server interfaces.IServer) string {
+	if reader.reading {
+		return ""
+	}
+	reader.reading = true
 	var command, _ = reader.reader.ReadString('\n')
 	command = strings.Trim(command, "\n")
 
@@ -29,6 +34,7 @@ func (reader *ConsoleReader) ReadLine(server interfaces.IServer) string {
 		return command
 	}
 	reader.attemptReadCommand(command, server)
+	reader.reading = false
 	return command
 }
 

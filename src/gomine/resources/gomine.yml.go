@@ -9,6 +9,8 @@ import (
 type GoMineConfig struct {
 	Version string `yaml:"version"`
 	DebugMode bool `yaml:"debug-mode"`
+	ServerIp string `yaml:server-ip`
+	ServerPort int `yaml:server-port`
 	DefaultLevel string `yaml:"default-level"`
 }
 
