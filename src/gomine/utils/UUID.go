@@ -56,11 +56,11 @@ func (uuid *UUID) OutOfBinary(uuid2 string, version int) UUID {
 func (uuid *UUID) StringValue() string {
 	v := uuid.BinaryValue()
 	out := hex.EncodeToString(v)
-	res := out[0:8] + "-"
-	res += out[8:4] + "-"
-	res += out[12:4] + "-"
-	res += out[16:4] + "-"
-	res += out[20:12]
+	res := out[0:4] + "-"
+	res += out[4:8] + "-"
+	res += out[8:12] + "-"
+	res += out[12:16] + "-"
+	res += out[16:20]
 	return out
 }
 

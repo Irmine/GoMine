@@ -1,7 +1,7 @@
 package utils
 
 const (
-	AnsiPre = "\033["
+	AnsiPre = "\u001b["
 	AnsiReset = AnsiPre + "0m"
 
 	AnsiBold = AnsiPre + "1m"

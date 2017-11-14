@@ -6,7 +6,7 @@ type BinaryStream struct {
 }
 
 func NewStream() *BinaryStream {
-	return &BinaryStream{0, make([]byte, 4096)}
+	return &BinaryStream{make([]byte, 4096), 0}
 }
 
 func (stream *BinaryStream) Feof() bool {
