@@ -3,7 +3,6 @@ package net
 import (
 	"gomine/interfaces"
 	server2 "goraklib/server"
-	"fmt"
 )
 
 type GoRakLibAdapter struct {
