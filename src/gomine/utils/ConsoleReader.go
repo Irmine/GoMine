@@ -5,6 +5,7 @@ import (
 	"os"
 	"gomine/interfaces"
 	"strings"
+	"fmt"
 )
 
 type ConsoleReader struct {
@@ -43,7 +44,8 @@ func (reader *ConsoleReader) ReadLine(server interfaces.IServer) string {
  */
 func (reader *ConsoleReader) attemptReadCommand(commandText string, server interfaces.IServer) bool {
 	var args = strings.Split(commandText, " ")
-	var commandName = args[0]
+
+	var commandName = strings.TrimSpace(args[0])
 	var holder = server.GetCommandHolder()
 
 	if !holder.IsCommandRegistered(commandName) {

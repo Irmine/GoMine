@@ -126,6 +126,8 @@ func (command *Command) Parse(sender interfaces.ICommandSender, commandArgs []st
 					return nil, false
 				}
 			} else {
+				commandArgs[stringIndex + i] = strings.TrimSpace(commandArgs[stringIndex + 1])
+
 				if !argument.IsValidValue(commandArgs[stringIndex + i], server) {
 					sender.SendMessage(command.GetUsage())
 					return nil, false
