@@ -5,7 +5,6 @@ import (
 	"os"
 	"gomine/interfaces"
 	"strings"
-	"fmt"
 )
 
 type ConsoleReader struct {
