@@ -2,24 +2,24 @@ package players
 
 import "gomine/entities"
 
-type player struct {
+type Player struct {
 	*entities.Entity
 	playerName  string
 	displayName string
 }
 
-func NewPlayer() player {
-	return player{}
+func NewPlayer() Player {
+	return Player{}
 }
 
-func (player *player) getName() string {
-	return player.playerName
+func (Player *Player) getName() string {
+	return Player.playerName
 }
 
-func (player *player) getDisplayName() string {
-	return player.displayName
+func (Player *Player) getDisplayName() string {
+	return Player.displayName
 }
 
-func (player *player) setDisplayName(name string) {
-	player.displayName = name
+func (Player *Player) setDisplayName(name string) {
+	Player.displayName = name
 }

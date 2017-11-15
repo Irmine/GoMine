@@ -10,6 +10,7 @@ import (
 	"gomine/interfaces"
 	"gomine/commands"
 	"gomine/commands/defaults"
+	"gomine/net"
 )
 
 const (
@@ -28,6 +29,8 @@ type Server struct {
 	commandHolder interfaces.ICommandHolder
 
 	levels map[int]interfaces.ILevel
+
+	rakLibAdapter *net.GoRakLibAdapter
 }
 
 var started bool = false
@@ -53,6 +56,7 @@ func NewServer(serverPath string) (*Server, error) {
 	server.levels = make(map[int]interfaces.ILevel)
 	server.consoleReader = utils.NewConsoleReader()
 	server.commandHolder = commands.NewCommandHolder()
+	server.rakLibAdapter = net.NewGoRakLibAdapter(server)
 
 	server.RegisterDefaultCommands()
 
@@ -93,6 +97,22 @@ func (server *Server) Shutdown() {
 	server.GetLogger().Info("Server is shutting down.")
 
 	server.isRunning = false
+}
+
+/**
+ * Returns the server version prefixed with 'v'.
+ * EG: "v1.2.6.2"
+ */
+func (server *Server) GetVersion() string {
+	return net.GameVersion
+}
+
+/**
+ * Returns the server version used for networking.
+ * This version string is not prefixed with a 'v'.
+ */
+func (server *Server) GetNetworkVersion() string {
+	return net.GameVersionNetwork
 }
 
 /**
@@ -224,13 +244,57 @@ func (server *Server) SendMessage(message string) {
 }
 
 /**
+ * Returns the name of the server specified in the configuration.
+ */
+func (server *Server) GetName() string {
+	return server.config.ServerName
+}
+
+/**
+ * Returns the port of the server specified in the configuration.
+ */
+func (server *Server) GetPort() uint16 {
+	return server.config.ServerPort
+}
+
+/**
+ * Returns the IP address specified in the configuration.
+ */
+func (server *Server) GetAddress() string {
+	return server.config.ServerIp
+}
+
+/**
+ * Returns the maximum amount of players on the server.
+ */
+func (server *Server) GetMaximumPlayers() uint {
+	return server.config.MaximumPlayers
+}
+
+/**
+ * Returns the GoRakLibAdapter of the server.
+ * This is used for multiple things such as player count and motd changing.
+ */
+func (server *Server) GetRakLibAdapter() *net.GoRakLibAdapter {
+	return server.rakLibAdapter
+}
+
+/**
+ * Returns the Message Of The Day of the server.
+ */
+func (server *Server) GetMotd() string {
+	return server.config.ServerMotd
+}
+
+/**
  * Internal. Not to be used by plugins.
- * Ticks the entire server. (Entities, block entities etc.)
+ * Ticks the entire server. (Levels, scheduler, GoRakLib server etc.)
  */
 func (server *Server) Tick(currentTick int) {
 	server.GetScheduler().DoTick()
-	for _, level := range server.levels  {
+	for _, level := range server.levels {
 		level.TickLevel()
 	}
 	go server.consoleReader.ReadLine(server)
+	server.rakLibAdapter.Tick()
 }

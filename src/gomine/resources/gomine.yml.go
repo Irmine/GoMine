@@ -7,10 +7,16 @@ import (
 )
 
 type GoMineConfig struct {
-	Version string `yaml:"version"`
+	ServerName string `yaml:"server-name"`
+	ServerMotd string `yaml:"server-motd"`
+	ServerIp string `yaml:"server-ip"`
+	ServerPort uint16 `yaml:"server-port"`
+
+	MaximumPlayers uint `yaml:"max-players"`
+	DefaultGameMode byte `yaml:"default-gamemode"`
+
 	DebugMode bool `yaml:"debug-mode"`
-	ServerIp string `yaml:server-ip`
-	ServerPort int `yaml:server-port`
+
 	DefaultLevel string `yaml:"default-level"`
 }
 
@@ -32,8 +38,16 @@ func initializeConfig(serverPath string) {
 
 	if os.IsNotExist(error) {
 		var data, _ = yaml.Marshal(GoMineConfig{
-			Version: "0.0.1",
+			ServerName: "GoMine Server",
+			ServerMotd: "GoMine Testing Server",
+			ServerIp: "127.0.0.1",
+			ServerPort: 19132,
+
+			MaximumPlayers: 20,
+
 			DebugMode: true,
+
+			DefaultLevel: "world",
 		})
 		var file, _ = os.OpenFile(path, os.O_APPEND | os.O_CREATE | os.O_WRONLY, 0644)
 		file.WriteString(string(data))

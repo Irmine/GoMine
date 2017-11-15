@@ -23,5 +23,10 @@ type IServer interface {
 	LoadLevel(string) bool
 	HasPermission(string) bool
 	SendMessage(message string)
+	GetName() string
+	GetAddress() string
+	GetPort() uint16
+	GetMaximumPlayers() uint
+	GetMotd() string
 	Tick(int)
 }

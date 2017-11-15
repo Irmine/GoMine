@@ -48,9 +48,11 @@ func (logger *Logger) Log(message string, logLevel string, color string) {
 	var level = "[" + strings.Title(logLevel) + "] "
 
 	var line = prefix + level + message
-	fmt.Println(prefix + color + level + message + AnsiReset)
 
-	go logger.write(line)
+	go func() {
+		fmt.Println(prefix + color + level + message + AnsiReset)
+		logger.write(line)
+	}()
 }
 
 /**

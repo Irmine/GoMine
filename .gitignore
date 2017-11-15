@@ -1,1 +1,5 @@
 .idea/
+pkg/
+gomine.log
+gomine.yml
+main_go.exe

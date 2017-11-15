@@ -8,7 +8,6 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
-	server2 "goraklib/server"
 )
 
 var currentTick int = 0
@@ -32,13 +31,9 @@ func main() {
 
 	var tickDrop = 20
 
-	var rakServer = server2.NewGoRakLibServer("GoMine", 19132)
-
 	for {
 		var tickDuration = int(1.0 / float32(server.GetTickRate()) * 1000) * int(time2.Millisecond)
 		var nextTime = time2.Now().Add(time2.Duration(tickDuration))
-
-		go rakServer.Tick()
 
 		server.Tick(currentTick)
 
