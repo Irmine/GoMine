@@ -3,14 +3,11 @@ package packets
 import "gomine/net"
 
 type ClientHandshakePacket struct {
-	DataPacket
-	NetId byte
+	*Packet
 }
 
-func Packet() DataPacket {
-	pk := ClientHandshakePacket{}
-	pk.NetId = net.ClientHandshake
-	return pk
+func NewClientHandshakePacket() ClientHandshakePacket {
+	return ClientHandshakePacket{NewPacket(net.ClientHandshake)}
 }
 
 func (pk *ClientHandshakePacket) Encode()  {

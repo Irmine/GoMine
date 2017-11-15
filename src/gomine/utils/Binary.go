@@ -532,6 +532,62 @@ func ReadVarLong(buffer *[]byte, offset *int) (int64) {
 	return int64(out)
 }
 
+func WriteUnsignedVarInt(buffer *[]byte, int uint32) {
+	var i uint
+	len2 := 5
+	for i = 0; i < uint(len2) * 8; i += 8 {
+		Write(buffer, byte(int & 0x7f >> i))
+	}
+}
+
+func ReadUnsignedVarInt(buffer *[]byte, offset *int) (uint32) {
+	var v uint
+	var i uint
+	var out int
+	bytes := Read(buffer, offset, 5)
+	len2 := uint(len(bytes))
+	v = 0
+	for i = 0; i < len2; i++ {
+		if i == 0 {
+			out = int(bytes[i] & 0x7f) << v
+			v += 8
+			continue
+		}
+		out |= int(bytes[i] & 0x7f) << v
+		v += 8
+	}
+
+	return uint32(out)
+}
+
+func WriteUnsignedVarLong(buffer *[]byte, int uint64) {
+	var i uint
+	len2 := 10
+	for i = 0; i < uint(len2) * 8; i += 8 {
+		Write(buffer, byte(int & 0x7f >> i))
+	}
+}
+
+func ReadUnsignedVarLong(buffer *[]byte, offset *int) (uint64) {
+	var v uint
+	var i uint
+	var out int
+	bytes := Read(buffer, offset, 10)
+	len2 := uint(len(bytes))
+	v = 0
+	for i = 0; i < len2; i++ {
+		if i == 0 {
+			out = int(bytes[i] & 0x7f) << v
+			v += 8
+			continue
+		}
+		out |= int(bytes[i] & 0x7f) << v
+		v += 8
+	}
+
+	return uint64(out)
+}
+
 func WritePosition(buffer *[]byte, x, y, z int) {
 	var v int
 	v = (x & 0x3FFFFFF) << 38

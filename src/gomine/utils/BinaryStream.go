@@ -1,202 +1,230 @@
 package utils
 
 type BinaryStream struct {
-	buffer []byte
-	offset int
+	Offset int
+	Buffer []byte
 }
 
 func NewStream() *BinaryStream {
-	return &BinaryStream{make([]byte, 4096), 0}
+	return &BinaryStream{0, make([]byte, 4096)}
+}
+
+func (stream *BinaryStream) SetBuffer(Buffer []byte) {
+	stream.Buffer = Buffer
+}
+
+func (stream *BinaryStream) GetBuffer() []byte {
+	return stream.Buffer
 }
 
 func (stream *BinaryStream) Feof() bool {
-	return stream.offset >= len(stream.buffer)
+	return stream.Offset >= len(stream.Buffer)
+}
+
+func (stream *BinaryStream) Get(length int) []byte {
+	return Read(&stream.Buffer, &stream.Offset, length)
 }
 
 //big
 
 func (stream *BinaryStream) PutBool(v bool) {
-	WriteBool(&stream.buffer, v)
+	WriteBool(&stream.Buffer, v)
 }
 
 func (stream *BinaryStream) GetBool() bool {
-	return ReadBool(&stream.buffer, &stream.offset)
+	return ReadBool(&stream.Buffer, &stream.Offset)
 }
 
 func (stream *BinaryStream) PutByte(v byte) {
-	WriteByte(&stream.buffer, v)
+	WriteByte(&stream.Buffer, v)
 }
 
 func (stream *BinaryStream) GetByte() byte {
-	return ReadByte(&stream.buffer, &stream.offset)
+	return ReadByte(&stream.Buffer, &stream.Offset)
 }
 
 func (stream *BinaryStream) PutUnsignedByte(v byte) {
-	WriteUnsignedByte(&stream.buffer, v)
+	WriteUnsignedByte(&stream.Buffer, v)
 }
 
 func (stream *BinaryStream) GetUnsignedByte() byte {
-	return ReadUnsignedByte(&stream.buffer, &stream.offset)
+	return ReadUnsignedByte(&stream.Buffer, &stream.Offset)
 }
 
 func (stream *BinaryStream) PutShort(v int16) {
-	WriteShort(&stream.buffer, v)
+	WriteShort(&stream.Buffer, v)
 }
 
 func (stream *BinaryStream) GetShort() int16 {
-	return ReadShort(&stream.buffer, &stream.offset)
+	return ReadShort(&stream.Buffer, &stream.Offset)
 }
 
 func (stream *BinaryStream) PutUnsignedShort(v uint16) {
-	WriteUnsignedShort(&stream.buffer, v)
+	WriteUnsignedShort(&stream.Buffer, v)
 }
 
 func (stream *BinaryStream) GetUnsignedShort() uint16 {
-	return ReadUnsignedShort(&stream.buffer, &stream.offset)
+	return ReadUnsignedShort(&stream.Buffer, &stream.Offset)
 }
 
 func (stream *BinaryStream) PutInt(v int32) {
-	WriteInt(&stream.buffer, v)
+	WriteInt(&stream.Buffer, v)
 }
 
 func (stream *BinaryStream) GetInt() int32 {
-	return ReadInt(&stream.buffer, &stream.offset)
+	return ReadInt(&stream.Buffer, &stream.Offset)
 }
 
 func (stream *BinaryStream) PutLong(v int64) {
-	WriteLong(&stream.buffer, v)
+	WriteLong(&stream.Buffer, v)
 }
 
 func (stream *BinaryStream) GetLong() int64 {
-	return ReadLong(&stream.buffer, &stream.offset)
+	return ReadLong(&stream.Buffer, &stream.Offset)
 }
 
 func (stream *BinaryStream) PutUnsignedLong(v uint64) {
-	WriteUnsignedLong(&stream.buffer, v)
+	WriteUnsignedLong(&stream.Buffer, v)
 }
 
 func (stream *BinaryStream) GetUnsignedLong() uint64 {
-	return ReadUnsignedLong(&stream.buffer, &stream.offset)
+	return ReadUnsignedLong(&stream.Buffer, &stream.Offset)
 }
 
 func (stream *BinaryStream) PutFloat(v float32) {
-	WriteFloat(&stream.buffer, v)
+	WriteFloat(&stream.Buffer, v)
 }
 
 func (stream *BinaryStream) GetFloat() float32 {
-	return ReadFloat(&stream.buffer, &stream.offset)
+	return ReadFloat(&stream.Buffer, &stream.Offset)
 }
 
 func (stream *BinaryStream) PutDouble(v float64) {
-	WriteDouble(&stream.buffer, v)
+	WriteDouble(&stream.Buffer, v)
 }
 
 func (stream *BinaryStream) GetDouble() float64 {
-	return ReadDouble(&stream.buffer, &stream.offset)
+	return ReadDouble(&stream.Buffer, &stream.Offset)
 }
 
 func (stream *BinaryStream) PutVarInt(v int32) {
-	WriteVarInt(&stream.buffer, v)
+	WriteVarInt(&stream.Buffer, v)
 }
 
 func (stream *BinaryStream) GetVarInt() int32 {
-	return ReadVarInt(&stream.buffer, &stream.offset)
+	return ReadVarInt(&stream.Buffer, &stream.Offset)
 }
 
 func (stream *BinaryStream) PutVarLong(v int64) {
-	WriteVarLong(&stream.buffer, v)
+	WriteVarLong(&stream.Buffer, v)
 }
 
 func (stream *BinaryStream) GetVarLong() int64 {
-	return ReadVarLong(&stream.buffer, &stream.offset)
+	return ReadVarLong(&stream.Buffer, &stream.Offset)
+}
+
+func (stream *BinaryStream) PutUnsignedVarInt(v uint32) {
+	WriteUnsignedVarInt(&stream.Buffer, v)
+}
+
+func (stream *BinaryStream) GetUnsignedVarInt() uint32 {
+	return ReadUnsignedVarInt(&stream.Buffer, &stream.Offset)
+}
+
+func (stream *BinaryStream) PutUnsignedVarLong(v uint64) {
+	WriteUnsignedVarLong(&stream.Buffer, v)
+}
+
+func (stream *BinaryStream) GetUnsignedVarLong() uint64 {
+	return ReadUnsignedVarLong(&stream.Buffer, &stream.Offset)
+}
+
+func (stream *BinaryStream) PutString(v string) {
+	WriteString(&stream.Buffer, v)
+}
+
+func (stream *BinaryStream) GetString() string {
+	return ReadString(&stream.Buffer, &stream.Offset)
 }
 
 func (stream *BinaryStream) PutLittleShort(v int16) {
-	WriteLittleShort(&stream.buffer, v)
+	WriteLittleShort(&stream.Buffer, v)
 }
 
 func (stream *BinaryStream) GetLittleShort() int16 {
-	return ReadLittleShort(&stream.buffer, &stream.offset)
+	return ReadLittleShort(&stream.Buffer, &stream.Offset)
 }
 
 func (stream *BinaryStream) PutLittleUnsignedShort(v uint16) {
-	WriteLittleUnsignedShort(&stream.buffer, v)
+	WriteLittleUnsignedShort(&stream.Buffer, v)
 }
 
 func (stream *BinaryStream) GetLittleUnsignedShort() uint16 {
-	return ReadLittleUnsignedShort(&stream.buffer, &stream.offset)
+	return ReadLittleUnsignedShort(&stream.Buffer, &stream.Offset)
 }
 
 func (stream *BinaryStream) PutLittleInt(v int32) {
-	WriteLittleInt(&stream.buffer, v)
+	WriteLittleInt(&stream.Buffer, v)
 }
 
 func (stream *BinaryStream) GetLittleInt() int32 {
-	return ReadLittleInt(&stream.buffer, &stream.offset)
+	return ReadLittleInt(&stream.Buffer, &stream.Offset)
 }
 
 func (stream *BinaryStream) PutLittleLong(v int64) {
-	WriteLittleLong(&stream.buffer, v)
+	WriteLittleLong(&stream.Buffer, v)
 }
 
 func (stream *BinaryStream) GetLittleLong() int64 {
-	return ReadLittleLong(&stream.buffer, &stream.offset)
+	return ReadLittleLong(&stream.Buffer, &stream.Offset)
 }
 
 func (stream *BinaryStream) PutLittleUnsignedLong(v uint64) {
-	WriteLittleUnsignedLong(&stream.buffer, v)
+	WriteLittleUnsignedLong(&stream.Buffer, v)
 }
 
 func (stream *BinaryStream) GetLittleUnsignedLong() uint64 {
-	return ReadLittleUnsignedLong(&stream.buffer, &stream.offset)
+	return ReadLittleUnsignedLong(&stream.Buffer, &stream.Offset)
 }
 
 func (stream *BinaryStream) PutLittleFloat(v float32) {
-	WriteLittleFloat(&stream.buffer, v)
+	WriteLittleFloat(&stream.Buffer, v)
 }
 
 func (stream *BinaryStream) GetLittleFloat() float32 {
-	return ReadLittleFloat(&stream.buffer, &stream.offset)
+	return ReadLittleFloat(&stream.Buffer, &stream.Offset)
 }
 
 func (stream *BinaryStream) PutLittleDouble(v float64) {
-	WriteDouble(&stream.buffer, v)
+	WriteDouble(&stream.Buffer, v)
 }
 
 func (stream *BinaryStream) GetLittleDouble() float64 {
-	return ReadDouble(&stream.buffer, &stream.offset)
+	return ReadDouble(&stream.Buffer, &stream.Offset)
 }
 
 func (stream *BinaryStream) PutPosition(x, y, z int) {
-	WritePosition(&stream.buffer, x, y, z)
-}
-
-func (stream *BinaryStream) GetUUID() (UUID) {
-	return ReadUUID(&stream.buffer, &stream.offset)
-}
-
-func (stream *BinaryStream) PutUUID(uuid UUID) {
-	WriteUUID(&stream.buffer, uuid)
+	WritePosition(&stream.Buffer, x, y, z)
 }
 
 func (stream *BinaryStream) GetPosition() (int, int, int) {
-	return ReadPosition(&stream.buffer, &stream.offset)
+	return ReadPosition(&stream.Buffer, &stream.Offset)
 }
 
 func (stream *BinaryStream) PutTriad(v uint32) {
-	WriteBigEndianTriad(&stream.buffer, v)
+	WriteBigEndianTriad(&stream.Buffer, v)
 }
 
 func (stream *BinaryStream) GetTriad() uint32 {
-	return ReadBigEndianTriad(&stream.buffer, &stream.offset)
+	return ReadBigEndianTriad(&stream.Buffer, &stream.Offset)
 }
 
 func (stream *BinaryStream) PutLittleTriad(v uint32) {
-	WriteLittleEndianTriad(&stream.buffer, v)
+	WriteLittleEndianTriad(&stream.Buffer, v)
 }
 
 func (stream *BinaryStream) GetLittleTriad() uint32 {
-	return ReadLittleEndianTriad(&stream.buffer, &stream.offset)
+	return ReadLittleEndianTriad(&stream.Buffer, &stream.Offset)
 }
 
 func (stream *BinaryStream) PutBytes(bytes []byte) {
@@ -206,6 +234,6 @@ func (stream *BinaryStream) PutBytes(bytes []byte) {
 }
 
 func (stream *BinaryStream) ResetStream() {
-	stream.offset = 0
-	stream.buffer = []byte{}
+	stream.Offset = 0
+	stream.Buffer = []byte{}
 }

@@ -11,4 +11,5 @@ const (
 	PlayStatusPacket = 0x02
 	ClientHandshake  = 0x03
 	ServerHandshake  = 0x04
+
 )
