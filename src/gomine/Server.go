@@ -11,6 +11,7 @@ import (
 	"gomine/commands"
 	"gomine/commands/defaults"
 	"gomine/net"
+	"gomine/players"
 )
 
 const (
@@ -29,6 +30,7 @@ type Server struct {
 	commandHolder interfaces.ICommandHolder
 
 	levels map[int]interfaces.ILevel
+	players map[string]players.Player
 
 	rakLibAdapter *net.GoRakLibAdapter
 }
@@ -59,6 +61,8 @@ func NewServer(serverPath string) (*Server, error) {
 	server.rakLibAdapter = net.NewGoRakLibAdapter(server)
 
 	server.RegisterDefaultCommands()
+
+	started = true
 
 	return server, nil
 }

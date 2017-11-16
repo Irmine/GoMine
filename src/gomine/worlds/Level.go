@@ -2,19 +2,21 @@ package worlds
 
 import (
 	"gomine/interfaces"
+	"gomine/worlds/Chunks"
 )
 
 type Level struct {
 	server     interfaces.IServer
 	name       string
 	dimensions map[string]interfaces.IDimension
+	chunks []Chunks.Chunk
 }
 
 /**
  * Returns a new Level with the given level name.
  */
-func NewLevel(levelName string, server interfaces.IServer) *Level {
-	return &Level{server, levelName, make(map[string]interfaces.IDimension)}
+func NewLevel(levelName string, server interfaces.IServer, chunks []Chunks.Chunk) *Level {
+	return &Level{server, levelName, make(map[string]interfaces.IDimension), chunks}
 }
 
 /**
