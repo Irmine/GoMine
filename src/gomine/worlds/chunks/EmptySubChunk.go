@@ -1,4 +1,4 @@
-package Chunks
+package chunks
 
 type EmptySubChunk struct {
 	Blocks []byte

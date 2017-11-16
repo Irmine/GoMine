@@ -1,4 +1,4 @@
-package Chunks
+package chunks
 
 type ISubChunk interface{
 	IsAllAir() bool
@@ -69,5 +69,5 @@ func (subChunk *SubChunk) SetMetadata(x, y, z int, data byte) {
 }
 
 func (subChunk *SubChunk) GetBytes() []byte {
-
+	return []byte{}
 }

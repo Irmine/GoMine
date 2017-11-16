@@ -1,8 +1,8 @@
 package entities
 
 import (
-	"gomine/players"
 	"gomine/vectorMath"
+	"gomine/interfaces"
 )
 
 var EId = 0
@@ -82,7 +82,7 @@ func (entity *Entity) Kill() {
 	//todo
 }
 
-func (entity *Entity) SpawnTo(player players.Player)  {
+func (entity *Entity) SpawnTo(player interfaces.IPlayer)  {
 	//todo
 }
 
@@ -90,7 +90,7 @@ func (entity *Entity) SpawnToAll()  {
 	//todo
 }
 
-func (entity *Entity) SpawnPacket(player players.Player)  {
+func (entity *Entity) SpawnPacket(player interfaces.IPlayer)  {
 	//todo
 }
 

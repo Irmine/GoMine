@@ -1,6 +1,9 @@
 package worlds
 
-import "gomine/interfaces"
+import (
+	"gomine/interfaces"
+	"gomine/worlds/chunks"
+)
 
 const (
 	OverworldId = 0
@@ -12,13 +15,14 @@ type Dimension struct {
 	name 		string
 	dimensionId int
 	level       interfaces.ILevel
+	chunks 		[]chunks.Chunk
 }
 
 /**
  * Returns a new dimension with the given dimension ID.
  */
-func NewDimension(name string, dimensionId int, level *Level) *Dimension {
-	return &Dimension{name, dimensionId, level}
+func NewDimension(name string, dimensionId int, level *Level, chunks []chunks.Chunk) *Dimension {
+	return &Dimension{name, dimensionId, level, chunks}
 }
 
 /**
@@ -40,6 +44,11 @@ func (dimension *Dimension) GetName() string {
  */
 func (dimension *Dimension) GetLevel() interfaces.ILevel {
 	return dimension.level
+}
+
+func (dimension *Dimension) GetChunk(x int, z int) (chunks.Chunk, error) {
+	var chunk chunks.Chunk
+	return chunk, nil
 }
 
 func (dimension *Dimension) TickDimension() {

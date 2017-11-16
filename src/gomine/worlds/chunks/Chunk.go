@@ -1,4 +1,4 @@
-package Chunks
+package chunks
 
 type Chunk struct {
 	height int
