@@ -5,7 +5,7 @@ import (
 	"gomine/interfaces"
 )
 
-var EId = 0
+var EId uint64 = 0
 
 type EntityInterface interface {
 	getId() int
@@ -16,7 +16,7 @@ type Entity struct {
 	attributeMap AttributeMap
 	yaw, pitch float64
 	position, motion vectorMath.TripleVector
-	EId int
+	EId uint64
 	Closed bool
 	Health int
 }
@@ -56,7 +56,7 @@ func (entity *Entity) GetMotion() vectorMath.TripleVector {
 	return entity.motion
 }
 
-func (entity *Entity) GetId() int {
+func (entity *Entity) GetId() uint64 {
 	return entity.EId
 }
 

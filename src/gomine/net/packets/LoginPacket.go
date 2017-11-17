@@ -36,7 +36,7 @@ var ClientDataJwt []byte
 var ClientData = ClientDataKeys{}
 
 func NewLoginPacket() LoginPacket {
-	pk := LoginPacket{NewPacket(net.Login), "", 0, "", 0, "", "", "", ""}
+	pk := LoginPacket{NewPacket(net.LoginPacket), "", 0, "", 0, "", "", "", ""}
 	return pk
 }
 

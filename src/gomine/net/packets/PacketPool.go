@@ -12,8 +12,8 @@ func NewPacketPool() *PacketPool {
 
 	pool.RegisterPacket(net.LoginPacket, NewLoginPacket())
 	pool.RegisterPacket(net.PlayStatusPacket, NewPlayStatusPacket())
-	pool.RegisterPacket(net.ClientHandshake, NewClientHandshakePacket())
-	pool.RegisterPacket(net.ServerHandshake, NewServerHandshakePacket())
+	pool.RegisterPacket(net.ClientHandshakePacket, NewClientHandshakePacket())
+	pool.RegisterPacket(net.ServerHandshakePacket, NewServerHandshakePacket())
 
 	return &pool
 }

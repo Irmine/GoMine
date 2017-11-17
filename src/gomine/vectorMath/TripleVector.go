@@ -3,12 +3,12 @@ package vectorMath
 import "math"
 
 type TripleVector struct {
-	x float64
-	y float64
-	z float64
+	x float32
+	y float32
+	z float32
 }
 
-func NewTripleVector(x, y, z float64) *TripleVector {
+func NewTripleVector(x, y, z float32) *TripleVector {
 	return &TripleVector{x, y, z}
 }
 
@@ -22,42 +22,42 @@ func (vector *TripleVector) AsTripleVector() *TripleVector {
 /**
  * Returns the X value of this TripleVector.
  */
-func (vector *TripleVector) GetX() float64 {
+func (vector *TripleVector) GetX() float32 {
 	return vector.x
 }
 
 /**
  * Sets the X value of this TripleVector.
  */
-func (vector *TripleVector) SetX(value float64) {
+func (vector *TripleVector) SetX(value float32) {
 	vector.x = value
 }
 
 /**
  * Returns the Y value of this TripleVector.
  */
-func (vector *TripleVector) GetY() float64 {
+func (vector *TripleVector) GetY() float32 {
 	return vector.y
 }
 
 /**
  * Sets the Y value of this TripleVector.
  */
-func (vector *TripleVector) SetY(value float64) {
+func (vector *TripleVector) SetY(value float32) {
 	vector.y = value
 }
 
 /**
  * Returns the Z value of this TripleVector.
  */
-func (vector *TripleVector) GetZ() float64 {
+func (vector *TripleVector) GetZ() float32 {
 	return vector.z
 }
 
 /**
  * Sets the Z value of this TripleVector.
  */
-func (vector *TripleVector) SetZ(value float64) {
+func (vector *TripleVector) SetZ(value float32) {
 	vector.z = value
 }
 
@@ -71,7 +71,7 @@ func (vector *TripleVector) AddVector(vector2 TripleVector) TripleVector {
 /**
  * Adds the given xyz values to the current vector and creates a new TripleVector.
  */
-func (vector *TripleVector) Add(x float64, y float64, z float64) TripleVector {
+func (vector *TripleVector) Add(x float32, y float32, z float32) TripleVector {
 	return TripleVector{vector.x + x, vector.y + y, vector.z + z}
 }
 
@@ -85,13 +85,13 @@ func (vector *TripleVector) SubtractVector(vector2 TripleVector) TripleVector {
 /**
  * Subtracts the given xyz values from the current vector and creates a new TripleVector.
  */
-func (vector *TripleVector) Subtract(x float64, y float64, z float64) TripleVector {
+func (vector *TripleVector) Subtract(x float32, y float32, z float32) TripleVector {
 	return vector.Add(-x, -y, -z)
 }
 
 /**
  * Returns a new TripleVector with the current values made absolute.
  */
-func (vector *TripleVector) Abs() TripleVector {
-	return TripleVector{math.Abs(vector.x), math.Abs(vector.y), math.Abs(vector.z)}
-}
+/*func (vector *TripleVector) Abs() TripleVector {
+	return TripleVector{math.Abs(vector.x), math.Abs(vector.y), math.Abs(vector.z)} //NO ABSOLUTE FOR FLOAT32?
+}*/

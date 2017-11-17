@@ -2,6 +2,8 @@ package packets
 
 import (
 	"gomine/utils"
+	"gomine/vectorMath"
+	"gomine/entities"
 )
 
 type Packet struct {
@@ -61,4 +63,45 @@ func (pk *Packet) DecodeHeader() {
 	if pk.ExtraBytes[0] != 0 && pk.ExtraBytes[1] != 0 {
 		panic("extra bytes are not zero")
 	}
+}
+
+func (pk *Packet) PutEId(eid uint64) {
+	pk.PutUnsignedVarLong(eid)
+}
+
+func (pk *Packet) GetEId() uint64 {
+	return pk.GetUnsignedVarLong()
+}
+
+func (pk *Packet) PutRotation(rot float32) {
+	pk.PutLittleFloat(rot)
+}
+
+func (pk *Packet) GetRotation() float32 {
+	return pk.GetLittleFloat()
+}
+
+func (pk *Packet) PutTripleVectorObject(obj vectorMath.TripleVector) {
+	pk.PutLittleFloat(obj.GetX())
+	pk.PutLittleFloat(obj.GetY())
+	pk.PutLittleFloat(obj.GetZ())
+}
+
+func (pk *Packet) GetTripleVectorObject() *vectorMath.TripleVector {
+	return vectorMath.NewTripleVector(pk.GetLittleFloat(), pk.GetLittleFloat(), pk.GetLittleFloat())
+}
+
+func (pk *Packet) PutEntityAttributes(attr map[int]entities.Attribute) {
+	for _, v := range attr {
+		pk.PutLittleFloat(v.GetMinValue())
+		pk.PutLittleFloat(v.GetMaxValue())
+		pk.PutLittleFloat(v.GetValue())
+		pk.PutLittleFloat(v.GetDefaultValue())
+		pk.PutString(v.GetName())
+	}
+}
+
+func (pk *Packet) GetEntityAttributes() map[int]entities.Attribute {
+	//todo
+	return map[int]entities.Attribute{}
 }

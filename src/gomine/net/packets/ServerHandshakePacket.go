@@ -8,7 +8,7 @@ type ServerHandshakePacket struct {
 }
 
 func NewServerHandshakePacket() ServerHandshakePacket {
-	return ServerHandshakePacket{NewPacket(net.ServerHandshake), ""}
+	return ServerHandshakePacket{NewPacket(net.ServerHandshakePacket), ""}
 }
 
 func (pk *ServerHandshakePacket) Encode()  {

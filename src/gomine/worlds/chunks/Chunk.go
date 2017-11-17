@@ -42,7 +42,7 @@ func (chunk *Chunk) AddEntity(entity interfaces.IEntity) bool {
 }
 
 func (chunk *Chunk) RemoveEntity(entity entities.Entity) {
-	if k, ok := chunk.Entities[entity.EId]; ok {
+	if k, ok := chunk.Entities[int(entity.GetId())]; ok {
 		delete(chunk.Entities, k.GetId())
 	}
 }

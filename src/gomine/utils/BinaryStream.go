@@ -18,7 +18,7 @@ func (stream *BinaryStream) GetBuffer() []byte {
 }
 
 func (stream *BinaryStream) Feof() bool {
-	return stream.Offset >= len(stream.Buffer)
+	return stream.Offset >= len(stream.Buffer) - 1
 }
 
 func (stream *BinaryStream) Get(length int) []byte {

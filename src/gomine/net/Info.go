@@ -7,11 +7,11 @@ const (
 )
 
 const (
-	Login            = 0x01
-	PlayStatus       = 0x02
-	ClientHandshake  = 0x03
-	ServerHandshake  = 0x04
-	Disconnect       = 0x05
+	LoginPacket = 0x01
+	PlayStatusPacket = 0x02
+	ClientHandshakePacket = 0x03
+	ServerHandshakePacket = 0x04
+	DisconnectPacket = 0x05
 	ResourcePackInfo = 0x06
 	ResourcePackStack = 0x06
 	ResourcePackClientResponsePacket = 0x08

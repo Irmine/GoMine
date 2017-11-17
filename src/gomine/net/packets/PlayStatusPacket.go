@@ -9,7 +9,7 @@ type PlayStatusPacket struct {
 }
 
 func NewPlayStatusPacket() PlayStatusPacket {
-	return PlayStatusPacket{NewPacket(net.PlayStatus), 0, net.LatestProtocol}
+	return PlayStatusPacket{NewPacket(net.PlayStatusPacket), 0, net.LatestProtocol}
 }
 
 func (pk *PlayStatusPacket) EncodeHeader() {

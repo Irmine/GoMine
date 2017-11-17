@@ -7,7 +7,7 @@ import (
 
 func Read(buffer *[]byte, offset *int, length int) ([]byte) {
 	bytes := make([]byte, 0)
-	if *offset >= len( *buffer) {
+	if *offset >= len( *buffer) - 1 {
 		fmt.Printf("An error occurred: %v", "no bytes left to read")
 		panic("Aborting...")
 	}
@@ -587,6 +587,8 @@ func ReadUnsignedVarLong(buffer *[]byte, offset *int) (uint64) {
 
 	return uint64(out)
 }
+
+
 
 func WritePosition(buffer *[]byte, x, y, z int) {
 	var v int
