@@ -15,13 +15,13 @@ type Dimension struct {
 	name 		string
 	dimensionId int
 	level       interfaces.ILevel
-	chunks 		[]chunks.Chunk
+	chunks 		[]interfaces.IChunk
 }
 
 /**
  * Returns a new dimension with the given dimension ID.
  */
-func NewDimension(name string, dimensionId int, level *Level, chunks []chunks.Chunk) *Dimension {
+func NewDimension(name string, dimensionId int, level *Level, chunks []interfaces.IChunk) *Dimension {
 	return &Dimension{name, dimensionId, level, chunks}
 }
 

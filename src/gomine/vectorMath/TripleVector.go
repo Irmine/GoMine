@@ -12,6 +12,9 @@ func NewTripleVector(x, y, z float64) *TripleVector {
 	return &TripleVector{x, y, z}
 }
 
+/**
+ * Converts any struct that has an embedded TripleVector to a new TripleVector.
+ */
 func (vector *TripleVector) AsTripleVector() *TripleVector {
 	return NewTripleVector(vector.x, vector.y, vector.z)
 }

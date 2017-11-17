@@ -1,9 +1,9 @@
 package entities
 
-type attributeMap struct {
-	attributes map[int]attribute
+type AttributeMap struct {
+	attributes map[int]Attribute
 }
 
-func (attMap *attributeMap) getAttributes() map[int]attribute {
+func (attMap *AttributeMap) getAttributes() map[int]Attribute {
 	return attMap.attributes
 }

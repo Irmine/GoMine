@@ -11,6 +11,7 @@ const (
 	Info     = "info"
 	Notice   = "notice"
 	Alert    = "alert"
+	Error	 = "error"
 	Warning  = "warning"
 	Critical = "critical"
 )
@@ -95,6 +96,13 @@ func (logger *Logger) Warning(message string) {
  */
 func (logger *Logger) Critical(message string) {
 	logger.Log(message, Critical, AnsiBrightRed + AnsiUnderlined + AnsiBold)
+}
+
+/**
+ * Logs an error.
+ */
+func (logger *Logger) Error(message string) {
+	logger.Log(message, Error, AnsiRed)
 }
 
 /**

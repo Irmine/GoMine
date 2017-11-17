@@ -21,7 +21,7 @@ func NewConsoleReader() *ConsoleReader {
 
 /**
  * Reads any commands if entered.
- * Reading lines if blocking, and other goroutines should be used where possible.
+ * Reading lines is blocking, and other goroutines should be used where possible.
  */
 func (reader *ConsoleReader) ReadLine(server interfaces.IServer) string {
 	if reader.reading {
@@ -49,6 +49,7 @@ func (reader *ConsoleReader) attemptReadCommand(commandText string, server inter
 	var holder = server.GetCommandHolder()
 
 	if !holder.IsCommandRegistered(commandName) {
+		server.GetLogger().Error("Command could not be found.")
 		return false
 	}
 

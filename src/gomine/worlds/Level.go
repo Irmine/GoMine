@@ -2,7 +2,6 @@ package worlds
 
 import (
 	"gomine/interfaces"
-	"gomine/worlds/chunks"
 )
 
 type Level struct {
@@ -14,7 +13,7 @@ type Level struct {
 /**
  * Returns a new Level with the given level name.
  */
-func NewLevel(levelName string, server interfaces.IServer, chunks []chunks.Chunk) *Level {
+func NewLevel(levelName string, server interfaces.IServer, chunks []interfaces.IChunk) *Level {
 	var level = &Level{server, levelName, make(map[string]interfaces.IDimension)}
 	level.AddDimension("Overworld", OverworldId, chunks)
 	return level
@@ -54,7 +53,7 @@ func (level *Level) DimensionExists(name string) bool {
  * Adds a new dimension with the given name and dimension ID.
  * Returns false if the dimension already exists, true otherwise.
  */
-func (level *Level) AddDimension(name string, dimensionId int, chunks []chunks.Chunk) bool {
+func (level *Level) AddDimension(name string, dimensionId int, chunks []interfaces.IChunk) bool {
 	if level.DimensionExists(name) {
 		return false
 	}

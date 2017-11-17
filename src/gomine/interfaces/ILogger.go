@@ -6,6 +6,7 @@ type ILogger interface {
 	Info(string)
 	Notice(string)
 	Alert(string)
+	Error(string)
 	Warning(string)
 	Critical(string)
 }

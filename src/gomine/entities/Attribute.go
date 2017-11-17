@@ -1,27 +1,27 @@
 package entities
 
-type attribute struct {
+type Attribute struct {
 	name         string
 	value        float32
 	defaultValue float32
 }
 
-func (attribute *attribute) getName() string {
+func (attribute *Attribute) getName() string {
 	return attribute.name
 }
 
-func (attribute *attribute) getValue() float32 {
+func (attribute *Attribute) getValue() float32 {
 	return attribute.value
 }
 
-func (attribute *attribute) getDefaultValue() float32 {
+func (attribute *Attribute) getDefaultValue() float32 {
 	return attribute.defaultValue
 }
 
-func (attribute *attribute) setValue(value float32) {
+func (attribute *Attribute) setValue(value float32) {
 	attribute.value = value
 }
 
-func (attribute *attribute) setDefaultValue(value float32) {
+func (attribute *Attribute) setDefaultValue(value float32) {
 	attribute.defaultValue = value
 }

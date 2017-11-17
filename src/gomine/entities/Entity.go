@@ -13,15 +13,15 @@ type EntityInterface interface {
 
 type Entity struct {
 	nameTag      string
-	attributeMap attributeMap
-	yaw, pitch float32
+	attributeMap AttributeMap
+	yaw, pitch float64
 	position, motion vectorMath.TripleVector
 	EId int
 	Closed bool
 	Health int
 }
 
-func NewEntity(nameTag string, attributeMap attributeMap, yaw, pitch float32, position, motion vectorMath.TripleVector, health int) Entity {
+func NewEntity(nameTag string, attributeMap AttributeMap, yaw float64, pitch float64, position vectorMath.TripleVector, motion vectorMath.TripleVector, health int) Entity {
 	EId++
 	return Entity{
 		nameTag,
@@ -36,7 +36,7 @@ func NewEntity(nameTag string, attributeMap attributeMap, yaw, pitch float32, po
 	}
 }
 
-func (entity *Entity) getAttributeMap() attributeMap {
+func (entity *Entity) getAttributeMap() AttributeMap {
 	return entity.attributeMap
 }
 

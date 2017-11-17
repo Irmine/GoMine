@@ -1,9 +1,11 @@
 package players
 
-import "gomine/entities"
+import (
+	"gomine/interfaces"
+)
 
 type Player struct {
-	*entities.Entity
+	interfaces.IEntity
 	playerName  string
 	displayName string
 }

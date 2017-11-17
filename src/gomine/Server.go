@@ -6,7 +6,6 @@ import (
 	"gomine/utils"
 	"gomine/resources"
 	"gomine/worlds"
-	"gomine/worlds/chunks"
 	"os"
 	"gomine/interfaces"
 	"gomine/commands"
@@ -214,7 +213,7 @@ func (server *Server) LoadLevel(levelName string) bool {
 		return false
 	}
 	var levels = server.levels
-	levels[counter] = worlds.NewLevel(levelName, server, []chunks.Chunk{})
+	levels[counter] = worlds.NewLevel(levelName, server, []interfaces.IChunk{})
 	counter++
 	return true
 }
