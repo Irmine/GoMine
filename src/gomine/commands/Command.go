@@ -9,6 +9,7 @@ import (
 
 type Command struct {
 	name string
+	description string
 	permission string
 	aliases []string
 	arguments []interfaces.ICommandArgument
@@ -18,8 +19,8 @@ type Command struct {
 /**
  * Returns a new base command.
  */
-func NewCommand(name string, permission string, aliases []string) *Command {
-	return &Command{name: name, permission: permission, aliases: aliases}
+func NewCommand(name string, description string, permission string, aliases []string) *Command {
+	return &Command{name: name, permission: permission, aliases: aliases, description: description}
 }
 
 /**
@@ -35,6 +36,27 @@ func (command *Command) GetUsage() string {
  */
 func (command *Command) GetName() string {
 	return command.name
+}
+
+/**
+ * Returns the command description.
+ */
+func (command *Command) GetDescription() string {
+	return command.description
+}
+
+/**
+ * Sets the description of the command.
+ */
+func (command *Command) SetDescription(description string) {
+	command.description = description
+}
+
+/**
+ * Sets the permission of the command.
+ */
+func (command *Command) SetPermission(permission string) {
+	command.permission = permission
 }
 
 /**

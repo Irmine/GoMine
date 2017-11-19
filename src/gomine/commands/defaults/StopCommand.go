@@ -11,7 +11,7 @@ type StopCommand struct {
 }
 
 func NewStop(server interfaces.IServer) StopCommand {
-	var stop = StopCommand{commands.NewCommand("stop", "gomine.stop", []string{"shutdown"}), server}
+	var stop = StopCommand{commands.NewCommand("stop", "Stops the server", "gomine.stop", []string{"shutdown"}), server}
 	return stop
 }
 

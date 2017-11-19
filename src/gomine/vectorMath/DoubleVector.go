@@ -66,8 +66,6 @@ func (vector *DoubleVector) Subtract(x float32, y float32) DoubleVector {
 /**
  * Returns a new DoubleVector with the values made absolute.
  */
-/*
 func (vector *DoubleVector) Abs() DoubleVector {
-	return DoubleVector{math.Abs(vector.x), math.Abs(vector.y)} //NO ABSOLUTE FOR FLOAT32?
+	return DoubleVector{float32(math.Abs(float64(vector.x))), float32(math.Abs(float64(vector.y)))}
 }
-*/

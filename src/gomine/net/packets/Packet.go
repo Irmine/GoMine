@@ -24,14 +24,6 @@ func NewPacket(id int) *Packet {
 	return &Packet{id, utils.NewStream(), [2]byte{}}
 }
 
-func (pk *Packet) SetBuffer(b []byte) {
-	pk.SetBuffer(b)
-}
-
-func (pk *Packet) GetBuffer() []byte {
-	return pk.GetBuffer()
-}
-
 func (pk *Packet) GetId() int {
 	return pk.packetId
 }
@@ -40,8 +32,12 @@ func (pk *Packet) Encode() {
 
 }
 
-func (pk *Packet) Decode() {
+func (pk *Packet) SkipId() {
+	pk.Offset++
+}
 
+func (pk *Packet) SkipSplitBytes() {
+	pk.Offset += 2
 }
 
 func (pk *Packet) EncodeHeader() {

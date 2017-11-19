@@ -13,7 +13,7 @@ type TestCommand struct {
 }
 
 func NewTest(server interfaces.IServer) TestCommand {
-	var test = TestCommand{commands.NewCommand("test", "gomine.stop", []string{"test"}), server}
+	var test = TestCommand{commands.NewCommand("test", "Tests the command parser", "gomine.stop", []string{"test"}), server}
 
 	var intArg = arguments.NewFloatArg("test", false)
 	intArg.SetInputAmount(2)

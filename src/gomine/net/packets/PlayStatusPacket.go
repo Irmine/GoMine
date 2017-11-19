@@ -1,6 +1,8 @@
 package packets
 
-import "gomine/net"
+import (
+	"gomine/net/info"
+)
 
 type PlayStatusPacket struct {
 	*Packet
@@ -9,10 +11,10 @@ type PlayStatusPacket struct {
 }
 
 func NewPlayStatusPacket() PlayStatusPacket {
-	return PlayStatusPacket{NewPacket(net.PlayStatusPacket), 0, net.LatestProtocol}
+	return PlayStatusPacket{NewPacket(info.PlayStatusPacket), 0, info.LatestProtocol}
 }
 
-func (pk *PlayStatusPacket) EncodeHeader() {
+func (pk PlayStatusPacket) EncodeHeader() {
 	if pk.protocol < 130 {
 		pk.PutByte(byte(pk.packetId))
 	} else {
@@ -20,10 +22,10 @@ func (pk *PlayStatusPacket) EncodeHeader() {
 	}
 }
 
-func (pk *PlayStatusPacket) Encode()  {
+func (pk PlayStatusPacket) Encode()  {
 	pk.PutInt(pk.status)
 }
 
-func (pk *PlayStatusPacket) Decode()  {
+func (pk PlayStatusPacket) Decode()  {
 	pk.status = pk.GetInt()
 }

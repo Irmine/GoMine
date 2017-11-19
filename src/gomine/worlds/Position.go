@@ -9,7 +9,7 @@ type Position struct {
 	Level Level
 }
 
-func NewPosition(x, y, z float64, level Level) *Position {
+func NewPosition(x, y, z float32, level Level) *Position {
 	return &Position{vectorMath.NewTripleVector(x, y, z), level}
 }
 

@@ -1,6 +1,8 @@
 package packets
 
-import "gomine/net"
+import (
+	"gomine/net/info"
+)
 
 type DisconnectPacket struct {
 	*Packet
@@ -9,15 +11,15 @@ type DisconnectPacket struct {
 }
 
 func NewDisconnectPacket() DisconnectPacket {
-	return DisconnectPacket{NewPacket(net.DisconnectPacket), true, ""}
+	return DisconnectPacket{NewPacket(info.DisconnectPacket), true, ""}
 }
 
-func (pk *DisconnectPacket) Encode()  {
+func (pk DisconnectPacket) Encode()  {
 	pk.PutBool(pk.HideDisconnectionScreen)
 	pk.PutString(pk.Message)
 }
 
-func (pk *DisconnectPacket) Decode()  {
+func (pk DisconnectPacket) Decode()  {
 	pk.HideDisconnectionScreen = pk.GetBool()
 	pk.Message = pk.GetString()
 }

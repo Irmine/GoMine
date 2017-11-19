@@ -1,6 +1,8 @@
 package packets
 
-import "gomine/net"
+import (
+	"gomine/net/info"
+)
 
 type ServerHandshakePacket struct {
 	*Packet
@@ -8,13 +10,13 @@ type ServerHandshakePacket struct {
 }
 
 func NewServerHandshakePacket() ServerHandshakePacket {
-	return ServerHandshakePacket{NewPacket(net.ServerHandshakePacket), ""}
+	return ServerHandshakePacket{NewPacket(info.ServerHandshakePacket), ""}
 }
 
-func (pk *ServerHandshakePacket) Encode()  {
+func (pk ServerHandshakePacket) Encode()  {
 	pk.PutString(pk.Jwt)
 }
 
-func (pk *ServerHandshakePacket) Decode()  {
+func (pk ServerHandshakePacket) Decode()  {
 	pk.Jwt = pk.GetString()
 }

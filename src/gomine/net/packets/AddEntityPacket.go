@@ -2,8 +2,8 @@ package packets
 
 import (
 	"gomine/vectorMath"
-	"gomine/net"
 	"gomine/entities"
+	"gomine/net/info"
 )
 
 type AddEntityPacket struct {
@@ -19,10 +19,10 @@ type AddEntityPacket struct {
 }
 
 func NewAddEntityPacket() AddEntityPacket {
-	return AddEntityPacket{NewPacket(net.AddEntityPacket), 0, 0, nil, nil, 0.0, 0.0, nil}
+	return AddEntityPacket{NewPacket(info.AddEntityPacket), 0, 0, vectorMath.TripleVector{}, vectorMath.TripleVector{}, 0.0, 0.0, nil}
 }
 
-func (pk *AddEntityPacket) Encode() {
+func (pk AddEntityPacket) Encode() {
 	pk.PutEId(pk.EntityId)
 	pk.PutUnsignedVarInt(pk.EntityType)
 	pk.PutTripleVectorObject(pk.Position)

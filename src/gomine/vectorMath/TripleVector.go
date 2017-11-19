@@ -92,6 +92,6 @@ func (vector *TripleVector) Subtract(x float32, y float32, z float32) TripleVect
 /**
  * Returns a new TripleVector with the current values made absolute.
  */
-/*func (vector *TripleVector) Abs() TripleVector {
-	return TripleVector{math.Abs(vector.x), math.Abs(vector.y), math.Abs(vector.z)} //NO ABSOLUTE FOR FLOAT32?
-}*/
+func (vector *TripleVector) Abs() TripleVector {
+	return TripleVector{float32(math.Abs(float64(vector.x))), float32(math.Abs(float64(vector.y))), float32(math.Abs(float64(vector.z)))}
+}

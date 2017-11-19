@@ -12,6 +12,7 @@ import (
 	"gomine/commands/defaults"
 	"gomine/net"
 	"gomine/players"
+	"gomine/net/info"
 )
 
 const (
@@ -108,7 +109,7 @@ func (server *Server) Shutdown() {
  * EG: "v1.2.6.2"
  */
 func (server *Server) GetVersion() string {
-	return net.GameVersion
+	return info.GameVersion
 }
 
 /**
@@ -116,7 +117,7 @@ func (server *Server) GetVersion() string {
  * This version string is not prefixed with a 'v'.
  */
 func (server *Server) GetNetworkVersion() string {
-	return net.GameVersionNetwork
+	return info.GameVersionNetwork
 }
 
 /**

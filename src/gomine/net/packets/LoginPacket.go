@@ -1,9 +1,9 @@
 package packets
 
 import (
-	"gomine/net"
 	"encoding/json"
 	"gomine/utils"
+	"gomine/net/info"
 )
 
 type LoginPacket struct {
@@ -36,33 +36,38 @@ var ClientDataJwt []byte
 var ClientData = ClientDataKeys{}
 
 func NewLoginPacket() LoginPacket {
-	pk := LoginPacket{NewPacket(net.LoginPacket), "", 0, "", 0, "", "", "", ""}
+	pk := LoginPacket{NewPacket(info.LoginPacket), "", 0, "", 0, "", "", "", ""}
 	return pk
 }
 
-func (pk *LoginPacket) Encode()  {
+func (pk LoginPacket) Encode()  {
 	//todo
 }
 
-func (pk *LoginPacket) Decode()  {
+func (pk LoginPacket) Decode()  {
+	pk.SkipId()
+	pk.SkipSplitBytes()
 
 	pk.Protocol = pk.GetInt()
 
-	if pk.Protocol != net.LatestProtocol {
+	if pk.Protocol != info.LatestProtocol {
 		if pk.Protocol > 0xffff {
 			pk.Offset -= 6
 			pk.Protocol = pk.GetInt()
 		}
 	}
 
-	json.Unmarshal(pk.Get(int(pk.GetLittleInt())), ChainData)
+	var stream = utils.NewStream()
+	stream.Buffer = []byte(pk.GetString())
+
+	json.Unmarshal(stream.Get(int(stream.GetLittleInt())), ChainData)
 	for _, v := range ChainData.chain {
 		WebToken := WebTokenKeys{}
 		utils.DecodeJwt(v, WebToken)
 		if v, ok := WebToken.extraData["username"]; ok {
 			pk.Username = v.(string)
 		}
-		if v, ok := WebToken.extraData["indentity"]; ok {
+		if v, ok := WebToken.extraData["identity"]; ok {
 			pk.ClientUUID = v.(string)
 		}
 		if v, ok := WebToken.extraData["XUID"]; ok {
@@ -72,7 +77,7 @@ func (pk *LoginPacket) Decode()  {
 			pk.IdentityPublicKey = WebToken.identityPublicKey
 		}
 	}
-	ClientDataJwt = pk.Get(int(pk.GetLittleInt()))
+	ClientDataJwt = stream.Get(int(stream.GetLittleInt()))
 	utils.DecodeJwt(string(ClientDataJwt), ClientData)
 	if v, ok := ClientData.clientData["ClientRandomId"]; ok {
 		pk.ClientId = v.(int)

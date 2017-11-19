@@ -1,27 +1,22 @@
 package packets
 
-import "gomine/net"
+import (
+	"gomine/net/info"
+)
 
-type PacketPool struct {
-	packets map[int]IPacket
+var packets = map[int]IPacket{}
+
+func InitPacketPool() {
+	RegisterPacket(info.LoginPacket, NewLoginPacket())
+	RegisterPacket(info.PlayStatusPacket, NewPlayStatusPacket())
+	RegisterPacket(info.ClientHandshakePacket, NewClientHandshakePacket())
+	RegisterPacket(info.ServerHandshakePacket, NewServerHandshakePacket())
 }
 
-func NewPacketPool() *PacketPool {
-	var pool = PacketPool{}
-	pool.packets = make(map[int]IPacket)
-
-	pool.RegisterPacket(net.LoginPacket, NewLoginPacket())
-	pool.RegisterPacket(net.PlayStatusPacket, NewPlayStatusPacket())
-	pool.RegisterPacket(net.ClientHandshakePacket, NewClientHandshakePacket())
-	pool.RegisterPacket(net.ServerHandshakePacket, NewServerHandshakePacket())
-
-	return &pool
+func RegisterPacket(id int, packet IPacket) {
+	packets[id] = packet
 }
 
-func (pool *PacketPool) RegisterPacket(id int, packet IPacket) {
-	pool.packets[id] = packet
-}
-
-func (pool *PacketPool) GetPacket(id int) IPacket {
-	return pool.packets[id]
+func GetPacket(id int) IPacket {
+	return packets[id]
 }

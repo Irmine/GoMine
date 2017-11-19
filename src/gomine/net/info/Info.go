@@ -1,4 +1,4 @@
-package net
+package info
 
 const (
 	LatestProtocol     = 140
