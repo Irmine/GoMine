@@ -39,22 +39,7 @@ func (adapter *GoRakLibAdapter) Tick() {
 				batch.stream.Buffer = encapsulatedPacket.Buffer
 				batch.Decode()
 				for _, packet := range batch.GetPackets() {
-					//packet.Decode()
-					if packet.GetId() == info.LoginPacket {
-						fmt.Println("LoginPacket received... Answering...")
-						var pk = packets.NewPlayStatusPacket()
-						pk.Status = 1
-
-						pk.EncodeHeader()
-						pk.Encode()
-
-						var b = NewMinecraftPacketBatch()
-						b.AddPacket(pk)
-
-						pk.Status = 0
-						b.AddPacket(pk)
-						adapter.SendBatch(&b, session.GetAddress(), session.GetPort())
-					}
+					packet.Decode()
 				}
 			}
 		}
