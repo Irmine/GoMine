@@ -43,11 +43,11 @@ func (subChunk *EmptySubChunk) SetSkyLight(x, y, z int, data byte) {
 
 }
 
-func (subChunk *EmptySubChunk) GetMetadata(x, y, z int) byte {
+func (subChunk *EmptySubChunk) GetBlockMetadata(x, y, z int) byte {
 	return byte(0)
 }
 
-func (subChunk *EmptySubChunk) SetMetadata(x, y, z int, data byte) {
+func (subChunk *EmptySubChunk) SetBlockMetadata(x, y, z int, data byte) {
 
 }
 

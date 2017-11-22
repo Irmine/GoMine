@@ -101,3 +101,64 @@ func (pk *Packet) GetEntityAttributes() map[int]entities.Attribute {
 	//todo
 	return map[int]entities.Attribute{}
 }
+
+func (pk *Packet) PutEntityData(dat map[uint32][]interface{}) {
+	pk.PutUnsignedVarInt(uint32(len(dat)))
+	for k, v := range dat {
+		pk.PutUnsignedVarInt(k)
+		pk.PutUnsignedVarInt(v[0].(uint32))
+		switch v[1] {
+		case entities.Byte:
+			pk.PutByte(v[1].(byte))
+		case entities.Short:
+			pk.PutLittleShort(v[1].(int16))
+		case entities.Int:
+			pk.PutVarInt(v[1].(int32))
+		case entities.Float:
+			pk.PutLittleFloat(v[1].(float32))
+		case entities.String:
+			pk.PutString(v[1].(string))
+		case entities.Slot:
+			//todo
+		case entities.Pos:
+			//todo
+		case entities.Long:
+			pk.PutVarLong(v[1].(int64))
+		case entities.Vector3f:
+			//todo
+		}
+	}
+}
+
+func (pk *Packet) GetEntityData() map[uint32][]interface{} {
+	var dat = make(map[uint32][]interface{})
+	len2 := pk.GetUnsignedVarInt()
+	for i := uint32(0); i < len2; i++ {
+		k := pk.GetUnsignedVarInt()
+		t := pk.GetUnsignedVarInt()
+		var v interface{}
+		switch t {
+		case entities.Byte:
+			v = pk.GetByte()
+		case entities.Short:
+			v = pk.GetLittleShort()
+		case entities.Int:
+			v = pk.GetVarInt()
+		case entities.Float:
+			v = pk.GetLittleFloat()
+		case entities.String:
+			v = pk.GetString()
+		case entities.Slot:
+			//todo
+		case entities.Pos:
+			//todo
+		case entities.Long:
+			v = pk.GetVarLong()
+		case entities.Vector3f:
+			//todo
+		}
+		dat[k][0] = t
+		dat[k][1] = v
+	}
+	return dat
+}

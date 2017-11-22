@@ -15,11 +15,12 @@ type AddEntityPacket struct {
 	Yaw float32
 	Pitch float32
 
-	Attributes []entities.Attribute
+	Attributes map[int]entities.Attribute
+	EntityData map[uint32][]interface{}
 }
 
 func NewAddEntityPacket() AddEntityPacket {
-	return AddEntityPacket{NewPacket(info.AddEntityPacket), 0, 0, vectorMath.TripleVector{}, vectorMath.TripleVector{}, 0.0, 0.0, nil}
+	return AddEntityPacket{NewPacket(info.AddEntityPacket), 0, 0, vectorMath.TripleVector{}, vectorMath.TripleVector{}, 0.0, 0.0, nil, nil}
 }
 
 func (pk AddEntityPacket) Encode() {
@@ -29,4 +30,17 @@ func (pk AddEntityPacket) Encode() {
 	pk.PutTripleVectorObject(pk.Motion)
 	pk.PutRotation(pk.Yaw)
 	pk.PutRotation(pk.Pitch)
+	pk.PutEntityAttributes(pk.Attributes)
+	pk.PutEntityData(pk.EntityData)
+}
+
+func (pk AddEntityPacket) Decode() {
+	pk.EntityId = pk.GetEId()
+	pk.EntityType = pk.GetUnsignedVarInt()
+	pk.Position = *pk.GetTripleVectorObject()
+	pk.Motion = *pk.GetTripleVectorObject()
+	pk.Yaw = pk.GetRotation()
+	pk.Pitch = pk.GetRotation()
+	pk.Attributes = pk.GetEntityAttributes()
+	pk.EntityData = pk.GetEntityData()
 }

@@ -18,7 +18,8 @@ func NewPlayer(name string) *Player {
 	player.playerName = name
 	player.displayName = name
 	player.permissions = make(map[string]interfaces.IPermission)
-	player.permissionGroup = PermissionMan
+	//player.permissionGroup = PermissionMan
+	return player
 }
 
 func (player *Player) getName() string {

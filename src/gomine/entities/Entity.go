@@ -16,8 +16,8 @@ type Entity struct {
 	attributeMap AttributeMap
 	yaw, pitch float64
 	position, motion vectorMath.TripleVector
-	EId uint64
-	Closed bool
+	eId uint64
+	closed bool
 	Health int
 }
 
@@ -25,26 +25,26 @@ func NewEntity(nameTag string, attributeMap AttributeMap, yaw float64, pitch flo
 	EId++
 	return Entity{
 		nameTag,
-	attributeMap,
-	yaw,
-	pitch,
-	position,
-	motion,
-	EId,
-	false,
-	health,
+		attributeMap,
+		yaw,
+		pitch,
+		position,
+		motion,
+		EId,
+		false,
+		health,
 	}
 }
 
-func (entity *Entity) getAttributeMap() AttributeMap {
+func (entity *Entity) GetAttributeMap() AttributeMap {
 	return entity.attributeMap
 }
 
-func (entity *Entity) getNameTag() string {
+func (entity *Entity) GetNameTag() string {
 	return entity.nameTag
 }
 
-func (entity *Entity) setNameTag(name string) {
+func (entity *Entity) SetNameTag(name string) {
 	entity.nameTag = name
 }
 
@@ -57,15 +57,15 @@ func (entity *Entity) GetMotion() vectorMath.TripleVector {
 }
 
 func (entity *Entity) GetId() uint64 {
-	return entity.EId
+	return entity.eId
 }
 
 func (entity *Entity) IsClosed() bool {
-	return entity.Closed
+	return entity.closed
 }
 
 func (entity *Entity) Close() {
-	entity.Closed = true
+	entity.closed = true
 	//todo
 }
 

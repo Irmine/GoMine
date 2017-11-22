@@ -8,6 +8,7 @@ import (
 )
 
 func DecodeJwt(v string, t interface{}) {
+	v = strings.Split(v, ".")[1]
 	v = strings.Replace(v, "-_", "+/", -1)
 	str, err := base64.StdEncoding.DecodeString(v)
 	if err != nil {

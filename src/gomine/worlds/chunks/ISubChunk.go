@@ -1,8 +1,8 @@
-package interfaces
+package chunks
 
 type ISubChunk interface{
 	IsAllAir() bool
-	GetIndex(x, y, z int)
+	GetIndex(x, y, z int) int
 	GetBlock(x, y, z int) byte
 	SetBlock(x, y, z int, data byte)
 	GetBlockLight(x, y, z int) byte

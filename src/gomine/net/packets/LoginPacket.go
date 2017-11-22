@@ -20,7 +20,7 @@ type LoginPacket struct {
 }
 
 type ChainDataKeys struct {
-	chain map[string]string
+	chain map[int]string
 }
 
 type WebTokenKeys struct {
@@ -62,9 +62,11 @@ func (pk LoginPacket) Decode()  {
 	stream.Buffer = []byte(pk.GetString())
 
 	json.Unmarshal(stream.Get(int(stream.GetLittleInt())), ChainData)
+	fmt.Printf("Chain data : %v", ChainData)
 	for _, v := range ChainData.chain {
 		WebToken := WebTokenKeys{}
 		utils.DecodeJwt(v, WebToken)
+		fmt.Printf("Web token : %v", WebToken)
 		if v, ok := WebToken.extraData["username"]; ok {
 			pk.Username = v.(string)
 		}

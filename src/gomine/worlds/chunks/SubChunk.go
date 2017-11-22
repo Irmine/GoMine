@@ -49,11 +49,11 @@ func (subChunk *SubChunk) SetSkyLight(x, y, z int, data byte) {
 	subChunk.SkyLight[subChunk.GetIndex(x, y, z)] = data
 }
 
-func (subChunk *SubChunk) GetMetadata(x, y, z int) byte {
+func (subChunk *SubChunk) GetBlockMetadata(x, y, z int) byte {
 	return subChunk.Metadata[subChunk.GetIndex(x, y, z)]
 }
 
-func (subChunk *SubChunk) SetMetadata(x, y, z int, data byte) {
+func (subChunk *SubChunk) SetBlockMetadata(x, y, z int, data byte) {
 	subChunk.Metadata[subChunk.GetIndex(x, y, z)] = data
 }
 
