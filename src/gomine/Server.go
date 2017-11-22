@@ -13,6 +13,7 @@ import (
 	"gomine/net"
 	"gomine/players"
 	"gomine/net/info"
+	"gomine/permissions"
 )
 
 const (
@@ -29,6 +30,8 @@ type Server struct {
 	config 	   *resources.GoMineConfig
 	consoleReader *utils.ConsoleReader
 	commandHolder interfaces.ICommandHolder
+
+	permissionManager *permissions.PermissionManager
 
 	levels map[int]interfaces.ILevel
 	players map[string]players.Player
@@ -60,6 +63,8 @@ func NewServer(serverPath string) (*Server, error) {
 	server.consoleReader = utils.NewConsoleReader()
 	server.commandHolder = commands.NewCommandHolder()
 	server.rakLibAdapter = net.NewGoRakLibAdapter(server)
+
+	server.permissionManager = permissions.NewPermissionManager(server)
 
 	server.RegisterDefaultCommands()
 
@@ -196,8 +201,8 @@ func (server *Server) IsLevelGenerated(levelName string) bool {
 		return true
 	}
 	var path = server.GetServerPath() + "worlds/" + levelName
-	var _, error = os.Stat(path)
-	if error != nil {
+	var _, err = os.Stat(path)
+	if err != nil {
 		return false
 	}
 	return true
@@ -289,6 +294,13 @@ func (server *Server) GetRakLibAdapter() *net.GoRakLibAdapter {
  */
 func (server *Server) GetMotd() string {
 	return server.config.ServerMotd
+}
+
+/**
+ * Returns the permission manager of the server.
+ */
+func (server *Server) GetPermissionManager() interfaces.IPermissionManager {
+	return server.permissionManager
 }
 
 /**

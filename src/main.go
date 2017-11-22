@@ -10,7 +10,7 @@ import (
 	"strconv"
 )
 
-var currentTick int = 0
+var currentTick = 0
 
 func main() {
 	var startTime = time2.Now()
@@ -19,8 +19,8 @@ func main() {
 	}
 	var serverPath = scanServerPath()
 
-	var server, error = gomine.NewServer(serverPath)
-	if error != nil {
+	var server, err = gomine.NewServer(serverPath)
+	if err != nil {
 		server.GetLogger().Critical("Another instance of the server is already running.")
 		return
 	}
@@ -72,9 +72,9 @@ func main() {
 }
 
 func scanServerPath() string {
-	var executable, error = os.Executable()
-	if error != nil {
-		panic(error)
+	var executable, err = os.Executable()
+	if err != nil {
+		panic(err)
 	}
 	var serverPath = filepath.Dir(executable) + "/"
 

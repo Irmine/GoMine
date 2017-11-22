@@ -5,6 +5,8 @@ import (
 	server2 "goraklib/server"
 	"gomine/net/packets"
 	"gomine/net/info"
+	"goraklib/protocol"
+	"fmt"
 )
 
 type GoRakLibAdapter struct {
@@ -31,12 +33,43 @@ func (adapter *GoRakLibAdapter) Tick() {
 	go adapter.rakLibServer.Tick()
 
 	go func() {
-		for _, encapsulatedPacket := range adapter.rakLibServer.GetSessionManager().GetReadyEncapsulatedPackets() {
-			batch := NewMinecraftPacketBatch(encapsulatedPacket)
-			batch.Decode()
-			for _, packet := range batch.GetPackets() {
-				packet.Decode()
+		for _, session := range adapter.rakLibServer.GetSessionManager().GetSessions() {
+			for _, encapsulatedPacket := range session.GetReadyEncapsulatedPackets() {
+				batch := NewMinecraftPacketBatch()
+				batch.stream.Buffer = encapsulatedPacket.Buffer
+				batch.Decode()
+				for _, packet := range batch.GetPackets() {
+					//packet.Decode()
+					if packet.GetId() == info.LoginPacket {
+						fmt.Println("LoginPacket received... Answering...")
+						var pk = packets.NewPlayStatusPacket()
+						pk.Status = 1
+
+						pk.EncodeHeader()
+						pk.Encode()
+
+						var b = NewMinecraftPacketBatch()
+						b.AddPacket(pk)
+
+						pk.Status = 0
+						b.AddPacket(pk)
+						adapter.SendBatch(&b, session.GetAddress(), session.GetPort())
+					}
+				}
 			}
 		}
 	}()
+}
+
+func (adapter *GoRakLibAdapter) SendBatch(batch *MinecraftPacketBatch, ip string, port uint16) {
+	batch.Encode()
+
+	var encPacket = protocol.NewEncapsulatedPacket()
+	encPacket.SetBuffer(batch.stream.GetBuffer())
+
+	var datagram = protocol.NewDatagram()
+	datagram.AddPacket(&encPacket)
+	datagram.Encode()
+
+	adapter.rakLibServer.GetSessionManager().SendPacket(datagram, ip, port)
 }

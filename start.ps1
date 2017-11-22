@@ -1,5 +1,5 @@
 $host.ui.RawUI.WindowTitle = "GoMine : A Minecraft Bedrock Edition server software in Go"
-$Loop = "false"
+$Loop = "true"
 
 $env:GOPATH = "${PSScriptRoot}\"
 ECHO($GOPATH)

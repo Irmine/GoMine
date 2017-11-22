@@ -2,26 +2,45 @@ package players
 
 import (
 	"gomine/interfaces"
+	"gomine/permissions"
 )
 
 type Player struct {
-	interfaces.IEntity
 	playerName  string
 	displayName string
+
+	permissions map[string]interfaces.IPermission
+	permissionGroup permissions.PermissionGroup
 }
 
-func NewPlayer() Player {
-	return Player{}
+func NewPlayer(name string) *Player {
+	var player = &Player{}
+	player.playerName = name
+	player.displayName = name
+	player.permissions = make(map[string]interfaces.IPermission)
+	player.permissionGroup = PermissionMan
 }
 
-func (Player *Player) getName() string {
-	return Player.playerName
+func (player *Player) getName() string {
+	return player.playerName
 }
 
-func (Player *Player) getDisplayName() string {
-	return Player.displayName
+func (player *Player) getDisplayName() string {
+	return player.displayName
 }
 
-func (Player *Player) setDisplayName(name string) {
-	Player.displayName = name
+func (player *Player) setDisplayName(name string) {
+	player.displayName = name
+}
+
+func (player *Player) HasPermission(permission string) bool {
+
+}
+
+func (player *Player) AddPermission(permission interfaces.IPermission) bool {
+
+}
+
+func (player *Player) RemovePermission(permission string) bool {
+
 }

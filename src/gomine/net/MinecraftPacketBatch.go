@@ -6,7 +6,6 @@ import (
 	"compress/zlib"
 	"io/ioutil"
 	"gomine/net/packets"
-	"goraklib/protocol"
 )
 
 const McpeFlag = 0xFE
@@ -15,23 +14,22 @@ type MinecraftPacketBatch struct {
 	stream *utils.BinaryStream
 
 	raw []byte
+
 	packets []packets.IPacket
 }
 
-func NewMinecraftPacketBatch(packet protocol.EncapsulatedPacket) MinecraftPacketBatch {
+func NewMinecraftPacketBatch() MinecraftPacketBatch {
 	var batch = MinecraftPacketBatch{}
 	batch.stream = utils.NewStream()
-	batch.stream.Buffer = packet.GetBuffer()
 
 	return batch
 }
 
-func (batch *MinecraftPacketBatch) Decode() bool {
+func (batch *MinecraftPacketBatch) Decode() {
 	var mcpeFlag = batch.stream.GetByte()
 	if mcpeFlag != McpeFlag {
-		return false
+		return
 	}
-
 
 	var reader = bytes.NewReader(batch.stream.Buffer[batch.stream.Offset:])
 	var zlibReader, _ = zlib.NewReader(reader)
@@ -56,7 +54,29 @@ func (batch *MinecraftPacketBatch) Decode() bool {
 		batch.packets = append(batch.packets, packet)
 	}
 
-	return true
+	return
+}
+
+func (batch *MinecraftPacketBatch) Encode() {
+	batch.stream.ResetStream()
+	batch.stream.PutByte(McpeFlag)
+
+	var stream = utils.NewStream()
+	for _, packet := range batch.GetPackets() {
+		stream.PutUnsignedVarInt(uint32(len(packet.GetBuffer())))
+		stream.PutBytes(packet.GetBuffer())
+	}
+
+	var buff = bytes.Buffer{}
+	var writer = zlib.NewWriter(&buff)
+	writer.Write(stream.Buffer)
+	writer.Close()
+
+	batch.stream.PutBytes(buff.Bytes())
+}
+
+func (batch *MinecraftPacketBatch) AddPacket(packet packets.IPacket) {
+	batch.packets = append(batch.packets, packet)
 }
 
 func (batch *MinecraftPacketBatch) GetPackets() []packets.IPacket {

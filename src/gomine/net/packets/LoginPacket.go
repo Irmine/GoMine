@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"gomine/utils"
 	"gomine/net/info"
+	"fmt"
 )
 
 type LoginPacket struct {
@@ -79,6 +80,7 @@ func (pk LoginPacket) Decode()  {
 	}
 	ClientDataJwt = stream.Get(int(stream.GetLittleInt()))
 	utils.DecodeJwt(string(ClientDataJwt), ClientData)
+	fmt.Printf("Client Data: %v", ClientData)
 	if v, ok := ClientData.clientData["ClientRandomId"]; ok {
 		pk.ClientId = v.(int)
 	}else{
