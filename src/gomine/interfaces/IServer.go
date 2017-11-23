@@ -3,7 +3,6 @@ package interfaces
 import (
 	"gomine/tasks"
 	"gomine/resources"
-	"gomine/permissions"
 )
 
 type IServer interface {

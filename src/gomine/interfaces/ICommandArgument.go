@@ -10,4 +10,5 @@ type ICommandArgument interface {
 	GetOutput() interface{}
 	IsValidValue(string, IServer) bool
 	ConvertValue(string, IServer) interface{}
+	ShouldMerge() bool
 }

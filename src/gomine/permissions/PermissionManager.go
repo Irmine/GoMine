@@ -61,6 +61,17 @@ func (manager *PermissionManager) AddGroup(group interfaces.IPermissionGroup) bo
 }
 
 /**
+ * Returns a group and an error if the group doesn't exist.
+ */
+func (manager *PermissionManager) GetGroup(name string) (interfaces.IPermissionGroup, error) {
+	var group interfaces.IPermissionGroup
+	if !manager.GroupExists(name) {
+		return group, errors.New("group does not exist")
+	}
+	return manager.groups[name], nil
+}
+
+/**
  * Checks if a group with the given name exists.
  */
 func (manager *PermissionManager) GroupExists(name string) bool {

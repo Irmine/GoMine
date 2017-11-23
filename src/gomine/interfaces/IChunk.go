@@ -2,17 +2,17 @@ package interfaces
 
 type IChunk interface {
 	AddEntity(IEntity) bool
-	RemoveEntity(entity IEntity)
-	GetIndex(x, y, z int) int
-	SetBlock(x, y, z int, blockId byte)
-	GetBlock(x, y, z int)
-	SetMetadata(x, y, z int, meta byte)
-	GetMetadata(x, y, z int) byte
-	SetBlockLight(x, y, z int, level byte)
-	GetBlockLight(x, y, z int) byte
-	SetSkyLight(x, y, z int, level byte)
-	GetSkyLight(x, y, z int) byte
-	SetSubChunk(y int, subChunk ISubChunk) bool
-	GetSubChunk(y int) ISubChunk
+	RemoveEntity(IEntity)
+	GetIndex(int, int, int) int
+	SetBlockId(int, int, int, int)
+	GetBlockId(int, int, int) int
+	SetBlockData(int, int, int, byte)
+	GetBlockData(int, int, int) byte
+	SetBlockLight(int, int, int, byte)
+	GetBlockLight(int, int, int) byte
+	SetSkyLight(int, int, int, byte)
+	GetSkyLight(int, int, int) byte
+	SetSubChunk(int, ISubChunk) bool
+	GetSubChunk(int) ISubChunk
 	GetSubChunks() []ISubChunk
 }

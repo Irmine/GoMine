@@ -543,23 +543,17 @@ func WriteUnsignedVarInt(buffer *[]byte, int uint32) {
 }
 
 func ReadUnsignedVarInt(buffer *[]byte, offset *int) (uint32) {
-	var v uint
-	var i uint
-	var out int
-	bytes := Read(buffer, offset, 5)
-	len2 := uint(len(bytes))
-	v = 0
-	for i = 0; i < len2; i++ {
-		if i == 0 {
-			out = int(bytes[i]) << v
-			v += 8
-			continue
+	var out uint32 = 0
+	for v := 0; v < 35; v += 7 {
+		b := int(ReadByte(buffer, offset))
+		out |= uint32((b & 0x7f) << uint(v))
+
+		if (b & 0x80) == 0 {
+			return out
 		}
-		out |= int(bytes[i]) << v
-		v += 8
 	}
 
-	return uint32(out)
+	return 0
 }
 
 func WriteUnsignedVarLong(buffer *[]byte, int uint64) {

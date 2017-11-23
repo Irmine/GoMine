@@ -1,11 +1,11 @@
 package interfaces
 
 type ICommandHolder interface {
-	IsCommandRegistered(commandName string) bool
-	UnRegisterCommand(commandName string) bool
-	GetCommand(commandName string) (ICommand, error)
-	GetCommandByAlias(aliasName string) (ICommand, error)
-	GetCommandByName(commandName string) (ICommand, error)
-	RegisterCommand(command ICommand)
-	AliasExists(aliasName string) bool
+	IsCommandRegistered(string) bool
+	UnRegisterCommand(string) bool
+	GetCommand(string) (ICommand, error)
+	GetCommandByAlias(string) (ICommand, error)
+	GetCommandByName(string) (ICommand, error)
+	RegisterCommand(ICommand)
+	AliasExists(string) bool
 }

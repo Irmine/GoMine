@@ -30,3 +30,10 @@ func (argument *IntArg) ConvertValue(value string, server interfaces.IServer) in
 	var int, _ = strconv.ParseInt(value, 10, 64)
 	return int
 }
+
+/**
+ * Returns if this argument should always merge.
+ */
+func (argument *IntArg) ShouldMerge() bool {
+	return false
+}

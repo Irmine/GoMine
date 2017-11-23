@@ -1,19 +1,22 @@
 package chunks
 
 type SubChunk struct {
-	Blocks []byte
+	BlockIds []int
+	BlockData []byte
 	BlockLight []byte
 	SkyLight []byte
-	Metadata []byte
 }
 
 func NewSubChunk() *SubChunk {
-	return &SubChunk{[]byte{}, []byte{}, []byte{}, []byte{}}
+	return &SubChunk{[]int{}, []byte{}, []byte{}, []byte{}}
 }
 
+/**
+ * Checks if this SubChunk is completely empty.
+ */
 func (subChunk *SubChunk) IsAllAir() bool {
 	var isAir = true
-	for _, v := range subChunk.Blocks {
+	for _, v := range subChunk.BlockIds {
 		if v != 0x00 {
 			isAir = false
 		}
@@ -21,40 +24,67 @@ func (subChunk *SubChunk) IsAllAir() bool {
 	return isAir
 }
 
+/**
+ * Returns the index of the given xyz values in the SubChunk.
+ */
 func (subChunk *SubChunk) GetIndex(x, y, z int) int {
 	return (x << 8) | (z << 4) | y
 }
 
-func (subChunk *SubChunk) GetBlock(x, y, z int) byte {
-	return subChunk.Blocks[subChunk.GetIndex(x, y, z)]
+/**
+ * Returns the block ID in the SubChunk at the given position.
+ */
+func (subChunk *SubChunk) GetBlockId(x, y, z int) int {
+	return subChunk.BlockIds[subChunk.GetIndex(x, y, z)]
 }
 
-func (subChunk *SubChunk) SetBlock(x, y, z int, data byte) {
-	subChunk.Blocks[subChunk.GetIndex(x, y, z)] = data
+/**
+ * Sets the block ID in the SubChunk at the given position.
+ */
+func (subChunk *SubChunk) SetBlockId(x, y, z int, id int) {
+	subChunk.BlockIds[subChunk.GetIndex(x, y, z)] = id
 }
 
+/**
+ * Returns the block light in the SubChunk at the given position.
+ */
 func (subChunk *SubChunk) GetBlockLight(x, y, z int) byte {
 	return subChunk.BlockLight[subChunk.GetIndex(x, y, z)]
 }
 
+/**
+ * Sets the block light in the SubChunk at the given position.
+ */
 func (subChunk *SubChunk) SetBlockLight(x, y, z int, data byte) {
 	subChunk.BlockLight[subChunk.GetIndex(x, y, z)] = data
 }
 
+/**
+ * Returns the sky light in the SubChunk at the given position.
+ */
 func (subChunk *SubChunk) GetSkyLight(x, y, z int) byte {
 	return subChunk.SkyLight[subChunk.GetIndex(x, y, z)]
 }
 
+/**
+ * Sets the sky light in the SubChunk at the given position.
+ */
 func (subChunk *SubChunk) SetSkyLight(x, y, z int, data byte) {
 	subChunk.SkyLight[subChunk.GetIndex(x, y, z)] = data
 }
 
-func (subChunk *SubChunk) GetBlockMetadata(x, y, z int) byte {
-	return subChunk.Metadata[subChunk.GetIndex(x, y, z)]
+/**
+ * Returns the block data of a block in the SubChunk on the given position.
+ */
+func (subChunk *SubChunk) GetBlockData(x, y, z int) byte {
+	return subChunk.BlockData[subChunk.GetIndex(x, y, z)]
 }
 
-func (subChunk *SubChunk) SetBlockMetadata(x, y, z int, data byte) {
-	subChunk.Metadata[subChunk.GetIndex(x, y, z)] = data
+/**
+ * Sets the block data of a block in the SubChunk on the given position.
+ */
+func (subChunk *SubChunk) SetBlockData(x, y, z int, data byte) {
+	subChunk.BlockData[subChunk.GetIndex(x, y, z)] = data
 }
 
 func (subChunk *SubChunk) GetBytes() []byte {

@@ -165,10 +165,14 @@ func (command *Command) Parse(sender interfaces.ICommandSender, commandArgs []st
 			processedOutput = append(processedOutput, argument.ConvertValue(value, server))
 		}
 
-		if len(processedOutput) == 1 {
-			argument.SetOutput(processedOutput[0])
+		if argument.ShouldMerge() {
+			argument.SetOutput(strings.Join(output, " "))
 		} else {
-			argument.SetOutput(processedOutput)
+			if len(processedOutput) == 1 {
+				argument.SetOutput(processedOutput[0])
+			} else {
+				argument.SetOutput(processedOutput)
+			}
 		}
 	}
 	return command.GetArguments(), true

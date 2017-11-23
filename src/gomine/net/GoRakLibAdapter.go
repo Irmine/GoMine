@@ -6,7 +6,6 @@ import (
 	"gomine/net/packets"
 	"gomine/net/info"
 	"goraklib/protocol"
-	"fmt"
 )
 
 type GoRakLibAdapter struct {

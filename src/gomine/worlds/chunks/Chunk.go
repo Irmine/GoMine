@@ -10,7 +10,7 @@ import (
 type Chunk struct {
 	height int
 	x, z int
-	subChunks []ISubChunk
+	subChunks []interfaces.ISubChunk
 	LightPopulated bool
 	TerrainPopulated bool
 	tiles map[uint64]tiles.Tile
@@ -19,7 +19,7 @@ type Chunk struct {
 	heightMap [4096]byte
 }
 
-func NewChunk(height, x, z int, subChunks []ISubChunk, lightPopulated, terrainPopulated bool, biomes [256]byte, heightMap [4096]byte) *Chunk {
+func NewChunk(height, x, z int, subChunks []interfaces.ISubChunk, lightPopulated, terrainPopulated bool, biomes [256]byte, heightMap [4096]byte) *Chunk {
 	return &Chunk{
 		height,
 		x,
@@ -34,42 +34,58 @@ func NewChunk(height, x, z int, subChunks []ISubChunk, lightPopulated, terrainPo
 	}
 }
 
+/**
+ * Returns the chunk X position.
+ */
 func (chunk *Chunk) GetX() int {
 	return chunk.x
 }
 
-func (chunk *Chunk) SetX(x int) {
-	chunk.x = x
-}
-
+/**
+ * Returns the chunk Z position.
+ */
 func (chunk *Chunk) GetZ() int {
 	return chunk.z
 }
 
-func (chunk *Chunk) SetZ(z int) {
-	chunk.x = z
-}
-
-func (chunk *Chunk) GetLightPopulated() bool {
+/**
+ * Returns if this chunk is light populated.
+ */
+func (chunk *Chunk) IsLightPopulated() bool {
 	return chunk.LightPopulated
 }
 
+/**
+ * Sets the chunk light populated.
+ */
 func (chunk *Chunk) SetLightPopulated(v bool) {
 	chunk.LightPopulated = v
 }
 
-func (chunk *Chunk) GetTerrainPopulated() bool {
+/**
+ * Returns if this chunk is terrain populated.
+ */
+func (chunk *Chunk) IsTerrainPopulated() bool {
 	return chunk.LightPopulated
 }
 
+/**
+ * Sets this chunk terrain populated.
+ */
 func (chunk *Chunk) SetTerrainPopulated(v bool) {
 	chunk.TerrainPopulated = v
 }
 
+/**
+ * Returns the height of this chunk. (?)
+ */
 func (chunk *Chunk) GetHeight() int {
 	return chunk.height
 }
 
+/**
+ * Adds a new entity to this chunk.
+ */
 func (chunk *Chunk) AddEntity(entity interfaces.IEntity) bool {
 	if entity.IsClosed() {
 		panic("Cannot add closed entity to chunk")
@@ -78,6 +94,9 @@ func (chunk *Chunk) AddEntity(entity interfaces.IEntity) bool {
 	return true
 }
 
+/**
+ * Removes an entity from this chunk.
+ */
 func (chunk *Chunk) RemoveEntity(entity entities.Entity) {
 	if k, ok := chunk.entities[entity.GetId()]; ok {
 		delete(chunk.entities, k.GetId())
@@ -98,44 +117,65 @@ func (chunk *Chunk) RemoveTile(tile tiles.Tile) {
 	}
 }
 
+/**
+ * Returns the index of a position in a chunk.
+ */
 func (chunk *Chunk) GetIndex(x, y, z int) int {
 	return (x << 12) | (z << 8) | y
 }
 
+/**
+ * Returns the index of a position in the HeightMap of this chunk.
+ */
 func (chunk *Chunk) GetHeightMapIndex(x, z int) int {
 	return (z << 4) | x
 }
 
-func (chunk *Chunk) SetBlock(x, y, z int, blockId byte)  {
+/**
+ * Sets the block ID on a position in this chunk.
+ */
+func (chunk *Chunk) SetBlockId(x, y, z int, blockId int)  {
 	v, err := chunk.GetSubChunk(y >> 4)
 	if err == nil {
-		v.SetBlock(x, y & 15, z, blockId)
+		v.SetBlockId(x, y & 15, z, blockId)
 	}
 }
 
-func (chunk *Chunk) GetBlock(x, y, z int) byte {
+/**
+ * Returns the block ID on a position in this chunk.
+ */
+func (chunk *Chunk) GetBlockId(x, y, z int) int {
 	v, err := chunk.GetSubChunk(y >> 4)
 	if err == nil {
-		return v.GetBlock(x, y & 15, z)
-	}
-	return 0
-}
-
-func (chunk *Chunk) SetMetadata(x, y, z int, meta byte)  {
-	v, err := chunk.GetSubChunk(y >> 4)
-	if err == nil {
-		v.SetBlockMetadata(x, y & 15, z, meta)
-	}
-}
-
-func (chunk *Chunk) GetMetadata(x, y, z int) byte {
-	v, err := chunk.GetSubChunk(y >> 4)
-	if err == nil {
-		return v.GetBlockMetadata(x, y & 15, z)
+		return v.GetBlockId(x, y & 15, z)
 	}
 	return 0
 }
 
+/**
+ * Sets the block data on a position in this chunk.
+ */
+func (chunk *Chunk) SetBlockData(x, y, z int, data byte)  {
+	v, err := chunk.GetSubChunk(y >> 4)
+	if err == nil {
+		v.SetBlockData(x, y & 15, z, data)
+	}
+}
+
+/**
+ * Returns the block data on a position in this chunk.
+ */
+func (chunk *Chunk) GetBlockData(x, y, z int) byte {
+	v, err := chunk.GetSubChunk(y >> 4)
+	if err == nil {
+		return v.GetBlockData(x, y & 15, z)
+	}
+	return 0
+}
+
+/**
+ * Sets the block light on a position in this chunk.
+ */
 func (chunk *Chunk) SetBlockLight(x, y, z int, level byte)  {
 	v, err := chunk.GetSubChunk(y >> 4)
 	if err == nil {
@@ -143,6 +183,9 @@ func (chunk *Chunk) SetBlockLight(x, y, z int, level byte)  {
 	}
 }
 
+/**
+ * Returns the block light on a position in this chunk.
+ */
 func (chunk *Chunk) GetBlockLight(x, y, z int) byte {
 	v, err := chunk.GetSubChunk(y >> 4)
 	if err == nil {
@@ -151,6 +194,9 @@ func (chunk *Chunk) GetBlockLight(x, y, z int) byte {
 	return 0
 }
 
+/**
+ * Sets the sky light on a position in this chunk.
+ */
 func (chunk *Chunk) SetSkyLight(x, y, z int, level byte)  {
 	v, err := chunk.GetSubChunk(y >> 4)
 	if err == nil {
@@ -158,6 +204,9 @@ func (chunk *Chunk) SetSkyLight(x, y, z int, level byte)  {
 	}
 }
 
+/**
+ * Returns the sky light on a position in this chunk.
+ */
 func (chunk *Chunk) GetSkyLight(x, y, z int) byte {
 	v, err := chunk.GetSubChunk(y >> 4)
 	if err == nil {
@@ -166,7 +215,10 @@ func (chunk *Chunk) GetSkyLight(x, y, z int) byte {
 	return 0
 }
 
-func (chunk *Chunk) SetSubChunk(y int, subChunk ISubChunk) bool {
+/**
+ * Sets a SubChunk on a position in this chunk.
+ */
+func (chunk *Chunk) SetSubChunk(y int, subChunk interfaces.ISubChunk) bool {
 	if y > chunk.height || y < 0 {
 		return false
 	}
@@ -174,25 +226,40 @@ func (chunk *Chunk) SetSubChunk(y int, subChunk ISubChunk) bool {
 	return true
 }
 
-func (chunk *Chunk) GetSubChunk(y int) (ISubChunk, error) {
+/**
+ * Returns a SubChunk on a given height index in this chunk.
+ */
+func (chunk *Chunk) GetSubChunk(y int) (interfaces.ISubChunk, error) {
 	if y > chunk.height || y < 0 {
 		return NewEmptySubChunk(), errors.New("SubChunk does not exist")
 	}
 	return chunk.subChunks[y], nil
 }
 
-func (chunk *Chunk) GetSubChunks() []ISubChunk {
+/**
+ * Returns all SubChunks in this chunk.
+ */
+func (chunk *Chunk) GetSubChunks() []interfaces.ISubChunk {
 	return chunk.subChunks
 }
 
+/**
+ * Sets the HeightMap of this chunk.
+ */
 func (chunk *Chunk) SetHeightMap(x, z int, value byte) {
 	chunk.heightMap[chunk.GetHeightMapIndex(x, z)] = value
 }
 
+/**
+ * Returns the height in the HeightMap on the given index.
+ */
 func (chunk *Chunk) GetHeightMap(x, z int) byte {
 	return chunk.heightMap[chunk.GetHeightMapIndex(x, z)]
 }
 
+/**
+ * Prunes all empty SubChunks in this chunk.
+ */
 func (chunk *Chunk) PruneEmptySubChunks() {
 	for y, subChunk := range chunk.subChunks {
 		if y > chunk.height || y < 0 {

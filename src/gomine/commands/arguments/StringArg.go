@@ -2,7 +2,6 @@ package arguments
 
 import (
 	"gomine/interfaces"
-	"strings"
 )
 
 type StringArg struct {
@@ -34,9 +33,12 @@ func (argument *StringArg) ConvertValue(value string, server interfaces.IServer)
  * Sets the output value of this argument.
  */
 func (argument *StringArg) SetOutput(value interface{}) {
-	if slice, ok := value.([]string); ok {
-		argument.output = strings.Join(slice, " ")
-	} else {
-		argument.output = value
-	}
+	argument.output = value
+}
+
+/**
+ * Returns if this argument should always merge.
+ */
+func (argument *StringArg) ShouldMerge() bool {
+	return true
 }

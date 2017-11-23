@@ -30,3 +30,10 @@ func (argument *FloatArg) ConvertValue(value string, server interfaces.IServer) 
 	var float, _ = strconv.ParseFloat(value, 64)
 	return float
 }
+
+/**
+ * Returns if this argument should always merge.
+ */
+func (argument *FloatArg) ShouldMerge() bool {
+	return false
+}
