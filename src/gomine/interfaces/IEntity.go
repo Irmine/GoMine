@@ -9,5 +9,5 @@ type IEntity interface {
 	SetHealth(int)
 	Kill()
 	Tick()
-	GetId() uint64
+	GetRuntimeId() uint64
 }

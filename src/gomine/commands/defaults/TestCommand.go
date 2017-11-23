@@ -33,4 +33,3 @@ func (command TestCommand) Execute(sender interfaces.ICommandSender, arguments [
 	fmt.Println(arguments[2].GetOutput())
 	return true
 }
-

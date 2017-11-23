@@ -1,7 +1,6 @@
 package chunks
 
 import (
-	"gomine/entities"
 	"errors"
 	"gomine/interfaces"
 	"gomine/tiles"
@@ -90,16 +89,16 @@ func (chunk *Chunk) AddEntity(entity interfaces.IEntity) bool {
 	if entity.IsClosed() {
 		panic("Cannot add closed entity to chunk")
 	}
-	chunk.entities[entity.GetId()] = entity
+	chunk.entities[entity.GetRuntimeId()] = entity
 	return true
 }
 
 /**
  * Removes an entity from this chunk.
  */
-func (chunk *Chunk) RemoveEntity(entity entities.Entity) {
-	if k, ok := chunk.entities[entity.GetId()]; ok {
-		delete(chunk.entities, k.GetId())
+func (chunk *Chunk) RemoveEntity(entity interfaces.IEntity) {
+	if k, ok := chunk.entities[entity.GetRuntimeId()]; ok {
+		delete(chunk.entities, k.GetRuntimeId())
 	}
 }
 
@@ -113,7 +112,7 @@ func (chunk *Chunk) AddTile(tile tiles.Tile) bool {
 
 func (chunk *Chunk) RemoveTile(tile tiles.Tile) {
 	if k, ok := chunk.entities[tile.GetId()]; ok {
-		delete(chunk.entities, k.GetId())
+		delete(chunk.entities, k.GetRuntimeId())
 	}
 }
 
