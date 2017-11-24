@@ -4,8 +4,7 @@ dist: trusty
 go:
 - 1.9.2
 
-script:
-- go build -i -o gomine.exe GoMine/src/main.go
+script: go build -i -o gomine.exe src/main.go
 
 notifications:
   email: false
