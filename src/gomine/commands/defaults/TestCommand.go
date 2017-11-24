@@ -5,7 +5,6 @@ import (
 	"gomine/interfaces"
 	"gomine/commands/arguments"
 	"fmt"
-	"gomine/vectorMath"
 )
 
 type TestCommand struct {

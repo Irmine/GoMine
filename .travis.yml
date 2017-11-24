@@ -5,7 +5,7 @@ go:
 - 1.9.2
 
 script:
-- travis.sh
+- go build -i -o gomine.exe GoMine/src/main.go
 
 notifications:
   email: false
