@@ -33,6 +33,5 @@ func (command TestCommand) Execute(sender interfaces.ICommandSender, arguments [
 	fmt.Println(arguments[1].GetOutput())
 	fmt.Println(arguments[2].GetOutput())
 
-	vectorMath.NewTripleVector(arguments[0].GetOutput().(float32), arguments[0].GetOutput().(float32), arguments[0].GetOutput())
 	return true
 }
