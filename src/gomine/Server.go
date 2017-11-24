@@ -283,7 +283,7 @@ func (server *Server) GetMaximumPlayers() uint {
 
 /**
  * Returns the GoRakLibAdapter of the server.
- * This is used for multiple things such as player count and motd changing.
+ * This is used for network features.
  */
 func (server *Server) GetRakLibAdapter() *net.GoRakLibAdapter {
 	return server.rakLibAdapter

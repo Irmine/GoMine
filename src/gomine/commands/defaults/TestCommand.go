@@ -5,6 +5,7 @@ import (
 	"gomine/interfaces"
 	"gomine/commands/arguments"
 	"fmt"
+	"gomine/vectorMath"
 )
 
 type TestCommand struct {
@@ -16,7 +17,7 @@ func NewTest(server interfaces.IServer) TestCommand {
 	var test = TestCommand{commands.NewCommand("test", "Tests the command parser", "gomine.stop", []string{"test"}), server}
 
 	var intArg = arguments.NewFloatArg("test", false)
-	intArg.SetInputAmount(2)
+	intArg.SetInputAmount(1)
 	test.AppendArgument(intArg)
 
 	var stringArg = arguments.NewStringArg("anotherTest", true)
@@ -31,5 +32,7 @@ func (command TestCommand) Execute(sender interfaces.ICommandSender, arguments [
 	fmt.Println(arguments[0].GetOutput())
 	fmt.Println(arguments[1].GetOutput())
 	fmt.Println(arguments[2].GetOutput())
+
+	vectorMath.NewTripleVector(arguments[0].GetOutput().(float32), arguments[0].GetOutput().(float32), arguments[0].GetOutput())
 	return true
 }

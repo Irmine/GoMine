@@ -27,6 +27,7 @@ func (reader *ConsoleReader) ReadLine(server interfaces.IServer) string {
 	if reader.reading {
 		return ""
 	}
+
 	reader.reading = true
 	var command, _ = reader.reader.ReadString('\n')
 	command = strings.Trim(command, "\n")

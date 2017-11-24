@@ -6,4 +6,5 @@ type IPermissionGroup interface {
 	HasPermission(string) bool
 	AddPermission(IPermission) bool
 	RemovePermission(string) bool
+	InheritGroup(group IPermissionGroup)
 }

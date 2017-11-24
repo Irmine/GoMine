@@ -129,6 +129,11 @@ func (command *Command) parseUsage() {
  * Checks and parses the values of a command.
  */
 func (command *Command) Parse(sender interfaces.ICommandSender, commandArgs []string, server interfaces.IServer) ([]interfaces.ICommandArgument, bool) {
+	if !sender.HasPermission(command.GetPermission()) {
+		sender.SendMessage("You do not have permission to execute this command.")
+		return []interfaces.ICommandArgument{}, false
+	}
+
 	var stringIndex = 0
 	if len(commandArgs) == 0 {
 		if len(command.GetArguments()) == 0 {

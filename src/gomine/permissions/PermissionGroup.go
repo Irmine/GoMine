@@ -62,3 +62,12 @@ func (group *PermissionGroup) RemovePermission(permission string) bool {
 
 	return hasPermission
 }
+
+/**
+ * Inherits all permissions from the given group.
+ */
+func (group *PermissionGroup) InheritGroup(inheritedGroup interfaces.IPermissionGroup) {
+	for _, permission := range inheritedGroup.GetPermissions() {
+		group.AddPermission(permission)
+	}
+}

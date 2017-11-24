@@ -20,8 +20,16 @@ func NewPermissionManager(server interfaces.IServer) *PermissionManager {
 	var manager = &PermissionManager{server, NewPermissionGroup("visitor", LevelVisitor), make(map[string]interfaces.IPermission), make(map[string]interfaces.IPermissionGroup)}
 
 	manager.AddGroup(NewPermissionGroup("visitor", LevelVisitor))
+	var visitorGroup, _ = manager.GetGroup("visitor")
+
 	manager.AddGroup(NewPermissionGroup("member", LevelMember))
+	var memberGroup, _ = manager.GetGroup("member")
+	memberGroup.InheritGroup(visitorGroup)
+
 	manager.AddGroup(NewPermissionGroup("operator", LevelOperator))
+	var operatorGroup, _ = manager.GetGroup("operator")
+	operatorGroup.InheritGroup(memberGroup)
+
 	manager.AddGroup(NewPermissionGroup("custom", LevelCustom))
 
 	return manager
@@ -116,7 +124,9 @@ func (manager *PermissionManager) IsPermissionRegistered(name string) bool {
  * Returns true if a permission was overwritten.
  */
 func (manager *PermissionManager) RegisterPermission(permission interfaces.IPermission) bool {
+	var isRegistered = manager.IsPermissionRegistered(permission.GetName())
+
 	manager.permissions[permission.GetName()] = permission
 
-	return manager.IsPermissionRegistered(permission.GetName())
+	return isRegistered
 }
