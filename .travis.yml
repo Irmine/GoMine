@@ -10,7 +10,8 @@ install:
 
 script:
 - cd src
-- go run -stop-immediately main.go
+- go build main.go
+- bash main -stop-immediately
 
 notifications:
   email: false
