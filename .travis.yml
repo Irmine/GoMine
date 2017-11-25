@@ -10,6 +10,7 @@ install:
 
 script:
 - go run src/main.go
+- echo -e "stop"
 
 notifications:
   email: false
