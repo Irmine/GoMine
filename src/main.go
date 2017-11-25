@@ -8,15 +8,19 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"flag"
 )
 
 var currentTick = 0
+
+var stopInstantly = false
 
 func main() {
 	var startTime = time2.Now()
 	if !checkRequirements() {
 		return
 	}
+	parseFlags()
 	var serverPath = scanServerPath()
 
 	var server, err = gomine.NewServer(serverPath)
@@ -30,6 +34,10 @@ func main() {
 	server.GetLogger().Info("Server startup done! Took: " + startupTime.String())
 
 	var tickDrop = 20
+
+	if stopInstantly {
+		server.Shutdown()
+	}
 
 	for {
 		var tickDuration = int(1.0 / float32(server.GetTickRate()) * 1000) * int(time2.Millisecond)
@@ -92,4 +100,15 @@ func checkRequirements() bool {
 	}
 
 	return true
+}
+
+/**
+ * Parses all command line flags.
+ */
+func parseFlags() {
+	var instantStop = flag.Bool("stop-immediately", false, "instant stop")
+
+	flag.Parse()
+
+	stopInstantly = *instantStop
 }
