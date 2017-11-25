@@ -5,10 +5,10 @@ language: go
 go:
 - 1.9.2
 
-before_script:
-- export GOPATH=$HOME/gopath/src/github.com/Irmine/GoMine
+go_import_path: home/travis/gopath
 
-script: go build -i -o gomine.exe src/main.go
+script:
+- go build -i -o gomine.exe src/main.go
 
 notifications:
   email: false
