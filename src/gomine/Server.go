@@ -39,9 +39,9 @@ type Server struct {
 	rakLibAdapter *net.GoRakLibAdapter
 }
 
-var started bool = false
+var started = false
 
-var counter int = 0
+var counter = 0
 
 /**
  * Creates a new server.
