@@ -74,9 +74,7 @@ func main() {
 		currentTick++
 	}
 
-	time2.Sleep(time2.Duration(time2.Millisecond))
-
-	// Other shutdown code.
+	server.GetLogger().ProcessQueue() // Process the queue one last time synchronously to make sure everything gets written.
 }
 
 func scanServerPath() string {

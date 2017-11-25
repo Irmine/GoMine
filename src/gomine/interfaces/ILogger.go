@@ -9,4 +9,5 @@ type ILogger interface {
 	Error(string)
 	Warning(string)
 	Critical(string)
+	ProcessQueue()
 }

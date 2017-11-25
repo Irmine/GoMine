@@ -39,7 +39,11 @@ func NewLogger(prefix string, outputDir string, debugMode bool) *Logger {
 
 	var logger = &Logger{prefix, path, file, debugMode, []string{}, []string{}}
 
-	go logger.processQueue()
+	go func() {
+		for {
+			logger.ProcessQueue()
+		}
+	}()
 
 	return logger
 }
@@ -47,13 +51,18 @@ func NewLogger(prefix string, outputDir string, debugMode bool) *Logger {
 /**
  * Continuously processes the queue of log messages.
  */
-func (logger *Logger) processQueue() {
-	for {
-		for key, message := range logger.terminalQueue {
-			fmt.Println(message)
-			logger.write(logger.fileQueue[key])
+func (logger *Logger) ProcessQueue() {
+	for _, message := range logger.terminalQueue {
+		fmt.Println(message)
 
+		if len(logger.terminalQueue) > 0 {
 			logger.terminalQueue = logger.terminalQueue[1:]
+		}
+	}
+
+	for _, message := range logger.fileQueue {
+		logger.write(message)
+		if len(logger.fileQueue) > 0 {
 			logger.fileQueue = logger.fileQueue[1:]
 		}
 	}
