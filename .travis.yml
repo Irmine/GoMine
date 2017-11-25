@@ -9,7 +9,7 @@ install:
 - export GOPATH=$HOME/gopath/src/github.com/Irmine/GoMine
 
 script:
-- go build -i -o gomine.exe src/main.go
+- go run src/main.go
 
 notifications:
   email: false
