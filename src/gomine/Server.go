@@ -19,6 +19,8 @@ import (
 const (
 	GoMineVersion = "0.0.1"
 	ApiVersion = "0.0.1"
+
+	TickRate = 20
 )
 
 type Server struct {
@@ -54,7 +56,7 @@ func NewServer(serverPath string) (*Server, error) {
 	}
 
 	var server = &Server{}
-	server.tickRate = 20
+	server.tickRate = TickRate
 	server.serverPath = serverPath
 	server.config = resources.NewGoMineConfig(serverPath)
 	server.scheduler = tasks.NewScheduler()
@@ -136,7 +138,7 @@ func (server *Server) GetTickRate() int {
  * Resets the tick value back to the default. (20)
  */
 func (server *Server) ResetTickRate() {
-	server.tickRate = 20
+	server.tickRate = TickRate
 }
 
 /**

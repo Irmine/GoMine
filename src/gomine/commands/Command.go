@@ -14,6 +14,7 @@ type Command struct {
 	aliases []string
 	arguments []interfaces.ICommandArgument
 	usage string
+	permissionExempt bool
 }
 
 /**
@@ -29,6 +30,20 @@ func NewCommand(name string, description string, permission string, aliases []st
 func (command *Command) GetUsage() string {
 	command.parseUsage()
 	return command.usage
+}
+
+/**
+ * Sets the command exempted from permission checking, allowing anybody to use it.
+ */
+func (command *Command) ExemptFromPermissionCheck(value bool) {
+	command.permissionExempt = value
+}
+
+/**
+ * Returns if the user of this command is checked for the adequate permission.
+ */
+func (command *Command) IsPermissionChecked() bool {
+	return !command.permissionExempt
 }
 
 /**
@@ -129,7 +144,7 @@ func (command *Command) parseUsage() {
  * Checks and parses the values of a command.
  */
 func (command *Command) Parse(sender interfaces.ICommandSender, commandArgs []string, server interfaces.IServer) ([]interfaces.ICommandArgument, bool) {
-	if !sender.HasPermission(command.GetPermission()) {
+	if command.IsPermissionChecked() && !sender.HasPermission(command.GetPermission()) {
 		sender.SendMessage("You do not have permission to execute this command.")
 		return []interfaces.ICommandArgument{}, false
 	}

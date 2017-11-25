@@ -14,6 +14,7 @@ type TestCommand struct {
 
 func NewTest(server interfaces.IServer) TestCommand {
 	var test = TestCommand{commands.NewCommand("test", "Tests the command parser", "gomine.stop", []string{"test"}), server}
+	test.ExemptFromPermissionCheck(true)
 
 	var intArg = arguments.NewFloatArg("test", false)
 	intArg.SetInputAmount(1)
@@ -27,10 +28,8 @@ func NewTest(server interfaces.IServer) TestCommand {
 	return test
 }
 
-func (command TestCommand) Execute(sender interfaces.ICommandSender, arguments []interfaces.ICommandArgument) bool {
+func (command TestCommand) Execute(sender interfaces.ICommandSender, arguments []interfaces.ICommandArgument) {
 	fmt.Println(arguments[0].GetOutput())
 	fmt.Println(arguments[1].GetOutput())
 	fmt.Println(arguments[2].GetOutput())
-
-	return true
 }

@@ -52,6 +52,13 @@ func (player *Player) GetPermissionGroup() interfaces.IPermissionGroup {
 }
 
 /**
+ * Sets the permission group of this player.
+ */
+func (player *Player) SetPermissionGroup(group interfaces.IPermissionGroup) {
+	player.permissionGroup = group
+}
+
+/**
  * Checks if this player has a permission.
  */
 func (player *Player) HasPermission(permission string) bool {

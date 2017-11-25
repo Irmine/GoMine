@@ -15,7 +15,6 @@ func NewStop(server interfaces.IServer) StopCommand {
 	return stop
 }
 
-func (command StopCommand) Execute(sender interfaces.ICommandSender, arguments []interfaces.ICommandArgument) bool {
+func (command StopCommand) Execute(sender interfaces.ICommandSender, arguments []interfaces.ICommandArgument) {
 	command.server.Shutdown()
-	return true
 }
