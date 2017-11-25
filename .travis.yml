@@ -9,7 +9,7 @@ install:
 - export GOPATH=$HOME/gopath/src/github.com/Irmine/GoMine
 
 script:
-- travis.sh
+- ./travis.sh
 
 notifications:
   email: false
