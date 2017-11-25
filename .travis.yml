@@ -5,7 +5,8 @@ language: go
 go:
 - 1.9.2
 
-go_import_path: home/travis/gopath
+install:
+- export GOPATH=$HOME/gopath/src/github.com/Irmine/GoMine
 
 script:
 - go build -i -o gomine.exe src/main.go
