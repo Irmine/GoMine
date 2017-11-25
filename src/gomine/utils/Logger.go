@@ -21,6 +21,9 @@ type Logger struct {
 	path   string
 	file   *os.File
 	debugMode bool
+
+	terminalQueue []string
+	fileQueue []string
 }
 
 /**
@@ -34,7 +37,26 @@ func NewLogger(prefix string, outputDir string, debugMode bool) *Logger {
 		panic(fileError)
 	}
 
-	return &Logger{prefix, path, file, debugMode}
+	var logger = &Logger{prefix, path, file, debugMode, []string{}, []string{}}
+
+	go logger.processQueue()
+
+	return logger
+}
+
+/**
+ * Continuously processes the queue of log messages.
+ */
+func (logger *Logger) processQueue() {
+	for {
+		for key, message := range logger.terminalQueue {
+			fmt.Println(message)
+			logger.write(logger.fileQueue[key])
+
+			logger.terminalQueue = logger.terminalQueue[1:]
+			logger.fileQueue = logger.fileQueue[1:]
+		}
+	}
 }
 
 /**
@@ -50,8 +72,8 @@ func (logger *Logger) Log(message string, logLevel string, color string) {
 
 	var line = prefix + level + message
 
-	go fmt.Println(prefix + color + level + message + AnsiReset)
-	go logger.write(line)
+	logger.fileQueue = append(logger.fileQueue, line)
+	logger.terminalQueue = append(logger.terminalQueue, prefix + color + level + message + AnsiReset)
 }
 
 /**
