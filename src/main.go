@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"gomine"
-	time2 "time"
+	"time"
 	"runtime"
 	"os"
 	"path/filepath"
@@ -11,12 +11,17 @@ import (
 	"flag"
 )
 
-var currentTick = 0
+/**
+ * Command line flags:
+ * -stop-immediately : Stops the server immediately after starting and ticking once.
+ */
 
 var stopInstantly = false
 
+var currentTick = 0
+
 func main() {
-	var startTime = time2.Now()
+	var startTime = time.Now()
 	if !checkRequirements() {
 		return
 	}
@@ -30,33 +35,29 @@ func main() {
 	}
 
 	server.Start()
-	var startupTime = time2.Now().Sub(startTime)
+	var startupTime = time.Now().Sub(startTime)
 	server.GetLogger().Info("Server startup done! Took: " + startupTime.String())
 
 	var tickDrop = 20
 
-	if stopInstantly {
-		server.Shutdown()
-	}
-
 	for {
-		var tickDuration = int(1.0 / float32(server.GetTickRate()) * 1000) * int(time2.Millisecond)
-		var nextTime = time2.Now().Add(time2.Duration(tickDuration))
+		var tickDuration = int(1.0 / float32(server.GetTickRate()) * 1000) * int(time.Millisecond)
+		var nextTime = time.Now().Add(time.Duration(tickDuration))
 
 		server.Tick(currentTick)
 
-		var diff = nextTime.Sub(time2.Now()).Nanoseconds()
+		var diff = nextTime.Sub(time.Now()).Nanoseconds()
 
 		if diff > 0 {
 			tickDrop--
 
-			if tickDrop < 0 && server.GetTickRate() != 20 && diff > 5 * int64(time2.Millisecond) {
+			if tickDrop < 0 && server.GetTickRate() != 20 && diff > 5 * int64(time.Millisecond) {
 				server.SetTickRate(server.GetTickRate() + 1)
 
 				server.GetLogger().Debug("Elevating tick rate to: " + strconv.Itoa(server.GetTickRate()))
 			}
 
-			time2.Sleep(time2.Duration(diff))
+			time.Sleep(time.Duration(diff))
 		} else {
 			tickDrop++
 
@@ -65,13 +66,14 @@ func main() {
 				server.GetLogger().Debug("Lowering tick rate to: " + strconv.Itoa(server.GetTickRate()))
 			}
 		}
+		currentTick++
 
-		if !server.IsRunning() {
+		if stopInstantly {
 			server.Shutdown()
+		}
+		if !server.IsRunning() {
 			break
 		}
-
-		currentTick++
 	}
 
 	server.GetLogger().ProcessQueue() // Process the queue one last time synchronously to make sure everything gets written.

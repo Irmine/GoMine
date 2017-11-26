@@ -159,7 +159,7 @@ func (command *Command) Parse(sender interfaces.ICommandSender, commandArgs []st
 	}
 	for _, argument := range command.GetArguments() {
 		var i = 0
-		var output = []string{}
+		var output []string
 
 		for i < argument.GetInputAmount() {
 			if len(commandArgs) < stringIndex + i + 1 {
@@ -179,7 +179,7 @@ func (command *Command) Parse(sender interfaces.ICommandSender, commandArgs []st
 			i++
 		}
 		stringIndex += i
-		var processedOutput = []interface{}{}
+		var processedOutput []interface{}
 
 		for _, value := range output {
 			processedOutput = append(processedOutput, argument.ConvertValue(value, server))

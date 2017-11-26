@@ -21,7 +21,7 @@ func NewConsoleReader() *ConsoleReader {
 
 /**
  * Reads any commands if entered.
- * Reading lines is blocking, and other goroutines should be used where possible.
+ * Reading lines is blocking, and other goroutines should always be used.
  */
 func (reader *ConsoleReader) ReadLine(server interfaces.IServer) string {
 	if reader.reading {

@@ -2,18 +2,18 @@ package gomine
 
 import (
 	"errors"
+	"os"
 	"gomine/tasks"
 	"gomine/utils"
 	"gomine/resources"
 	"gomine/worlds"
-	"os"
 	"gomine/interfaces"
 	"gomine/commands"
 	"gomine/commands/defaults"
 	"gomine/net"
-	"gomine/players"
 	"gomine/net/info"
 	"gomine/permissions"
+	"gomine/players"
 )
 
 const (
@@ -36,7 +36,8 @@ type Server struct {
 	permissionManager *permissions.PermissionManager
 
 	levels map[int]interfaces.ILevel
-	players map[string]players.Player
+
+	playerFactory *players.PlayerFactory
 
 	rakLibAdapter *net.GoRakLibAdapter
 }
@@ -65,6 +66,8 @@ func NewServer(serverPath string) (*Server, error) {
 	server.consoleReader = utils.NewConsoleReader()
 	server.commandHolder = commands.NewCommandHolder()
 	server.rakLibAdapter = net.NewGoRakLibAdapter(server)
+
+	server.playerFactory = players.NewPlayerFactory(server)
 
 	server.permissionManager = permissions.NewPermissionManager(server)
 
@@ -310,6 +313,9 @@ func (server *Server) GetPermissionManager() interfaces.IPermissionManager {
  * Ticks the entire server. (Levels, scheduler, GoRakLib server etc.)
  */
 func (server *Server) Tick(currentTick int) {
+	if !server.isRunning {
+		return
+	}
 	server.GetScheduler().DoTick()
 	for _, level := range server.levels {
 		level.TickLevel()
