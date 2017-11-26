@@ -3,11 +3,13 @@ package utils
 import (
 	"fmt"
 	"math"
+	"encoding/binary"
+	"bytes"
 )
 
 func Read(buffer *[]byte, offset *int, length int) ([]byte) {
 	bytes := make([]byte, 0)
-	if *offset >= len( *buffer) - 1 {
+	if *offset >= len(*buffer) {
 		fmt.Printf("An error occurred: %v", "no bytes left to read")
 		panic("Aborting...")
 	}
@@ -534,11 +536,14 @@ func ReadVarLong(buffer *[]byte, offset *int) (int64) {
 	return int64(out)
 }
 
-func WriteUnsignedVarInt(buffer *[]byte, int uint32) {
-	var i uint
-	len2 := 5
-	for i = 0; i < uint(len2) * 8; i += 8 {
-		Write(buffer, byte(int >> i))
+func WriteUnsignedVarInt(buffer *[]byte, value uint32) {
+	var buf = make([]byte, binary.MaxVarintLen32)
+	binary.PutUvarint(buf, uint64(value))
+
+	buf = bytes.Trim(buf, "\x00")
+
+	for _, b := range buf {
+		Write(buffer, b)
 	}
 }
 

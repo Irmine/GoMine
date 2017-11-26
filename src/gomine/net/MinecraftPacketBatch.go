@@ -48,7 +48,7 @@ func (batch *MinecraftPacketBatch) Decode() {
 
 	for _, data := range packetData {
 		packetId := int(data[0])
-		packet := packets.GetPacket(packetId)
+		packet := GetPacket(packetId)
 
 		packet.SetBuffer(data)
 		batch.packets = append(batch.packets, packet)

@@ -12,8 +12,8 @@ const (
 	ClientHandshakePacket = 0x03
 	ServerHandshakePacket = 0x04
 	DisconnectPacket = 0x05
-	ResourcePackInfo = 0x06
-	ResourcePackStack = 0x06
+	ResourcePackInfoPacket = 0x06
+	ResourcePackStackPacket = 0x06
 	ResourcePackClientResponsePacket = 0x08
 	TextPacket = 0x09
 	SetTimePacket = 0x0a

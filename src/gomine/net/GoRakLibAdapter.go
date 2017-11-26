@@ -23,7 +23,7 @@ func NewGoRakLibAdapter(server interfaces.IServer) *GoRakLibAdapter {
 	rakServer.SetDefaultGameMode("Creative")
 	rakServer.SetMotd(server.GetMotd())
 
-	packets.InitPacketPool()
+	InitPacketPool()
 
 	return &GoRakLibAdapter{server, rakServer}
 }
@@ -37,15 +37,33 @@ func (adapter *GoRakLibAdapter) Tick() {
 				batch := NewMinecraftPacketBatch()
 				batch.stream.Buffer = encapsulatedPacket.Buffer
 				batch.Decode()
+
 				for _, packet := range batch.GetPackets() {
-					packet.Decode()
+					//packet.Decode()
+					if packet.GetId() == info.LoginPacket {
+						pk := packets.NewPlayStatusPacket()
+						pk.Status = 0
+						adapter.SendPacket(pk, session)
+
+						pk3 := packets.NewResourcePackInfoPacket()
+						adapter.SendPacket(pk3, session)
+					}
 				}
 			}
 		}
 	}()
 }
 
-func (adapter *GoRakLibAdapter) SendBatch(batch *MinecraftPacketBatch, ip string, port uint16) {
+func (adapter *GoRakLibAdapter) SendPacket(pk packets.IPacket, session *server2.Session) {
+	pk.EncodeHeader()
+	pk.Encode()
+	var b = NewMinecraftPacketBatch()
+	b.AddPacket(pk)
+
+	adapter.SendBatch(&b, session)
+}
+
+func (adapter *GoRakLibAdapter) SendBatch(batch *MinecraftPacketBatch, session *server2.Session) {
 	batch.Encode()
 
 	var encPacket = protocol.NewEncapsulatedPacket()
@@ -55,5 +73,5 @@ func (adapter *GoRakLibAdapter) SendBatch(batch *MinecraftPacketBatch, ip string
 	datagram.AddPacket(&encPacket)
 	datagram.Encode()
 
-	adapter.rakLibServer.GetSessionManager().SendPacket(datagram, ip, port)
+	adapter.rakLibServer.GetSessionManager().SendPacket(datagram, session)
 }
