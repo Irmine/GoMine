@@ -10,17 +10,28 @@ type Player struct {
 
 	permissions map[string]interfaces.IPermission
 	permissionGroup interfaces.IPermissionGroup
+
+	server interfaces.IServer
 }
 
 func NewPlayer(server interfaces.IServer, name string) *Player {
 	var player = &Player{}
 	player.playerName = name
 	player.displayName = name
-	player.permissions = make(map[string]interfaces.IPermission)
 
+	player.permissions = make(map[string]interfaces.IPermission)
 	player.permissionGroup = server.GetPermissionManager().GetDefaultGroup()
 
+	player.server = server
+
 	return player
+}
+
+/**
+ * Returns the main server.
+ */
+func (player *Player) GetServer() interfaces.IServer {
+	return player.server
 }
 
 /**

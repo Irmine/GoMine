@@ -12,15 +12,6 @@ type Packet struct {
 	ExtraBytes [2]byte
 }
 
-type IPacket interface {
-	SetBuffer([]byte)
-	GetBuffer() []byte
-	GetId() int
-	EncodeHeader()
-	Encode()
-	Decode()
-}
-
 func NewPacket(id int) *Packet {
 	return &Packet{id, utils.NewStream(), [2]byte{}}
 }

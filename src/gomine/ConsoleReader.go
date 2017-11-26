@@ -1,4 +1,4 @@
-package utils
+package gomine
 
 import (
 	"bufio"

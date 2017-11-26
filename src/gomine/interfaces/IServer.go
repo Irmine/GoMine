@@ -32,4 +32,5 @@ type IServer interface {
 	GetPermissionManager() IPermissionManager
 	GetVersion() string
 	GetNetworkVersion() string
+	GetRakLibAdapter() IGoRakLibAdapter
 }

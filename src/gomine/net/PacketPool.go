@@ -3,9 +3,10 @@ package net
 import (
 	"gomine/net/info"
 	"gomine/net/packets"
+	"gomine/interfaces"
 )
 
-var registeredPackets = map[int]packets.IPacket{}
+var registeredPackets = map[int]interfaces.IPacket{}
 
 func InitPacketPool() {
 	RegisterPacket(info.LoginPacket, packets.NewLoginPacket())
@@ -16,10 +17,10 @@ func InitPacketPool() {
 	RegisterPacket(info.ResourcePackClientResponsePacket, packets.NewResourcePackClientResponsePacket())
 }
 
-func RegisterPacket(id int, packet packets.IPacket) {
+func RegisterPacket(id int, packet interfaces.IPacket) {
 	registeredPackets[id] = packet
 }
 
-func GetPacket(id int) packets.IPacket {
+func GetPacket(id int) interfaces.IPacket {
 	return registeredPackets[id]
 }

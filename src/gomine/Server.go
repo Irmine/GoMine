@@ -30,7 +30,7 @@ type Server struct {
 	scheduler  *tasks.Scheduler
 	logger     interfaces.ILogger
 	config 	   *resources.GoMineConfig
-	consoleReader *utils.ConsoleReader
+	consoleReader *ConsoleReader
 	commandHolder interfaces.ICommandHolder
 
 	permissionManager *permissions.PermissionManager
@@ -63,7 +63,7 @@ func NewServer(serverPath string) (*Server, error) {
 	server.scheduler = tasks.NewScheduler()
 	server.logger = utils.NewLogger("GoMine", serverPath, server.GetConfiguration().DebugMode)
 	server.levels = make(map[int]interfaces.ILevel)
-	server.consoleReader = utils.NewConsoleReader()
+	server.consoleReader = NewConsoleReader()
 	server.commandHolder = commands.NewCommandHolder()
 	server.rakLibAdapter = net.NewGoRakLibAdapter(server)
 
@@ -232,7 +232,7 @@ func (server *Server) LoadLevel(levelName string) bool {
 /**
  * Returns the console command reader.
  */
-func (server *Server) GetConsoleReader() *utils.ConsoleReader {
+func (server *Server) GetConsoleReader() *ConsoleReader {
 	return server.consoleReader
 }
 
@@ -290,7 +290,7 @@ func (server *Server) GetMaximumPlayers() uint {
  * Returns the GoRakLibAdapter of the server.
  * This is used for network features.
  */
-func (server *Server) GetRakLibAdapter() *net.GoRakLibAdapter {
+func (server *Server) GetRakLibAdapter() interfaces.IGoRakLibAdapter {
 	return server.rakLibAdapter
 }
 
@@ -306,6 +306,13 @@ func (server *Server) GetMotd() string {
  */
 func (server *Server) GetPermissionManager() interfaces.IPermissionManager {
 	return server.permissionManager
+}
+
+/**
+ * Returns the player factory of the server.
+ */
+func (server *Server) GetPlayerFactory() *players.PlayerFactory {
+	return server.playerFactory
 }
 
 /**

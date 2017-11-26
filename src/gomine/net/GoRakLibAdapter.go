@@ -3,9 +3,9 @@ package net
 import (
 	"gomine/interfaces"
 	server2 "goraklib/server"
-	"gomine/net/packets"
 	"gomine/net/info"
 	"goraklib/protocol"
+	"gomine/players"
 )
 
 type GoRakLibAdapter struct {
@@ -24,6 +24,7 @@ func NewGoRakLibAdapter(server interfaces.IServer) *GoRakLibAdapter {
 	rakServer.SetMotd(server.GetMotd())
 
 	InitPacketPool()
+	InitHandlerPool()
 
 	return &GoRakLibAdapter{server, rakServer}
 }
@@ -40,13 +41,10 @@ func (adapter *GoRakLibAdapter) Tick() {
 
 				for _, packet := range batch.GetPackets() {
 					//packet.Decode()
-					if packet.GetId() == info.LoginPacket {
-						pk := packets.NewPlayStatusPacket()
-						pk.Status = 0
-						adapter.SendPacket(pk, session)
 
-						pk3 := packets.NewResourcePackInfoPacket()
-						adapter.SendPacket(pk3, session)
+					handlers := GetPacketHandlers(packet.GetId())
+					for _, handler := range handlers {
+						handler.Handle(packet, players.Player{}, session, adapter.server)
 					}
 				}
 			}
@@ -54,7 +52,7 @@ func (adapter *GoRakLibAdapter) Tick() {
 	}()
 }
 
-func (adapter *GoRakLibAdapter) SendPacket(pk packets.IPacket, session *server2.Session) {
+func (adapter *GoRakLibAdapter) SendPacket(pk interfaces.IPacket, session *server2.Session) {
 	pk.EncodeHeader()
 	pk.Encode()
 	var b = NewMinecraftPacketBatch()
@@ -63,11 +61,11 @@ func (adapter *GoRakLibAdapter) SendPacket(pk packets.IPacket, session *server2.
 	adapter.SendBatch(&b, session)
 }
 
-func (adapter *GoRakLibAdapter) SendBatch(batch *MinecraftPacketBatch, session *server2.Session) {
+func (adapter *GoRakLibAdapter) SendBatch(batch interfaces.IMinecraftPacketBatch, session *server2.Session) {
 	batch.Encode()
 
 	var encPacket = protocol.NewEncapsulatedPacket()
-	encPacket.SetBuffer(batch.stream.GetBuffer())
+	encPacket.SetBuffer(batch.GetStream().GetBuffer())
 
 	var datagram = protocol.NewDatagram()
 	datagram.AddPacket(&encPacket)

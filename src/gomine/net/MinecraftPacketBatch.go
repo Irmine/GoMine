@@ -5,7 +5,7 @@ import (
 	"bytes"
 	"compress/zlib"
 	"io/ioutil"
-	"gomine/net/packets"
+	"gomine/interfaces"
 )
 
 const McpeFlag = 0xFE
@@ -15,7 +15,7 @@ type MinecraftPacketBatch struct {
 
 	raw []byte
 
-	packets []packets.IPacket
+	packets []interfaces.IPacket
 }
 
 func NewMinecraftPacketBatch() MinecraftPacketBatch {
@@ -23,6 +23,10 @@ func NewMinecraftPacketBatch() MinecraftPacketBatch {
 	batch.stream = utils.NewStream()
 
 	return batch
+}
+
+func (batch *MinecraftPacketBatch) GetStream() *utils.BinaryStream {
+	return batch.stream
 }
 
 func (batch *MinecraftPacketBatch) Decode() {
@@ -75,10 +79,10 @@ func (batch *MinecraftPacketBatch) Encode() {
 	batch.stream.PutBytes(buff.Bytes())
 }
 
-func (batch *MinecraftPacketBatch) AddPacket(packet packets.IPacket) {
+func (batch *MinecraftPacketBatch) AddPacket(packet interfaces.IPacket) {
 	batch.packets = append(batch.packets, packet)
 }
 
-func (batch *MinecraftPacketBatch) GetPackets() []packets.IPacket {
+func (batch *MinecraftPacketBatch) GetPackets() []interfaces.IPacket {
 	return batch.packets
 }
