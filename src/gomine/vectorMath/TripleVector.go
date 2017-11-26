@@ -17,12 +17,12 @@ const (
 	East
 )
 
-func NewTripleVector(X, Y, Z float32) *TripleVector {
-	return &TripleVector{X, Y, Z}
+func NewTripleVector(x, y, z float32) *TripleVector {
+	return &TripleVector{x, y, z}
 }
 
 /**
- * Converts anY struct that has an embedded TripleVector to a new TripleVector.
+ * Converts any struct that has an embedded TripleVector to a new TripleVector.
  */
 func (vector *TripleVector) AsTripleVector() *TripleVector {
 	return NewTripleVector(vector.X, vector.Y, vector.Z)
@@ -80,8 +80,8 @@ func (vector *TripleVector) AddVector(vector2 TripleVector) TripleVector {
 /**
  * Adds the given XYZ values to the current vector and creates a new TripleVector.
  */
-func (vector *TripleVector) Add(X float32, Y float32, Z float32) TripleVector {
-	return TripleVector{vector.X + X, vector.Y + Y, vector.Z + Z}
+func (vector *TripleVector) Add(x float32, y float32, z float32) TripleVector {
+	return TripleVector{vector.X + x, vector.Y + y, vector.Z + z}
 }
 
 /**
@@ -94,8 +94,8 @@ func (vector *TripleVector) SubtractVector(vector2 TripleVector) TripleVector {
 /**
  * Subtracts the given XYZ values from the current vector and creates a new TripleVector.
  */
-func (vector *TripleVector) Subtract(X float32, Y float32, Z float32) TripleVector {
-	return vector.Add(-X, -Y, -Z)
+func (vector *TripleVector) Subtract(x float32, y float32, z float32) TripleVector {
+	return vector.Add(-x, -y, -z)
 }
 
 /**
@@ -184,4 +184,5 @@ func (vector *TripleVector) Step(direction, steps float32) TripleVector {
 	case East:
 		return TripleVector{vector.X + steps, vector.Y, vector.Z}
 	}
+	return TripleVector{}
 }
