@@ -481,31 +481,21 @@ func ReadString(buffer *[]byte, offset *int) (string) {
 }
 
 func WriteVarInt(buffer *[]byte, int int32) {
-	var i uint
-	len2 := 5
-	for i = 0; i < uint(len2) * 8; i += 8 {
-		Write(buffer, byte(int >> i))
+	var buf = make([]byte, binary.MaxVarintLen32)
+	binary.PutVarint(buf, int64(int))
+
+	buf = bytes.Trim(buf, "\x00")
+
+	for _, b := range buf {
+		Write(buffer, b)
 	}
 }
 
 func ReadVarInt(buffer *[]byte, offset *int) (int32) {
-	var v uint
-	var i uint
-	var out int
-	bytes := Read(buffer, offset, 5)
-	len2 := uint(len(bytes))
-	v = 0
-	for i = 0; i < len2; i++ {
-		if i == 0 {
-			out = int(bytes[i] & 0x7f) << v
-			v += 8
-			continue
-		}
-		out |= int(bytes[i]) << v
-		v += 8
-	}
+	var unsigned = ReadUnsignedVarInt(buffer, offset)
+	var tempInt = (((int(unsigned) << 63) >> 63) ^ int(unsigned)) >> 1
 
-	return int32(out)
+	return int32(tempInt ^ (int(unsigned) & (1 << 63)))
 }
 
 func WriteVarLong(buffer *[]byte, int int64) {

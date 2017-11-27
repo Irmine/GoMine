@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"gomine/utils"
 	"gomine/net/info"
-	"fmt"
 )
 
 type LoginPacket struct {
@@ -13,7 +12,7 @@ type LoginPacket struct {
 	Protocol int32
 	ClientUUID string
 	ClientId int
-	Xuid string
+	ClientXUID string
 	IdentityPublicKey string
 	ServerAddress string
 	Language string
@@ -42,7 +41,7 @@ func NewLoginPacket() LoginPacket {
 }
 
 func (pk LoginPacket) Encode()  {
-	//todo
+
 }
 
 func (pk LoginPacket) Decode()  {
@@ -62,11 +61,9 @@ func (pk LoginPacket) Decode()  {
 	stream.Buffer = []byte(pk.GetString())
 
 	json.Unmarshal(stream.Get(int(stream.GetLittleInt())), ChainData)
-	fmt.Printf("Chain data : %v", ChainData)
 	for _, v := range ChainData.chain {
 		WebToken := WebTokenKeys{}
 		utils.DecodeJwt(v, WebToken)
-		fmt.Printf("Web token : %v", WebToken)
 		if v, ok := WebToken.extraData["username"]; ok {
 			pk.Username = v.(string)
 		}
@@ -74,7 +71,7 @@ func (pk LoginPacket) Decode()  {
 			pk.ClientUUID = v.(string)
 		}
 		if v, ok := WebToken.extraData["XUID"]; ok {
-			pk.Xuid = v.(string)
+			pk.ClientXUID = v.(string)
 		}
 		if len(WebToken.identityPublicKey) > 0 {
 			pk.IdentityPublicKey = WebToken.identityPublicKey
@@ -82,20 +79,22 @@ func (pk LoginPacket) Decode()  {
 	}
 	ClientDataJwt = stream.Get(int(stream.GetLittleInt()))
 	utils.DecodeJwt(string(ClientDataJwt), ClientData)
-	fmt.Printf("Client Data: %v", ClientData)
+
 	if v, ok := ClientData.clientData["ClientRandomId"]; ok {
 		pk.ClientId = v.(int)
 	}else{
 		pk.ClientId = 0
 	}
+
 	if v, ok := ClientData.clientData["ServerAddress"]; ok {
 		pk.ServerAddress = v.(string)
 	}else{
 		pk.ServerAddress = ""
 	}
+
 	if v, ok := ClientData.clientData["LanguageCode"]; ok {
 		pk.Language = v.(string)
 	}else{
-		pk.Language = v.(string)
+		pk.Language = "en_US"
 	}
 }

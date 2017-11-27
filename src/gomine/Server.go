@@ -311,7 +311,7 @@ func (server *Server) GetPermissionManager() interfaces.IPermissionManager {
 /**
  * Returns the player factory of the server.
  */
-func (server *Server) GetPlayerFactory() *players.PlayerFactory {
+func (server *Server) GetPlayerFactory() interfaces.IPlayerFactory {
 	return server.playerFactory
 }
 

@@ -7,7 +7,7 @@ import (
 
 type IPacketHandler interface {
 	GetId() int
-	Handle(interfaces.IPacket, Player, *server.Session, interfaces.IServer) bool
+	Handle(interfaces.IPacket, interfaces.IPlayer, *server.Session, interfaces.IServer) bool
 }
 
 type PacketHandler struct {

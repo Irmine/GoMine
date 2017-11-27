@@ -33,4 +33,5 @@ type IServer interface {
 	GetVersion() string
 	GetNetworkVersion() string
 	GetRakLibAdapter() IGoRakLibAdapter
+	GetPlayerFactory() IPlayerFactory
 }

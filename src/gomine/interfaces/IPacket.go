@@ -7,4 +7,5 @@ type IPacket interface {
 	EncodeHeader()
 	Encode()
 	Decode()
+	ResetStream()
 }

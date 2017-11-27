@@ -12,12 +12,23 @@ type Player struct {
 	permissionGroup interfaces.IPermissionGroup
 
 	server interfaces.IServer
+
+	language string
+
+	uuid string
+	xuid string
+	clientId int
+
 }
 
-func NewPlayer(server interfaces.IServer, name string) *Player {
+func NewPlayer(server interfaces.IServer, name string, uuid string, xuid string, clientId int) *Player {
 	var player = &Player{}
 	player.playerName = name
 	player.displayName = name
+
+	player.uuid = uuid
+	player.xuid = xuid
+	player.clientId = clientId
 
 	player.permissions = make(map[string]interfaces.IPermission)
 	player.permissionGroup = server.GetPermissionManager().GetDefaultGroup()
@@ -25,6 +36,26 @@ func NewPlayer(server interfaces.IServer, name string) *Player {
 	player.server = server
 
 	return player
+}
+
+func (player *Player) GetUUID() string {
+	return player.uuid
+}
+
+func (player *Player) GetXUID() string {
+	return player.xuid
+}
+
+func (player *Player) SetLanguage(language string) {
+	player.language = language
+}
+
+func (player *Player) GetLanguage() string {
+	return player.language
+}
+
+func (player *Player) GetClientId() int {
+	return player.clientId
 }
 
 /**
@@ -37,21 +68,21 @@ func (player *Player) GetServer() interfaces.IServer {
 /**
  * Returns the username the player used to join the server.
  */
-func (player *Player) getName() string {
+func (player *Player) GetName() string {
 	return player.playerName
 }
 
 /**
  * Returns the name the player shows in-game.
  */
-func (player *Player) getDisplayName() string {
+func (player *Player) GetDisplayName() string {
 	return player.displayName
 }
 
 /**
  * Sets the name other players can see in-game.
  */
-func (player *Player) setDisplayName(name string) {
+func (player *Player) SetDisplayName(name string) {
 	player.displayName = name
 }
 

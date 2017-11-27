@@ -1,8 +1,10 @@
 package interfaces
 
+import "goraklib/server"
+
 type IPlayerFactory interface {
-	CreatePlayer()
-	GetPlayers() []IPlayer
+	AddPlayer(IPlayer, *server.Session)
+	GetPlayers() map[string]IPlayer
 	GetPlayerByName(string) (IPlayer, error)
-	GetPlayerByAddress(string, uint16) (IPlayer, error)
+	GetPlayerBySession(string, uint16) (IPlayer, error)
 }

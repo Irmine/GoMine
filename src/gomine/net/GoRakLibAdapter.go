@@ -5,7 +5,6 @@ import (
 	server2 "goraklib/server"
 	"gomine/net/info"
 	"goraklib/protocol"
-	"gomine/players"
 )
 
 type GoRakLibAdapter struct {
@@ -40,11 +39,13 @@ func (adapter *GoRakLibAdapter) Tick() {
 				batch.Decode()
 
 				for _, packet := range batch.GetPackets() {
-					//packet.Decode()
+					packet.Decode()
+
+					var player, _ = adapter.server.GetPlayerFactory().GetPlayerBySession(session.GetAddress(), session.GetPort())
 
 					handlers := GetPacketHandlers(packet.GetId())
 					for _, handler := range handlers {
-						handler.Handle(packet, players.Player{}, session, adapter.server)
+						handler.Handle(packet, player, session, adapter.server)
 					}
 				}
 			}
