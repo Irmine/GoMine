@@ -492,10 +492,11 @@ func WriteVarInt(buffer *[]byte, int int32) {
 }
 
 func ReadVarInt(buffer *[]byte, offset *int) (int32) {
-	var unsigned = ReadUnsignedVarInt(buffer, offset)
-	var tempInt = (((int(unsigned) << 63) >> 63) ^ int(unsigned)) >> 1
+	var varInt, readBytes = binary.Varint(*buffer)
+	var newOffset = readBytes + *offset
+	offset = &newOffset
 
-	return int32(tempInt ^ (int(unsigned) & (1 << 63)))
+	return int32(varInt)
 }
 
 func WriteVarLong(buffer *[]byte, int int64) {
