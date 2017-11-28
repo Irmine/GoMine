@@ -6,7 +6,6 @@ import (
 	"gomine/interfaces"
 	"goraklib/server"
 	"gomine/net/packets"
-	"fmt"
 )
 
 type ChunkRadiusRequestHandler struct {
@@ -28,8 +27,6 @@ func (handler ChunkRadiusRequestHandler) Handle(packet interfaces.IPacket, playe
 		pk2 := packets.NewPlayStatusPacket()
 		pk2.Status = 3
 		server.GetRakLibAdapter().SendPacket(pk2, session)
-
-		fmt.Println("Sent chunk radius updated packet with: ", uint32(player.GetViewDistance()))
 	}
 
 	return true

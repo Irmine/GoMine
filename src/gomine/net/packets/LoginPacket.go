@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"gomine/utils"
 	"gomine/net/info"
-	"fmt"
 )
 
 type LoginPacket struct {
@@ -29,7 +28,9 @@ type WebTokenKeys struct {
 }
 
 type ClientDataKeys struct {
-	ClientData map[string]interface{} `json:"clientData"`
+	ClientRandomId int `json:"ClientRandomId"`
+	ServerAddress string `json:"ServerAddress"`
+	LanguageCode string `json:"LanguageCode"`
 }
 
 func NewLoginPacket() *LoginPacket {
@@ -83,24 +84,12 @@ func (pk *LoginPacket) Decode()  {
 	var clientData = &ClientDataKeys{}
 
 	utils.DecodeJwt(string(clientDataJwt), clientData)
-	fmt.Println(clientData)
 
-	if v, ok := clientData.ClientData["ClientRandomId"]; ok {
-		pk.ClientId = v.(int)
-	}else{
-		pk.ClientId = 0
-	}
+	pk.ClientId = clientData.ClientRandomId
+	pk.ServerAddress = clientData.ServerAddress
 
-	if v, ok := clientData.ClientData["ServerAddress"]; ok {
-		pk.ServerAddress = v.(string)
-	}else{
-		pk.ServerAddress = ""
-	}
-
-	if v, ok := clientData.ClientData["LanguageCode"]; ok {
-		pk.Language = v.(string)
-		fmt.Println(pk.Language)
-	}else{
+	pk.Language = clientData.LanguageCode
+	if pk.Language == "" {
 		pk.Language = "en_US"
 	}
 }
