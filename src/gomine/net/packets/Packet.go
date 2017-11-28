@@ -53,11 +53,11 @@ func (pk *Packet) DecodeHeader() {
 	}
 }
 
-func (pk *Packet) PutEId(eid uint64) {
+func (pk *Packet) PutRuntimeId(eid uint64) {
 	pk.PutUnsignedVarLong(eid)
 }
 
-func (pk *Packet) GetEId() uint64 {
+func (pk *Packet) GetRuntimeId() uint64 {
 	return pk.GetUnsignedVarLong()
 }
 
@@ -153,4 +153,10 @@ func (pk *Packet) GetEntityData() map[uint32][]interface{} {
 		dat[k][1] = v
 	}
 	return dat
+}
+
+func (pk *Packet) PutBlockPos(x int32, y uint32, z int32) {
+	pk.PutVarInt(x)
+	pk.PutUnsignedVarInt(y)
+	pk.PutVarInt(x)
 }

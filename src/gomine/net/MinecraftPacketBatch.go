@@ -6,6 +6,7 @@ import (
 	"compress/zlib"
 	"io/ioutil"
 	"gomine/interfaces"
+	"fmt"
 )
 
 const McpeFlag = 0xFE
@@ -53,6 +54,12 @@ func (batch *MinecraftPacketBatch) Decode() {
 	for _, data := range packetData {
 		packetId := int(data[0])
 		packet := GetPacket(packetId)
+
+		if packet == nil {
+			fmt.Println("Unhandled Minecraft packet with ID:", packetId)
+			continue
+		}
+
 		packet.ResetStream()
 
 		packet.SetBuffer(data)

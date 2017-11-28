@@ -19,6 +19,7 @@ type Player struct {
 	xuid string
 	clientId int
 
+	viewDistance uint
 }
 
 func NewPlayer(server interfaces.IServer, name string, uuid string, xuid string, clientId int) *Player {
@@ -56,6 +57,14 @@ func (player *Player) GetLanguage() string {
 
 func (player *Player) GetClientId() int {
 	return player.clientId
+}
+
+func (player *Player) SetViewDistance(distance uint) {
+	player.viewDistance = distance
+}
+
+func (player *Player) GetViewDistance() uint {
+	return player.viewDistance
 }
 
 /**

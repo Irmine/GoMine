@@ -100,6 +100,8 @@ func (server *Server) Start() {
 	server.GetLogger().Info("GoMine " + GoMineVersion + " is now starting...")
 
 	server.isRunning = true
+
+	server.GetDefaultLevel()
 }
 
 /**
@@ -218,15 +220,62 @@ func (server *Server) IsLevelGenerated(levelName string) bool {
  */
 func (server *Server) LoadLevel(levelName string) bool {
 	if !server.IsLevelGenerated(levelName) {
-		return false
+		//return false
 	}
 	if server.IsLevelLoaded(levelName) {
 		return false
 	}
-	var levels = server.levels
-	levels[counter] = worlds.NewLevel(levelName, server, []interfaces.IChunk{})
+	server.levels[counter] = worlds.NewLevel(levelName, counter, server, []interfaces.IChunk{})
 	counter++
 	return true
+}
+
+/**
+ * Returns the default level and loads/generates it if needed.
+ */
+func (server *Server) GetDefaultLevel() interfaces.ILevel {
+	if !server.IsLevelGenerated(server.config.DefaultLevel) {
+		// Generate the level
+	}
+	if !server.IsLevelLoaded(server.config.DefaultLevel) {
+		server.LoadLevel(server.config.DefaultLevel)
+	}
+	var level, _ = server.GetLevelByName(server.config.DefaultLevel)
+	return level
+}
+
+func (server *Server) GenerateLevel(levelName string) {
+
+}
+
+/**
+ * Returns a level by its ID. Returns an error if a level with the ID is not loaded.
+ */
+func (server *Server) GetLevelById(id int) (interfaces.ILevel, error) {
+	var level interfaces.ILevel
+	if level, ok := server.levels[id]; ok {
+		return level, nil
+	}
+	return level, errors.New("level with given ID is not loaded")
+}
+
+/**
+ * Returns a level by its name. Returns an error if the level is not loaded.
+ */
+func (server *Server) GetLevelByName(name string) (interfaces.ILevel, error) {
+	var level interfaces.ILevel
+	if !server.IsLevelGenerated(name) {
+		return level, errors.New("level with given name is not generated")
+	}
+	if !server.IsLevelLoaded(name) {
+		return level, errors.New("level with given name is not loaded")
+	}
+	for _, level := range server.GetLoadedLevels() {
+		if level.GetName() == name {
+			return level, nil
+		}
+	}
+	return level, nil
 }
 
 /**

@@ -19,12 +19,12 @@ type AddEntityPacket struct {
 	EntityData map[uint32][]interface{}
 }
 
-func NewAddEntityPacket() AddEntityPacket {
-	return AddEntityPacket{NewPacket(info.AddEntityPacket), 0, 0, vectorMath.TripleVector{}, vectorMath.TripleVector{}, 0.0, 0.0, nil, nil}
+func NewAddEntityPacket() *AddEntityPacket {
+	return &AddEntityPacket{NewPacket(info.AddEntityPacket), 0, 0, vectorMath.TripleVector{}, vectorMath.TripleVector{}, 0.0, 0.0, nil, nil}
 }
 
-func (pk AddEntityPacket) Encode() {
-	pk.PutEId(pk.EntityId)
+func (pk *AddEntityPacket) Encode() {
+	pk.PutRuntimeId(pk.EntityId)
 	pk.PutUnsignedVarInt(pk.EntityType)
 	pk.PutTripleVectorObject(pk.Position)
 	pk.PutTripleVectorObject(pk.Motion)
@@ -34,8 +34,8 @@ func (pk AddEntityPacket) Encode() {
 	pk.PutEntityData(pk.EntityData)
 }
 
-func (pk AddEntityPacket) Decode() {
-	pk.EntityId = pk.GetEId()
+func (pk *AddEntityPacket) Decode() {
+	pk.EntityId = pk.GetRuntimeId()
 	pk.EntityType = pk.GetUnsignedVarInt()
 	pk.Position = *pk.GetTripleVectorObject()
 	pk.Motion = *pk.GetTripleVectorObject()

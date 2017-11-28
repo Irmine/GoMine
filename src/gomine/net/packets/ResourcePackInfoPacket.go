@@ -9,16 +9,16 @@ type ResourcePackInfoPacket struct {
 	// Resource pack entries
 }
 
-func NewResourcePackInfoPacket() ResourcePackInfoPacket {
-	return ResourcePackInfoPacket{NewPacket(info.ResourcePackInfoPacket), false}
+func NewResourcePackInfoPacket() *ResourcePackInfoPacket {
+	return &ResourcePackInfoPacket{NewPacket(info.ResourcePackInfoPacket), false}
 }
 
-func (pk ResourcePackInfoPacket) Encode()  {
+func (pk *ResourcePackInfoPacket) Encode()  {
 	pk.PutBool(pk.MustAccept)
 	pk.PutLittleShort(0)
 	pk.PutLittleShort(0)
 }
 
-func (pk ResourcePackInfoPacket) Decode()  {
+func (pk *ResourcePackInfoPacket) Decode()  {
 
 }

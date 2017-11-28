@@ -15,6 +15,9 @@ func InitPacketPool() {
 	RegisterPacket(info.ServerHandshakePacket, packets.NewServerHandshakePacket())
 	RegisterPacket(info.ResourcePackInfoPacket, packets.NewResourcePackInfoPacket())
 	RegisterPacket(info.ResourcePackClientResponsePacket, packets.NewResourcePackClientResponsePacket())
+	RegisterPacket(info.StartGamePacket, packets.NewStartGamePacket())
+	RegisterPacket(info.RequestChunkRadiusPacket, packets.NewChunkRadiusRequestPacket())
+	RegisterPacket(info.ChunkRadiusUpdatedPacket, packets.NewChunkRadiusUpdatedPacket())
 }
 
 func RegisterPacket(id int, packet interfaces.IPacket) {
@@ -22,5 +25,7 @@ func RegisterPacket(id int, packet interfaces.IPacket) {
 }
 
 func GetPacket(id int) interfaces.IPacket {
-	return registeredPackets[id]
+	var packet = registeredPackets[id]
+
+	return packet
 }

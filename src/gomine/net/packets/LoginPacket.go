@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"gomine/utils"
 	"gomine/net/info"
+	"fmt"
 )
 
 type LoginPacket struct {
@@ -19,35 +20,28 @@ type LoginPacket struct {
 }
 
 type ChainDataKeys struct {
-	chain map[int]string
+	Chain []string `json:"chain"`
 }
 
 type WebTokenKeys struct {
-	extraData map[string]interface{}
-	identityPublicKey string
+	ExtraData map[string]interface{} `json:"extraData"`
+	IdentityPublicKey string `json:"identityPublicKey"`
 }
 
 type ClientDataKeys struct {
-	clientData map[string]interface{}
+	ClientData map[string]interface{} `json:"clientData"`
 }
 
-var ChainData = ChainDataKeys{}
-var ClientDataJwt []byte
-var ClientData = ClientDataKeys{}
-
-func NewLoginPacket() LoginPacket {
-	pk := LoginPacket{NewPacket(info.LoginPacket), "", 0, "", 0, "", "", "", ""}
+func NewLoginPacket() *LoginPacket {
+	pk := &LoginPacket{NewPacket(info.LoginPacket), "", 0, "", 0, "", "", "", ""}
 	return pk
 }
 
-func (pk LoginPacket) Encode()  {
+func (pk *LoginPacket) Encode()  {
 
 }
 
-func (pk LoginPacket) Decode()  {
-	pk.SkipId()
-	pk.SkipSplitBytes()
-
+func (pk *LoginPacket) Decode()  {
 	pk.Protocol = pk.GetInt()
 
 	if pk.Protocol != info.LatestProtocol {
@@ -60,40 +54,52 @@ func (pk LoginPacket) Decode()  {
 	var stream = utils.NewStream()
 	stream.Buffer = []byte(pk.GetString())
 
-	json.Unmarshal(stream.Get(int(stream.GetLittleInt())), ChainData)
-	for _, v := range ChainData.chain {
-		WebToken := WebTokenKeys{}
+
+	var length = stream.GetLittleInt()
+
+	var chainData = &ChainDataKeys{}
+	json.Unmarshal(stream.Get(int(length)), &chainData)
+
+	for _, v := range chainData.Chain {
+		WebToken := &WebTokenKeys{}
+
 		utils.DecodeJwt(v, WebToken)
-		if v, ok := WebToken.extraData["username"]; ok {
+
+		if v, ok := WebToken.ExtraData["displayName"]; ok {
 			pk.Username = v.(string)
 		}
-		if v, ok := WebToken.extraData["identity"]; ok {
+		if v, ok := WebToken.ExtraData["identity"]; ok {
 			pk.ClientUUID = v.(string)
 		}
-		if v, ok := WebToken.extraData["XUID"]; ok {
+		if v, ok := WebToken.ExtraData["XUID"]; ok {
 			pk.ClientXUID = v.(string)
 		}
-		if len(WebToken.identityPublicKey) > 0 {
-			pk.IdentityPublicKey = WebToken.identityPublicKey
+		if len(WebToken.IdentityPublicKey) > 0 {
+			pk.IdentityPublicKey = WebToken.IdentityPublicKey
 		}
 	}
-	ClientDataJwt = stream.Get(int(stream.GetLittleInt()))
-	utils.DecodeJwt(string(ClientDataJwt), ClientData)
 
-	if v, ok := ClientData.clientData["ClientRandomId"]; ok {
+	var clientDataJwt = stream.Get(int(stream.GetLittleInt()))
+	var clientData = &ClientDataKeys{}
+
+	utils.DecodeJwt(string(clientDataJwt), clientData)
+	fmt.Println(clientData)
+
+	if v, ok := clientData.ClientData["ClientRandomId"]; ok {
 		pk.ClientId = v.(int)
 	}else{
 		pk.ClientId = 0
 	}
 
-	if v, ok := ClientData.clientData["ServerAddress"]; ok {
+	if v, ok := clientData.ClientData["ServerAddress"]; ok {
 		pk.ServerAddress = v.(string)
 	}else{
 		pk.ServerAddress = ""
 	}
 
-	if v, ok := ClientData.clientData["LanguageCode"]; ok {
+	if v, ok := clientData.ClientData["LanguageCode"]; ok {
 		pk.Language = v.(string)
+		fmt.Println(pk.Language)
 	}else{
 		pk.Language = "en_US"
 	}

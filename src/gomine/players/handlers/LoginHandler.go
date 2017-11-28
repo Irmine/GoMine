@@ -6,6 +6,7 @@ import (
 	"gomine/interfaces"
 	"gomine/net/packets"
 	"goraklib/server"
+	"fmt"
 )
 
 type LoginHandler struct {
@@ -17,7 +18,8 @@ func NewLoginHandler() LoginHandler {
 }
 
 func (handler LoginHandler) Handle(packet interfaces.IPacket, player interfaces.IPlayer, session *server.Session, server interfaces.IServer) bool {
-	if loginPacket, ok := packet.(packets.LoginPacket); ok {
+	if loginPacket, ok := packet.(*packets.LoginPacket); ok {
+		fmt.Println("Username", loginPacket.Username)
 		var player = players.NewPlayer(server, loginPacket.Username, loginPacket.ClientUUID, loginPacket.ClientXUID, loginPacket.ClientId)
 		player.SetLanguage(loginPacket.Language)
 
@@ -29,6 +31,9 @@ func (handler LoginHandler) Handle(packet interfaces.IPacket, player interfaces.
 		server.GetRakLibAdapter().SendPacket(pk3, session)
 
 		server.GetPlayerFactory().AddPlayer(player, session)
+
+		pk4 := packets.NewStartGamePacket()
+		server.GetRakLibAdapter().SendPacket(pk4, session)
 	}
 
 	return true

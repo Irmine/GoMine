@@ -10,14 +10,14 @@ type PlayStatusPacket struct {
 	Protocol int
 }
 
-func NewPlayStatusPacket() PlayStatusPacket {
-	return PlayStatusPacket{NewPacket(info.PlayStatusPacket), 0, info.LatestProtocol}
+func NewPlayStatusPacket() *PlayStatusPacket {
+	return &PlayStatusPacket{NewPacket(info.PlayStatusPacket), 0, info.LatestProtocol}
 }
 
-func (pk PlayStatusPacket) Encode()  {
+func (pk *PlayStatusPacket) Encode()  {
 	pk.PutInt(pk.Status)
 }
 
-func (pk PlayStatusPacket) Decode()  {
+func (pk *PlayStatusPacket) Decode()  {
 	pk.Status = pk.GetInt()
 }

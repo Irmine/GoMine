@@ -34,11 +34,13 @@ func (adapter *GoRakLibAdapter) Tick() {
 	go func() {
 		for _, session := range adapter.rakLibServer.GetSessionManager().GetSessions() {
 			for _, encapsulatedPacket := range session.GetReadyEncapsulatedPackets() {
+
 				batch := NewMinecraftPacketBatch()
 				batch.stream.Buffer = encapsulatedPacket.Buffer
 				batch.Decode()
 
 				for _, packet := range batch.GetPackets() {
+					packet.DecodeHeader()
 					packet.Decode()
 
 					var player, _ = adapter.server.GetPlayerFactory().GetPlayerBySession(session.GetAddress(), session.GetPort())

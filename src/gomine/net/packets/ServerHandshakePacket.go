@@ -9,14 +9,14 @@ type ServerHandshakePacket struct {
 	Jwt string
 }
 
-func NewServerHandshakePacket() ServerHandshakePacket {
-	return ServerHandshakePacket{NewPacket(info.ServerHandshakePacket), ""}
+func NewServerHandshakePacket() *ServerHandshakePacket {
+	return &ServerHandshakePacket{NewPacket(info.ServerHandshakePacket), ""}
 }
 
-func (pk ServerHandshakePacket) Encode()  {
+func (pk *ServerHandshakePacket) Encode()  {
 	pk.PutString(pk.Jwt)
 }
 
-func (pk ServerHandshakePacket) Decode()  {
+func (pk *ServerHandshakePacket) Decode()  {
 	pk.Jwt = pk.GetString()
 }

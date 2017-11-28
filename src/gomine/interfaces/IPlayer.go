@@ -10,4 +10,6 @@ type IPlayer interface {
 	AddPermission(IPermission) bool
 	RemovePermission(string) bool
 	GetServer() IServer
+	SetViewDistance(distance uint)
+	GetViewDistance() uint
 }

@@ -6,6 +6,7 @@ type IPacket interface {
 	GetId() int
 	EncodeHeader()
 	Encode()
+	DecodeHeader()
 	Decode()
 	ResetStream()
 }
