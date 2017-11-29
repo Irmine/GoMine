@@ -20,10 +20,26 @@ func InitPacketPool() {
 	RegisterPacket(info.ChunkRadiusUpdatedPacket, func() interfaces.IPacket { return packets.NewChunkRadiusUpdatedPacket()})
 }
 
+/**
+ * Returns if a packet with the given ID is registered.
+ */
+func IsPacketRegistered(id int) bool {
+	if _, ok := registeredPackets[id]; ok {
+		return true
+	}
+	return false
+}
+
+/**
+ * Returns a new packet with the given ID and a function that returns that packet.
+ */
 func RegisterPacket(id int, function func() interfaces.IPacket) {
 	registeredPackets[id] = function
 }
 
+/**
+ * Returns a new packet with the given ID.
+ */
 func GetPacket(id int) interfaces.IPacket {
 	return registeredPackets[id]()
 }

@@ -39,30 +39,51 @@ func NewPlayer(server interfaces.IServer, name string, uuid string, xuid string,
 	return player
 }
 
+/**
+ * Returns the UUID of this player.
+ */
 func (player *Player) GetUUID() string {
 	return player.uuid
 }
 
+/**
+ * Returns the XUID of this player.
+ */
 func (player *Player) GetXUID() string {
 	return player.xuid
 }
 
+/**
+ * Sets the language (locale) of this player.
+ */
 func (player *Player) SetLanguage(language string) {
 	player.language = language
 }
 
+/**
+ * Returns the language (locale) of this player.
+ */
 func (player *Player) GetLanguage() string {
 	return player.language
 }
 
+/**
+ * Returns the client ID of this player.
+ */
 func (player *Player) GetClientId() int {
 	return player.clientId
 }
 
+/**
+ * Sets the view distance of this player.
+ */
 func (player *Player) SetViewDistance(distance uint) {
 	player.viewDistance = distance
 }
 
+/**
+ * Returns the view distance of this player.
+ */
 func (player *Player) GetViewDistance() uint {
 	return player.viewDistance
 }

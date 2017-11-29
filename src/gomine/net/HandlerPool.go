@@ -13,10 +13,16 @@ func InitHandlerPool() {
 	RegisterPacketHandler(info.RequestChunkRadiusPacket, handlers.NewChunkRadiusRequestHandler())
 }
 
+/**
+ * Registers a new packet handler to listen for packets with the given ID.
+ */
 func RegisterPacketHandler(id int, handler players.IPacketHandler) {
 	registeredHandlers[id] = append(registeredHandlers[id], handler)
 }
 
+/**
+ * Returns all packet handlers registered on the given ID.
+ */
 func GetPacketHandlers(id int) []players.IPacketHandler {
 	return registeredHandlers[id]
 }

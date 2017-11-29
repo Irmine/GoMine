@@ -12,4 +12,9 @@ type IPlayer interface {
 	GetServer() IServer
 	SetViewDistance(distance uint)
 	GetViewDistance() uint
+	GetUUID() string
+	GetXUID() string
+	SetLanguage(language string)
+	GetLanguage() string
+	GetClientId() int
 }

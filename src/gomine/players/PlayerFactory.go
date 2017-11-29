@@ -22,6 +22,7 @@ func NewPlayerFactory(server interfaces.IServer) *PlayerFactory {
  */
 func (factory *PlayerFactory) AddPlayer(player interfaces.IPlayer, session *server.Session) {
 	factory.players[player.GetName()] = player
+	factory.playersAddress[session.GetAddress() + strconv.Itoa(int(session.GetPort()))] = player
 }
 
 /**
@@ -42,6 +43,7 @@ func (factory *PlayerFactory) GetPlayerByName(name string) (interfaces.IPlayer, 
 func (factory *PlayerFactory) GetPlayerBySession(address string, port uint16) (interfaces.IPlayer, error) {
 	var player Player
 	var key = address + strconv.Itoa(int(port))
+
 	if _, ok := factory.playersAddress[key]; ok {
 		return factory.playersAddress[key], nil
 	}
@@ -53,4 +55,11 @@ func (factory *PlayerFactory) GetPlayerBySession(address string, port uint16) (i
  */
 func (factory *PlayerFactory) GetPlayers() map[string]interfaces.IPlayer {
 	return factory.players
+}
+
+/**
+ * Returns the count of all players online.
+ */
+func (factory *PlayerFactory) GetPlayerCount() int {
+	return len(factory.players)
 }

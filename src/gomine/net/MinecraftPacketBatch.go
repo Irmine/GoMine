@@ -19,6 +19,9 @@ type MinecraftPacketBatch struct {
 	packets []interfaces.IPacket
 }
 
+/**
+ * Returns a new Minecraft Packet Batch used to decode/encode batches from Encapsulated Packets.
+ */
 func NewMinecraftPacketBatch() MinecraftPacketBatch {
 	var batch = MinecraftPacketBatch{}
 	batch.stream = utils.NewStream()
@@ -26,10 +29,16 @@ func NewMinecraftPacketBatch() MinecraftPacketBatch {
 	return batch
 }
 
+/**
+ * Returns the Binary stream of this batch.
+ */
 func (batch *MinecraftPacketBatch) GetStream() *utils.BinaryStream {
 	return batch.stream
 }
 
+/**
+ * Decodes the batch and separates packets. This does not decode the packets.
+ */
 func (batch *MinecraftPacketBatch) Decode() {
 	var mcpeFlag = batch.stream.GetByte()
 	if mcpeFlag != McpeFlag {
@@ -53,12 +62,12 @@ func (batch *MinecraftPacketBatch) Decode() {
 
 	for _, data := range packetData {
 		packetId := int(data[0])
-		packet := GetPacket(packetId)
 
-		if packet == nil {
+		if !IsPacketRegistered(packetId) {
 			fmt.Println("Unhandled Minecraft packet with ID:", packetId)
 			continue
 		}
+		packet := GetPacket(packetId)
 
 		packet.ResetStream()
 
@@ -69,6 +78,9 @@ func (batch *MinecraftPacketBatch) Decode() {
 	return
 }
 
+/**
+ * Encodes all packets in the batch.
+ */
 func (batch *MinecraftPacketBatch) Encode() {
 	batch.stream.ResetStream()
 	batch.stream.PutByte(McpeFlag)
@@ -87,10 +99,17 @@ func (batch *MinecraftPacketBatch) Encode() {
 	batch.stream.PutBytes(buff.Bytes())
 }
 
+/**
+ * Adds a packet to the batch when encoding.
+ */
 func (batch *MinecraftPacketBatch) AddPacket(packet interfaces.IPacket) {
 	batch.packets = append(batch.packets, packet)
 }
 
+/**
+ * Returns all packets inside of the batch.
+ * This only returns correctly when done after decoding.
+ */
 func (batch *MinecraftPacketBatch) GetPackets() []interfaces.IPacket {
 	return batch.packets
 }

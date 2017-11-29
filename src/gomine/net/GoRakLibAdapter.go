@@ -12,6 +12,9 @@ type GoRakLibAdapter struct {
 	rakLibServer *server2.GoRakLibServer
 }
 
+/**
+ * Returns a new GoRakLib adapter to adapt to the RakNet server.
+ */
 func NewGoRakLibAdapter(server interfaces.IServer) *GoRakLibAdapter {
 	var rakServer = server2.NewGoRakLibServer(server.GetName(), server.GetAddress(), server.GetPort())
 	rakServer.SetMinecraftProtocol(info.LatestProtocol)
@@ -28,6 +31,9 @@ func NewGoRakLibAdapter(server interfaces.IServer) *GoRakLibAdapter {
 	return &GoRakLibAdapter{server, rakServer}
 }
 
+/**
+ * Ticks the adapter
+ */
 func (adapter *GoRakLibAdapter) Tick() {
 	go adapter.rakLibServer.Tick()
 
