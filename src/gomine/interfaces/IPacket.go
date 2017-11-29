@@ -9,4 +9,6 @@ type IPacket interface {
 	DecodeHeader()
 	Decode()
 	ResetStream()
+	GetOffset() int
+	SetOffset(int)
 }

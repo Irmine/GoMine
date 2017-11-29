@@ -7,20 +7,24 @@ import (
 )
 
 type Packet struct {
-	packetId int
 	*utils.BinaryStream
+	PacketId int
 	ExtraBytes [2]byte
 }
 
 func NewPacket(id int) *Packet {
-	return &Packet{id, utils.NewStream(), [2]byte{}}
+	return &Packet{utils.NewStream(), id, [2]byte{}}
 }
 
 func (pk *Packet) GetId() int {
-	return pk.packetId
+	return pk.PacketId
 }
 
 func (pk *Packet) Encode() {
+
+}
+
+func (pk *Packet) Decode() {
 
 }
 
@@ -41,7 +45,7 @@ func (pk *Packet) EncodeHeader() {
 
 func (pk *Packet) DecodeHeader() {
 	pid := int(pk.GetUnsignedVarInt())
-	if pid != pk.packetId {
+	if pid != pk.PacketId {
 		panic("Packet IDs do not match")
 	}
 

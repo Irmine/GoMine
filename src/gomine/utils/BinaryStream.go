@@ -9,6 +9,14 @@ func NewStream() *BinaryStream {
 	return &BinaryStream{0, make([]byte, 4096)}
 }
 
+func (stream *BinaryStream) GetOffset() int {
+	return stream.Offset
+}
+
+func (stream *BinaryStream) SetOffset(offset int) {
+	stream.Offset = offset
+}
+
 func (stream *BinaryStream) SetBuffer(Buffer []byte) {
 	stream.Buffer = Buffer
 }
