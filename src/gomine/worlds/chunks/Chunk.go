@@ -9,7 +9,7 @@ import (
 type Chunk struct {
 	height int
 	x, z int
-	subChunks []interfaces.ISubChunk
+	subChunks map[int]interfaces.ISubChunk
 	LightPopulated bool
 	TerrainPopulated bool
 	tiles map[uint64]tiles.Tile
@@ -18,7 +18,7 @@ type Chunk struct {
 	heightMap [4096]byte
 }
 
-func NewChunk(height, x, z int, subChunks []interfaces.ISubChunk, lightPopulated, terrainPopulated bool, biomes [256]byte, heightMap [4096]byte) *Chunk {
+func NewChunk(height, x, z int, subChunks map[int]interfaces.ISubChunk, lightPopulated, terrainPopulated bool, biomes [256]byte, heightMap [4096]byte) *Chunk {
 	return &Chunk{
 		height,
 		x,
@@ -238,7 +238,7 @@ func (chunk *Chunk) GetSubChunk(y int) (interfaces.ISubChunk, error) {
 /**
  * Returns all SubChunks in this chunk.
  */
-func (chunk *Chunk) GetSubChunks() []interfaces.ISubChunk {
+func (chunk *Chunk) GetSubChunks() map[int]interfaces.ISubChunk {
 	return chunk.subChunks
 }
 
@@ -262,7 +262,7 @@ func (chunk *Chunk) GetHeightMap(x, z int) byte {
 func (chunk *Chunk) PruneEmptySubChunks() {
 	for y, subChunk := range chunk.subChunks {
 		if y > chunk.height || y < 0 {
-			chunk.subChunks = append(chunk.subChunks[:y], chunk.subChunks[y+1:]...)
+			delete(chunk.subChunks, y)
 			continue
 		}
 		if subChunk.IsAllAir() {

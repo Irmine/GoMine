@@ -10,13 +10,15 @@ type Level struct {
 	id int
 	dimensions map[string]interfaces.IDimension
 	gameRules map[string]bool
+	chunks map[int]interfaces.IChunk
+	updatedBlocks map[int]interfaces.IBlock
 }
 
 /**
  * Returns a new Level with the given level name.
  */
 func NewLevel(levelName string, levelId int, server interfaces.IServer, chunks []interfaces.IChunk) *Level {
-	var level = &Level{server, levelName, levelId, make(map[string]interfaces.IDimension), make(map[string]bool),}
+	var level = &Level{server, levelName, levelId, make(map[string]interfaces.IDimension), make(map[string]bool), make(map[int]interfaces.IChunk), make(map[int][]interfaces.IBlock)}
 	level.AddDimension("Overworld", OverworldId, chunks)
 	level.initializeGameRules()
 	return level
@@ -113,6 +115,43 @@ func (level *Level) RemoveDimension(name string) bool {
 	}
 	delete(level.dimensions, name)
 	return true
+}
+
+/**
+ * Gets the chunk index for a certain position in a chunk
+ */
+func (level *Level) GetChunkIndex(x, z int) int {
+	return (x & 429496729500) | (z & 4294967295)
+}
+
+/**
+ * Gets the chunk block index for a saving changed blocks
+ */
+func (level *Level) GetBlockIndex(x, y, z int) int {
+	return (x & 429496729500) << 36 | (y & 255) << 28 | (z & 4294967295)
+}
+
+/**
+ * Sets a new chunk in the level in the x/z coordinates
+ */
+func (level *Level) SetChunk(x, z int, chunk interfaces.IChunk) {
+	level.chunks[level.GetChunkIndex(x, z)] = chunk
+}
+
+/**
+ * Gets the chunk in the x/z coordinates
+ */
+func (level *Level) GetChunk(x, z int) interfaces.IChunk {
+	return level.chunks[level.GetChunkIndex(x, z)]
+}
+
+/**
+ * this function updates every block that gets changed
+ */
+func (level *Level) UpdateBlocks()  {
+	for _, block := range level.updatedBlocks {
+
+	}
 }
 
 /**
