@@ -101,6 +101,7 @@ func ConvertAnsiColorsToMcpe(text string) string {
 	for convertValue, toConvert := range colorConvert {
 		text = strings.Replace(text, toConvert, convertValue, -1)
 	}
+	return text
 }
 
 /**

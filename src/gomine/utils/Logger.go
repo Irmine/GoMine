@@ -24,6 +24,8 @@ type Logger struct {
 
 	terminalQueue []string
 	fileQueue []string
+
+	terminated bool
 }
 
 /**
@@ -37,11 +39,11 @@ func NewLogger(prefix string, outputDir string, debugMode bool) *Logger {
 		panic(fileError)
 	}
 
-	var logger = &Logger{prefix, path, file, debugMode, []string{}, []string{}}
+	var logger = &Logger{prefix, path, file, debugMode, []string{}, []string{}, false}
 
 	go func() {
-		for {
-			logger.ProcessQueue()
+		for !logger.terminated {
+			logger.ProcessQueue(false)
 		}
 	}()
 
@@ -51,20 +53,29 @@ func NewLogger(prefix string, outputDir string, debugMode bool) *Logger {
 /**
  * Continuously processes the queue of log messages.
  */
-func (logger *Logger) ProcessQueue() {
+func (logger *Logger) ProcessQueue(force bool) {
 	for _, message := range logger.terminalQueue {
-		fmt.Println(message)
+		if logger.terminated && !force {
+			return
+		}
 
 		if len(logger.terminalQueue) > 0 {
 			logger.terminalQueue = logger.terminalQueue[1:]
 		}
+
+		fmt.Println(message)
 	}
 
 	for _, message := range logger.fileQueue {
-		logger.write(message)
+		if logger.terminated && !force {
+			return
+		}
+
 		if len(logger.fileQueue) > 0 {
 			logger.fileQueue = logger.fileQueue[1:]
 		}
+
+	 	logger.write(message)
 	}
 }
 
@@ -79,10 +90,10 @@ func (logger *Logger) Log(message string, logLevel string, color string) {
 	var prefix = "[" + logger.prefix + "]"
 	var level = "[" + strings.Title(logLevel) + "] "
 
-	var line = prefix + level + message
+	var line = prefix + color + level + message + AnsiReset
 
 	logger.fileQueue = append(logger.fileQueue, line)
-	logger.terminalQueue = append(logger.terminalQueue, ConvertMcpeColorsToAnsi(prefix + color + level + message + AnsiReset))
+	logger.terminalQueue = append(logger.terminalQueue, ConvertMcpeColorsToAnsi(line))
 }
 
 /**
@@ -138,6 +149,13 @@ func (logger *Logger) Error(message string) {
  * Writes the given line to the log and appends a new line.
  */
 func (logger *Logger) write(line string) {
-	logger.file.WriteString(StripMcpeColors(line + "\n"))
+	logger.file.WriteString(StripAllColors(line + "\n"))
 	logger.file.Sync()
+}
+
+/**
+ * Terminates the logger and stops processing the queue.
+ */
+func (logger *Logger) Terminate() {
+	logger.terminated = true
 }
