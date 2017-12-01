@@ -61,6 +61,11 @@ func (adapter *GoRakLibAdapter) Tick() {
 	}()
 }
 
+func (adapter *GoRakLibAdapter) GetSession(address string, port uint16) *server2.Session {
+	var session, _ = adapter.rakLibServer.GetSessionManager().GetSession(address, port)
+	return session
+}
+
 func (adapter *GoRakLibAdapter) SendPacket(pk interfaces.IPacket, session *server2.Session) {
 	pk.EncodeHeader()
 	pk.Encode()

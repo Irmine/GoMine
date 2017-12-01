@@ -2,9 +2,12 @@ package players
 
 import (
 	"gomine/interfaces"
+	"goraklib/server"
 )
 
 type Player struct {
+	session *server.Session
+
 	playerName  string
 	displayName string
 
@@ -25,7 +28,7 @@ type Player struct {
 /**
  * Returns a new player with the given credentials.
  */
-func NewPlayer(server interfaces.IServer, name string, uuid string, xuid string, clientId int) *Player {
+func NewPlayer(server interfaces.IServer, session *server.Session, name string, uuid string, xuid string, clientId int) *Player {
 	var player = &Player{}
 	player.playerName = name
 	player.displayName = name
@@ -168,4 +171,11 @@ func (player *Player) RemovePermission(permission string) bool {
 	delete(player.permissions, permission)
 
 	return true
+}
+
+/**
+ * Returns the GoRakLib session of this player.
+ */
+func (player *Player) GetSession() *server.Session {
+	return player.session
 }

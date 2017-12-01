@@ -21,7 +21,7 @@ func NewLoginHandler() LoginHandler {
  */
 func (handler LoginHandler) Handle(packet interfaces.IPacket, player interfaces.IPlayer, session *server.Session, server interfaces.IServer) bool {
 	if loginPacket, ok := packet.(*packets.LoginPacket); ok {
-		var player = players.NewPlayer(server, loginPacket.Username, loginPacket.ClientUUID, loginPacket.ClientXUID, loginPacket.ClientId)
+		var player = players.NewPlayer(server, session, loginPacket.Username, loginPacket.ClientUUID, loginPacket.ClientXUID, loginPacket.ClientId)
 		player.SetLanguage(loginPacket.Language)
 
 		pk := packets.NewPlayStatusPacket()
