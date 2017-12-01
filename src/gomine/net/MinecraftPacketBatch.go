@@ -108,7 +108,7 @@ func (batch *MinecraftPacketBatch) AddPacket(packet interfaces.IPacket) {
 
 /**
  * Returns all packets inside of the batch.
- * This only returns correctly when done after decoding.
+ * This only returns correctly when done after decoding, or before encoding.
  */
 func (batch *MinecraftPacketBatch) GetPackets() []interfaces.IPacket {
 	return batch.packets

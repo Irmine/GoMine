@@ -82,62 +82,62 @@ func (logger *Logger) Log(message string, logLevel string, color string) {
 	var line = prefix + level + message
 
 	logger.fileQueue = append(logger.fileQueue, line)
-	logger.terminalQueue = append(logger.terminalQueue, prefix + color + level + message + AnsiReset)
+	logger.terminalQueue = append(logger.terminalQueue, ConvertMcpeColorsToAnsi(prefix + color + level + message + AnsiReset))
 }
 
 /**
  * Logs a notice message.
  */
 func (logger *Logger) Notice(message string) {
-	logger.Log(message, Notice, AnsiYellow)
+	logger.Log(message, Notice, Yellow)
 }
 
 /**
  * Logs a debug message.
  */
 func (logger *Logger) Debug(message string) {
-	logger.Log(message, Debug, AnsiBrightYellow)
+	logger.Log(message, Debug, Orange)
 }
 
 /**
  * Logs an info message.
  */
 func (logger *Logger) Info(message string) {
-	logger.Log(message, Info, AnsiBrightCyan)
+	logger.Log(message, Info, BrightCyan)
 }
 
 /**
  * Logs an alert.
  */
 func (logger *Logger) Alert(message string) {
-	logger.Log(message, Alert, AnsiBrightRed)
+	logger.Log(message, Alert, BrightRed)
 }
 
 /**
  * Logs a warning message.
  */
 func (logger *Logger) Warning(message string) {
-	logger.Log(message, Warning, AnsiBrightRed + AnsiBold)
+	logger.Log(message, Warning, BrightRed + Bold)
 }
 
 /**
  * Logs a critical warning message.
  */
 func (logger *Logger) Critical(message string) {
-	logger.Log(message, Critical, AnsiBrightRed + AnsiUnderlined + AnsiBold)
+	logger.Log(message, Critical, BrightRed + Underlined + Bold)
 }
 
 /**
  * Logs an error.
  */
 func (logger *Logger) Error(message string) {
-	logger.Log(message, Error, AnsiRed)
+	logger.Log(message, Error, Red)
 }
 
 /**
  * Writes the given line to the log and appends a new line.
  */
 func (logger *Logger) write(line string) {
-	logger.file.WriteString(line + "\n")
+	logger.file.WriteString(StripMcpeColors(line + "\n"))
 	logger.file.Sync()
 }

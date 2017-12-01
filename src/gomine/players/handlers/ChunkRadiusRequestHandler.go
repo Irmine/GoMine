@@ -16,6 +16,9 @@ func NewChunkRadiusRequestHandler() ChunkRadiusRequestHandler {
 	return ChunkRadiusRequestHandler{players.NewPacketHandler(info.RequestChunkRadiusPacket)}
 }
 
+/**
+ * Handles the chunk radius requests.
+ */
 func (handler ChunkRadiusRequestHandler) Handle(packet interfaces.IPacket, player interfaces.IPlayer, session *server.Session, server interfaces.IServer) bool {
 	if chunkRadiusPacket, ok := packet.(*packets.ChunkRadiusRequestPacket); ok {
 		player.SetViewDistance(uint(chunkRadiusPacket.Radius))

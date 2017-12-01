@@ -16,6 +16,9 @@ func NewLoginHandler() LoginHandler {
 	return LoginHandler{players.NewPacketHandler(info.LoginPacket)}
 }
 
+/**
+ * Handles the main login process.
+ */
 func (handler LoginHandler) Handle(packet interfaces.IPacket, player interfaces.IPlayer, session *server.Session, server interfaces.IServer) bool {
 	if loginPacket, ok := packet.(*packets.LoginPacket); ok {
 		var player = players.NewPlayer(server, loginPacket.Username, loginPacket.ClientUUID, loginPacket.ClientXUID, loginPacket.ClientId)

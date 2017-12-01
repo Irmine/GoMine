@@ -13,6 +13,9 @@ type PlayerFactory struct {
 	playersAddress map[string]interfaces.IPlayer
 }
 
+/**
+ * Returns a new player factory, used for managing players on the server.
+ */
 func NewPlayerFactory(server interfaces.IServer) *PlayerFactory {
 	return &PlayerFactory{server, make(map[string]interfaces.IPlayer), make(map[string]interfaces.IPlayer)}
 }

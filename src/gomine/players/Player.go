@@ -22,6 +22,9 @@ type Player struct {
 	viewDistance uint
 }
 
+/**
+ * Returns a new player with the given credentials.
+ */
 func NewPlayer(server interfaces.IServer, name string, uuid string, xuid string, clientId int) *Player {
 	var player = &Player{}
 	player.playerName = name

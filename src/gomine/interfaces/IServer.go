@@ -30,6 +30,7 @@ type IServer interface {
 	GetMotd() string
 	Tick(int)
 	GetPermissionManager() IPermissionManager
+	GetServerName() string
 	GetVersion() string
 	GetNetworkVersion() string
 	GetRakLibAdapter() IGoRakLibAdapter

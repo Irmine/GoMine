@@ -120,7 +120,7 @@ func (pk *Packet) PutEntityData(dat map[uint32][]interface{}) {
 			//todo
 		case entities.Long:
 			pk.PutVarLong(v[1].(int64))
-		case entities.Vector3f:
+		case entities.TripleFloat:
 			//todo
 		}
 	}
@@ -150,7 +150,7 @@ func (pk *Packet) GetEntityData() map[uint32][]interface{} {
 			//todo
 		case entities.Long:
 			v = pk.GetVarLong()
-		case entities.Vector3f:
+		case entities.TripleFloat:
 			//todo
 		}
 		dat[k][0] = t

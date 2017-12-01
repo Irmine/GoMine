@@ -9,5 +9,5 @@ const (
 	Slot
 	Pos
 	Long
-	Vector3f
+	TripleFloat
 )

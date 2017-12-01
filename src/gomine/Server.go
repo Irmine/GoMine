@@ -17,6 +17,8 @@ import (
 )
 
 const (
+	GoMineName = "GoMine"
+
 	GoMineVersion = "0.0.1"
 	ApiVersion = "0.0.1"
 
@@ -61,7 +63,7 @@ func NewServer(serverPath string) (*Server, error) {
 	server.serverPath = serverPath
 	server.config = resources.NewGoMineConfig(serverPath)
 	server.scheduler = tasks.NewScheduler()
-	server.logger = utils.NewLogger("GoMine", serverPath, server.GetConfiguration().DebugMode)
+	server.logger = utils.NewLogger(GoMineName, serverPath, server.GetConfiguration().DebugMode)
 	server.levels = make(map[int]interfaces.ILevel)
 	server.consoleReader = NewConsoleReader()
 	server.commandHolder = commands.NewCommandHolder()
@@ -308,9 +310,16 @@ func (server *Server) SendMessage(message string) {
 }
 
 /**
- * Returns the name of the server specified in the configuration.
+ * Returns the GoMine Name.
  */
 func (server *Server) GetName() string {
+	return GoMineName
+}
+
+/**
+ * Returns the name of the server specified in the configuration.
+ */
+func (server *Server) GetServerName() string {
 	return server.config.ServerName
 }
 

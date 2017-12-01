@@ -19,7 +19,7 @@ func NewGoRakLibAdapter(server interfaces.IServer) *GoRakLibAdapter {
 	var rakServer = server2.NewGoRakLibServer(server.GetName(), server.GetAddress(), server.GetPort())
 	rakServer.SetMinecraftProtocol(info.LatestProtocol)
 	rakServer.SetMinecraftVersion(info.GameVersionNetwork)
-	rakServer.SetServerName(server.GetName())
+	rakServer.SetServerName(server.GetServerName())
 	rakServer.SetMaxConnectedSessions(server.GetMaximumPlayers())
 	rakServer.SetConnectedSessionCount(0)
 	rakServer.SetDefaultGameMode("Creative")
