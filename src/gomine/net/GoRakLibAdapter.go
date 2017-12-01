@@ -72,7 +72,7 @@ func (adapter *GoRakLibAdapter) SendPacket(pk interfaces.IPacket, session *serve
 	var b = NewMinecraftPacketBatch()
 	b.AddPacket(pk)
 
-	adapter.SendBatch(&b, session)
+	adapter.SendBatch(b, session)
 }
 
 func (adapter *GoRakLibAdapter) SendBatch(batch interfaces.IMinecraftPacketBatch, session *server2.Session) {

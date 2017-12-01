@@ -1,7 +1,5 @@
 package interfaces
 
-import "gomine/vectors"
-
 type IBlock interface{
 	GetId() int
 	GetData() byte

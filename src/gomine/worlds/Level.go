@@ -4,7 +4,6 @@ import (
 	"gomine/interfaces"
 	packets2 "gomine/net/packets"
 	"gomine/net"
-	"gomine/players"
 )
 
 type Level struct {
@@ -136,9 +135,9 @@ func (level *Level) GetBlockIndex(x, y, z int) int {
 }
 
 /**
- * Gets the block coords from a chunk index
+ * Gets the block coordinates from a chunk index
  */
-func (level *Level) GetChunkCoords(index int) (int, int) {
+func (level *Level) GetChunkCoordinates(index int) (int, int) {
 	return index >> 32, (index & 4294967295) << 36 >> 36
 }
 
@@ -177,7 +176,7 @@ func (level *Level) UpdateBlocks()  {
 	var players []interfaces.IPlayer
 	batch := net.NewMinecraftPacketBatch()
 	for i, blocks := range level.updatedBlocks {
-		x, z := level.GetChunkCoords(i)
+		x, z := level.GetChunkCoordinates(i)
 		players = level.GetChunkPlayers(x, z)
 		for _, block := range blocks {
 			pk := packets2.NewUpdateBlockPacket()

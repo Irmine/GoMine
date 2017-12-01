@@ -22,8 +22,8 @@ type MinecraftPacketBatch struct {
 /**
  * Returns a new Minecraft Packet Batch used to decode/encode batches from Encapsulated Packets.
  */
-func NewMinecraftPacketBatch() MinecraftPacketBatch {
-	var batch = MinecraftPacketBatch{}
+func NewMinecraftPacketBatch() *MinecraftPacketBatch {
+	var batch = &MinecraftPacketBatch{}
 	batch.stream = utils.NewStream()
 
 	return batch

@@ -9,8 +9,8 @@ type UpdateBlockPacket struct{
 	BlockId, BlockMetadata, Flags uint32
 }
 
-func NewUpdateBlockPacket() UpdateBlockPacket {
-	return UpdateBlockPacket{NewPacket(info.UpdateBlockPacket), 0, 0,0, 0, 0, 0}
+func NewUpdateBlockPacket() *UpdateBlockPacket {
+	return &UpdateBlockPacket{NewPacket(info.UpdateBlockPacket), 0, 0,0, 0, 0, 0}
 }
 
 func (pk *UpdateBlockPacket) Encode() {
