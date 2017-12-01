@@ -1,15 +1,15 @@
 package generation
 
-import "gomine/vectorMath"
+import "gomine/vectors"
 
 type Generator struct {
-	name string
-	spawn vectorMath.TripleVector
+	name  string
+	spawn vectors.TripleVector
 }
 
 type IGenerator interface {
 	GetName() string
-	GetSpawn() vectorMath.TripleVector
+	GetSpawn() vectors.TripleVector
 	GenerateChunk(x, z int)
 	PopulateChunk(x, z int)
 }
@@ -22,11 +22,11 @@ func (gen *Generator) GetName() string {
 	return gen.name
 }
 
-func (gen *Generator) SetSpawn(v vectorMath.TripleVector) {
+func (gen *Generator) SetSpawn(v vectors.TripleVector) {
 	gen.spawn = v
 }
 
-func (gen *Generator) GetSpawn() vectorMath.TripleVector {
+func (gen *Generator) GetSpawn() vectors.TripleVector {
 	return gen.spawn
 }
 

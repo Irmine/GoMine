@@ -1,16 +1,16 @@
 package worlds
 
 import (
-	"gomine/vectorMath"
+	"gomine/vectors"
 )
 
 type Position struct {
-	*vectorMath.TripleVector
+	*vectors.TripleVector
 	Level Level
 }
 
 func NewPosition(x, y, z float32, level Level) *Position {
-	return &Position{vectorMath.NewTripleVector(x, y, z), level}
+	return &Position{vectors.NewTripleVector(x, y, z), level}
 }
 
 func (pos *Position) SetLevel(level Level) {

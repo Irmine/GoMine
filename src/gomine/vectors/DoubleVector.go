@@ -1,4 +1,4 @@
-package vectorMath
+package vectors
 
 import "math"
 

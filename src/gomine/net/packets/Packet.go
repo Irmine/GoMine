@@ -2,7 +2,7 @@ package packets
 
 import (
 	"gomine/utils"
-	"gomine/vectorMath"
+	"gomine/vectors"
 	"gomine/entities"
 )
 
@@ -73,14 +73,14 @@ func (pk *Packet) GetRotation() float32 {
 	return pk.GetLittleFloat()
 }
 
-func (pk *Packet) PutTripleVectorObject(obj vectorMath.TripleVector) {
+func (pk *Packet) PutTripleVectorObject(obj vectors.TripleVector) {
 	pk.PutLittleFloat(obj.GetX())
 	pk.PutLittleFloat(obj.GetY())
 	pk.PutLittleFloat(obj.GetZ())
 }
 
-func (pk *Packet) GetTripleVectorObject() *vectorMath.TripleVector {
-	return vectorMath.NewTripleVector(pk.GetLittleFloat(), pk.GetLittleFloat(), pk.GetLittleFloat())
+func (pk *Packet) GetTripleVectorObject() *vectors.TripleVector {
+	return vectors.NewTripleVector(pk.GetLittleFloat(), pk.GetLittleFloat(), pk.GetLittleFloat())
 }
 
 func (pk *Packet) PutEntityAttributes(attr map[int]entities.Attribute) {

@@ -22,7 +22,7 @@ type IServer interface {
 	IsLevelGenerated(string) bool
 	LoadLevel(string) bool
 	HasPermission(string) bool
-	SendMessage(message string)
+	SendMessage(string)
 	GetName() string
 	GetAddress() string
 	GetPort() uint16
@@ -35,8 +35,8 @@ type IServer interface {
 	GetNetworkVersion() string
 	GetRakLibAdapter() IGoRakLibAdapter
 	GetPlayerFactory() IPlayerFactory
-	GenerateLevel(levelName string)
+	GenerateLevel(string)
 	GetDefaultLevel() ILevel
-	GetLevelById(id int) (ILevel, error)
-	GetLevelByName(name string) (ILevel, error)
+	GetLevelById(int) (ILevel, error)
+	GetLevelByName(string) (ILevel, error)
 }

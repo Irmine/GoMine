@@ -1,7 +1,7 @@
 package entities
 
 import (
-	"gomine/vectorMath"
+	"gomine/vectors"
 	"gomine/interfaces"
 )
 
@@ -15,13 +15,13 @@ type Entity struct {
 	nameTag      string
 	attributeMap *AttributeMap
 	yaw, pitch float64
-	position, motion *vectorMath.TripleVector
+	position, motion *vectors.TripleVector
 	runtimeId uint64
 	closed bool
 	Health int
 }
 
-func NewEntity(nameTag string, attributeMap *AttributeMap, yaw, pitch float64, position, motion *vectorMath.TripleVector, health int) Entity {
+func NewEntity(nameTag string, attributeMap *AttributeMap, yaw, pitch float64, position, motion *vectors.TripleVector, health int) Entity {
 	runtimeId++
 	return Entity{
 		nameTag,
@@ -60,14 +60,14 @@ func (entity *Entity) SetNameTag(name string) {
 /**
  * Returns the current position of this entity.
  */
-func (entity *Entity) GetPosition() *vectorMath.TripleVector {
+func (entity *Entity) GetPosition() *vectors.TripleVector {
 	return entity.position
 }
 
 /**
  * Returns the motion of this entity.
  */
-func (entity *Entity) GetMotion() *vectorMath.TripleVector {
+func (entity *Entity) GetMotion() *vectors.TripleVector {
 	return entity.motion
 }
 

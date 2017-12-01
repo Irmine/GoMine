@@ -1,4 +1,4 @@
-package vectorMath
+package vectors
 
 import "math"
 
@@ -71,6 +71,22 @@ func (vector *TripleVector) SetZ(value float32) {
 }
 
 /**
+ * Sets the X, Y and Z value of this TripleVector.
+ */
+func (vector *TripleVector) SetComponents(x, y, z float32) {
+	vector.X = x
+	vector.Y = y
+	vector.Z = z
+}
+
+/**
+ * Returns a slice containing the X, Y and Z values of this TripleVector.
+ */
+func (vector *TripleVector) GetComponents() []float32 {
+	return []float32{vector.X, vector.Y, vector.Z}
+}
+
+/**
  * Adds the given vector to the current vector and creates a new TripleVector.
  */
 func (vector *TripleVector) AddVector(vector2 TripleVector) TripleVector {
@@ -134,18 +150,19 @@ func (vector *TripleVector) Distance(vector2 TripleVector) float32 {
 }
 
 /**
- * Walks between two TripleVectors and returns TripleVectors in between.
+ * Walks between two TripleVectors and returns TripleVectors with the given amount of steps in between.
  */
-func (vector *TripleVector) Walk(vector2 TripleVector) []TripleVector {
+func (vector *TripleVector) Walk(vector2 TripleVector, steps float32) []TripleVector {
 	var distance = vector.Distance(vector2)
 
-	var xRelative = (vector2.X - vector.X) / distance
-	var yRelative = (vector2.Y - vector.Y) / distance
-	var zRelative = (vector2.Z - vector.Z) / distance
+	var xRelative = (vector2.X - vector.X) / distance * steps
+	var yRelative = (vector2.Y - vector.Y) / distance * steps
+	var zRelative = (vector2.Z - vector.Z) / distance * steps
 
 	var vectors []TripleVector
 
-	for i := float32(1); i < distance; i++ {
+	var distanceRelative = distance / steps
+	for i := float32(1); i < distanceRelative; i++ {
 		vectors = append(vectors, vector.Add(xRelative * i, yRelative * i, zRelative * i))
 	}
 

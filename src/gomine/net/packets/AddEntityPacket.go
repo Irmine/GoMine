@@ -1,26 +1,26 @@
 package packets
 
 import (
-	"gomine/vectorMath"
+	"gomine/vectors"
 	"gomine/entities"
 	"gomine/net/info"
 )
 
 type AddEntityPacket struct {
 	*Packet
-	EntityId uint64
+	EntityId   uint64
 	EntityType uint32
-	Position vectorMath.TripleVector
-	Motion vectorMath.TripleVector
-	Yaw float32
-	Pitch float32
+	Position   vectors.TripleVector
+	Motion     vectors.TripleVector
+	Yaw        float32
+	Pitch      float32
 
 	Attributes map[int]entities.Attribute
 	EntityData map[uint32][]interface{}
 }
 
 func NewAddEntityPacket() *AddEntityPacket {
-	return &AddEntityPacket{NewPacket(info.AddEntityPacket), 0, 0, vectorMath.TripleVector{}, vectorMath.TripleVector{}, 0.0, 0.0, nil, nil}
+	return &AddEntityPacket{NewPacket(info.AddEntityPacket), 0, 0, vectors.TripleVector{}, vectors.TripleVector{}, 0.0, 0.0, nil, nil}
 }
 
 func (pk *AddEntityPacket) Encode() {

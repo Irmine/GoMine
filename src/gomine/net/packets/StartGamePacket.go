@@ -2,7 +2,7 @@ package packets
 
 import (
 	"gomine/net/info"
-	"gomine/vectorMath"
+	"gomine/vectors"
 	"encoding/base64"
 )
 
@@ -19,7 +19,7 @@ func (pk *StartGamePacket) Encode()  {
 	pk.PutVarInt(0)
 	pk.PutVarInt(0)
 
-	pk.PutTripleVectorObject(vectorMath.TripleVector{0, 80, 0})
+	pk.PutTripleVectorObject(vectors.TripleVector{0, 80, 0})
 
 	pk.PutLittleFloat(0)
 	pk.PutLittleFloat(0)
