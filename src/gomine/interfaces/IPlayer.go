@@ -1,6 +1,9 @@
 package interfaces
 
+import "goraklib/server"
+
 type IPlayer interface {
+	GetSession() *server.Session
 	GetName() string
 	GetDisplayName() string
 	SetDisplayName(string)

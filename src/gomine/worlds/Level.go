@@ -2,6 +2,9 @@ package worlds
 
 import (
 	"gomine/interfaces"
+	packets2 "gomine/net/packets"
+	"gomine/net"
+	"gomine/players"
 )
 
 type Level struct {
@@ -11,14 +14,15 @@ type Level struct {
 	dimensions map[string]interfaces.IDimension
 	gameRules map[string]bool
 	chunks map[int]interfaces.IChunk
-	updatedBlocks map[int]interfaces.IBlock
+	updatedBlocks map[int][]interfaces.IBlock
+	playersPerChunks [][]interfaces.IPlayer
 }
 
 /**
  * Returns a new Level with the given level name.
  */
 func NewLevel(levelName string, levelId int, server interfaces.IServer, chunks []interfaces.IChunk) *Level {
-	var level = &Level{server, levelName, levelId, make(map[string]interfaces.IDimension), make(map[string]bool), make(map[int]interfaces.IChunk), make(map[int][]interfaces.IBlock)}
+	var level = &Level{server, levelName, levelId, make(map[string]interfaces.IDimension), make(map[string]bool), make(map[int]interfaces.IChunk), make(map[int][]interfaces.IBlock), [][]interfaces.IPlayer{}}
 	level.AddDimension("Overworld", OverworldId, chunks)
 	level.initializeGameRules()
 	return level
@@ -132,6 +136,13 @@ func (level *Level) GetBlockIndex(x, y, z int) int {
 }
 
 /**
+ * Gets the block coords from a chunk index
+ */
+func (level *Level) GetChunkCoords(index int) (int, int) {
+	return index >> 32, (index & 4294967295) << 36 >> 36
+}
+
+/**
  * Sets a new chunk in the level in the x/z coordinates
  */
 func (level *Level) SetChunk(x, z int, chunk interfaces.IChunk) {
@@ -146,11 +157,38 @@ func (level *Level) GetChunk(x, z int) interfaces.IChunk {
 }
 
 /**
+ * Gets all the players located in a chunk
+ */
+func (level *Level) GetChunkPlayers(x, z int) []interfaces.IPlayer {
+	return level.playersPerChunks[level.GetChunkIndex(x, z)]
+}
+
+/**
+ * Set a player in a chunk
+ */
+func (level *Level) AddChunkPlayer(x, z int, player interfaces.IPlayer) {
+	level.playersPerChunks[level.GetChunkIndex(x, z)] = append(level.playersPerChunks[level.GetChunkIndex(x, z)], player)
+}
+
+/**
  * this function updates every block that gets changed
  */
 func (level *Level) UpdateBlocks()  {
-	for _, block := range level.updatedBlocks {
-
+	var players []interfaces.IPlayer
+	batch := net.NewMinecraftPacketBatch()
+	for i, blocks := range level.updatedBlocks {
+		x, z := level.GetChunkCoords(i)
+		players = level.GetChunkPlayers(x, z)
+		for _, block := range blocks {
+			pk := packets2.NewUpdateBlockPacket()
+			pk.BlockId = uint32(block.GetId())
+			pk.BlockMetadata = uint32(block.GetData())
+			pk.Flags = 0x0
+			batch.AddPacket(pk)
+		}
+	}
+	for _, p := range players {
+		level.server.GetRakLibAdapter().SendBatch(batch, p.GetSession())
 	}
 }
 
@@ -162,6 +200,7 @@ func (level *Level) TickLevel() {
 	for _, dimension := range level.dimensions  {
 		dimension.TickDimension()
 	}
+
 }
 
 /**
