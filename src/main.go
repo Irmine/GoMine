@@ -41,17 +41,17 @@ func main() {
 	var tickDrop = 20
 
 	for {
-		var tickDuration = int(1.0 / float32(server.GetTickRate()) * 1000) * int(time.Millisecond)
-		var nextTime = time.Now().Add(time.Duration(tickDuration))
+		var tickDuration= int(1.0/float32(server.GetTickRate())*1000) * int(time.Millisecond)
+		var nextTime= time.Now().Add(time.Duration(tickDuration))
 
 		server.Tick(currentTick)
 
-		var diff = nextTime.Sub(time.Now()).Nanoseconds()
+		var diff= nextTime.Sub(time.Now()).Nanoseconds()
 
 		if diff > 0 {
 			tickDrop--
 
-			if tickDrop < 0 && server.GetTickRate() != 20 && diff > 5 * int64(time.Millisecond) {
+			if tickDrop < 0 && server.GetTickRate() != 20 && diff > 5*int64(time.Millisecond) {
 				server.SetTickRate(server.GetTickRate() + 1)
 
 				server.GetLogger().Debug("Elevating tick rate to: " + strconv.Itoa(server.GetTickRate()))
@@ -76,7 +76,8 @@ func main() {
 		}
 	}
 
-	server.GetLogger().ProcessQueue() // Process the logger queue one last time synchronously to make sure everything gets written.
+	server.GetLogger().Terminate() // Terminate the logger to stop writing asynchronously.
+	server.GetLogger().ProcessQueue(true) // Process the logger queue one last time forced and synchronously to make sure everything gets written.
 }
 
 func scanServerPath() string {
