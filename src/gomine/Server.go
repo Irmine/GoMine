@@ -227,7 +227,7 @@ func (server *Server) LoadLevel(levelName string) bool {
 	if server.IsLevelLoaded(levelName) {
 		return false
 	}
-	server.levels[counter] = worlds.NewLevel(levelName, counter, server, []interfaces.IChunk{})
+	server.levels[counter] = worlds.NewLevel(levelName, counter, server, map[int]interfaces.IChunk{})
 	counter++
 	return true
 }

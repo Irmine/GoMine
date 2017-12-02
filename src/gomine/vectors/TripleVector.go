@@ -122,14 +122,14 @@ func (vector *TripleVector) Abs() TripleVector {
 }
 
 /**
- * Multiplies all vectors bY the given amount and returns a new TripleVector.
+ * Multiplies all vectors by the given amount and returns a new TripleVector.
  */
 func (vector *TripleVector) Multiply(value float32) TripleVector {
 	return TripleVector{vector.X * value, vector.Y * value, vector.Z * value}
 }
 
 /**
- * Divides all vectors bY the given amount and returns a new TripleVector.
+ * Divides all vectors by the given amount and returns a new TripleVector.
  */
 func (vector *TripleVector) Divide(value float32) TripleVector {
 	return TripleVector{vector.X / value, vector.Y / value, vector.Z / value}
@@ -184,9 +184,29 @@ func (vector *TripleVector) GetAdjacentVectors() []TripleVector {
 }
 
 /**
- * Steps the given amount to the given direction and returns a new TripleVector.
+ * Steps the given amount to the given direction and changes the x/y/z.
  */
-func (vector *TripleVector) Step(direction, steps float32) TripleVector {
+func (vector *TripleVector) Step(direction, steps float32) {
+	switch direction {
+	case Down:
+		vector.Y -= steps
+	case Up:
+		vector.Y += steps
+	case North:
+		vector.Z -= steps
+	case South:
+		vector.Z += steps
+	case West:
+		vector.X -= steps
+	case East:
+		vector.X += steps
+	}
+}
+
+/**
+ * Gets the adjacent vector to the given direction and returns a new TripleVector.
+ */
+func (vector *TripleVector) GetAdjacent(direction, steps float32) TripleVector {
 	switch direction {
 	case Down:
 		return TripleVector{vector.X, vector.Y - steps, vector.Z}
