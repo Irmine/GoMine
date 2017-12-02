@@ -1,11 +1,17 @@
 package interfaces
 
+import "gomine/vectors"
+
 type IBlock interface{
 	GetId() int
 	GetData() byte
 	SetData(byte)
 	GetName() string
 	HasCollisionBox() bool
+	GetCollisionBox() *vectors.CubesBox
+	SetCollisionBox(box *vectors.CubesBox)
+	GetBoundingBox() *vectors.CubesBox
+	SetBoundingBox(box *vectors.CubesBox)
 	// IsSolid() bool
 	// GetLightFilter() int
 	// GetHardness() float64

@@ -9,6 +9,8 @@ type Level struct {
 	name string
 	id int
 	dimensions map[string]interfaces.IDimension
+	defaultDimension interfaces.IDimension
+
 	gameRules map[string]bool
 }
 
@@ -16,8 +18,11 @@ type Level struct {
  * Returns a new Level with the given level name.
  */
 func NewLevel(levelName string, levelId int, server interfaces.IServer, chunks map[int]interfaces.IChunk) *Level {
-	var level = &Level{server, levelName, levelId, make(map[string]interfaces.IDimension), make(map[string]bool)}
-	level.AddDimension("Overworld", OverworldId, chunks)
+	var level = &Level{server: server, name: levelName, id: levelId, dimensions: make(map[string]interfaces.IDimension), gameRules: make(map[string]bool)}
+
+	var defaultDimension = NewDimension("Overworld", OverworldId, level, chunks)
+	level.SetDefaultDimension(defaultDimension)
+
 	level.initializeGameRules()
 	return level
 }
@@ -95,12 +100,24 @@ func (level *Level) DimensionExists(name string) bool {
  * Adds a new dimension with the given name and dimension ID.
  * Returns false if the dimension already exists, true otherwise.
  */
-func (level *Level) AddDimension(name string, dimensionId int, chunks map[int]interfaces.IChunk) bool {
-	if level.DimensionExists(name) {
-		return false
-	}
-	level.dimensions[name] = NewDimension(name, dimensionId, level, chunks)
-	return true
+func (level *Level) AddDimension(dimension interfaces.IDimension) {
+	level.dimensions[dimension.GetName()] = dimension
+}
+
+/**
+ * Sets the default dimension of this level.
+ */
+func (level *Level) SetDefaultDimension(dimension interfaces.IDimension) {
+	level.AddDimension(dimension)
+
+	level.defaultDimension = dimension
+}
+
+/**
+ * Returns the default dimension of this level.
+ */
+func (level *Level) GetDefaultDimension() interfaces.IDimension {
+	return level.defaultDimension
 }
 
 /**
