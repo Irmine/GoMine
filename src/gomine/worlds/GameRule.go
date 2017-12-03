@@ -59,4 +59,5 @@ func (rule *GameRule) SetValue(value interface{}) bool {
 		return false
 	}
 	rule.value = value
+	return true
 }

@@ -1,6 +1,9 @@
 package packets
 
-import "gomine/net/info"
+import (
+	"gomine/net/info"
+	"gomine/vectors"
+)
 
 type UpdateBlockPacket struct{
 	*Packet
@@ -14,7 +17,7 @@ func NewUpdateBlockPacket() *UpdateBlockPacket {
 }
 
 func (pk *UpdateBlockPacket) Encode() {
-	pk.PutBlockPos(pk.X, pk.Y, pk.Z)
+	pk.PutBlockPos(vectors.TripleVector{float32(pk.X), float32(pk.Y), float32(pk.Z)})
 	pk.PutUnsignedVarInt(pk.BlockId)
 	pk.PutUnsignedVarInt((pk.Flags << 4) | pk.BlockMetadata)
 }
