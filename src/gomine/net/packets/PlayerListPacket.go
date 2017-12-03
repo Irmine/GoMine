@@ -25,10 +25,13 @@ func (pk *PlayerListPacket) Encode() {
 	pk.PutUnsignedVarInt(uint32(len(pk.Players)))
 	for _, entry := range pk.Players {
 		if pk.ListType == byte(ListTypeAdd) {
+
+			// TODO: Correctly implement UUID handling and implement this.
 			pk.PutLittleInt(0)
 			pk.PutLittleInt(0)
 			pk.PutLittleInt(0)
 			pk.PutLittleInt(0)
+			// ---
 
 			pk.PutVarLong(0)
 

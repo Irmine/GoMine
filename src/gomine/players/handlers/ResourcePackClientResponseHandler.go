@@ -27,7 +27,7 @@ func (handler ResourcePackClientResponseHandler) Handle(packet interfaces.IPacke
 			return true
 		}
 
-		pk4 := packets.NewStartGamePacket()
+		var pk4 = packets.NewStartGamePacket()
 		server.GetRakLibAdapter().SendPacket(pk4, session)
 
 		var pk = packets.NewPlayerListPacket()
@@ -37,12 +37,7 @@ func (handler ResourcePackClientResponseHandler) Handle(packet interfaces.IPacke
 
 		var pk3 = packets.NewCraftingDataPacket()
 		server.GetRakLibAdapter().SendPacket(pk3, session)
-
-		pk2 := packets.NewPlayStatusPacket()
-		pk2.Status = 3
-		server.GetRakLibAdapter().SendPacket(pk2, session)
 	}
-
 
 	return true
 }

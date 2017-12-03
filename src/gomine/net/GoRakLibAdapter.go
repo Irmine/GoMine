@@ -73,6 +73,7 @@ func (adapter *GoRakLibAdapter) GetSession(address string, port uint16) *server2
 func (adapter *GoRakLibAdapter) SendPacket(pk interfaces.IPacket, session *server2.Session) {
 	pk.EncodeHeader()
 	pk.Encode()
+
 	var b = NewMinecraftPacketBatch()
 	b.AddPacket(pk)
 

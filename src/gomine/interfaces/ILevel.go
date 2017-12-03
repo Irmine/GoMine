@@ -10,8 +10,12 @@ type ILevel interface {
 	SetDefaultDimension(IDimension)
 	GetDefaultDimension() IDimension
 	TickLevel()
-	ToggleGameRule(string)
-	GetGameRules() map[string]bool
-	SetGameRule(string, bool)
-	GetGameRule(string) bool
+	GetGameRules() map[string]IGameRule
+	GetGameRule(string) IGameRule
+}
+
+type IGameRule interface {
+	GetName() string
+	GetValue() interface{}
+	SetValue(value interface{}) bool
 }

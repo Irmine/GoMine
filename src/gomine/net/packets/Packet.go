@@ -4,6 +4,7 @@ import (
 	"gomine/utils"
 	"gomine/vectors"
 	"gomine/entities"
+	"gomine/interfaces"
 )
 
 type Packet struct {
@@ -159,8 +160,26 @@ func (pk *Packet) GetEntityData() map[uint32][]interface{} {
 	return dat
 }
 
-func (pk *Packet) PutBlockPos(x int32, y uint32, z int32) {
-	pk.PutVarInt(x)
-	pk.PutUnsignedVarInt(y)
-	pk.PutVarInt(x)
+func (pk *Packet) PutGameRules(gameRules map[string]interfaces.IGameRule) {
+	pk.PutUnsignedVarInt(uint32(len(gameRules)))
+	for name, gameRule := range gameRules {
+		pk.PutString(name)
+		switch value := gameRule.GetValue().(type) {
+		case bool:
+			pk.PutByte(1)
+			pk.PutBool(value)
+		case uint32:
+			pk.PutByte(2)
+			pk.PutUnsignedVarInt(value)
+		case float32:
+			pk.PutByte(3)
+			pk.PutLittleFloat(value)
+		}
+	}
+}
+
+func (pk *Packet) PutBlockPos(vector vectors.TripleVector) {
+	pk.PutVarInt(int32(vector.X))
+	pk.PutUnsignedVarInt(uint32(vector.Y))
+	pk.PutVarInt(int32(vector.Z))
 }

@@ -11,14 +11,14 @@ type Level struct {
 	dimensions map[string]interfaces.IDimension
 	defaultDimension interfaces.IDimension
 
-	gameRules map[string]bool
+	gameRules map[string]interfaces.IGameRule
 }
 
 /**
  * Returns a new Level with the given level name.
  */
 func NewLevel(levelName string, levelId int, server interfaces.IServer, chunks map[int]interfaces.IChunk) *Level {
-	var level = &Level{server: server, name: levelName, id: levelId, dimensions: make(map[string]interfaces.IDimension), gameRules: make(map[string]bool)}
+	var level = &Level{server: server, name: levelName, id: levelId, dimensions: make(map[string]interfaces.IDimension), gameRules: make(map[string]interfaces.IGameRule)}
 
 	var defaultDimension = NewDimension("Overworld", OverworldId, level, chunks)
 	level.SetDefaultDimension(defaultDimension)
@@ -28,35 +28,24 @@ func NewLevel(levelName string, levelId int, server interfaces.IServer, chunks m
 }
 
 /**
- * Returns the value of the given game rule.
+ * Returns a GameRule with the given name.
  */
-func (level *Level) GetGameRule(gameRule string) bool {
+func (level *Level) GetGameRule(gameRule string) interfaces.IGameRule {
 	return level.gameRules[gameRule]
 }
 
 /**
- * Sets a game rule to the given value.
+ * Returns a name => GameRule map of all GameRules.
  */
-func (level *Level) SetGameRule(gameRule string, value bool) {
-	level.gameRules[gameRule] = value
-}
-
-/**
- * Toggles the given game rule.
- */
-func (level *Level) ToggleGameRule(gameRule string) {
-	if level.gameRules[gameRule] == true {
-		level.gameRules[gameRule] = false
-	} else {
-		level.gameRules[gameRule] = true
-	}
-}
-
-/**
- * Returns a name => value map for all game rules.
- */
-func (level *Level) GetGameRules() map[string]bool {
+func (level *Level) GetGameRules() map[string]interfaces.IGameRule {
 	return level.gameRules
+}
+
+/**
+ * Adds a GameRule to this level.
+ */
+func (level *Level) AddGameRule(rule interfaces.IGameRule) {
+	level.gameRules[rule.GetName()] = rule
 }
 
 /**
@@ -167,20 +156,22 @@ func (level *Level) TickLevel() {
  * Initializes all game rules of the level.
  */
 func (level *Level) initializeGameRules() {
-	level.SetGameRule(GameRuleCommandBlockOutput, true)
-	level.SetGameRule(GameRuleDoDaylightCycle, true)
-	level.SetGameRule(GameRuleDoEntityDrops, true)
-	level.SetGameRule(GameRuleDoFireTick, true)
-	level.SetGameRule(GameRuleDoMobLoot, true)
-	level.SetGameRule(GameRuleDoMobSpawning, true)
-	level.SetGameRule(GameRuleDoTileDrops, true)
-	level.SetGameRule(GameRuleDoWeatherCycle, true)
-	level.SetGameRule(GameRuleDrowningDamage, true)
-	level.SetGameRule(GameRuleFallDamage, true)
-	level.SetGameRule(GameRuleFireDamage, true)
-	level.SetGameRule(GameRuleKeepInventory, false)
-	level.SetGameRule(GameRuleMobGriefing, true)
-	level.SetGameRule(GameRuleNaturalRegeneration, true)
-	level.SetGameRule(GameRulePvp, true)
-	level.SetGameRule(GameRuleSendCommandFeedback, true)
+	level.AddGameRule(NewGameRule(GameRuleCommandBlockOutput, true))
+	level.AddGameRule(NewGameRule(GameRuleDoDaylightCycle, true))
+	level.AddGameRule(NewGameRule(GameRuleDoEntityDrops, true))
+	level.AddGameRule(NewGameRule(GameRuleDoFireTick, true))
+	level.AddGameRule(NewGameRule(GameRuleDoMobLoot, true))
+	level.AddGameRule(NewGameRule(GameRuleDoMobSpawning, true))
+	level.AddGameRule(NewGameRule(GameRuleDoTileDrops, true))
+	level.AddGameRule(NewGameRule(GameRuleDoWeatherCycle, true))
+	level.AddGameRule(NewGameRule(GameRuleDrowningDamage, true))
+	level.AddGameRule(NewGameRule(GameRuleFallDamage, true))
+	level.AddGameRule(NewGameRule(GameRuleFireDamage, true))
+	level.AddGameRule(NewGameRule(GameRuleKeepInventory, false))
+	level.AddGameRule(NewGameRule(GameRuleMobGriefing, true))
+	level.AddGameRule(NewGameRule(GameRuleNaturalRegeneration, true))
+	level.AddGameRule(NewGameRule(GameRulePvp, true))
+	level.AddGameRule(NewGameRule(GameRuleSendCommandFeedback, true))
+	level.AddGameRule(NewGameRule(GameRuleShowCoordinates, true))
+	level.AddGameRule(NewGameRule(GameRuleRandomTickSpeed, uint32(3)))
 }

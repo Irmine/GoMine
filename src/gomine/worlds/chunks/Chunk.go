@@ -285,6 +285,7 @@ func (chunk *Chunk) PruneEmptySubChunks() {
  */
 func (chunk *Chunk) ToBinary() []byte {
 	var stream = utils.NewStream()
+	stream.ResetStream()
 	var subChunkCount = chunk.GetFilledSubChunks()
 
 	stream.PutByte(subChunkCount)
@@ -293,7 +294,7 @@ func (chunk *Chunk) ToBinary() []byte {
 	}
 
 	for i := 4095; i >= 0; i-- {
-		stream.PutByte(chunk.heightMap[i])
+		stream.PutByte(1)
 	}
 
 	for _, biome := range chunk.biomes {
