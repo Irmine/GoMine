@@ -22,7 +22,13 @@ type Player struct {
 	xuid string
 	clientId int
 
-	viewDistance uint
+	viewDistance int32
+
+	skinId string
+	skinData []byte
+	capeData []byte
+	geometryName string
+	geometryData string
 }
 
 /**
@@ -41,6 +47,7 @@ func NewPlayer(server interfaces.IServer, session *server.Session, name string, 
 	player.permissionGroup = server.GetPermissionManager().GetDefaultGroup()
 
 	player.server = server
+	player.session = session
 
 	return player
 }
@@ -83,14 +90,14 @@ func (player *Player) GetClientId() int {
 /**
  * Sets the view distance of this player.
  */
-func (player *Player) SetViewDistance(distance uint) {
+func (player *Player) SetViewDistance(distance int32) {
 	player.viewDistance = distance
 }
 
 /**
  * Returns the view distance of this player.
  */
-func (player *Player) GetViewDistance() uint {
+func (player *Player) GetViewDistance() int32 {
 	return player.viewDistance
 }
 
@@ -171,6 +178,46 @@ func (player *Player) RemovePermission(permission string) bool {
 	delete(player.permissions, permission)
 
 	return true
+}
+
+func (player *Player) SetSkinId(id string) {
+	player.skinId = id
+}
+
+func (player *Player) GetSkinId() string {
+	return player.skinId
+}
+
+func (player *Player) GetSkinData() []byte {
+	return player.skinData
+}
+
+func (player *Player) SetSkinData(data []byte) {
+	player.skinData = data
+}
+
+func (player *Player) GetCapeData() []byte {
+	return player.capeData
+}
+
+func (player *Player) SetCapeData(data []byte) {
+	player.capeData = data
+}
+
+func (player *Player) GetGeometryName() string {
+	return player.geometryName
+}
+
+func (player *Player) SetGeometryName(name string) {
+	player.geometryName = name
+}
+
+func (player *Player) GetGeometryData() string {
+	return player.geometryData
+}
+
+func (player *Player) SetGeometryData(data string) {
+	player.geometryData = data
 }
 
 /**

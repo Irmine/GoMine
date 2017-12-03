@@ -41,9 +41,16 @@ func (block *Block) GetData() byte {
 }
 
 /**
- * Sets the block's (meta)data.
+ * Sets the block's (meta)data/variant.
  */
 func (block *Block) SetData(data byte) {
+	block.data = data
+}
+
+/**
+ * Sets the block's (meta)data/variant.
+ */
+func (block *Block) SetVariant(data byte) {
 	block.data = data
 }
 
@@ -78,6 +85,7 @@ func (block *Block) SetCollisionBox(box *vectors.CubesBox) {
 
 /**
  * Returns the bounding box of this block.
+ * All blocks (except air) have bounding boxes.
  */
 func (block *Block) GetBoundingBox() *vectors.CubesBox {
 	return block.BoundingBox

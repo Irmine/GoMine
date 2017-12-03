@@ -31,6 +31,10 @@ func NewGoRakLibAdapter(server interfaces.IServer) *GoRakLibAdapter {
 	return &GoRakLibAdapter{server, rakServer}
 }
 
+func (adapter *GoRakLibAdapter) GetRakLibServer() *server2.GoRakLibServer {
+	return adapter.rakLibServer
+}
+
 /**
  * Ticks the adapter
  */
@@ -83,7 +87,6 @@ func (adapter *GoRakLibAdapter) SendBatch(batch interfaces.IMinecraftPacketBatch
 
 	var datagram = protocol.NewDatagram()
 	datagram.AddPacket(&encPacket)
-	datagram.Encode()
 
-	adapter.rakLibServer.GetSessionManager().SendPacket(datagram, session)
+	adapter.rakLibServer.SendPacket(datagram, session)
 }

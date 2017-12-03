@@ -4,6 +4,7 @@ import (
 	"errors"
 	"gomine/interfaces"
 	"gomine/tiles"
+	"gomine/utils"
 )
 
 type Chunk struct {
@@ -133,7 +134,7 @@ func (chunk *Chunk) GetHeightMapIndex(x, z int) int {
 /**
  * Sets the block ID on a position in this chunk.
  */
-func (chunk *Chunk) SetBlockId(x, y, z int, blockId int)  {
+func (chunk *Chunk) SetBlockId(x, y, z int, blockId byte)  {
 	v, err := chunk.GetSubChunk(y >> 4)
 	if err == nil {
 		v.SetBlockId(x, y & 15, z, blockId)
@@ -143,7 +144,7 @@ func (chunk *Chunk) SetBlockId(x, y, z int, blockId int)  {
 /**
  * Returns the block ID on a position in this chunk.
  */
-func (chunk *Chunk) GetBlockId(x, y, z int) int {
+func (chunk *Chunk) GetBlockId(x, y, z int) byte {
 	v, err := chunk.GetSubChunk(y >> 4)
 	if err == nil {
 		return v.GetBlockId(x, y & 15, z)
@@ -257,6 +258,14 @@ func (chunk *Chunk) GetHeightMap(x, z int) byte {
 }
 
 /**
+ * Returns the count of non-empty SubChunks in this chunk.
+ */
+func (chunk *Chunk) GetFilledSubChunks() byte {
+	chunk.PruneEmptySubChunks()
+	return byte(len(chunk.subChunks))
+}
+
+/**
  * Prunes all empty SubChunks in this chunk.
  */
 func (chunk *Chunk) PruneEmptySubChunks() {
@@ -269,4 +278,30 @@ func (chunk *Chunk) PruneEmptySubChunks() {
 			chunk.subChunks[y] = NewEmptySubChunk()
 		}
 	}
+}
+
+/**
+ * Converts the chunk to binary preparing it to send to the client.
+ */
+func (chunk *Chunk) ToBinary() []byte {
+	var stream = utils.NewStream()
+	var subChunkCount = chunk.GetFilledSubChunks()
+
+	stream.PutByte(subChunkCount)
+	for i := 0; i < int(subChunkCount); i++ {
+		stream.PutBytes(chunk.subChunks[i].ToBinary())
+	}
+
+	for i := 4095; i >= 0; i-- {
+		stream.PutByte(chunk.heightMap[i])
+	}
+
+	for _, biome := range chunk.biomes {
+		stream.PutByte(biome)
+	}
+	stream.PutByte(0)
+
+	stream.PutUnsignedVarInt(0)
+
+	return stream.GetBuffer()
 }

@@ -1,6 +1,6 @@
 package blocks
 
 const (
-	AIR = iota
-	STONE
+	Air = iota
+	Stone
 )

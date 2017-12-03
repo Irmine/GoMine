@@ -19,11 +19,11 @@ func (subChunk *EmptySubChunk) GetIndex(x, y, z int) int {
 	return 0
 }
 
-func (subChunk *EmptySubChunk) GetBlockId(x, y, z int) int {
+func (subChunk *EmptySubChunk) GetBlockId(x, y, z int) byte {
 	return 0
 }
 
-func (subChunk *EmptySubChunk) SetBlockId(x, y, z int, id int) {
+func (subChunk *EmptySubChunk) SetBlockId(x, y, z int, id byte) {
 
 }
 
@@ -49,6 +49,10 @@ func (subChunk *EmptySubChunk) GetBlockData(x, y, z int) byte {
 
 func (subChunk *EmptySubChunk) SetBlockData(x, y, z int, data byte) {
 
+}
+
+func (subChunk *EmptySubChunk) ToBinary() []byte {
+	return []byte{}
 }
 
 func (subChunk *EmptySubChunk) GetBytes() []byte {

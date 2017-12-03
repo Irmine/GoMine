@@ -6,7 +6,7 @@ import (
 
 type ChunkRadiusRequestPacket struct {
 	*Packet
-	Radius uint32
+	Radius int32
 }
 
 func NewChunkRadiusRequestPacket() *ChunkRadiusRequestPacket {
@@ -18,5 +18,5 @@ func (pk *ChunkRadiusRequestPacket) Encode()  {
 }
 
 func (pk *ChunkRadiusRequestPacket) Decode()  {
-	pk.Radius = pk.GetUnsignedVarInt()
+	pk.Radius = pk.GetVarInt()
 }

@@ -1,10 +1,12 @@
 package packets
 
-import "gomine/net/info"
+import (
+	"gomine/net/info"
+)
 
 type ChunkRadiusUpdatedPacket struct {
 	*Packet
-	Radius uint32
+	Radius int32
 }
 
 func NewChunkRadiusUpdatedPacket() *ChunkRadiusUpdatedPacket {
@@ -12,7 +14,7 @@ func NewChunkRadiusUpdatedPacket() *ChunkRadiusUpdatedPacket {
 }
 
 func (pk *ChunkRadiusUpdatedPacket) Encode()  {
-	pk.PutUnsignedVarInt(pk.Radius)
+	pk.PutVarInt(12/*pk.Radius*/)
 }
 
 func (pk *ChunkRadiusUpdatedPacket) Decode()  {

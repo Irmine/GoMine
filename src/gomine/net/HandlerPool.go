@@ -11,6 +11,7 @@ var registeredHandlers = map[int][]players.IPacketHandler{}
 func InitHandlerPool() {
 	RegisterPacketHandler(info.LoginPacket, handlers.NewLoginHandler())
 	RegisterPacketHandler(info.RequestChunkRadiusPacket, handlers.NewChunkRadiusRequestHandler())
+	RegisterPacketHandler(info.ResourcePackClientResponsePacket, handlers.NewResourcePackClientResponseHandler())
 }
 
 /**

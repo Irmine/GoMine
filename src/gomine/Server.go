@@ -14,6 +14,7 @@ import (
 	"gomine/net/info"
 	"gomine/permissions"
 	"gomine/players"
+	"gomine/worlds/blocks"
 )
 
 const (
@@ -44,20 +45,13 @@ type Server struct {
 	rakLibAdapter *net.GoRakLibAdapter
 }
 
-var started = false
-
 var counter = 0
 
 /**
  * Creates a new server.
  * Will report an error if a server is already existent.
  */
-func NewServer(serverPath string) (*Server, error) {
-	var errorServer Server
-	if started {
-		return &errorServer, errors.New("cannot create a second server")
-	}
-
+func NewServer(serverPath string) *Server {
 	var server = &Server{}
 	server.tickRate = TickRate
 	server.serverPath = serverPath
@@ -73,11 +67,7 @@ func NewServer(serverPath string) (*Server, error) {
 
 	server.permissionManager = permissions.NewPermissionManager(server)
 
-	server.RegisterDefaultCommands()
-
-	started = true
-
-	return server, nil
+	return server
 }
 
 /**
@@ -101,9 +91,12 @@ func (server *Server) IsRunning() bool {
 func (server *Server) Start() {
 	server.GetLogger().Info("GoMine " + GoMineVersion + " is now starting...")
 
-	server.isRunning = true
+	server.RegisterDefaultCommands()
+	blocks.InitBlockPool()
 
 	server.GetDefaultLevel()
+
+	server.isRunning = true
 }
 
 /**
@@ -387,4 +380,6 @@ func (server *Server) Tick(currentTick int) {
 	}
 	go server.consoleReader.ReadLine(server)
 	server.rakLibAdapter.Tick()
+
+	server.rakLibAdapter.GetRakLibServer().SetConnectedSessionCount(server.GetPlayerFactory().GetPlayerCount())
 }

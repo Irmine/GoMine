@@ -7,4 +7,5 @@ type IPlayerFactory interface {
 	GetPlayers() map[string]IPlayer
 	GetPlayerByName(string) (IPlayer, error)
 	GetPlayerBySession(string, uint16) (IPlayer, error)
+	GetPlayerCount() uint
 }

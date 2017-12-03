@@ -5,6 +5,7 @@ import "gomine/vectors"
 type IBlock interface{
 	GetId() int
 	GetData() byte
+	SetVariant(byte)
 	SetData(byte)
 	GetName() string
 	HasCollisionBox() bool

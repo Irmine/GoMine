@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"gomine/utils"
 	"gomine/net/info"
+	"encoding/base64"
 )
 
 type LoginPacket struct {
@@ -16,6 +17,12 @@ type LoginPacket struct {
 	IdentityPublicKey string
 	ServerAddress string
 	Language string
+
+	SkinId string
+	SkinData []byte
+	CapeData []byte
+	GeometryName string
+	GeometryData []byte
 }
 
 type ChainDataKeys struct {
@@ -31,10 +38,15 @@ type ClientDataKeys struct {
 	ClientRandomId int `json:"ClientRandomId"`
 	ServerAddress string `json:"ServerAddress"`
 	LanguageCode string `json:"LanguageCode"`
+	SkinId string `json:"SkinId"`
+	SkinData string `json:"SkinData"`
+	CapeData string `json:"CapeData"`
+	GeometryId string `json:"SkinGeometryName"`
+	GeometryData string `json:"SkinGeometry"`
 }
 
 func NewLoginPacket() *LoginPacket {
-	pk := &LoginPacket{NewPacket(info.LoginPacket), "", 0, "", 0, "", "", "", ""}
+	pk := &LoginPacket{NewPacket(info.LoginPacket), "", 0, "", 0, "", "", "", "", "", []byte{}, []byte{}, "", []byte{}}
 	return pk
 }
 
@@ -92,4 +104,9 @@ func (pk *LoginPacket) Decode()  {
 	if pk.Language == "" {
 		pk.Language = "en_US"
 	}
+
+	pk.SkinId = clientData.SkinId
+	pk.SkinData, _ = base64.RawStdEncoding.DecodeString(clientData.SkinData)
+	pk.CapeData, _ = base64.RawStdEncoding.DecodeString(clientData.CapeData)
+	pk.GeometryData, _ = base64.RawStdEncoding.DecodeString(clientData.GeometryData)
 }

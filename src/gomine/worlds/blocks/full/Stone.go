@@ -11,7 +11,7 @@ const (
 )
 
 func NewStone(data byte) *Stone {
-	var stone = &Stone{blocks.NewBlock(blocks.STONE, data, "Stone")}
+	var stone = &Stone{blocks.NewBlock(blocks.Stone, data, "Stone")}
 	stone.SetBlastResistance(StoneBlastResistance)
 
 	return stone
@@ -22,8 +22,6 @@ func NewStone(data byte) *Stone {
  */
 func (stone *Stone) GetName() string {
 	switch stone.GetData() {
-	case 0:
-		return "Stone"
 	case 1:
 		return "Granite"
 	case 2:

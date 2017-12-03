@@ -2,13 +2,13 @@ package blocks
 
 import (
 	"gomine/interfaces"
-	"gomine/worlds/blocks/full"
 )
 
 var blocks = map[int]func(byte) interfaces.IBlock{}
 
 func InitBlockPool() {
-	RegisterBlock(STONE, func(data byte) interfaces.IBlock { return full.NewStone(data) })
+	//RegisterBlock(Air, func(data byte) interfaces.IBlock { return transparent.NewAir(data) })
+	//RegisterBlock(Stone, func(data byte) interfaces.IBlock { return full.NewStone(data) })
 }
 
 /**

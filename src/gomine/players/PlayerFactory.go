@@ -63,6 +63,6 @@ func (factory *PlayerFactory) GetPlayers() map[string]interfaces.IPlayer {
 /**
  * Returns the count of all players online.
  */
-func (factory *PlayerFactory) GetPlayerCount() int {
-	return len(factory.players)
+func (factory *PlayerFactory) GetPlayerCount() uint {
+	return uint(len(factory.players))
 }

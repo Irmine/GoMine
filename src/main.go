@@ -28,14 +28,11 @@ func main() {
 	parseFlags()
 	var serverPath = scanServerPath()
 
-	var server, err = gomine.NewServer(serverPath)
-	if err != nil {
-		server.GetLogger().Critical("Another instance of the server is already running.")
-		return
-	}
+	var server = gomine.NewServer(serverPath)
 
 	server.Start()
 	var startupTime = time.Now().Sub(startTime)
+
 	server.GetLogger().Info("Server startup done! Took: " + startupTime.String())
 
 	var tickDrop = 20
@@ -46,7 +43,7 @@ func main() {
 
 		server.Tick(currentTick)
 
-		var diff= nextTime.Sub(time.Now()).Nanoseconds()
+		var diff = nextTime.Sub(time.Now()).Nanoseconds()
 
 		if diff > 0 {
 			tickDrop--

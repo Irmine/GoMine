@@ -9,8 +9,8 @@ const (
 
 	AttributeHunger = "minecraft:hunger"
 	AttributeSaturation = "minecraft:saturation"
-
 	AttributeExhaustion = "minecraft:exhaustion"
+
 	AttributeKnockBackResistance = "minecraft:knockback_resistance"
 
 	AttributeFollowRange = "minecraft:follow_range"

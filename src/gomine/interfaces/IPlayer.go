@@ -13,11 +13,21 @@ type IPlayer interface {
 	AddPermission(IPermission) bool
 	RemovePermission(string) bool
 	GetServer() IServer
-	SetViewDistance(uint)
-	GetViewDistance() uint
+	SetViewDistance(int32)
+	GetViewDistance() int32
 	GetUUID() string
 	GetXUID() string
 	SetLanguage(string)
 	GetLanguage() string
 	GetClientId() int
+	SetSkinId(id string)
+	GetSkinId() string
+	GetSkinData() []byte
+	SetSkinData(data []byte)
+	GetCapeData() []byte
+	SetCapeData(data []byte)
+	GetGeometryName() string
+	SetGeometryName(name string)
+	GetGeometryData() string
+	SetGeometryData(data string)
 }

@@ -21,8 +21,18 @@ func NewLoginHandler() LoginHandler {
  */
 func (handler LoginHandler) Handle(packet interfaces.IPacket, player interfaces.IPlayer, session *server.Session, server interfaces.IServer) bool {
 	if loginPacket, ok := packet.(*packets.LoginPacket); ok {
+		_, online := server.GetPlayerFactory().GetPlayerByName(loginPacket.Username)
+		if online == nil {
+			return false
+		}
+
 		var player = players.NewPlayer(server, session, loginPacket.Username, loginPacket.ClientUUID, loginPacket.ClientXUID, loginPacket.ClientId)
 		player.SetLanguage(loginPacket.Language)
+		player.SetSkinId(loginPacket.SkinId)
+		player.SetSkinData(loginPacket.SkinData)
+		player.SetCapeData(loginPacket.CapeData)
+		player.SetGeometryName(loginPacket.GeometryName)
+		player.SetGeometryData(string(loginPacket.GeometryData))
 
 		pk := packets.NewPlayStatusPacket()
 		pk.Status = 0
@@ -32,9 +42,6 @@ func (handler LoginHandler) Handle(packet interfaces.IPacket, player interfaces.
 		server.GetRakLibAdapter().SendPacket(pk3, session)
 
 		server.GetPlayerFactory().AddPlayer(player, session)
-
-		pk4 := packets.NewStartGamePacket()
-		server.GetRakLibAdapter().SendPacket(pk4, session)
 	}
 
 	return true

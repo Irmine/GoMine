@@ -41,3 +41,10 @@ func (box *CubesBox) IsNil() bool {
 	}
 	return true
 }
+
+/**
+ * Clears all cubes from the cubes box.
+ */
+func (box *CubesBox) Clear() {
+	box.cubes = []*Cube{}
+}

@@ -1,14 +1,14 @@
 package chunks
 
 type SubChunk struct {
-	BlockIds []int
+	BlockIds []byte
 	BlockData []byte
 	BlockLight []byte
 	SkyLight []byte
 }
 
 func NewSubChunk() *SubChunk {
-	return &SubChunk{[]int{}, []byte{}, []byte{}, []byte{}}
+	return &SubChunk{make([]byte, 4096), make([]byte, 4096), make([]byte, 4096), make([]byte, 4096)}
 }
 
 /**
@@ -34,14 +34,14 @@ func (subChunk *SubChunk) GetIndex(x, y, z int) int {
 /**
  * Returns the block ID in the SubChunk at the given position.
  */
-func (subChunk *SubChunk) GetBlockId(x, y, z int) int {
+func (subChunk *SubChunk) GetBlockId(x, y, z int) byte {
 	return subChunk.BlockIds[subChunk.GetIndex(x, y, z)]
 }
 
 /**
  * Sets the block ID in the SubChunk at the given position.
  */
-func (subChunk *SubChunk) SetBlockId(x, y, z int, id int) {
+func (subChunk *SubChunk) SetBlockId(x, y, z int, id byte) {
 	subChunk.BlockIds[subChunk.GetIndex(x, y, z)] = id
 }
 
@@ -89,4 +89,14 @@ func (subChunk *SubChunk) SetBlockData(x, y, z int, data byte) {
 
 func (subChunk *SubChunk) GetBytes() []byte {
 	return []byte{}
+}
+
+/**
+ * Converts the sub chunk into binary.
+ */
+func (subChunk *SubChunk) ToBinary() []byte {
+	var bytes = []byte{00}
+	bytes = append(bytes, subChunk.BlockIds...)
+	bytes = append(bytes, subChunk.BlockData...)
+	return bytes
 }
