@@ -10,12 +10,19 @@ type IBlock interface{
 	GetName() string
 	HasCollisionBox() bool
 	GetCollisionBox() *vectors.CubesBox
-	SetCollisionBox(box *vectors.CubesBox)
+	SetCollisionBox(*vectors.CubesBox)
 	GetBoundingBox() *vectors.CubesBox
-	SetBoundingBox(box *vectors.CubesBox)
+	SetBoundingBox(*vectors.CubesBox)
+	GetLightEmissionLevel() byte
+	SetLightEmissionLevel(byte)
+	GetBlastResistance() int
+	SetBlastResistance(int)
+	SetHardness(float32)
+	GetHardness() float32
+	DiffusesLight() bool
+	SetLightDiffusing(bool)
+	GetLightFilterLevel() byte
+	SetLightFilterLevel(byte)
 	// IsSolid() bool
-	// GetLightFilter() int
-	// GetHardness() float64
-	// GetBlastResistance() float64
 	// Place(player IPlayer, vector vectors.TripleVector)
 }

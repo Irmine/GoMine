@@ -1,18 +1,18 @@
-package full
-
-import "gomine/worlds/blocks"
+package blocks
 
 type Stone struct {
-	*blocks.Block
+	*Block
 }
 
 const (
 	StoneBlastResistance = 30
+	StoneHardness = 1.5
 )
 
 func NewStone(data byte) *Stone {
-	var stone = &Stone{blocks.NewBlock(blocks.Stone, data, "Stone")}
+	var stone = &Stone{NewBlock(STONE, data, "Stone")}
 	stone.SetBlastResistance(StoneBlastResistance)
+	stone.SetHardness(StoneHardness)
 
 	return stone
 }

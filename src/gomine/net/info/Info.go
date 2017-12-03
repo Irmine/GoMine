@@ -30,7 +30,7 @@ const (
 	UpdateBlockPacket = 0x15
 	AddPaintingPacket = 0x16
 	ExplodePacket = 0x17
-	LevelSoundEventPacket = 0x18
+	LevelSoundEventPacket = 0x18 // 24
 	LevelEventPacket = 0x19
 	BlockEventPacket = 0x1a
 	EntityEventPacket = 0x1b
@@ -42,7 +42,7 @@ const (
 	InteractPacket = 0x21
 	BlockPickRequestPacket = 0x22
 	EntityPickRequestPacket = 0x23
-	PlayerActionPacket = 0x24
+	PlayerActionPacket = 0x24 // 36
 	EntityFallPacket = 0x25
 	HurtArmorPacket = 0x26
 	SetEntityDataPacket = 0x27

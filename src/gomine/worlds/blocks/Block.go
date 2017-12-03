@@ -15,15 +15,24 @@ type Block struct {
 	CollisionBox *vectors.CubesBox
 	BoundingBox *vectors.CubesBox
 
+	hardness float32
 	blastResistance int
-	lightLevel byte
+
+	lightEmissionLevel byte
+	diffusesLight bool
+	lightFilterLevel byte
 }
 
 /**
  * Returns a new Block.
  */
 func NewBlock(id int, data byte, name string) *Block {
-	return &Block{Position: worlds.NewPosition(0, 0, 0, worlds.Level{}), id: id, data: data, name: name, hasCollisionBox: true, CollisionBox: vectors.NewCubesBox([]*vectors.Cube{vectors.NewCube(0, 0, 0, 1, 1, 1)}), BoundingBox: vectors.NewCubesBox([]*vectors.Cube{vectors.NewCube(0, 0, 0, 1, 1, 1)})}
+	var block = &Block{Position: worlds.NewPosition(0, 0, 0, worlds.Level{}), id: id, data: data, name: name, hasCollisionBox: true, CollisionBox: vectors.NewCubesBox([]*vectors.Cube{vectors.NewCube(0, 0, 0, 1, 1, 1)}), BoundingBox: vectors.NewCubesBox([]*vectors.Cube{vectors.NewCube(0, 0, 0, 1, 1, 1)})}
+
+	block.diffusesLight = true
+	block.lightFilterLevel = 15
+
+	return block
 }
 
 /**
@@ -99,13 +108,6 @@ func (block *Block) SetBoundingBox(box *vectors.CubesBox) {
 }
 
 /**
- * Returns the blast resistance of this block.
- */
-func (block *Block) GetBlastResistance() int {
-	return block.blastResistance
-}
-
-/**
  * Sets the blast resistance of this block.
  */
 func (block *Block) SetBlastResistance(value int) {
@@ -113,15 +115,67 @@ func (block *Block) SetBlastResistance(value int) {
 }
 
 /**
- * Returns the light level of this block.
+ * Returns the blast resistance of this block.
  */
-func (block *Block) GetLightLevel() byte {
-	return block.lightLevel
+func (block *Block) GetBlastResistance() int {
+	return block.blastResistance
 }
 
 /**
- * Sets the light level of this block.
+ * Returns the hardness of this block.
  */
-func (block *Block) SetLightLevel(level byte) {
-	block.lightLevel = level
+func (block *Block) GetHardness() float32 {
+	return block.hardness
+}
+
+/**
+ * Sets the hardness of this block.
+ */
+func (block *Block) SetHardness(value float32) {
+	block.hardness = value
+}
+
+/**
+ * Returns the light level that this block emits.
+ */
+func (block *Block) GetLightEmissionLevel() byte {
+	return block.lightEmissionLevel
+}
+
+/**
+ * Sets the light level this block emits.
+ */
+func (block *Block) SetLightEmissionLevel(level byte) {
+	block.lightEmissionLevel = level
+}
+
+/**
+ * Returns if this block diffuses (breaks) sky light.
+ */
+func (block *Block) DiffusesLight() bool {
+	return block.diffusesLight
+}
+
+/**
+ * Sets this block to diffuse sky light.
+ */
+func (block *Block) SetLightDiffusing(value bool) {
+	block.diffusesLight = value
+}
+
+/**
+ * Returns the amount of light levels this block will filter when light goes through.
+ */
+func (block *Block) GetLightFilterLevel() byte {
+	if !block.diffusesLight {
+		return 0
+	}
+	return block.lightFilterLevel
+}
+
+/**
+ * Sets the light filter level of this block.
+ */
+func (block *Block) SetLightFilterLevel(value byte) {
+	block.lightFilterLevel = value
 }

@@ -21,10 +21,10 @@ type StartGamePacket struct {
 	LevelSeed int32
 	Dimension int32
 	Generator int32
-	WorldGameMode int32
+	LevelGameMode int32
 	Difficulty int32
 
-	WorldSpawnPosition vectors.TripleVector
+	LevelSpawnPosition vectors.TripleVector
 	AchievementsDisabled bool
 	Time int32
 	EduMode bool
@@ -58,53 +58,50 @@ func NewStartGamePacket() *StartGamePacket {
 }
 
 func (pk *StartGamePacket) Encode()  {
-	pk.PutVarLong(0) // Entity Unique ID
-	pk.PutUnsignedVarLong(0) // Entity runtime ID
+	pk.PutVarLong(pk.EntityUniqueId) // Entity Unique ID
+	pk.PutUnsignedVarLong(pk.EntityRuntimeId) // Entity runtime ID
 
-	pk.PutVarInt(1) // Player game mode.
+	pk.PutVarInt(pk.PlayerGameMode) // Player game mode.
 
-	pk.PutTripleVectorObject(vectors.TripleVector{0, 20, 0}) // Player pos.
+	pk.PutTripleVectorObject(pk.PlayerPosition) // Player pos.
 
-	pk.PutLittleFloat(0) // Yaw
-	pk.PutLittleFloat(0) // Pitch
+	pk.PutLittleFloat(pk.Yaw) // Yaw
+	pk.PutLittleFloat(pk.Pitch) // Pitch
 
-	pk.PutVarInt(12345) // Seed
-	pk.PutVarInt(0) // Dimension
-	pk.PutVarInt(12345) // Generator
-	pk.PutVarInt(1) // World gamemode
-	pk.PutVarInt(0) // Difficulty
+	pk.PutVarInt(pk.LevelSeed) // Seed
+	pk.PutVarInt(pk.Dimension) // Dimension
+	pk.PutVarInt(pk.Generator) // Generator
+	pk.PutVarInt(pk.LevelGameMode) // World gamemode
+	pk.PutVarInt(pk.Difficulty) // Difficulty
 
-	pk.PutBlockPos(vectors.TripleVector{0, 20, 0}) // Spawn pos.
-	pk.PutBool(false) // Achievements disabled
-	pk.PutVarInt(0) // Time
-	pk.PutBool(false) // Education mode
+	pk.PutBlockPos(pk.LevelSpawnPosition) // Spawn pos.
+	pk.PutBool(pk.AchievementsDisabled) // Achievements disabled
+	pk.PutVarInt(pk.Time) // Time
+	pk.PutBool(pk.EduMode) // Education mode
 
-	pk.PutLittleFloat(0) // Rain level
-	pk.PutLittleFloat(0) // Lightning level
+	pk.PutLittleFloat(pk.RainLevel) // Rain level
+	pk.PutLittleFloat(pk.LightningLevel) // Lightning level
 
-	pk.PutBool(true) // Multi-player game
-	pk.PutBool(true) // LAN Broadcast
-	pk.PutBool(true) // XBOX Live Broadcast
-	pk.PutBool(true) // Commands Enabled
-	pk.PutBool(false) // Texture packs required
+	pk.PutBool(pk.MultiPlayerGame) // Multi-player game
+	pk.PutBool(pk.BroadcastToLan) // LAN Broadcast
+	pk.PutBool(pk.BroadcastToXbox) // XBOX Live Broadcast
+	pk.PutBool(pk.CommandsEnabled) // Commands Enabled
+	pk.PutBool(pk.ForcedResourcePacks) // Texture packs required
 
-	pk.PutUnsignedVarInt(1) // Game rule count
-	pk.PutString("showcoordinates") // Game rule name
-	pk.PutByte(1) // Game rule value type
-	pk.PutBool(true) // Game rule value
+	pk.PutGameRules(pk.GameRules)
 
-	pk.PutBool(true) // Bonus chest
-	pk.PutBool(true) // Start map
-	pk.PutBool(true) // Trust players
-	pk.PutVarInt(2) // Default permission level
-	pk.PutVarInt(1) // XBOX Broadcast mode
+	pk.PutBool(pk.BonusChest) // Bonus chest
+	pk.PutBool(pk.StartMap) // Start map
+	pk.PutBool(pk.TrustPlayers) // Trust players
+	pk.PutVarInt(pk.DefaultPermissionLevel) // Default permission level
+	pk.PutVarInt(pk.XboxBroadcastMode) // XBOX Broadcast mode
 
-	pk.PutString(base64.RawStdEncoding.EncodeToString([]byte("world"))) // Level name base64 encoded
-	pk.PutString("world") // Level name
+	pk.PutString(base64.RawStdEncoding.EncodeToString([]byte(pk.LevelName))) // Level name base64 encoded
+	pk.PutString(pk.LevelName) // Level name
 	pk.PutString("") // Premium world template ID
 	pk.PutBool(true) // Unknown
-	pk.PutLittleLong(100) // Tick
-	pk.PutVarInt(312904) // Enchantment seed
+	pk.PutLittleLong(pk.CurrentTick) // Tick
+	pk.PutVarInt(pk.EnchantmentSeed) // Enchantment seed
 }
 
 func (pk *StartGamePacket) Decode()  {

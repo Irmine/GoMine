@@ -17,5 +17,5 @@ type ILevel interface {
 type IGameRule interface {
 	GetName() string
 	GetValue() interface{}
-	SetValue(value interface{}) bool
+	SetValue(interface{}) bool
 }

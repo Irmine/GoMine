@@ -7,6 +7,6 @@ type IDimension interface {
 	TickDimension()
 	SetChunk(int, int, IChunk)
 	GetChunk(int, int) IChunk
-	GetChunkPlayers(x, z int) []IPlayer
+	GetChunkPlayers(int, int) []IPlayer
 	AddChunkPlayer(int, int, IPlayer)
 }

@@ -23,11 +23,11 @@ type IPlayer interface {
 	SetSkinId(id string)
 	GetSkinId() string
 	GetSkinData() []byte
-	SetSkinData(data []byte)
+	SetSkinData([]byte)
 	GetCapeData() []byte
-	SetCapeData(data []byte)
+	SetCapeData([]byte)
 	GetGeometryName() string
-	SetGeometryName(name string)
+	SetGeometryName(string)
 	GetGeometryData() string
-	SetGeometryData(data string)
+	SetGeometryData(string)
 }
