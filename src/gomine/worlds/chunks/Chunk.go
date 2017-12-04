@@ -5,6 +5,7 @@ import (
 	"gomine/interfaces"
 	"gomine/tiles"
 	"gomine/utils"
+	"gomine/worlds/blocks"
 )
 
 type Chunk struct {
@@ -15,22 +16,22 @@ type Chunk struct {
 	TerrainPopulated bool
 	tiles map[uint64]tiles.Tile
 	entities map[uint64]interfaces.IEntity
-	biomes [256]byte
+	biomes map[int]int
 	heightMap [4096]byte
 }
 
-func NewChunk(height, x, z int, subChunks map[int]interfaces.ISubChunk, lightPopulated, terrainPopulated bool, biomes [256]byte, heightMap [4096]byte) *Chunk {
+func NewChunk(x, z int) *Chunk {
 	return &Chunk{
-		height,
+		256,
 		x,
 		z,
-		subChunks,
-		lightPopulated,
-		terrainPopulated,
-		map[uint64]tiles.Tile{},
-		map[uint64]interfaces.IEntity{},
-		biomes,
-		heightMap,
+		make(map[int]interfaces.ISubChunk),
+		true,
+		true,
+		make(map[uint64]tiles.Tile),
+		make(map[uint64]interfaces.IEntity),
+		make(map[int]int),
+		[4096]byte{},
 	}
 }
 
@@ -84,6 +85,27 @@ func (chunk *Chunk) GetHeight() int {
 }
 
 /**
+ * Sets the height of this chunk. (?)
+ */
+func (chunk *Chunk) SetHeight(height int) {
+	chunk.height = height
+}
+
+/**
+ * Returns the biome of this coordinate. (?)
+ */
+func (chunk *Chunk) GetBiome(x, z int) int {
+	return chunk.biomes[chunk.GetBiomeIndex(x, z)]
+}
+
+/**
+ * Sets the biome of this coordinate. (?)
+ */
+func (chunk *Chunk) SetBiome(x, z, biome int) {
+	chunk.biomes[chunk.GetBiomeIndex(x, z)] = biome
+}
+
+/**
  * Adds a new entity to this chunk.
  */
 func (chunk *Chunk) AddEntity(entity interfaces.IEntity) bool {
@@ -115,6 +137,13 @@ func (chunk *Chunk) RemoveTile(tile tiles.Tile) {
 	if k, ok := chunk.entities[tile.GetId()]; ok {
 		delete(chunk.entities, k.GetRuntimeId())
 	}
+}
+
+/**
+ * Returns the biome index of a coordinate in a chunk.
+ */
+func (chunk *Chunk) GetBiomeIndex(x, z int) int {
+	return (x << 4) | z
 }
 
 /**
@@ -233,6 +262,10 @@ func (chunk *Chunk) GetSubChunk(y int) (interfaces.ISubChunk, error) {
 	if y > chunk.height || y < 0 {
 		return NewEmptySubChunk(), errors.New("SubChunk does not exist")
 	}
+	if _, ok := chunk.subChunks[y]; ok {
+		return chunk.subChunks[y], nil
+	}
+	chunk.subChunks[y] = NewSubChunk()
 	return chunk.subChunks[y], nil
 }
 
@@ -255,6 +288,59 @@ func (chunk *Chunk) SetHeightMap(x, z int, value byte) {
  */
 func (chunk *Chunk) GetHeightMap(x, z int) byte {
 	return chunk.heightMap[chunk.GetHeightMapIndex(x, z)]
+}
+
+/**
+ * Recalculates heightmap (highest blocks) of the chunk
+ */
+func (chunk *Chunk) RecalculateHeightMap() {
+	var id, data byte
+	for x := 0; x < 16; x++ {
+		for z := 0; z < 16; z++ {
+			id = chunk.GetHighestBlockId(x, z)
+			data = chunk.GetHighestBlockData(x, z)
+			if blocks.GetBlock(int(id), data).GetLightFilterLevel() > 1 {
+				break
+			}
+			chunk.SetHeightMap(x, z, byte(chunk.GetHighestBlock(x, z) + 1))
+		}
+	}
+}
+
+/**
+ * Returns highest subchunk in this chunk
+ */
+func (chunk *Chunk) GetHighestSubChunk() interfaces.ISubChunk {
+	var highest interfaces.ISubChunk = NewEmptySubChunk()
+	for y := 15; y >= 0; y-- {
+		if chunk.subChunks[y].IsAllAir() {
+			continue
+		}
+		highest = chunk.subChunks[y]
+		break
+	}
+	return highest
+}
+
+/**
+ * Returns highest block id at certain x, z coordinates in this chunk
+ */
+func (chunk *Chunk) GetHighestBlockId(x, z int) byte {
+	return chunk.GetHighestSubChunk().GetHighestBlockId(x, z)
+}
+
+/**
+ * Returns highest block meta data at certain x, z coordinates in this chunk
+ */
+func (chunk *Chunk) GetHighestBlockData(x, z int) byte {
+	 return chunk.GetHighestSubChunk().GetHighestBlockData(x, z)
+}
+
+/**
+ * Returns highest light filtering block at certain x, z coordinates in this chunk
+ */
+func (chunk *Chunk) GetHighestBlock(x, z int) int {
+	return chunk.GetHighestSubChunk().GetHighestBlock(x, z)
 }
 
 /**
@@ -298,7 +384,7 @@ func (chunk *Chunk) ToBinary() []byte {
 	}
 
 	for _, biome := range chunk.biomes {
-		stream.PutByte(biome)
+		stream.PutByte(byte(biome))
 	}
 	stream.PutByte(0)
 

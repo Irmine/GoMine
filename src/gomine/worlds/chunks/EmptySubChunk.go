@@ -51,10 +51,18 @@ func (subChunk *EmptySubChunk) SetBlockData(x, y, z int, data byte) {
 
 }
 
-func (subChunk *EmptySubChunk) ToBinary() []byte {
-	return []byte{}
+func (subChunk *EmptySubChunk) GetHighestBlockId(x, z int) byte {
+	return -1
 }
 
-func (subChunk *EmptySubChunk) GetBytes() []byte {
+func (subChunk *EmptySubChunk) GetHighestBlockData(x, z int) byte {
+	return -1
+}
+
+func (subChunk *EmptySubChunk) GetHighestBlock(x, z int) int {
+	return 0
+}
+
+func (subChunk *EmptySubChunk) ToBinary() []byte {
 	return []byte{}
 }

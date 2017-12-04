@@ -3,18 +3,27 @@ package players
 import (
 	"gomine/interfaces"
 	"goraklib/server"
+	"gomine/worlds"
+	"gomine/vectors"
+	"gomine/net/packets"
+	"gomine/entities"
 )
 
 type Player struct {
 	session *server.Session
 
+	runtimeId uint64
 	playerName  string
 	displayName string
 
 	permissions map[string]interfaces.IPermission
 	permissionGroup interfaces.IPermissionGroup
 
+	position *vectors.TripleVector
+	yaw, headYaw, pitch float32
+
 	server interfaces.IServer
+	dimension worlds.Dimension
 
 	language string
 
@@ -36,6 +45,8 @@ type Player struct {
  */
 func NewPlayer(server interfaces.IServer, session *server.Session, name string, uuid string, xuid string, clientId int) *Player {
 	var player = &Player{}
+	entities.RuntimeId++
+	player.runtimeId = entities.RuntimeId
 	player.playerName = name
 	player.displayName = name
 
@@ -45,6 +56,7 @@ func NewPlayer(server interfaces.IServer, session *server.Session, name string, 
 
 	player.permissions = make(map[string]interfaces.IPermission)
 	player.permissionGroup = server.GetPermissionManager().GetDefaultGroup()
+	player.position = vectors.NewTripleVector(0, 0, 0)
 
 	player.server = server
 	player.session = session
@@ -180,6 +192,32 @@ func (player *Player) RemovePermission(permission string) bool {
 	return true
 }
 
+func (player *Player) SetPosition(v *vectors.TripleVector) {
+	pk := packets.NewMovePlayerPacket()
+	pk.EntityId = player.runtimeId
+	pk.Position = *v
+	pk.Pitch = player.pitch
+	pk.Yaw = player.yaw
+	pk.HeadYaw = player.headYaw
+	pk.Mode = packets.Teleport
+	pk.OnGround = false
+	pk.RidingEid = 0
+	player.server.GetRakLibAdapter().SendPacket(pk, player.GetSession())
+	*player.position = *v
+}
+
+func (player *Player) GetPosition() *vectors.TripleVector {
+	return player.position
+}
+
+//func (player *Player) SetDimension(dimension worlds.Dimension) {
+//	player.dimension = dimension
+//}
+
+func (player *Player) GetDimension() worlds.Dimension {
+	return player.dimension
+}
+
 func (player *Player) SetSkinId(id string) {
 	player.skinId = id
 }
@@ -225,4 +263,16 @@ func (player *Player) SetGeometryData(data string) {
  */
 func (player *Player) GetSession() *server.Session {
 	return player.session
+}
+
+func (player *Player) SendChunk(chunk interfaces.IChunk)  {
+	var pk = packets.NewFullChunkPacket()
+	pk.ChunkX = int32(chunk.GetX())
+	pk.ChunkZ = int32(chunk.GetZ())
+	pk.Chunk = chunk
+	player.server.GetRakLibAdapter().SendPacket(pk, player.session)
+}
+
+func (player *Player) Tick() {
+	player.dimension.RequestChunks(player)
 }

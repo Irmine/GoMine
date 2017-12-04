@@ -15,6 +15,9 @@ import (
 	"gomine/permissions"
 	"gomine/players"
 	"gomine/worlds/blocks"
+	"gomine/worlds/generation"
+	defaults2 "gomine/worlds/generation/defaults"
+	"time"
 )
 
 const (
@@ -35,7 +38,6 @@ type Server struct {
 	config 	   *resources.GoMineConfig
 	consoleReader *ConsoleReader
 	commandHolder interfaces.ICommandHolder
-
 	permissionManager *permissions.PermissionManager
 
 	levels map[int]interfaces.ILevel
@@ -43,6 +45,8 @@ type Server struct {
 	playerFactory *players.PlayerFactory
 
 	rakLibAdapter *net.GoRakLibAdapter
+
+	ticker *time.Ticker
 }
 
 var counter = 0
@@ -52,22 +56,29 @@ var counter = 0
  * Will report an error if a server is already existent.
  */
 func NewServer(serverPath string) *Server {
-	var server = &Server{}
-	server.tickRate = TickRate
-	server.serverPath = serverPath
-	server.config = resources.NewGoMineConfig(serverPath)
-	server.scheduler = tasks.NewScheduler()
-	server.logger = utils.NewLogger(GoMineName, serverPath, server.GetConfiguration().DebugMode)
-	server.levels = make(map[int]interfaces.ILevel)
-	server.consoleReader = NewConsoleReader()
-	server.commandHolder = commands.NewCommandHolder()
-	server.rakLibAdapter = net.NewGoRakLibAdapter(server)
+	var server2 = &Server{}
+	server2.tickRate = TickRate
+	server2.serverPath = serverPath
+	server2.config = resources.NewGoMineConfig(serverPath)
+	server2.scheduler = tasks.NewScheduler()
+	server2.logger = utils.NewLogger(GoMineName, serverPath, server2.GetConfiguration().DebugMode)
+	server2.levels = make(map[int]interfaces.ILevel)
+	server2.consoleReader = NewConsoleReader()
+	server2.commandHolder = commands.NewCommandHolder()
+	server2.rakLibAdapter = net.NewGoRakLibAdapter(server2)
+	server2.ticker = time.NewTicker(time.Second / 20)
 
-	server.playerFactory = players.NewPlayerFactory(server)
+	server2.playerFactory = players.NewPlayerFactory(server2)
 
-	server.permissionManager = permissions.NewPermissionManager(server)
+	server2.permissionManager = permissions.NewPermissionManager(server2)
 
-	return server
+	server2.RegisterGenerators()
+
+	//FOR TESTING ONLY
+	server2.LoadLevel("test", generation.GetGeneratorByName("Flat"))
+	//FOR TESTING ONLY
+
+	return server2
 }
 
 /**
@@ -76,6 +87,13 @@ func NewServer(serverPath string) *Server {
 func (server *Server) RegisterDefaultCommands() {
 	server.commandHolder.RegisterCommand(defaults.NewStop(server))
 	server.commandHolder.RegisterCommand(defaults.NewTest(server))
+}
+
+/**
+ * Registers all default commands.
+ */
+func (server *Server) RegisterGenerators() {
+	generation.RegisterGenerator(defaults2.NewFlatGenerator())
 }
 
 /**
@@ -95,6 +113,8 @@ func (server *Server) Start() {
 	blocks.InitBlockPool()
 
 	server.GetDefaultLevel()
+
+	go server.Tick()
 
 	server.isRunning = true
 }
@@ -213,14 +233,14 @@ func (server *Server) IsLevelGenerated(levelName string) bool {
 /**
  * Loads a generated world. Returns true if the level was loaded successfully.
  */
-func (server *Server) LoadLevel(levelName string) bool {
-	if !server.IsLevelGenerated(levelName) {
-		//return false
+func (server *Server) LoadLevel(levelName string, generator generation.IGenerator) bool {
+	if level, err := server.GetLevelByName(server.config.DefaultLevel); err != nil {
+		server.GenerateLevel(level)
 	}
 	if server.IsLevelLoaded(levelName) {
 		return false
 	}
-	server.levels[counter] = worlds.NewLevel(levelName, counter, server, map[int]interfaces.IChunk{})
+	server.levels[counter] = worlds.NewLevel(levelName, generator, counter, server, map[int]interfaces.IChunk{})
 	counter++
 	return true
 }
@@ -229,18 +249,19 @@ func (server *Server) LoadLevel(levelName string) bool {
  * Returns the default level and loads/generates it if needed.
  */
 func (server *Server) GetDefaultLevel() interfaces.ILevel {
-	if !server.IsLevelGenerated(server.config.DefaultLevel) {
-		// Generate the level
+	if level, err := server.GetLevelByName(server.config.DefaultLevel); err != nil {
+		server.GenerateLevel(level)
 	}
+
 	if !server.IsLevelLoaded(server.config.DefaultLevel) {
-		server.LoadLevel(server.config.DefaultLevel)
+		server.LoadLevel(server.config.DefaultLevel, generation.GetGeneratorByName(server.config.DefaultGenerator))
 	}
 	var level, _ = server.GetLevelByName(server.config.DefaultLevel)
 	return level
 }
 
-func (server *Server) GenerateLevel(levelName string) {
-
+func (server *Server) GenerateLevel(level interfaces.ILevel) {
+	go level.GenerateChunks()
 }
 
 /**
@@ -370,16 +391,29 @@ func (server *Server) GetPlayerFactory() interfaces.IPlayerFactory {
  * Internal. Not to be used by plugins.
  * Ticks the entire server. (Levels, scheduler, GoRakLib server etc.)
  */
-func (server *Server) Tick(currentTick int) {
-	if !server.isRunning {
-		return
-	}
-	server.GetScheduler().DoTick()
-	for _, level := range server.levels {
-		level.TickLevel()
-	}
-	go server.consoleReader.ReadLine(server)
-	server.rakLibAdapter.Tick()
+func (server *Server) Tick() {
 
-	server.rakLibAdapter.GetRakLibServer().SetConnectedSessionCount(server.GetPlayerFactory().GetPlayerCount())
+	for {
+		select {
+		case <-server.ticker.C:
+			if !server.isRunning {
+				return
+			}
+			server.GetScheduler().DoTick()
+			for _, level := range server.levels {
+				level.TickLevel()
+			}
+
+			for _, p := range server.playerFactory.GetPlayers() {
+				p.Tick()
+			}
+
+			go server.consoleReader.ReadLine(server)
+			server.rakLibAdapter.Tick()
+
+			server.rakLibAdapter.GetRakLibServer().SetConnectedSessionCount(server.GetPlayerFactory().GetPlayerCount())
+
+		}
+	}
+
 }

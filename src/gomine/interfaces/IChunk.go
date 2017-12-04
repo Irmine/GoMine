@@ -4,6 +4,16 @@ type IChunk interface {
 	AddEntity(IEntity) bool
 	RemoveEntity(IEntity)
 	GetIndex(int, int, int) int
+	GetX() int
+	GetZ() int
+	IsLightPopulated() bool
+	SetLightPopulated(bool)
+	IsTerrainPopulated() bool
+	SetTerrainPopulated(bool)
+	GetHeight() int
+	SetHeight(int)
+	GetBiome(int, int) int
+	SetBiome(int, int, int)
 	SetBlockId(int, int, int, byte)
 	GetBlockId(int, int, int) byte
 	SetBlockData(int, int, int, byte)
@@ -15,5 +25,8 @@ type IChunk interface {
 	SetSubChunk(int, ISubChunk) bool
 	GetSubChunk(int) (ISubChunk, error)
 	GetSubChunks() map[int]ISubChunk
+	GetHighestBlockId(int, int) byte
+	GetHighestBlockData(int, int) byte
+	GetHighestBlock(int, int) int
 	ToBinary() []byte
 }

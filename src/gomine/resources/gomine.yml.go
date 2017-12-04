@@ -18,6 +18,7 @@ type GoMineConfig struct {
 	DebugMode bool `yaml:"debug-mode"`
 
 	DefaultLevel string `yaml:"default-level"`
+	DefaultGenerator string `yaml:"default-generator"`
 }
 
 /**
@@ -34,9 +35,9 @@ func NewGoMineConfig(serverPath string) *GoMineConfig {
  */
 func initializeConfig(serverPath string) {
 	var path = serverPath + "gomine.yml"
-	var _, error = os.Stat(path)
+	var _, err = os.Stat(path)
 
-	if os.IsNotExist(error) {
+	if os.IsNotExist(err) {
 		var data, _ = yaml.Marshal(GoMineConfig{
 			ServerName: "GoMine Server",
 			ServerMotd: "GoMine Testing Server",

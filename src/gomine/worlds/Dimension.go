@@ -60,14 +60,20 @@ func (dimension *Dimension) SetChunk(x, z int, chunk interfaces.IChunk) {
  * Gets the chunk in the dimension at the x/z coordinates.
  */
 func (dimension *Dimension) GetChunk(x, z int) interfaces.IChunk {
-	return dimension.chunks[GetChunkIndex(x, z)]
+	if v, ok := dimension.chunks[GetChunkIndex(x, z)]; ok {
+		return v
+	}
+	return nil
 }
 
 /**
  * Gets all the players located in a chunk.
  */
 func (dimension *Dimension) GetChunkPlayers(x, z int) []interfaces.IPlayer {
-	return dimension.chunkPlayers[GetChunkIndex(x, z)]
+	if v, ok := dimension.chunkPlayers[GetChunkIndex(x, z)]; ok {
+		return v
+	}
+	return nil
 }
 
 /**
@@ -88,6 +94,11 @@ func (dimension *Dimension) UpdateBlocks()  {
 		x, z := GetChunkCoordinates(i)
 		players = dimension.GetChunkPlayers(x, z)
 
+		if len(players) == 0 {
+			delete(dimension.chunkPlayers, GetChunkIndex(x, z))
+			break
+		}
+
 		for _, block := range blocks {
 			pk := packets.NewUpdateBlockPacket()
 			pk.BlockId = uint32(block.GetId())
@@ -102,6 +113,24 @@ func (dimension *Dimension) UpdateBlocks()  {
 	}
 }
 
-func (dimension *Dimension) TickDimension() {
+func (dimension *Dimension) RequestChunks(player interfaces.IPlayer)  {
+	distance := player.GetViewDistance()
+	for x := -distance; x < distance; x++ {
+		for z := -distance; z < distance; z++ {
+			player.SendChunk(dimension.GetChunk(int(x), int(z)))
+		}
+	}
+}
 
+/*func (dimension *Dimension) SendChunks() {
+	for _, p := range dimension.chunkPlayers {
+		for _, p2 := range p {
+
+			p2.SendChunk(dimension.GetChunk(int(p2.GetPosition().X) >> 4, int(p2.GetPosition().X) >> 4))
+		}
+	}
+}*/
+
+func (dimension *Dimension) TickDimension() {
+	dimension.UpdateBlocks()
 }

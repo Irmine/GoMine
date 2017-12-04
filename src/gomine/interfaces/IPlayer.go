@@ -1,6 +1,10 @@
 package interfaces
 
-import "goraklib/server"
+import (
+	"goraklib/server"
+	"gomine/worlds"
+	"gomine/vectors"
+)
 
 type IPlayer interface {
 	GetSession() *server.Session
@@ -30,4 +34,10 @@ type IPlayer interface {
 	SetGeometryName(string)
 	GetGeometryData() string
 	SetGeometryData(string)
+	SetPosition(vector *vectors.TripleVector)
+	GetPosition() *vectors.TripleVector
+	//SetDimension(worlds.Dimension)
+	GetDimension() worlds.Dimension
+	SendChunk(IChunk)
+	Tick()
 }

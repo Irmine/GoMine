@@ -2,6 +2,7 @@ package worlds
 
 import (
 	"gomine/interfaces"
+	"gomine/worlds/generation"
 )
 
 type Level struct {
@@ -10,6 +11,8 @@ type Level struct {
 	id int
 	dimensions map[string]interfaces.IDimension
 	defaultDimension interfaces.IDimension
+	generator generation.IGenerator
+	isGenerated bool
 
 	gameRules map[string]interfaces.IGameRule
 }
@@ -17,9 +20,8 @@ type Level struct {
 /**
  * Returns a new Level with the given level name.
  */
-func NewLevel(levelName string, levelId int, server interfaces.IServer, chunks map[int]interfaces.IChunk) *Level {
-	var level = &Level{server: server, name: levelName, id: levelId, dimensions: make(map[string]interfaces.IDimension), gameRules: make(map[string]interfaces.IGameRule)}
-
+func NewLevel(levelName string, generator generation.IGenerator, levelId int, server interfaces.IServer, chunks map[int]interfaces.IChunk) *Level {
+	var level = &Level{server: server, name: levelName, id: levelId, dimensions: make(map[string]interfaces.IDimension), gameRules: make(map[string]interfaces.IGameRule), generator: generator}
 	var defaultDimension = NewDimension("Overworld", OverworldId, level, chunks)
 	level.SetDefaultDimension(defaultDimension)
 
@@ -141,6 +143,27 @@ func GetBlockIndex(x, y, z int) int {
 func GetChunkCoordinates(index int) (int, int) {
 	return index >> 32, (index & 4294967295) << 36 >> 36
 }
+
+/**
+ * Returns if level is generated
+ */
+func (level *Level) IsGenerated() bool {
+	return level.isGenerated
+}
+
+/**
+ * Generates chunks in level
+ */
+func (level *Level) GenerateChunks() {
+	for x := 0; x < 15; x++ {
+		for z := 0; z < 15; z++ {
+			level.generator.GenerateChunk(x, z)
+		}
+	}
+	level.isGenerated = true
+}
+
+
 
 /**
  * Ticks the whole level. (All dimensions)

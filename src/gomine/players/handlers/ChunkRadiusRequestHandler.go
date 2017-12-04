@@ -25,28 +25,28 @@ func (handler ChunkRadiusRequestHandler) Handle(packet interfaces.IPacket, playe
 
 		player.SetViewDistance(chunkRadiusPacket.Radius)
 
-		var pk = packets.NewChunkRadiusUpdatedPacket()
-		pk.Radius = player.GetViewDistance()
-		server.GetRakLibAdapter().SendPacket(pk, session)
-
-		for x := -1; x <= 1; x++ {
-			for z := -1; z <= 1; z++ {
-				var pk3 = packets.NewFullChunkPacket()
-				pk3.ChunkX = int32(x)
-				pk3.ChunkZ = int32(z)
-
-				var chunk = chunks.NewChunk(256, 0, 0, make(map[int]interfaces.ISubChunk, 5), false, false, [256]byte{}, [4096]byte{})
-				chunk.SetSubChunk(0, chunks.NewSubChunk())
-				for x := 0; x < 16; x++ {
-					for z := 0; z < 16; z++ {
-						chunk.SetBlockId(x, 1, z, 1)
-					}
-				}
-
-				pk3.Chunk = chunk
-				server.GetRakLibAdapter().SendPacket(pk3, session)
-			}
-		}
+		//var pk = packets.NewChunkRadiusUpdatedPacket()
+		//pk.Radius = player.GetViewDistance()
+		//server.GetRakLibAdapter().SendPacket(pk, session)
+		//
+		//for x := -1; x <= 1; x++ {
+		//	for z := -1; z <= 1; z++ {
+		//		var pk3 = packets.NewFullChunkPacket()
+		//		pk3.ChunkX = int32(x)
+		//		pk3.ChunkZ = int32(z)
+		//
+		//		var chunk = chunks.NewChunk(0, 0)
+		//		chunk.SetSubChunk(0, chunks.NewSubChunk())
+		//		for x := 0; x < 16; x++ {
+		//			for z := 0; z < 16; z++ {
+		//				chunk.SetBlockId(x, 1, z, 1)
+		//			}
+		//		}
+		//
+		//		pk3.Chunk = chunk
+		//		server.GetRakLibAdapter().SendPacket(pk3, session)
+		//	}
+		//}
 
 		pk2 := packets.NewPlayStatusPacket()
 		pk2.Status = 3

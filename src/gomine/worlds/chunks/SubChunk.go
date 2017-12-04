@@ -87,8 +87,44 @@ func (subChunk *SubChunk) SetBlockData(x, y, z int, data byte) {
 	subChunk.BlockData[subChunk.GetIndex(x, y, z)] = data
 }
 
-func (subChunk *SubChunk) GetBytes() []byte {
-	return []byte{}
+/**
+ * Returns highest block id at certain x, z coordinates in this subchunk
+ */
+func (subChunk *SubChunk) GetHighestBlockId(x, z int) byte {
+	var id byte
+
+	for y := 15; y >= 0; y-- {
+		id = subChunk.GetBlockId(x, y, z)
+		if id != 0 {
+			return id
+		}
+	}
+
+	return -1
+}
+
+/**
+ * Returns block meta data at certain x, z coordinates in this subchunk
+ */
+func (subChunk *SubChunk) GetHighestBlockData(x, z int) byte {
+	for y := 15; y >= 0; y-- {
+		return subChunk.GetBlockData(x, y, z)
+	}
+
+	return -1
+}
+
+/**
+ * Returns highest light filtering at certain x, z coordinates in this subchunk
+ */
+func (subChunk *SubChunk) GetHighestBlock(x, z int) int {
+	for y := 15; y >= 0; y-- {
+		if subChunk.GetBlockData(x, y, z) != 0 {
+			return y
+		}
+	}
+
+	return 0
 }
 
 /**

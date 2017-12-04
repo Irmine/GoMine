@@ -3,6 +3,7 @@ package interfaces
 import (
 	"gomine/tasks"
 	"gomine/resources"
+	"gomine/worlds/generation"
 )
 
 type IServer interface {
@@ -20,7 +21,7 @@ type IServer interface {
 	GetLoadedLevels() map[int]ILevel
 	IsLevelLoaded(string) bool
 	IsLevelGenerated(string) bool
-	LoadLevel(string) bool
+	LoadLevel(string, generation.IGenerator) bool
 	HasPermission(string) bool
 	SendMessage(string)
 	GetName() string
@@ -28,14 +29,14 @@ type IServer interface {
 	GetPort() uint16
 	GetMaximumPlayers() uint
 	GetMotd() string
-	Tick(int)
+	Tick()
 	GetPermissionManager() IPermissionManager
 	GetServerName() string
 	GetVersion() string
 	GetNetworkVersion() string
 	GetRakLibAdapter() IGoRakLibAdapter
 	GetPlayerFactory() IPlayerFactory
-	GenerateLevel(string)
+	GenerateLevel(ILevel)
 	GetDefaultLevel() ILevel
 	GetLevelById(int) (ILevel, error)
 	GetLevelByName(string) (ILevel, error)

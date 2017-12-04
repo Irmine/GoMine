@@ -11,5 +11,8 @@ type ISubChunk interface{
 	SetSkyLight(int, int, int, byte)
 	GetBlockData(int, int, int) byte
 	SetBlockData(int, int, int, byte)
+	GetHighestBlockId(int, int) byte
+	GetHighestBlockData(int, int) byte
+	GetHighestBlock(int, int) int
 	ToBinary() []byte
 }

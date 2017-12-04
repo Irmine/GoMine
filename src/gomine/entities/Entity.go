@@ -5,7 +5,7 @@ import (
 	"gomine/interfaces"
 )
 
-var runtimeId uint64 = 0
+var RuntimeId uint64 = 0
 
 type EntityInterface interface {
 	getId() int
@@ -22,7 +22,7 @@ type Entity struct {
 }
 
 func NewEntity(nameTag string, attributeMap *AttributeMap, yaw, pitch float64, position, motion *vectors.TripleVector, health int) Entity {
-	runtimeId++
+	RuntimeId++
 	return Entity{
 		nameTag,
 		attributeMap,
@@ -30,7 +30,7 @@ func NewEntity(nameTag string, attributeMap *AttributeMap, yaw, pitch float64, p
 		pitch,
 		position,
 		motion,
-		runtimeId,
+		RuntimeId,
 		false,
 		health,
 	}

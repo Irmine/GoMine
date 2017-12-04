@@ -7,7 +7,6 @@ import (
 	"runtime"
 	"os"
 	"path/filepath"
-	"strconv"
 	"flag"
 )
 
@@ -18,14 +17,14 @@ import (
 
 var stopInstantly = false
 
-var currentTick = 0
-
 func main() {
 	var startTime = time.Now()
 	if !checkRequirements() {
 		return
 	}
+
 	parseFlags()
+
 	var serverPath = scanServerPath()
 
 	var server = gomine.NewServer(serverPath)
@@ -35,35 +34,7 @@ func main() {
 
 	server.GetLogger().Info("Server startup done! Took: " + startupTime.String())
 
-	var tickDrop = 20
-
 	for {
-		var tickDuration= int(1.0/float32(server.GetTickRate())*1000) * int(time.Millisecond)
-		var nextTime= time.Now().Add(time.Duration(tickDuration))
-
-		server.Tick(currentTick)
-
-		var diff = nextTime.Sub(time.Now()).Nanoseconds()
-
-		if diff > 0 {
-			tickDrop--
-
-			if tickDrop < 0 && server.GetTickRate() != 20 && diff > 5*int64(time.Millisecond) {
-				server.SetTickRate(server.GetTickRate() + 1)
-
-				server.GetLogger().Debug("Elevating tick rate to: " + strconv.Itoa(server.GetTickRate()))
-			}
-
-			time.Sleep(time.Duration(diff))
-		} else {
-			tickDrop++
-
-			if tickDrop > 40 {
-				server.SetTickRate(server.GetTickRate() - 1)
-				server.GetLogger().Debug("Lowering tick rate to: " + strconv.Itoa(server.GetTickRate()))
-			}
-		}
-		currentTick++
 
 		if stopInstantly {
 			server.Shutdown()
