@@ -1,42 +1,46 @@
 package defaults
 
 import (
-	"gomine/worlds/generation"
-	"gomine/worlds/chunks"
+	"gomine/interfaces"
 )
 
 type Flat struct {
-	*generation.Generator
+	*Generator
 }
 
 func NewFlatGenerator() Flat {
-	return Flat{generation.NewGenerator("Flat")}
+	return Flat{NewGenerator("Flat")}
 }
 
-func (f Flat) GeneratorChunk(x, z int) {
-	f.Chunk = chunks.NewChunk(x, z)
-	f.Level.GetDefaultDimension().SetChunk(x, z, f.Chunk)
-	f.PopulateChunk()
+/**
+ * Generates and populates new chunk.
+ */
+func (f Flat) GetNewChunk(chunk interfaces.IChunk) interfaces.IChunk {
+	f.GenerateChunk(chunk)
+	f.PopulateChunk(chunk)
+
+	return chunk
 }
 
-func (f Flat) PopulateChunk() {
+func (f Flat) GenerateChunk(chunk interfaces.IChunk) {
 	var y int
-	for x := -16; x < 16; x++ {
-		for z := -16; z < 16; z++ {
+	for x := 0; x < 16; x++ {
+		for z := 0; z < 16; z++ {
 			y = 0
+			chunk.SetBlockId(x, y, z, 7)
 			y++
-			f.Chunk.SetBlockId(x, y, z, 7)
+			chunk.SetBlockId(x, y, z, 3)
 			y++
-			f.Chunk.SetBlockId(x, y, z, 3)
+			chunk.SetBlockId(x, y, z, 3)
 			y++
-			f.Chunk.SetBlockId(x, y, z, 3)
-			y++
-			f.Chunk.SetBlockId(x, y, z, 2)
-			f.Chunk.SetHeight(y)
+			chunk.SetBlockId(x, y, z, 2)
+
+			chunk.SetHeight(y)
+
 			for i := y - 1; i >= 0; i-- {
-				f.Chunk.SetSkyLight(x, y, z, 0)
+				chunk.SetSkyLight(x, y, z, 0)
 			}
-			f.Chunk.SetBiome(x, z, 1)
 		}
 	}
+	//chunk.RecalculateHeightMap()
 }

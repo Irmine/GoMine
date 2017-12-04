@@ -1,8 +1,15 @@
 package generation
 
-import "gomine/interfaces"
+import (
+	"gomine/interfaces"
+	"gomine/worlds/generation/defaults"
+)
 
-var list map[string]interfaces.IGenerator
+var list = map[string]interfaces.IGenerator{}
+
+func InitGeneratorList() {
+	RegisterGenerator(defaults.NewFlatGenerator())
+}
 
 func RegisterGenerator(generator interfaces.IGenerator) {
 	list[generator.GetName()] = generator

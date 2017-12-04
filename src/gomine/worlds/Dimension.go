@@ -4,6 +4,8 @@ import (
 	"gomine/interfaces"
 	"gomine/net"
 	"gomine/net/packets"
+	"gomine/worlds/generation"
+	"gomine/worlds/chunks"
 )
 
 const (
@@ -16,16 +18,33 @@ type Dimension struct {
 	name 		string
 	dimensionId int
 	level       interfaces.ILevel
+	isGenerated bool
+
 	chunks 		map[int]interfaces.IChunk
 	chunkPlayers map[int][]interfaces.IPlayer
 	updatedBlocks map[int][]interfaces.IBlock
+
+	generator interfaces.IGenerator
 }
 
 /**
  * Returns a new dimension with the given dimension ID.
  */
-func NewDimension(name string, dimensionId int, level *Level, chunks map[int]interfaces.IChunk) *Dimension {
-	return &Dimension{name, dimensionId, level, chunks, make(map[int][]interfaces.IPlayer), make(map[int][]interfaces.IBlock)}
+func NewDimension(name string, dimensionId int, level *Level, generator string, chunks map[int]interfaces.IChunk) *Dimension {
+	var dimension = &Dimension{
+		name:  name,
+		dimensionId: dimensionId,
+		level: level,
+		chunks: chunks,
+		chunkPlayers: make(map[int][]interfaces.IPlayer),
+		updatedBlocks: make(map[int][]interfaces.IBlock),
+	}
+
+	if len(generator) == 0 {
+		//dimension.generator = generation.GetGeneratorByName(level.server.GetConfiguration().DefaultGenerator)
+		dimension.generator = generation.GetGeneratorByName("Flat")
+	}
+	return dimension
 }
 
 /**
@@ -62,6 +81,10 @@ func (dimension *Dimension) SetChunk(x, z int, chunk interfaces.IChunk) {
 func (dimension *Dimension) GetChunk(x, z int) interfaces.IChunk {
 	if v, ok := dimension.chunks[GetChunkIndex(x, z)]; ok {
 		return v
+	} else {
+		var chunk = dimension.generator.GetNewChunk(chunks.NewChunk(x, z))
+		dimension.chunks[GetChunkIndex(x, z)] = chunk
+		return chunk
 	}
 	return nil
 }
@@ -115,11 +138,32 @@ func (dimension *Dimension) UpdateBlocks()  {
 
 func (dimension *Dimension) RequestChunks(player interfaces.IPlayer)  {
 	distance := player.GetViewDistance()
-	for x := -distance; x < distance; x++ {
-		for z := -distance; z < distance; z++ {
-			player.SendChunk(dimension.GetChunk(int(x), int(z)))
+	for x := -distance; x <= distance; x++ {
+		for z := -distance; z <= distance; z++ {
+			player.SendChunk(dimension.GetChunk(int(x), int(z)), x, z)
 		}
 	}
+}
+
+/**
+ * Returns if the dimension is generated or not.
+ */
+func (dimension *Dimension) IsGenerated() bool {
+	return dimension.isGenerated
+}
+
+/**
+ * Sets the generator of this dimension.
+ */
+func (dimension *Dimension) SetGenerator(generator interfaces.IGenerator) {
+	dimension.generator = generator
+}
+
+/**
+ * Returns the generator of this level.
+ */
+func (dimension *Dimension) GetGenerator() interfaces.IGenerator {
+	return dimension.generator
 }
 
 /*func (dimension *Dimension) SendChunks() {

@@ -22,6 +22,7 @@ type Player struct {
 	yaw, headYaw, pitch float32
 
 	server interfaces.IServer
+	level interfaces.ILevel
 	dimension interfaces.IDimension
 
 	language string
@@ -60,7 +61,14 @@ func NewPlayer(server interfaces.IServer, session *server.Session, name string, 
 	player.server = server
 	player.session = session
 
+	player.level = server.GetDefaultLevel()
+	player.dimension = player.level.GetDefaultDimension()
+
 	return player
+}
+
+func (player *Player) New(server interfaces.IServer, session *server.Session, name string, uuid string, xuid string, clientId int) interfaces.IPlayer {
+	return NewPlayer(server, session, name, uuid, xuid, clientId)
 }
 
 /**
@@ -264,14 +272,19 @@ func (player *Player) GetSession() *server.Session {
 	return player.session
 }
 
-func (player *Player) SendChunk(chunk interfaces.IChunk)  {
+/**
+ * Sends a chunk to the player.
+ */
+func (player *Player) SendChunk(chunk interfaces.IChunk, x int32, z int32)  {
 	var pk = packets.NewFullChunkPacket()
-	pk.ChunkX = int32(chunk.GetX())
-	pk.ChunkZ = int32(chunk.GetZ())
+
+	pk.ChunkX = x
+	pk.ChunkZ = z
 	pk.Chunk = chunk
+
 	player.server.GetRakLibAdapter().SendPacket(pk, player.session)
 }
 
 func (player *Player) Tick() {
-	player.dimension.RequestChunks(player)
+
 }

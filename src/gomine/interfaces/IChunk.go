@@ -29,4 +29,5 @@ type IChunk interface {
 	GetHighestBlockData(int, int) byte
 	GetHighestBlock(int, int) int
 	ToBinary() []byte
+	RecalculateHeightMap()
 }

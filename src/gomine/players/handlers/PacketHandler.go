@@ -1,14 +1,4 @@
-package players
-
-import (
-	"gomine/interfaces"
-	"goraklib/server"
-)
-
-type IPacketHandler interface {
-	GetId() int
-	Handle(interfaces.IPacket, interfaces.IPlayer, *server.Session, interfaces.IServer) bool
-}
+package handlers
 
 /**
  * Packet handlers can be registered to listen on certain packet IDs.

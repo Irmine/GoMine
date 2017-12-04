@@ -9,9 +9,6 @@ type IServer interface {
 	IsRunning() bool
 	Start()
 	Shutdown()
-	GetTickRate() int
-	SetTickRate(int)
-	ResetTickRate()
 	GetScheduler() *tasks.Scheduler
 	GetServerPath() string
 	GetLogger() ILogger
@@ -28,15 +25,15 @@ type IServer interface {
 	GetPort() uint16
 	GetMaximumPlayers() uint
 	GetMotd() string
-	Tick()
+	Tick(int)
 	GetPermissionManager() IPermissionManager
 	GetServerName() string
 	GetVersion() string
 	GetNetworkVersion() string
 	GetRakLibAdapter() IGoRakLibAdapter
 	GetPlayerFactory() IPlayerFactory
-	GenerateLevel(ILevel)
 	GetDefaultLevel() ILevel
 	GetLevelById(int) (ILevel, error)
 	GetLevelByName(string) (ILevel, error)
+	GetCurrentTick() int
 }

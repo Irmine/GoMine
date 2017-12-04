@@ -12,10 +12,6 @@ type ILevel interface {
 	TickLevel()
 	GetGameRules() map[string]IGameRule
 	GetGameRule(string) IGameRule
-	IsGenerated() bool
-	SetGenerator(IGenerator)
-	GetGenerator() IGenerator
-	GenerateChunks()
 }
 
 type IGameRule interface {

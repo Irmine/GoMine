@@ -17,6 +17,9 @@ import (
 
 var stopInstantly = false
 
+var ticker = time.NewTicker(time.Second / 20)
+var currentTick = 0
+
 func main() {
 	var startTime = time.Now()
 	if !checkRequirements() {
@@ -34,7 +37,8 @@ func main() {
 
 	server.GetLogger().Info("Server startup done! Took: " + startupTime.String())
 
-	for {
+	for range ticker.C {
+		server.Tick(currentTick)
 
 		if stopInstantly {
 			server.Shutdown()
@@ -42,6 +46,7 @@ func main() {
 		if !server.IsRunning() {
 			break
 		}
+		currentTick++
 	}
 
 	server.GetLogger().Terminate() // Terminate the logger to stop writing asynchronously.

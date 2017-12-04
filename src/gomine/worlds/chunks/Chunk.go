@@ -5,7 +5,6 @@ import (
 	"gomine/interfaces"
 	"gomine/tiles"
 	"gomine/utils"
-	"gomine/worlds/blocks"
 )
 
 type Chunk struct {
@@ -167,6 +166,10 @@ func (chunk *Chunk) SetBlockId(x, y, z int, blockId byte)  {
 	v, err := chunk.GetSubChunk(y >> 4)
 	if err == nil {
 		v.SetBlockId(x, y & 15, z, blockId)
+	} else {
+		sub := NewSubChunk()
+		sub.SetBlockId(x, y & 15, z, blockId)
+		chunk.SetSubChunk(y >> 4, sub)
 	}
 }
 
@@ -291,28 +294,32 @@ func (chunk *Chunk) GetHeightMap(x, z int) byte {
 }
 
 /**
- * Recalculates heightmap (highest blocks) of the chunk
+ * Recalculates HeightMap (highest blocks) of the chunk
  */
 func (chunk *Chunk) RecalculateHeightMap() {
-	var id, data byte
 	for x := 0; x < 16; x++ {
 		for z := 0; z < 16; z++ {
-			id = chunk.GetHighestBlockId(x, z)
-			data = chunk.GetHighestBlockData(x, z)
-			if blocks.GetBlock(int(id), data).GetLightFilterLevel() > 1 {
+
+			id := int(chunk.GetHighestBlockId(x, z))
+
+			if GetLightFilter(id) > 0 && !DiffusesLight(id) {
 				break
 			}
+
 			chunk.SetHeightMap(x, z, byte(chunk.GetHighestBlock(x, z) + 1))
 		}
 	}
 }
 
 /**
- * Returns highest subchunk in this chunk
+ * Returns highest SubChunk in this chunk
  */
 func (chunk *Chunk) GetHighestSubChunk() interfaces.ISubChunk {
 	var highest interfaces.ISubChunk = NewEmptySubChunk()
 	for y := 15; y >= 0; y-- {
+		if _, ok := chunk.subChunks[y];! ok {
+			continue
+		}
 		if chunk.subChunks[y].IsAllAir() {
 			continue
 		}
@@ -380,7 +387,7 @@ func (chunk *Chunk) ToBinary() []byte {
 	}
 
 	for i := 4095; i >= 0; i-- {
-		stream.PutByte(1)
+		stream.PutByte(chunk.heightMap[i])
 	}
 
 	for _, biome := range chunk.biomes {

@@ -10,4 +10,7 @@ type IDimension interface {
 	GetChunkPlayers(int, int) []IPlayer
 	AddChunkPlayer(int, int, IPlayer)
 	RequestChunks(IPlayer)
+	IsGenerated() bool
+	SetGenerator(IGenerator)
+	GetGenerator() IGenerator
 }

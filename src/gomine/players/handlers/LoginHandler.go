@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"gomine/players"
 	"gomine/net/info"
 	"gomine/interfaces"
 	"gomine/net/packets"
@@ -9,11 +8,11 @@ import (
 )
 
 type LoginHandler struct {
-	*players.PacketHandler
+	*PacketHandler
 }
 
 func NewLoginHandler() LoginHandler {
-	return LoginHandler{players.NewPacketHandler(info.LoginPacket)}
+	return LoginHandler{NewPacketHandler(info.LoginPacket)}
 }
 
 /**
@@ -26,7 +25,7 @@ func (handler LoginHandler) Handle(packet interfaces.IPacket, player interfaces.
 			return false
 		}
 
-		var player = players.NewPlayer(server, session, loginPacket.Username, loginPacket.ClientUUID, loginPacket.ClientXUID, loginPacket.ClientId)
+		var player = player.New(server, session, loginPacket.Username, loginPacket.ClientUUID, loginPacket.ClientXUID, loginPacket.ClientId)
 		player.SetLanguage(loginPacket.Language)
 		player.SetSkinId(loginPacket.SkinId)
 		player.SetSkinData(loginPacket.SkinData)

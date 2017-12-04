@@ -1,12 +1,12 @@
 package net
 
 import (
-	"gomine/players"
 	"gomine/net/info"
 	"gomine/players/handlers"
+	"gomine/interfaces"
 )
 
-var registeredHandlers = map[int][]players.IPacketHandler{}
+var registeredHandlers = map[int][]interfaces.IPacketHandler{}
 
 func InitHandlerPool() {
 	RegisterPacketHandler(info.LoginPacket, handlers.NewLoginHandler())
@@ -17,13 +17,13 @@ func InitHandlerPool() {
 /**
  * Registers a new packet handler to listen for packets with the given ID.
  */
-func RegisterPacketHandler(id int, handler players.IPacketHandler) {
+func RegisterPacketHandler(id int, handler interfaces.IPacketHandler) {
 	registeredHandlers[id] = append(registeredHandlers[id], handler)
 }
 
 /**
  * Returns all packet handlers registered on the given ID.
  */
-func GetPacketHandlers(id int) []players.IPacketHandler {
+func GetPacketHandlers(id int) []interfaces.IPacketHandler {
 	return registeredHandlers[id]
 }

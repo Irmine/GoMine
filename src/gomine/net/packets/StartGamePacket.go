@@ -88,7 +88,8 @@ func (pk *StartGamePacket) Encode()  {
 	pk.PutBool(pk.CommandsEnabled) // Commands Enabled
 	pk.PutBool(pk.ForcedResourcePacks) // Texture packs required
 
-	pk.PutGameRules(pk.GameRules)
+	//pk.PutGameRules(pk.GameRules)
+	pk.PutUnsignedVarInt(0)
 
 	pk.PutBool(pk.BonusChest) // Bonus chest
 	pk.PutBool(pk.StartMap) // Start map
