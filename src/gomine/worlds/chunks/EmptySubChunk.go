@@ -52,11 +52,11 @@ func (subChunk *EmptySubChunk) SetBlockData(x, y, z int, data byte) {
 }
 
 func (subChunk *EmptySubChunk) GetHighestBlockId(x, z int) byte {
-	return -1
+	return 0
 }
 
 func (subChunk *EmptySubChunk) GetHighestBlockData(x, z int) byte {
-	return -1
+	return 0
 }
 
 func (subChunk *EmptySubChunk) GetHighestBlock(x, z int) int {

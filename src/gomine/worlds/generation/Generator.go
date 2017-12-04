@@ -12,15 +12,8 @@ type Generator struct {
 	Level interfaces.ILevel
 }
 
-type IGenerator interface {
-	GetName() string
-	GetSpawn() vectors.TripleVector
-	GenerateChunk(x, z int)
-	PopulateChunk()
-}
-
 func NewGenerator(name string) *Generator {
-	return &Generator{name, nil, nil, nil}
+	return &Generator{name: name, spawn: *vectors.NewTripleVector(0, 0, 0)}
 }
 
 func (gen *Generator) GetName() string {

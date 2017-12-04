@@ -3,7 +3,6 @@ package players
 import (
 	"gomine/interfaces"
 	"goraklib/server"
-	"gomine/worlds"
 	"gomine/vectors"
 	"gomine/net/packets"
 	"gomine/entities"
@@ -23,7 +22,7 @@ type Player struct {
 	yaw, headYaw, pitch float32
 
 	server interfaces.IServer
-	dimension worlds.Dimension
+	dimension interfaces.IDimension
 
 	language string
 
@@ -214,7 +213,7 @@ func (player *Player) GetPosition() *vectors.TripleVector {
 //	player.dimension = dimension
 //}
 
-func (player *Player) GetDimension() worlds.Dimension {
+func (player *Player) GetDimension() interfaces.IDimension {
 	return player.dimension
 }
 

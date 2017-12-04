@@ -23,8 +23,8 @@ type MovePlayerPacket struct {
 	ExtraInt1, ExtraInt2 int32
 }
 
-func NewMovePlayerPacket() MovePlayerPacket {
-	return MovePlayerPacket{Packet: NewPacket(info.MovePlayerPacket)}
+func NewMovePlayerPacket() *MovePlayerPacket {
+	return &MovePlayerPacket{Packet: NewPacket(info.MovePlayerPacket)}
 }
 
 func (pk *MovePlayerPacket) Encode() {

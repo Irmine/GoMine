@@ -3,7 +3,6 @@ package interfaces
 import (
 	"gomine/tasks"
 	"gomine/resources"
-	"gomine/worlds/generation"
 )
 
 type IServer interface {
@@ -21,7 +20,7 @@ type IServer interface {
 	GetLoadedLevels() map[int]ILevel
 	IsLevelLoaded(string) bool
 	IsLevelGenerated(string) bool
-	LoadLevel(string, generation.IGenerator) bool
+	LoadLevel(string) bool
 	HasPermission(string) bool
 	SendMessage(string)
 	GetName() string

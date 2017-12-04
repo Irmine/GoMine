@@ -9,4 +9,5 @@ type IDimension interface {
 	GetChunk(int, int) IChunk
 	GetChunkPlayers(int, int) []IPlayer
 	AddChunkPlayer(int, int, IPlayer)
+	RequestChunks(IPlayer)
 }

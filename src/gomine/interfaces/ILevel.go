@@ -13,6 +13,8 @@ type ILevel interface {
 	GetGameRules() map[string]IGameRule
 	GetGameRule(string) IGameRule
 	IsGenerated() bool
+	SetGenerator(IGenerator)
+	GetGenerator() IGenerator
 	GenerateChunks()
 }
 

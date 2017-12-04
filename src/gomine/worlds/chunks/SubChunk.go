@@ -100,7 +100,7 @@ func (subChunk *SubChunk) GetHighestBlockId(x, z int) byte {
 		}
 	}
 
-	return -1
+	return 0
 }
 
 /**
@@ -111,7 +111,7 @@ func (subChunk *SubChunk) GetHighestBlockData(x, z int) byte {
 		return subChunk.GetBlockData(x, y, z)
 	}
 
-	return -1
+	return 0
 }
 
 /**

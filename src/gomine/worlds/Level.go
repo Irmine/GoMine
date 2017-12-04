@@ -11,7 +11,7 @@ type Level struct {
 	id int
 	dimensions map[string]interfaces.IDimension
 	defaultDimension interfaces.IDimension
-	generator generation.IGenerator
+	generator interfaces.IGenerator
 	isGenerated bool
 
 	gameRules map[string]interfaces.IGameRule
@@ -20,11 +20,14 @@ type Level struct {
 /**
  * Returns a new Level with the given level name.
  */
-func NewLevel(levelName string, generator generation.IGenerator, levelId int, server interfaces.IServer, chunks map[int]interfaces.IChunk) *Level {
-	var level = &Level{server: server, name: levelName, id: levelId, dimensions: make(map[string]interfaces.IDimension), gameRules: make(map[string]interfaces.IGameRule), generator: generator}
+func NewLevel(levelName string, generator string, levelId int, server interfaces.IServer, chunks map[int]interfaces.IChunk) *Level {
+	var level = &Level{server: server, name: levelName, id: levelId, dimensions: make(map[string]interfaces.IDimension), gameRules: make(map[string]interfaces.IGameRule)}
 	var defaultDimension = NewDimension("Overworld", OverworldId, level, chunks)
 	level.SetDefaultDimension(defaultDimension)
-
+	if len(generator) == 0 {
+		level.generator = generation.GetGeneratorByName(server.GetConfiguration().DefaultGenerator)
+		level.generator.SetLevel(level)
+	}
 	level.initializeGameRules()
 	return level
 }
@@ -163,7 +166,13 @@ func (level *Level) GenerateChunks() {
 	level.isGenerated = true
 }
 
+func (level *Level) SetGenerator(g interfaces.IGenerator) {
+	level.generator = g
+}
 
+func (level *Level) GetGenerator() interfaces.IGenerator {
+	return level.generator
+}
 
 /**
  * Ticks the whole level. (All dimensions)

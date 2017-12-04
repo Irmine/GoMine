@@ -6,7 +6,6 @@ import (
 	"gomine/interfaces"
 	"goraklib/server"
 	"gomine/net/packets"
-	"gomine/worlds/chunks"
 )
 
 type ChunkRadiusRequestHandler struct {

@@ -49,6 +49,7 @@ func initializeConfig(serverPath string) {
 			DebugMode: true,
 
 			DefaultLevel: "world",
+			DefaultGenerator: "Flat",
 		})
 		var file, _ = os.OpenFile(path, os.O_APPEND | os.O_CREATE | os.O_WRONLY, 0644)
 		file.WriteString(string(data))

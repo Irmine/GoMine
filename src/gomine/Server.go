@@ -18,6 +18,7 @@ import (
 	"gomine/worlds/generation"
 	defaults2 "gomine/worlds/generation/defaults"
 	"time"
+	"fmt"
 )
 
 const (
@@ -72,11 +73,8 @@ func NewServer(serverPath string) *Server {
 
 	server2.permissionManager = permissions.NewPermissionManager(server2)
 
+	server2.LoadLevels()
 	server2.RegisterGenerators()
-
-	//FOR TESTING ONLY
-	server2.LoadLevel("test", generation.GetGeneratorByName("Flat"))
-	//FOR TESTING ONLY
 
 	return server2
 }
@@ -203,6 +201,10 @@ func (server *Server) GetLoadedLevels() map[int]interfaces.ILevel {
 	return server.levels
 }
 
+func (server *Server) LoadLevels() {
+	server.LoadLevel(server.config.DefaultLevel)
+}
+
 /**
  * Returns whether a level is loaded or not.
  */
@@ -233,14 +235,14 @@ func (server *Server) IsLevelGenerated(levelName string) bool {
 /**
  * Loads a generated world. Returns true if the level was loaded successfully.
  */
-func (server *Server) LoadLevel(levelName string, generator generation.IGenerator) bool {
+func (server *Server) LoadLevel(levelName string) bool {
 	if level, err := server.GetLevelByName(server.config.DefaultLevel); err != nil {
 		server.GenerateLevel(level)
 	}
 	if server.IsLevelLoaded(levelName) {
 		return false
 	}
-	server.levels[counter] = worlds.NewLevel(levelName, generator, counter, server, map[int]interfaces.IChunk{})
+	server.levels[counter] = worlds.NewLevel(levelName, "", counter, server, map[int]interfaces.IChunk{})
 	counter++
 	return true
 }
@@ -254,7 +256,7 @@ func (server *Server) GetDefaultLevel() interfaces.ILevel {
 	}
 
 	if !server.IsLevelLoaded(server.config.DefaultLevel) {
-		server.LoadLevel(server.config.DefaultLevel, generation.GetGeneratorByName(server.config.DefaultGenerator))
+		server.LoadLevel(server.config.DefaultLevel)
 	}
 	var level, _ = server.GetLevelByName(server.config.DefaultLevel)
 	return level

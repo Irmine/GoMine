@@ -2,7 +2,6 @@ package interfaces
 
 import (
 	"goraklib/server"
-	"gomine/worlds"
 	"gomine/vectors"
 )
 
@@ -37,7 +36,7 @@ type IPlayer interface {
 	SetPosition(vector *vectors.TripleVector)
 	GetPosition() *vectors.TripleVector
 	//SetDimension(worlds.Dimension)
-	GetDimension() worlds.Dimension
+	GetDimension() IDimension
 	SendChunk(IChunk)
 	Tick()
 }

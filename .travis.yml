@@ -10,7 +10,7 @@ install:
 
 script:
 - cd src
-- nbt build main.nbt
+- go build main.go
 - ./main -stop-immediately
 
 notifications:

@@ -1,12 +1,14 @@
 package generation
 
-var list map[string]IGenerator
+import "gomine/interfaces"
 
-func RegisterGenerator(generator IGenerator) {
+var list map[string]interfaces.IGenerator
+
+func RegisterGenerator(generator interfaces.IGenerator) {
 	list[generator.GetName()] = generator
 }
 
-func GeneratorExists(generator IGenerator) bool {
+func GeneratorExists(generator interfaces.IGenerator) bool {
 	var _, ok = list[generator.GetName()]
 	return ok
 }
@@ -16,7 +18,7 @@ func GeneratorNameExists(generator string) bool {
 	return ok
 }
 
-func DeRegisterGenerator(generator IGenerator)  {
+func DeRegisterGenerator(generator interfaces.IGenerator)  {
 	if GeneratorExists(generator) {
 		delete(list, generator.GetName())
 	}
@@ -28,6 +30,6 @@ func DeRegisterGeneratorByName(generator string)  {
 	}
 }
 
-func GetGeneratorByName(generator string) IGenerator {
+func GetGeneratorByName(generator string) interfaces.IGenerator {
 	return list[generator]
 }
