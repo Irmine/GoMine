@@ -18,7 +18,6 @@ import (
 	"gomine/worlds/generation"
 	defaults2 "gomine/worlds/generation/defaults"
 	"time"
-	"fmt"
 )
 
 const (
