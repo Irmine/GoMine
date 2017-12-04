@@ -124,8 +124,8 @@ func (level *Level) RemoveDimension(name string) bool {
 /**
  * Gets the chunk index for a certain position in a chunk
  */
-func GetChunkIndex(x, z int) int {
-	return (x & 429496729500) | (z & 4294967295)
+func GetChunkIndex(x, z int32) int {
+	return int((int64(x) & 429496729500) | (int64(z) & 4294967295))
 }
 
 /**
@@ -138,8 +138,8 @@ func GetBlockIndex(x, y, z int) int {
 /**
  * Gets the block coordinates from a chunk index
  */
-func GetChunkCoordinates(index int) (int, int) {
-	return index >> 32, (index & 4294967295) << 36 >> 36
+func GetChunkCoordinates(index int) (int32, int32) {
+	return int32(index >> 32), int32((index & 4294967295) << 36 >> 36)
 }
 
 /**

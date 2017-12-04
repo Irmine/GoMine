@@ -3,25 +3,23 @@ package entities
 import (
 	"gomine/vectors"
 	"gomine/interfaces"
+	"gomine/worlds/locations"
 )
 
 var RuntimeId uint64 = 0
-
-type EntityInterface interface {
-	getId() int
-}
 
 type Entity struct {
 	nameTag      string
 	attributeMap *AttributeMap
 	yaw, pitch float64
-	position, motion *vectors.TripleVector
+	position *locations.Position
+	motion *vectors.TripleVector
 	runtimeId uint64
 	closed bool
 	Health int
 }
 
-func NewEntity(nameTag string, attributeMap *AttributeMap, yaw, pitch float64, position, motion *vectors.TripleVector, health int) Entity {
+func NewEntity(nameTag string, attributeMap *AttributeMap, yaw, pitch float64, position *locations.Position, motion *vectors.TripleVector, health int) Entity {
 	RuntimeId++
 	return Entity{
 		nameTag,
@@ -60,7 +58,7 @@ func (entity *Entity) SetNameTag(name string) {
 /**
  * Returns the current position of this entity.
  */
-func (entity *Entity) GetPosition() *vectors.TripleVector {
+func (entity *Entity) GetPosition() *locations.Position {
 	return entity.position
 }
 
@@ -79,6 +77,13 @@ func (entity *Entity) GetRuntimeId() uint64 {
 }
 
 /**
+ * Returns the entity ID of this entity.
+ */
+func (entity *Entity) GetEntityId() int32 {
+	return 0
+}
+
+/**
  * Checks if the entity is closed and not to be used anymore.
  */
 func (entity *Entity) IsClosed() bool {
@@ -90,7 +95,8 @@ func (entity *Entity) IsClosed() bool {
  */
 func (entity *Entity) Close() {
 	entity.closed = true
-	//todo
+
+	entity.position = &locations.Position{}
 }
 
 /**

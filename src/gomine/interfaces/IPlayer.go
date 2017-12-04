@@ -37,7 +37,7 @@ type IPlayer interface {
 	GetPosition() *vectors.TripleVector
 	//SetDimension(worlds.Dimension)
 	GetDimension() IDimension
-	SendChunk(IChunk, int32, int32)
+	SendChunk(IChunk)
 	New(IServer, *server.Session, string, string, string, int) IPlayer
 	Tick()
 }

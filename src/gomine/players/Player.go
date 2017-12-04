@@ -9,6 +9,7 @@ import (
 )
 
 type Player struct {
+	*entities.Human
 	session *server.Session
 
 	runtimeId uint64
@@ -275,11 +276,11 @@ func (player *Player) GetSession() *server.Session {
 /**
  * Sends a chunk to the player.
  */
-func (player *Player) SendChunk(chunk interfaces.IChunk, x int32, z int32)  {
+func (player *Player) SendChunk(chunk interfaces.IChunk)  {
 	var pk = packets.NewFullChunkPacket()
 
-	pk.ChunkX = x
-	pk.ChunkZ = z
+	pk.ChunkX = chunk.GetX()
+	pk.ChunkZ = chunk.GetZ()
 	pk.Chunk = chunk
 
 	player.server.GetRakLibAdapter().SendPacket(pk, player.session)

@@ -5,10 +5,10 @@ type IDimension interface {
 	GetLevel() ILevel
 	GetName() string
 	TickDimension()
-	SetChunk(int, int, IChunk)
-	GetChunk(int, int) IChunk
-	GetChunkPlayers(int, int) []IPlayer
-	AddChunkPlayer(int, int, IPlayer)
+	SetChunk(int32, int32, IChunk)
+	GetChunk(int32, int32) IChunk
+	GetChunkPlayers(int32, int32) []IPlayer
+	AddChunkPlayer(int32, int32, IPlayer)
 	RequestChunks(IPlayer)
 	IsGenerated() bool
 	SetGenerator(IGenerator)

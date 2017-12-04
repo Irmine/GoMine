@@ -9,7 +9,7 @@ import (
 
 type Chunk struct {
 	height int
-	x, z int
+	x, z int32
 	subChunks map[int]interfaces.ISubChunk
 	LightPopulated bool
 	TerrainPopulated bool
@@ -19,7 +19,7 @@ type Chunk struct {
 	heightMap [4096]byte
 }
 
-func NewChunk(x, z int) *Chunk {
+func NewChunk(x, z int32) *Chunk {
 	return &Chunk{
 		256,
 		x,
@@ -37,14 +37,14 @@ func NewChunk(x, z int) *Chunk {
 /**
  * Returns the chunk X position.
  */
-func (chunk *Chunk) GetX() int {
+func (chunk *Chunk) GetX() int32 {
 	return chunk.x
 }
 
 /**
  * Returns the chunk Z position.
  */
-func (chunk *Chunk) GetZ() int {
+func (chunk *Chunk) GetZ() int32 {
 	return chunk.z
 }
 

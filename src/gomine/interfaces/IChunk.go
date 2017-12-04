@@ -4,8 +4,8 @@ type IChunk interface {
 	AddEntity(IEntity) bool
 	RemoveEntity(IEntity)
 	GetIndex(int, int, int) int
-	GetX() int
-	GetZ() int
+	GetX() int32
+	GetZ() int32
 	IsLightPopulated() bool
 	SetLightPopulated(bool)
 	IsTerrainPopulated() bool

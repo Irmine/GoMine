@@ -3,10 +3,11 @@ package blocks
 import (
 	"gomine/worlds"
 	"gomine/vectors"
+	"gomine/worlds/locations"
 )
 
 type Block struct {
-	*worlds.Position
+	*locations.Position
 	id int
 	data byte
 	name string
@@ -27,7 +28,7 @@ type Block struct {
  * Returns a new Block.
  */
 func NewBlock(id int, data byte, name string) *Block {
-	var block = &Block{Position: worlds.NewPosition(0, 0, 0, worlds.Level{}), id: id, data: data, name: name, hasCollisionBox: true, CollisionBox: vectors.NewCubesBox([]*vectors.Cube{vectors.NewCube(0, 0, 0, 1, 1, 1)}), BoundingBox: vectors.NewCubesBox([]*vectors.Cube{vectors.NewCube(0, 0, 0, 1, 1, 1)})}
+	var block = &Block{Position: locations.NewPosition(0, 0, 0, &worlds.Level{}, &worlds.Dimension{}), id: id, data: data, name: name, hasCollisionBox: true, CollisionBox: vectors.NewCubesBox([]*vectors.Cube{vectors.NewCube(0, 0, 0, 1, 1, 1)}), BoundingBox: vectors.NewCubesBox([]*vectors.Cube{vectors.NewCube(0, 0, 0, 1, 1, 1)})}
 
 	block.diffusesLight = true
 	block.lightFilterLevel = 15

@@ -41,8 +41,7 @@ func NewDimension(name string, dimensionId int, level *Level, generator string, 
 	}
 
 	if len(generator) == 0 {
-		//dimension.generator = generation.GetGeneratorByName(level.server.GetConfiguration().DefaultGenerator)
-		dimension.generator = generation.GetGeneratorByName("Flat")
+		dimension.generator = generation.GetGeneratorByName(level.server.GetConfiguration().DefaultGenerator)
 	}
 	return dimension
 }
@@ -71,14 +70,14 @@ func (dimension *Dimension) GetLevel() interfaces.ILevel {
 /**
  * Sets a new chunk in the dimension at the x/z coordinates.
  */
-func (dimension *Dimension) SetChunk(x, z int, chunk interfaces.IChunk) {
+func (dimension *Dimension) SetChunk(x, z int32, chunk interfaces.IChunk) {
 	dimension.chunks[GetChunkIndex(x, z)] = chunk
 }
 
 /**
  * Gets the chunk in the dimension at the x/z coordinates.
  */
-func (dimension *Dimension) GetChunk(x, z int) interfaces.IChunk {
+func (dimension *Dimension) GetChunk(x, z int32) interfaces.IChunk {
 	if v, ok := dimension.chunks[GetChunkIndex(x, z)]; ok {
 		return v
 	} else {
@@ -92,7 +91,7 @@ func (dimension *Dimension) GetChunk(x, z int) interfaces.IChunk {
 /**
  * Gets all the players located in a chunk.
  */
-func (dimension *Dimension) GetChunkPlayers(x, z int) []interfaces.IPlayer {
+func (dimension *Dimension) GetChunkPlayers(x, z int32) []interfaces.IPlayer {
 	if v, ok := dimension.chunkPlayers[GetChunkIndex(x, z)]; ok {
 		return v
 	}
@@ -102,7 +101,7 @@ func (dimension *Dimension) GetChunkPlayers(x, z int) []interfaces.IPlayer {
 /**
  * Adds a player to a chunk.
  */
-func (dimension *Dimension) AddChunkPlayer(x, z int, player interfaces.IPlayer) {
+func (dimension *Dimension) AddChunkPlayer(x, z int32, player interfaces.IPlayer) {
 	dimension.chunkPlayers[GetChunkIndex(x, z)] = append(dimension.chunkPlayers[GetChunkIndex(x, z)], player)
 }
 
@@ -140,7 +139,7 @@ func (dimension *Dimension) RequestChunks(player interfaces.IPlayer)  {
 	distance := player.GetViewDistance()
 	for x := -distance; x <= distance; x++ {
 		for z := -distance; z <= distance; z++ {
-			player.SendChunk(dimension.GetChunk(int(x), int(z)), x, z)
+			player.SendChunk(dimension.GetChunk(x, z))
 		}
 	}
 }

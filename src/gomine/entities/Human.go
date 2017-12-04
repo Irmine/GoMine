@@ -1,7 +1,7 @@
 package entities
 
 type Human struct {
-	*Entity
+	*LivingEntity
 }
 
 func NewHuman(nameTag string) *Human {
