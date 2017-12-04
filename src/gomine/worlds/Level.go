@@ -125,7 +125,7 @@ func (level *Level) RemoveDimension(name string) bool {
  * Gets the chunk index for a certain position in a chunk
  */
 func GetChunkIndex(x, z int32) int {
-	return int((int64(x) & 429496729500) | (int64(z) & 4294967295))
+	return int(((int64(x) & 0xffffffff) << 32) | (int64(z) & 0xffffffff))
 }
 
 /**

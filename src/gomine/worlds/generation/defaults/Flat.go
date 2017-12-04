@@ -42,5 +42,5 @@ func (f Flat) GenerateChunk(chunk interfaces.IChunk) {
 			}
 		}
 	}
-	//chunk.RecalculateHeightMap()
+	chunk.RecalculateHeightMap()
 }
