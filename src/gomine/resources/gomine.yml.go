@@ -41,7 +41,7 @@ func initializeConfig(serverPath string) {
 		var data, _ = yaml.Marshal(GoMineConfig{
 			ServerName: "GoMine Server",
 			ServerMotd: "GoMine Testing Server",
-			ServerIp: "127.0.0.1",
+			ServerIp: "0.0.0.0",
 			ServerPort: 19132,
 
 			MaximumPlayers: 20,

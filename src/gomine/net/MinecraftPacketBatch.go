@@ -6,7 +6,7 @@ import (
 	"compress/zlib"
 	"io/ioutil"
 	"gomine/interfaces"
-	"fmt"
+	"strconv"
 )
 
 const McpeFlag = 0xFE
@@ -39,7 +39,7 @@ func (batch *MinecraftPacketBatch) GetStream() *utils.BinaryStream {
 /**
  * Decodes the batch and separates packets. This does not decode the packets.
  */
-func (batch *MinecraftPacketBatch) Decode() {
+func (batch *MinecraftPacketBatch) Decode(logger interfaces.ILogger) {
 	var mcpeFlag = batch.stream.GetByte()
 	if mcpeFlag != McpeFlag {
 		return
@@ -64,7 +64,7 @@ func (batch *MinecraftPacketBatch) Decode() {
 		packetId := int(data[0])
 
 		if !IsPacketRegistered(packetId) {
-			fmt.Println("Unhandled Minecraft packet with ID:", packetId)
+			logger.Debug("Unknown Minecraft packet with ID: " + strconv.Itoa(packetId))
 			continue
 		}
 		packet := GetPacket(packetId)

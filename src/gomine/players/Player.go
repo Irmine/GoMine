@@ -214,6 +214,7 @@ func (player *Player) SetPosition(v *vectors.TripleVector) {
 	*player.position = *v
 }
 
+
 func (player *Player) GetPosition() *vectors.TripleVector {
 	return player.position
 }
@@ -222,46 +223,79 @@ func (player *Player) GetPosition() *vectors.TripleVector {
 //	player.dimension = dimension
 //}
 
+/**
+ * Returns the dimension this player is currently in.
+ */
 func (player *Player) GetDimension() interfaces.IDimension {
 	return player.dimension
 }
 
+/**
+ * Sets the skin ID/name of the player.
+ */
 func (player *Player) SetSkinId(id string) {
 	player.skinId = id
 }
 
+/**
+ * Returns the skin ID/name of the player.
+ */
 func (player *Player) GetSkinId() string {
 	return player.skinId
 }
 
+/**
+ * Returns the skin data of the player. (RGBA byte array)
+ */
 func (player *Player) GetSkinData() []byte {
 	return player.skinData
 }
 
+/**
+ * Sets the skin data of the player. (RGBA byte array)
+ */
 func (player *Player) SetSkinData(data []byte) {
 	player.skinData = data
 }
 
+/**
+ * Returns the cape data of the player. (RGBA byte array)
+ */
 func (player *Player) GetCapeData() []byte {
 	return player.capeData
 }
 
+/**
+ * Sets the cape data of the player. (RGBA byte array)
+ */
 func (player *Player) SetCapeData(data []byte) {
 	player.capeData = data
 }
 
+/**
+ * Returns the geometry name of the player.
+ */
 func (player *Player) GetGeometryName() string {
 	return player.geometryName
 }
 
+/**
+ * Sets the geometry name of the player.
+ */
 func (player *Player) SetGeometryName(name string) {
 	player.geometryName = name
 }
 
+/**
+ * Returns the geometry data (json string) of the player.
+ */
 func (player *Player) GetGeometryData() string {
 	return player.geometryData
 }
 
+/**
+ * Sets the geometry data (json string) of the player.
+ */
 func (player *Player) SetGeometryData(data string) {
 	player.geometryData = data
 }
@@ -271,6 +305,13 @@ func (player *Player) SetGeometryData(data string) {
  */
 func (player *Player) GetSession() *server.Session {
 	return player.session
+}
+
+/**
+ * Returns the ping of the player in milliseconds.
+ */
+func (player *Player) GetPing() uint64 {
+	return player.session.GetPing()
 }
 
 /**

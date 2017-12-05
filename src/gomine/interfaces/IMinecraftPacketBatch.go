@@ -8,6 +8,6 @@ type IMinecraftPacketBatch interface {
 	GetPackets() []IPacket
 	AddPacket(IPacket)
 	Encode()
-	Decode()
+	Decode(ILogger)
 	GetStream() *utils.BinaryStream
 }

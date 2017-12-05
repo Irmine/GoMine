@@ -5,6 +5,7 @@ import (
 	server2 "goraklib/server"
 	"gomine/net/info"
 	"goraklib/protocol"
+	"strconv"
 )
 
 type GoRakLibAdapter struct {
@@ -31,6 +32,9 @@ func NewGoRakLibAdapter(server interfaces.IServer) *GoRakLibAdapter {
 	return &GoRakLibAdapter{server, rakServer}
 }
 
+/**
+ * Returns the GoRakLib server.
+ */
 func (adapter *GoRakLibAdapter) GetRakLibServer() *server2.GoRakLibServer {
 	return adapter.rakLibServer
 }
@@ -47,7 +51,7 @@ func (adapter *GoRakLibAdapter) Tick() {
 
 				batch := NewMinecraftPacketBatch()
 				batch.stream.Buffer = encapsulatedPacket.Buffer
-				batch.Decode()
+				batch.Decode(adapter.server.GetLogger())
 
 				for _, packet := range batch.GetPackets() {
 					packet.DecodeHeader()
@@ -56,8 +60,12 @@ func (adapter *GoRakLibAdapter) Tick() {
 					var player, _ = adapter.server.GetPlayerFactory().GetPlayerBySession(session.GetAddress(), session.GetPort())
 
 					handlers := GetPacketHandlers(packet.GetId())
+
 					for _, handler := range handlers {
 						handler.Handle(packet, player, session, adapter.server)
+					}
+					if len(handlers) == 0 {
+						adapter.server.GetLogger().Debug("Unhandled Minecraft packet with ID: " + strconv.Itoa(packet.GetId()))
 					}
 				}
 			}

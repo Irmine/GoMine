@@ -39,5 +39,6 @@ type IPlayer interface {
 	GetDimension() IDimension
 	SendChunk(IChunk)
 	New(IServer, *server.Session, string, string, string, int) IPlayer
+	GetPing() uint64
 	Tick()
 }
