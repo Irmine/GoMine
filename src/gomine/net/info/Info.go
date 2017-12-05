@@ -42,7 +42,7 @@ const (
 	InteractPacket = 0x21
 	BlockPickRequestPacket = 0x22
 	EntityPickRequestPacket = 0x23
-	PlayerActionPacket = 0x24 // 36
+	PlayerActionPacket = 0x24
 	EntityFallPacket = 0x25
 	HurtArmorPacket = 0x26
 	SetEntityDataPacket = 0x27

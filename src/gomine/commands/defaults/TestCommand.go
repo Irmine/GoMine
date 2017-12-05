@@ -16,9 +16,7 @@ func NewTest(server interfaces.IServer) TestCommand {
 	var test = TestCommand{commands.NewCommand("test", "Tests the command parser", "gomine.stop", []string{"test"}), server}
 	test.ExemptFromPermissionCheck(true)
 
-	var floatArg = arguments.NewFloatArg("test", false, 0)
-	floatArg.SetInputAmount(1)
-	test.AppendArgument(floatArg)
+	test.AppendArgument(arguments.NewFloatArg("test", false, 0))
 
 	var stringArg = arguments.NewStringArg("anotherTest", true, "test")
 	stringArg.SetInputAmount(2)
