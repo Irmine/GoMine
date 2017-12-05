@@ -5,6 +5,7 @@ import (
 	"os"
 	"gomine/interfaces"
 	"strings"
+	"gomine/commands"
 )
 
 type ConsoleReader struct {
@@ -59,7 +60,7 @@ func (reader *ConsoleReader) attemptReadCommand(commandText string, server inter
 	var parsedInput, valid = command.Parse(server, args[1:], server)
 
 	if valid {
-		command.Execute(server, parsedInput)
+		commands.ParseIntoInputAndExecute(server, command, parsedInput)
 	}
 	return true
 }

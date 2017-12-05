@@ -12,8 +12,10 @@ type FloatArg struct {
 /**
  * Returns a new Float argument with the given name and optional value.
  */
-func NewFloatArg(name string, optional bool) *FloatArg {
-	return &FloatArg{&Argument{name, optional, 1, nil}}
+func NewFloatArg(name string, optional bool, defaultValue interface{}) *FloatArg {
+	var arg = &FloatArg{&Argument{name, optional, 1, nil}}
+	arg.output = defaultValue
+	return arg
 }
 
 /**

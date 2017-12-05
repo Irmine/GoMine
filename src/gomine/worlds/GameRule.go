@@ -21,6 +21,7 @@ const (
 	GameRuleSendCommandFeedback = "sendcommandfeedback"
 	GameRuleShowCoordinates = "showcoordinates"
 	GameRuleRandomTickSpeed = "randomtickspeed"
+	GameRuleTntExplodes = "tntexplodes"
 )
 
 type GameRule struct {

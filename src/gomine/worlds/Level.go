@@ -174,4 +174,5 @@ func (level *Level) initializeGameRules() {
 	level.AddGameRule(NewGameRule(GameRuleSendCommandFeedback, true))
 	level.AddGameRule(NewGameRule(GameRuleShowCoordinates, true))
 	level.AddGameRule(NewGameRule(GameRuleRandomTickSpeed, uint32(3)))
+	level.AddGameRule(NewGameRule(GameRuleTntExplodes, true))
 }

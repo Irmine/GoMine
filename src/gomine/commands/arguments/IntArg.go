@@ -12,8 +12,10 @@ type IntArg struct {
 /**
  * Returns a new Int argument with the given name and optional value.
  */
-func NewIntArg(name string, optional bool) *IntArg {
-	return &IntArg{&Argument{name, optional, 1, nil}}
+func NewIntArg(name string, optional bool, defaultValue interface{}) *IntArg {
+	var arg = &IntArg{&Argument{name, optional, 1, nil}}
+	arg.output = defaultValue
+	return arg
 }
 
 /**

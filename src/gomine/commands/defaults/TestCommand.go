@@ -16,20 +16,20 @@ func NewTest(server interfaces.IServer) TestCommand {
 	var test = TestCommand{commands.NewCommand("test", "Tests the command parser", "gomine.stop", []string{"test"}), server}
 	test.ExemptFromPermissionCheck(true)
 
-	var intArg = arguments.NewFloatArg("test", false)
-	intArg.SetInputAmount(1)
-	test.AppendArgument(intArg)
+	var floatArg = arguments.NewFloatArg("test", false, 0)
+	floatArg.SetInputAmount(1)
+	test.AppendArgument(floatArg)
 
-	var stringArg = arguments.NewStringArg("anotherTest", true)
+	var stringArg = arguments.NewStringArg("anotherTest", true, "test")
 	stringArg.SetInputAmount(2)
 	test.AppendArgument(stringArg)
 
-	test.AppendArgument(arguments.NewStringEnum("testEnum", true, []string{"option", "test_option", "test"}))
+	test.AppendArgument(arguments.NewStringEnum("testEnum", true, []string{"option", "test_option", "test"}, "test"))
 	return test
 }
 
-func (command TestCommand) Execute(sender interfaces.ICommandSender, arguments []interfaces.ICommandArgument) {
-	fmt.Println(arguments[0].GetOutput())
-	fmt.Println(arguments[1].GetOutput())
-	fmt.Println(arguments[2].GetOutput())
+func (command TestCommand) Execute(sender interfaces.ICommandSender, floatArg float64, stringArg string, enumString string) {
+	fmt.Println("Float64:", floatArg)
+	fmt.Println("String:", stringArg)
+	fmt.Println("Enum String:", enumString)
 }

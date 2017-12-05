@@ -162,8 +162,8 @@ func (pk *Packet) GetEntityData() map[uint32][]interface{} {
 
 func (pk *Packet) PutGameRules(gameRules map[string]interfaces.IGameRule) {
 	pk.PutUnsignedVarInt(uint32(len(gameRules)))
-	for name, gameRule := range gameRules {
-		pk.PutString(name)
+	for _, gameRule := range gameRules {
+		pk.PutString(gameRule.GetName())
 		switch value := gameRule.GetValue().(type) {
 		case bool:
 			pk.PutByte(1)
