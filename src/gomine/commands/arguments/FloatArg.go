@@ -12,10 +12,8 @@ type FloatArg struct {
 /**
  * Returns a new Float argument with the given name and optional value.
  */
-func NewFloatArg(name string, optional bool, defaultValue interface{}) *FloatArg {
-	var arg = &FloatArg{&Argument{name, optional, 1, nil}}
-	arg.output = defaultValue
-	return arg
+func NewFloatArg(name string, optional bool) *FloatArg {
+	return &FloatArg{&Argument{name, optional, 1, float64(0)}}
 }
 
 /**
@@ -31,11 +29,4 @@ func (argument *FloatArg) IsValidValue(value string, server interfaces.IServer) 
 func (argument *FloatArg) ConvertValue(value string, server interfaces.IServer) interface{} {
 	var float, _ = strconv.ParseFloat(value, 64)
 	return float
-}
-
-/**
- * Returns if this argument should always merge.
- */
-func (argument *FloatArg) ShouldMerge() bool {
-	return false
 }

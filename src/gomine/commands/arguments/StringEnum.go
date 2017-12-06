@@ -13,10 +13,8 @@ type StringEnum struct {
 /**
  * Returns a new String argument with the given name and optional value.
  */
-func NewStringEnum(name string, optional bool, options []string, defaultValue interface{}) *StringEnum {
-	var enum = &StringEnum{&Argument{name, optional, 1, nil}, options}
-	enum.output = defaultValue
-	return enum
+func NewStringEnum(name string, optional bool, options []string) *StringEnum {
+	return &StringEnum{&Argument{name, optional, 1, ""}, options}
 }
 
 /**

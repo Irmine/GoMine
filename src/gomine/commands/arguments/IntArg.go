@@ -12,10 +12,8 @@ type IntArg struct {
 /**
  * Returns a new Int argument with the given name and optional value.
  */
-func NewIntArg(name string, optional bool, defaultValue interface{}) *IntArg {
-	var arg = &IntArg{&Argument{name, optional, 1, nil}}
-	arg.output = defaultValue
-	return arg
+func NewIntArg(name string, optional bool) *IntArg {
+	return &IntArg{&Argument{name, optional, 1, 0}}
 }
 
 /**
@@ -31,11 +29,4 @@ func (argument *IntArg) IsValidValue(value string, server interfaces.IServer) bo
 func (argument *IntArg) ConvertValue(value string, server interfaces.IServer) interface{} {
 	var int, _ = strconv.ParseInt(value, 10, 64)
 	return int
-}
-
-/**
- * Returns if this argument should always merge.
- */
-func (argument *IntArg) ShouldMerge() bool {
-	return false
 }

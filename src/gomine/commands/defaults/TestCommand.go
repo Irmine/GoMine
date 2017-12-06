@@ -13,16 +13,16 @@ type TestCommand struct {
 }
 
 func NewTest(server interfaces.IServer) TestCommand {
-	var test = TestCommand{commands.NewCommand("test", "Tests the command parser", "gomine.stop", []string{"test"}), server}
+	var test = TestCommand{commands.NewCommand("test", "Tests the command parser", "gomine.test", []string{"test2", "test3"}), server}
 	test.ExemptFromPermissionCheck(true)
 
-	test.AppendArgument(arguments.NewFloatArg("test", false, 0))
+	test.AppendArgument(arguments.NewFloatArg("test", false))
 
-	var stringArg = arguments.NewStringArg("anotherTest", true, "test")
+	var stringArg = arguments.NewStringArg("anotherTest", true)
 	stringArg.SetInputAmount(2)
 	test.AppendArgument(stringArg)
 
-	test.AppendArgument(arguments.NewStringEnum("testEnum", true, []string{"option", "test_option", "test"}, "test"))
+	test.AppendArgument(arguments.NewStringEnum("testEnum", true, []string{"option", "test_option", "test"}))
 	return test
 }
 

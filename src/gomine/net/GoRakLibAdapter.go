@@ -95,7 +95,7 @@ func (adapter *GoRakLibAdapter) SendBatch(batch interfaces.IMinecraftPacketBatch
 	encPacket.SetBuffer(batch.GetStream().GetBuffer())
 
 	var datagram = protocol.NewDatagram()
-	datagram.AddPacket(&encPacket)
+	datagram.AddPacket(encPacket)
 
 	adapter.rakLibServer.SendPacket(datagram, session)
 }
