@@ -23,4 +23,3 @@ func (pk *ResourcePackClientResponsePacket) Decode()  {
 		pk.ResourcePackIds = append(pk.ResourcePackIds, pk.GetString())
 	}
 }
-

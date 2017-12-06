@@ -65,7 +65,7 @@ func (level *Level) GetName() string {
 /**
  * Returns the ID of this level.
  */
-func (level *Level) GetId() int {
+func (level *Level) GetRuntimeId() int {
 	return level.id
 }
 

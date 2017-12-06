@@ -201,7 +201,7 @@ func (command *Command) Parse(sender interfaces.ICommandSender, commandArgs []st
 /**
  * Parses the arguments into a proper input and executes the command.
  */
-func ParseIntoInputAndExecute(sender interfaces.ICommandSender, commandStruct interface{}, arguments []interfaces.ICommandArgument) []reflect.Value {
+func ParseIntoInputAndExecute(sender interfaces.ICommandSender, commandStruct interface{}, arguments []interfaces.ICommandArgument) {
 	var method = reflect.ValueOf(commandStruct).MethodByName("Execute")
 	var input = make([]reflect.Value, method.Type().NumIn())
 
@@ -218,6 +218,4 @@ func ParseIntoInputAndExecute(sender interfaces.ICommandSender, commandStruct in
 	}
 
 	method.Call(input)
-
-	return input
 }

@@ -17,7 +17,6 @@ func (gen *Generator) GetName() string {
 }
 
 func (gen *Generator) GenerateChunk(interfaces.IChunk) {
-
 }
 
 func (gen *Generator) PopulateChunk(interfaces.IChunk) {
