@@ -41,7 +41,6 @@ func (pk *MovePlayerPacket) Encode() {
 
 func (pk *MovePlayerPacket) Decode() {
 	pk.EntityId = pk.GetRuntimeId()
-	fmt.Println("vec : ", *pk.GetTripleVectorObject())
 	pk.Position.SetVector(*pk.GetTripleVectorObject())
 	pk.Position.SetRotation(pk.GetRotationObject())
 	pk.Mode = pk.GetByte()
