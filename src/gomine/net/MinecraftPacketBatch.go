@@ -64,9 +64,7 @@ func (batch *MinecraftPacketBatch) Decode(logger interfaces.ILogger) {
 		packetId := int(data[0])
 
 		if !IsPacketRegistered(packetId) {
-			if packetId != 0x13 { // We know 0x13 is MovePlayerPacket. No need to spam it excessively.
-				logger.Debug("Unknown Minecraft packet with ID: " + strconv.Itoa(packetId))
-			}
+			logger.Debug("Unknown Minecraft packet with ID: " + strconv.Itoa(packetId))
 			continue
 		}
 		packet := GetPacket(packetId)
