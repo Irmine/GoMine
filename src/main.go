@@ -51,6 +51,7 @@ func main() {
 
 	server.GetLogger().Terminate() // Terminate the logger to stop writing asynchronously.
 	server.GetLogger().ProcessQueue(true) // Process the logger queue one last time forced and synchronously to make sure everything gets written.
+	server.GetLogger().Sync()
 }
 
 func scanServerPath() string {

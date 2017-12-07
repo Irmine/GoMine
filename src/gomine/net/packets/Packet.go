@@ -74,7 +74,7 @@ func (pk *Packet) PutTripleVectorObject(obj vectors.TripleVector) {
 }
 
 func (pk *Packet) GetTripleVectorObject() *vectors.TripleVector {
-	return vectors.NewTripleVector(pk.GetLittleFloat(), pk.GetLittleFloat(), pk.GetLittleFloat())
+	return &vectors.TripleVector{X: pk.GetLittleFloat(), Y: pk.GetLittleFloat(), Z: pk.GetLittleFloat()}
 }
 
 func (pk *Packet) PutRotationObject(obj math.Rotation) {

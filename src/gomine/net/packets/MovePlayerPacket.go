@@ -3,7 +3,6 @@ package packets
 import (
 	"gomine/net/info"
 	"gomine/worlds/locations"
-	"fmt"
 )
 
 const (
@@ -24,7 +23,7 @@ type MovePlayerPacket struct {
 }
 
 func NewMovePlayerPacket() *MovePlayerPacket {
-	return &MovePlayerPacket{Packet: NewPacket(info.MovePlayerPacket)}
+	return &MovePlayerPacket{Packet: NewPacket(info.MovePlayerPacket), Position: locations.NewEntityPosition(0, 0, 0, 0, 0, 0, nil, nil)}
 }
 
 func (pk *MovePlayerPacket) Encode() {
@@ -41,7 +40,7 @@ func (pk *MovePlayerPacket) Encode() {
 
 func (pk *MovePlayerPacket) Decode() {
 	pk.EntityId = pk.GetRuntimeId()
-	pk.Position.SetVector(*pk.GetTripleVectorObject())
+	pk.Position.SetVector(pk.GetTripleVectorObject())
 	pk.Position.SetRotation(pk.GetRotationObject())
 	pk.Mode = pk.GetByte()
 	pk.OnGround = pk.GetBool()

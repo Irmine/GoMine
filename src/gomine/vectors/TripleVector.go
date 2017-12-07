@@ -1,6 +1,8 @@
 package vectors
 
-import "math"
+import (
+	"math"
+)
 
 type TripleVector struct {
 	X float32
@@ -31,8 +33,10 @@ func (vector *TripleVector) AsTripleVector() *TripleVector {
 /**
  * Sets the coordinates of this vector
  */
-func (vector *TripleVector) SetVector(vector3 TripleVector)  {
-	vector.SetComponents(vector3.X, vector3.Y, vector3.Z)
+func (vector *TripleVector) SetVector(vector2 *TripleVector)  {
+	vector.X = vector2.X
+	vector.Y = vector2.Y
+	vector.Z = vector2.Z
 }
 
 /**

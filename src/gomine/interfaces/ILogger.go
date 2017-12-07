@@ -11,4 +11,5 @@ type ILogger interface {
 	Critical(string)
 	ProcessQueue(bool)
 	Terminate()
+	Sync()
 }

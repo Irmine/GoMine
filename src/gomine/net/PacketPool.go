@@ -22,6 +22,7 @@ func InitPacketPool() {
 	RegisterPacket(info.CraftingDataPacket, func() interfaces.IPacket { return packets.NewCraftingDataPacket() })
 	RegisterPacket(info.ResourcePackStackPacket, func() interfaces.IPacket { return packets.NewResourcePackStackPacket() })
 	RegisterPacket(info.MovePlayerPacket, func() interfaces.IPacket { return packets.NewMovePlayerPacket() })
+	RegisterPacket(info.CommandRequestPacket, func() interfaces.IPacket { return packets.NewCommandRequestPacket() })
 }
 
 /**

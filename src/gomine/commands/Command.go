@@ -5,6 +5,7 @@ import (
 	"reflect"
 	"strings"
 	"strconv"
+	"gomine/utils"
 )
 
 type Command struct {
@@ -114,7 +115,7 @@ func (command *Command) AppendArgument(argument interfaces.ICommandArgument) {
  */
 func (command *Command) parseUsage() {
 	if command.usage == "" {
-		var usage = "Usage: /" + command.GetName() + " "
+		var usage = utils.Yellow + "Usage: /" + command.GetName() + " "
 		for _, argument := range command.GetArguments() {
 			if argument.IsOptional() {
 				usage += "["

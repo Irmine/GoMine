@@ -150,6 +150,12 @@ func (logger *Logger) Error(message string) {
  */
 func (logger *Logger) write(line string) {
 	logger.file.WriteString(StripAllColors(line + "\n"))
+}
+
+/**
+ * Synchronizes the file.
+ */
+func (logger *Logger) Sync() {
 	logger.file.Sync()
 }
 

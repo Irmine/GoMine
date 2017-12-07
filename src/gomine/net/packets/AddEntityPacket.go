@@ -37,7 +37,7 @@ func (pk *AddEntityPacket) Encode() {
 func (pk *AddEntityPacket) Decode() {
 	pk.EntityId = pk.GetRuntimeId()
 	pk.EntityType = pk.GetUnsignedVarInt()
-	pk.Position.SetVector(*pk.GetTripleVectorObject())
+	pk.Position.SetVector(pk.GetTripleVectorObject())
 	pk.Motion = *pk.GetTripleVectorObject()
 	pk.Position.Rotation = pk.GetRotationObject()
 	pk.Attributes = pk.GetEntityAttributes()

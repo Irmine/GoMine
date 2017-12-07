@@ -4,7 +4,7 @@ import (
 	"gomine/commands"
 	"gomine/interfaces"
 	"gomine/commands/arguments"
-	"fmt"
+	"strconv"
 )
 
 type TestCommand struct {
@@ -27,7 +27,7 @@ func NewTest(server interfaces.IServer) TestCommand {
 }
 
 func (command TestCommand) Execute(sender interfaces.ICommandSender, floatArg float64, stringArg string, enumString string) {
-	fmt.Println("Float64:", floatArg)
-	fmt.Println("String:", stringArg)
-	fmt.Println("Enum String:", enumString)
+	sender.SendMessage("Float64: " + strconv.Itoa(int(floatArg)))
+	sender.SendMessage("String: " + stringArg)
+	sender.SendMessage("Enum String: " + enumString)
 }

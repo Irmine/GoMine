@@ -13,6 +13,7 @@ func InitHandlerPool() {
 	RegisterPacketHandler(info.RequestChunkRadiusPacket, handlers.NewChunkRadiusRequestHandler())
 	RegisterPacketHandler(info.ResourcePackClientResponsePacket, handlers.NewResourcePackClientResponseHandler())
 	RegisterPacketHandler(info.MovePlayerPacket, handlers.NewMoveHandler())
+	RegisterPacketHandler(info.CommandRequestPacket, handlers.NewCommandRequestHandler())
 }
 
 /**

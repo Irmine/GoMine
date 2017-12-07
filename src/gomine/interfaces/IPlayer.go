@@ -41,4 +41,5 @@ type IPlayer interface {
 	GetPing() uint64
 	Move(x, y, z, pitch, yaw, headYaw float32)
 	Tick()
+	SendMessage(string)
 }

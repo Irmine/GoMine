@@ -6,7 +6,6 @@ import (
 	"gomine/net/packets"
 	"gomine/entities"
 	"gomine/worlds/locations"
-	"fmt"
 )
 
 type Player struct {
@@ -223,7 +222,8 @@ func (player *Player) Teleport(v locations.EntityPosition)  {
 	pk.Position = v
 	pk.OnGround = false
 	pk.RidingEid = 0
-	player.server.GetRakLibAdapter().SendPacket(pk, player.GetSession())
+	player.SendPacket(pk)
+
 	player.SetPosition(v)
 }
 
@@ -332,7 +332,7 @@ func (player *Player) SendChunk(chunk interfaces.IChunk)  {
 	pk.ChunkZ = chunk.GetZ()
 	pk.Chunk = chunk
 
-	player.server.GetRakLibAdapter().SendPacket(pk, player.session)
+	player.SendPacket(pk)
 }
 
 /**
@@ -344,6 +344,20 @@ func (player *Player) Move(x, y, z, pitch, yaw, headYaw float32) {
 	//fmt.Println("Z : ", x)
 }
 
+/**
+ * Sends a packet to this player.
+ */
+func (player *Player) SendPacket(packet interfaces.IPacket) {
+	player.server.GetRakLibAdapter().SendPacket(packet, player.session)
+}
+
 func (player *Player) Tick() {
 
+}
+
+func (player *Player) SendMessage(message string) {
+	var pk = packets.NewTextPacket()
+	pk.XUID = player.GetXUID()
+	pk.Message = message
+	player.SendPacket(pk)
 }

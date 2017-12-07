@@ -3,10 +3,15 @@ package utils
 import (
 	"fmt"
 	"math"
+	"encoding/binary"
+	bytes2 "bytes"
 )
 
 func Read(buffer *[]byte, offset *int, length int) ([]byte) {
 	bytes := make([]byte, 0)
+	if length == 0 {
+		return bytes
+	}
 	if *offset >= len(*buffer) {
 		fmt.Printf("An error occurred: %v", "no bytes left to read")
 		panic("Aborting...")
@@ -479,113 +484,107 @@ func ReadString(buffer *[]byte, offset *int) (string) {
 }
 
 func WriteVarInt(buffer *[]byte, int int32) {
-	var i uint
-	len2 := 5
-	for i = 0; i < uint(len2) * 8; i += 8 {
-		Write(buffer, byte(int & 0x7f >> i))
+	if int == 0 {
+		WriteByte(buffer, 0)
+		return
+	}
+	var buf = make([]byte, binary.MaxVarintLen32)
+	binary.PutVarint(buf, int64(int))
+
+	buf = bytes2.Trim(buf, "\x00")
+
+	for _, b := range buf {
+		Write(buffer, b)
 	}
 }
 
-func ReadVarInt(buffer *[]byte, offset *int) (int32) {
-	var v uint
-	var i uint
-	var out int
-	bytes := Read(buffer, offset, 5)
-	len2 := uint(len(bytes))
-	v = 0
-	for i = 0; i < len2; i++ {
-		if i == 0 {
-			out = int(bytes[i] & 0x7f) << v
-			v += 8
-			continue
+func ReadVarInt(buffer *[]byte, offset *int) int32 {
+	var out int32 = 0
+	for v := uint(0); v < 35; v += 7 {
+		b := int(ReadByte(buffer, offset))
+		out |= int32(b << v)
+
+		if (b & 0x80) == 0 {
+			return out
 		}
-		out |= int(bytes[i] & 0x7f) << v
-		v += 8
 	}
 
-	return int32(out)
+	return 0
 }
 
 func WriteVarLong(buffer *[]byte, int int64) {
-	var i uint
-	len2 := 10
-	for i = 0; i < uint(len2) * 8; i += 8 {
-		Write(buffer, byte(int & 0x7f >> i))
+	if int == 0 {
+		WriteByte(buffer, 0)
+		return
+	}
+
+	var bytes = make([]byte, 10)
+	binary.PutVarint(bytes, int)
+	bytes = bytes2.Trim(bytes, "\x00")
+
+	for _, b := range bytes {
+		WriteByte(buffer, b)
 	}
 }
 
 func ReadVarLong(buffer *[]byte, offset *int) (int64) {
-	var v uint
-	var i uint
-	var out int
-	bytes := Read(buffer, offset, 10)
-	len2 := uint(len(bytes))
-	v = 0
-	for i = 0; i < len2; i++ {
-		if i == 0 {
-			out = int(bytes[i] & 0x7f) << v
-			v += 8
-			continue
-		}
-		out |= int(bytes[i] & 0x7f) << v
-		v += 8
-	}
+	var varLong, readBytes = binary.Varint(*buffer)
+	var newOffset = readBytes + *offset
+	offset = &newOffset
 
-	return int64(out)
+	return varLong
 }
 
 func WriteUnsignedVarInt(buffer *[]byte, int uint32) {
-	var i uint
-	len2 := 5
-	for i = 0; i < uint(len2) * 8; i += 8 {
-		Write(buffer, byte(int & 0x7f >> i))
+	if int == 0 {
+		WriteByte(buffer, 0)
+		return
+	}
+	var buf = make([]byte, binary.MaxVarintLen32)
+	binary.PutUvarint(buf, uint64(int))
+
+	buf = bytes2.Trim(buf, "\x00")
+
+	for _, b := range buf {
+		Write(buffer, b)
 	}
 }
 
 func ReadUnsignedVarInt(buffer *[]byte, offset *int) (uint32) {
-	var v uint
-	var i uint
-	var out int = 0
-	v = 0
-	for i = 0; i < 4; i++ {
-		byte := ReadByte(buffer, offset)
-		out |= int(byte & 0x7f) << v
+	var out uint32 = 0
+	for v := 0; v < 35; v += 7 {
+		b := int(ReadByte(buffer, offset))
+		out |= uint32((b & 0x7f) << uint(v))
 
-		if byte & 0x80 == 0 {
-			return uint32(out)
+		if (b & 0x80) == 0 {
+			return out
 		}
-		v += 7
 	}
 
-	return uint32(out)
+	return 0
 }
 
 func WriteUnsignedVarLong(buffer *[]byte, int uint64) {
-	var i uint
-	len2 := 10
-	for i = 0; i < uint(len2) * 8; i += 8 {
-		Write(buffer, byte(int & 0x7f >> i))
+	if int == 0 {
+		WriteByte(buffer, 0)
+		return
+	}
+
+	var bytes = make([]byte, 10)
+	binary.PutUvarint(bytes, int)
+	bytes = bytes2.Trim(bytes, "\x00")
+
+	for _, b := range bytes {
+		WriteByte(buffer, b)
 	}
 }
 
 func ReadUnsignedVarLong(buffer *[]byte, offset *int) (uint64) {
-	var v uint
-	var i uint
-	var out int
-	bytes := Read(buffer, offset, 10)
-	len2 := uint(len(bytes))
-	v = 0
-	for i = 0; i < len2; i++ {
-		if i == 0 {
-			out = int(bytes[i] & 0x7f) << v
-			v += 8
-			continue
-		}
-		out |= int(bytes[i] & 0x7f) << v
-		v += 8
-	}
+	var unsignedVarLong, readBytes = binary.Uvarint(*buffer)
+	var newOffset = readBytes + *offset
+	offset = &newOffset
 
-	return uint64(out)
+	return unsignedVarLong
 }
 
 func WritePosition(buffer *[]byte, x, y, z int) {
