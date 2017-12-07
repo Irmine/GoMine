@@ -1,9 +1,9 @@
 package info
 
 const (
-	LatestProtocol     = 140
-	GameVersion        = "v1.2.6.2"
-	GameVersionNetwork = "1.2.6.2"
+	LatestProtocol     = 150
+	GameVersion        = "v1.2.6"
+	GameVersionNetwork = "1.2.6"
 )
 
 const (

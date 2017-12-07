@@ -45,6 +45,7 @@ func initializeConfig(serverPath string) {
 			ServerPort: 19132,
 
 			MaximumPlayers: 20,
+			DefaultGameMode: 1,
 
 			DebugMode: true,
 

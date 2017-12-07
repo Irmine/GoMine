@@ -12,6 +12,8 @@ type ILevel interface {
 	TickLevel()
 	GetGameRules() map[string]IGameRule
 	GetGameRule(string) IGameRule
+	AddGameRule(IGameRule)
+	GetRuntimeId() int
 }
 
 type IGameRule interface {

@@ -80,3 +80,10 @@ func (argument *Argument) IsFloat(value string) bool {
 	var _, err = strconv.ParseFloat(value, 64)
 	return err == nil
 }
+
+/**
+ * Returns if this argument should always merge.
+ */
+func (argument *Argument) ShouldMerge() bool {
+	return false
+}

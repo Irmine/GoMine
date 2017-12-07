@@ -178,7 +178,6 @@ func (command *Command) Parse(sender interfaces.ICommandSender, commandArgs []st
 			}
 			i++
 		}
-
 		stringIndex += i
 		var processedOutput []interface{}
 
@@ -199,16 +198,24 @@ func (command *Command) Parse(sender interfaces.ICommandSender, commandArgs []st
 	return command.GetArguments(), true
 }
 
-func ParseIntoInputAndExecute(sender interfaces.ICommandSender, commandStruct interface{}, arguments []interfaces.ICommandArgument) []reflect.Value {
+/**
+ * Parses the arguments into a proper input and executes the command.
+ */
+func ParseIntoInputAndExecute(sender interfaces.ICommandSender, commandStruct interface{}, arguments []interfaces.ICommandArgument) {
 	var method = reflect.ValueOf(commandStruct).MethodByName("Execute")
 	var input = make([]reflect.Value, method.Type().NumIn())
-	input[0] = reflect.ValueOf(sender)
 
-	for i := 0; i < method.Type().NumIn() - 1; i++ {
-		input[i + 1] = reflect.ValueOf(arguments[i].GetOutput())
+	var argOffset = 0
+	for i := 0; i < method.Type().NumIn(); i++ {
+
+		if method.Type().In(i).String() == "interfaces.ICommandSender" {
+			input[i] = reflect.ValueOf(sender)
+			continue
+		}
+
+		input[i] = reflect.ValueOf(arguments[argOffset].GetOutput())
+		argOffset++
 	}
 
 	method.Call(input)
-
-	return input
 }

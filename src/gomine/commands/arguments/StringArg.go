@@ -11,10 +11,8 @@ type StringArg struct {
 /**
  * Returns a new String argument with the given name and optional value.
  */
-func NewStringArg(name string, optional bool, defaultValue interface{}) *StringArg {
-	var arg = &StringArg{&Argument{name, optional, 1, nil}}
-	arg.output = defaultValue
-	return arg
+func NewStringArg(name string, optional bool) *StringArg {
+	return &StringArg{&Argument{name, optional, 1, ""}}
 }
 
 /**
