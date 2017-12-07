@@ -4,13 +4,14 @@ import (
 	"gomine/vectors"
 	"gomine/entities"
 	"gomine/net/info"
+	"gomine/worlds/locations"
 )
 
 type AddEntityPacket struct {
 	*Packet
 	EntityId   uint64
 	EntityType uint32
-	Position   vectors.TripleVector
+	Position   locations.EntityPosition
 	Motion     vectors.TripleVector
 	Yaw        float32
 	Pitch      float32
@@ -20,16 +21,15 @@ type AddEntityPacket struct {
 }
 
 func NewAddEntityPacket() *AddEntityPacket {
-	return &AddEntityPacket{NewPacket(info.AddEntityPacket), 0, 0, vectors.TripleVector{}, vectors.TripleVector{}, 0.0, 0.0, nil, nil}
+	return &AddEntityPacket{NewPacket(info.AddEntityPacket), 0, 0, locations.EntityPosition{}, vectors.TripleVector{}, 0.0, 0.0, nil, nil}
 }
 
 func (pk *AddEntityPacket) Encode() {
 	pk.PutRuntimeId(pk.EntityId)
 	pk.PutUnsignedVarInt(pk.EntityType)
-	pk.PutTripleVectorObject(pk.Position)
+	pk.PutTripleVectorObject(*pk.Position.AsTripleVector())
 	pk.PutTripleVectorObject(pk.Motion)
-	pk.PutRotation(pk.Yaw)
-	pk.PutRotation(pk.Pitch)
+	pk.PutRotationObject(pk.Position.Rotation)
 	pk.PutEntityAttributes(pk.Attributes)
 	pk.PutEntityData(pk.EntityData)
 }
@@ -37,10 +37,9 @@ func (pk *AddEntityPacket) Encode() {
 func (pk *AddEntityPacket) Decode() {
 	pk.EntityId = pk.GetRuntimeId()
 	pk.EntityType = pk.GetUnsignedVarInt()
-	pk.Position = *pk.GetTripleVectorObject()
+	pk.Position.SetVector(*pk.GetTripleVectorObject())
 	pk.Motion = *pk.GetTripleVectorObject()
-	pk.Yaw = pk.GetRotation()
-	pk.Pitch = pk.GetRotation()
+	pk.Position.Rotation = pk.GetRotationObject()
 	pk.Attributes = pk.GetEntityAttributes()
 	pk.EntityData = pk.GetEntityData()
 }

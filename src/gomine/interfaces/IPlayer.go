@@ -2,7 +2,6 @@ package interfaces
 
 import (
 	"goraklib/server"
-	"gomine/vectors"
 )
 
 type IPlayer interface {
@@ -33,12 +32,13 @@ type IPlayer interface {
 	SetGeometryName(string)
 	GetGeometryData() string
 	SetGeometryData(string)
-	SetPosition(vector *vectors.TripleVector)
-	GetPosition() *vectors.TripleVector
+	/*SetPosition(position locations.EntityPosition)
+	GetPosition() locations.EntityPosition*/
 	//SetDimension(worlds.Dimension)
 	GetDimension() IDimension
 	SendChunk(IChunk)
 	New(IServer, *server.Session, string, string, string, int) IPlayer
 	GetPing() uint64
+	Move(x, y, z, pitch, yaw, headYaw float32)
 	Tick()
 }

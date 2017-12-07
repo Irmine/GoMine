@@ -3,9 +3,10 @@ package players
 import (
 	"gomine/interfaces"
 	"goraklib/server"
-	"gomine/vectors"
 	"gomine/net/packets"
 	"gomine/entities"
+	"gomine/worlds/locations"
+	"fmt"
 )
 
 type Player struct {
@@ -19,8 +20,7 @@ type Player struct {
 	permissions map[string]interfaces.IPermission
 	permissionGroup interfaces.IPermissionGroup
 
-	position *vectors.TripleVector
-	yaw, headYaw, pitch float32
+	position locations.EntityPosition
 
 	server interfaces.IServer
 	level interfaces.ILevel
@@ -57,7 +57,7 @@ func NewPlayer(server interfaces.IServer, session *server.Session, name string, 
 
 	player.permissions = make(map[string]interfaces.IPermission)
 	player.permissionGroup = server.GetPermissionManager().GetDefaultGroup()
-	player.position = vectors.NewTripleVector(0, 0, 0)
+	player.position = locations.NewEntityPosition(0, 0, 0, 0, 0, 0, player.level, player.dimension)
 
 	player.server = server
 	player.session = session
@@ -200,23 +200,31 @@ func (player *Player) RemovePermission(permission string) bool {
 	return true
 }
 
-func (player *Player) SetPosition(v *vectors.TripleVector) {
+/**
+ * Sets the player position
+ */
+func (player *Player) SetPosition(v locations.EntityPosition) {
+	player.position = v
+}
+
+/**
+ * Returns the player position
+ */
+func (player *Player) GetPosition() locations.EntityPosition{
+	return player.position
+}
+
+/**
+ * Teleport player to a new position
+ */
+func (player *Player) Teleport(v locations.EntityPosition)  {
 	pk := packets.NewMovePlayerPacket()
 	pk.EntityId = player.runtimeId
-	pk.Position = *v
-	pk.Pitch = player.pitch
-	pk.Yaw = player.yaw
-	pk.HeadYaw = player.headYaw
-	pk.Mode = packets.Teleport
+	pk.Position = v
 	pk.OnGround = false
 	pk.RidingEid = 0
 	player.server.GetRakLibAdapter().SendPacket(pk, player.GetSession())
-	*player.position = *v
-}
-
-
-func (player *Player) GetPosition() *vectors.TripleVector {
-	return player.position
+	player.SetPosition(v)
 }
 
 //func (player *Player) SetDimension(dimension worlds.Dimension) {
@@ -325,6 +333,15 @@ func (player *Player) SendChunk(chunk interfaces.IChunk)  {
 	pk.Chunk = chunk
 
 	player.server.GetRakLibAdapter().SendPacket(pk, player.session)
+}
+
+/**
+ * Called on every player move
+ */
+func (player *Player) Move(x, y, z, pitch, yaw, headYaw float32) {
+	//fmt.Println("X : ", x)
+	//fmt.Println("Y : ", x)
+	//fmt.Println("Z : ", x)
 }
 
 func (player *Player) Tick() {

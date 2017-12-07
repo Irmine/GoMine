@@ -5,6 +5,7 @@ import (
 	"gomine/vectors"
 	"gomine/entities"
 	"gomine/interfaces"
+	"gomine/players/math"
 )
 
 type Packet struct {
@@ -66,14 +67,6 @@ func (pk *Packet) GetRuntimeId() uint64 {
 	return pk.GetUnsignedVarLong()
 }
 
-func (pk *Packet) PutRotation(rot float32) {
-	pk.PutLittleFloat(rot)
-}
-
-func (pk *Packet) GetRotation() float32 {
-	return pk.GetLittleFloat()
-}
-
 func (pk *Packet) PutTripleVectorObject(obj vectors.TripleVector) {
 	pk.PutLittleFloat(obj.GetX())
 	pk.PutLittleFloat(obj.GetY())
@@ -82,6 +75,16 @@ func (pk *Packet) PutTripleVectorObject(obj vectors.TripleVector) {
 
 func (pk *Packet) GetTripleVectorObject() *vectors.TripleVector {
 	return vectors.NewTripleVector(pk.GetLittleFloat(), pk.GetLittleFloat(), pk.GetLittleFloat())
+}
+
+func (pk *Packet) PutRotationObject(obj math.Rotation) {
+	pk.PutLittleFloat(obj.Pitch)
+	pk.PutLittleFloat(obj.Yaw)
+	pk.PutLittleFloat(obj.HeadYaw)
+}
+
+func (pk *Packet) GetRotationObject() math.Rotation {
+	return math.NewRotation(pk.GetLittleFloat(), pk.GetLittleFloat(), pk.GetLittleFloat())
 }
 
 func (pk *Packet) PutEntityAttributes(attr map[int]entities.Attribute) {

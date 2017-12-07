@@ -29,6 +29,13 @@ func (vector *TripleVector) AsTripleVector() *TripleVector {
 }
 
 /**
+ * Sets the coordinates of this vector
+ */
+func (vector *TripleVector) SetVector(vector3 TripleVector)  {
+	vector.SetComponents(vector3.X, vector3.Y, vector3.Z)
+}
+
+/**
  * Returns the X value of this TripleVector.
  */
 func (vector *TripleVector) GetX() float32 {

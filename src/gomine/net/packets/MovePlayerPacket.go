@@ -1,8 +1,9 @@
 package packets
 
 import (
-	"gomine/vectors"
 	"gomine/net/info"
+	"gomine/worlds/locations"
+	"fmt"
 )
 
 const (
@@ -15,8 +16,7 @@ const (
 type MovePlayerPacket struct {
 	*Packet
 	EntityId uint64
-	Position vectors.TripleVector
-	Pitch, Yaw, HeadYaw float32
+	Position locations.EntityPosition
 	Mode byte
 	OnGround bool
 	RidingEid uint64
@@ -29,10 +29,7 @@ func NewMovePlayerPacket() *MovePlayerPacket {
 
 func (pk *MovePlayerPacket) Encode() {
 	pk.PutRuntimeId(pk.EntityId)
-	pk.PutTripleVectorObject(pk.Position)
-	pk.PutLittleFloat(pk.Pitch)
-	pk.PutLittleFloat(pk.Yaw)
-	pk.PutLittleFloat(pk.HeadYaw)
+	pk.PutTripleVectorObject(*pk.Position.AsTripleVector())
 	pk.PutByte(pk.Mode)
 	pk.PutBool(pk.OnGround)
 	pk.PutRuntimeId(pk.RidingEid)
@@ -44,10 +41,9 @@ func (pk *MovePlayerPacket) Encode() {
 
 func (pk *MovePlayerPacket) Decode() {
 	pk.EntityId = pk.GetRuntimeId()
-	pk.Position = *pk.GetTripleVectorObject()
-	pk.Pitch = pk.GetLittleFloat()
-	pk.Yaw = pk.GetLittleFloat()
-	pk.HeadYaw = pk.GetLittleFloat()
+	fmt.Println("vec : ", *pk.GetTripleVectorObject())
+	pk.Position.SetVector(*pk.GetTripleVectorObject())
+	pk.Position.SetRotation(pk.GetRotationObject())
 	pk.Mode = pk.GetByte()
 	pk.OnGround = pk.GetBool()
 	pk.RidingEid = pk.GetRuntimeId()
