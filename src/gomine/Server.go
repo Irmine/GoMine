@@ -58,7 +58,7 @@ func NewServer(serverPath string) *Server {
 	server.scheduler = tasks.NewScheduler()
 	server.logger = utils.NewLogger(GoMineName, serverPath, server.GetConfiguration().DebugMode)
 	server.levels = make(map[int]interfaces.ILevel)
-	server.consoleReader = NewConsoleReader()
+	server.consoleReader = NewConsoleReader(server)
 	server.commandHolder = commands.NewCommandHolder()
 	server.rakLibAdapter = net.NewGoRakLibAdapter(server)
 
@@ -375,7 +375,6 @@ func (server *Server) Tick(currentTick int) {
 		p.Tick()
 	}
 
-	go server.consoleReader.ReadLine(server)
 	server.rakLibAdapter.Tick()
 
 	server.rakLibAdapter.GetRakLibServer().SetConnectedSessionCount(server.GetPlayerFactory().GetPlayerCount())

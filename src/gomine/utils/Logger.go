@@ -139,10 +139,17 @@ func (logger *Logger) Critical(message string) {
 }
 
 /**
- * Logs an error.
+ * Logs an error message.
  */
 func (logger *Logger) Error(message string) {
 	logger.Log(message, Error, Red)
+}
+
+/**
+ * Logs an actual error.
+ */
+func (logger *Logger) LogError(err error) {
+	logger.Error(err.Error())
 }
 
 /**

@@ -16,8 +16,40 @@ type ConsoleReader struct {
 /**
  * Returns a new Console Reader.
  */
-func NewConsoleReader() *ConsoleReader {
-	return &ConsoleReader{bufio.NewReader(os.Stdin), false}
+func NewConsoleReader(server interfaces.IServer) *ConsoleReader {
+	var reader = &ConsoleReader{bufio.NewReader(os.Stdin), false}
+	reader.StartReading()
+
+	go func() {
+		for {
+			if reader.reading {
+				reader.ReadLine(server)
+			}
+		}
+	}()
+
+	return reader
+}
+
+/**
+ * Makes the console reader start reading.
+ */
+func (reader *ConsoleReader) StartReading() {
+	reader.reading = true
+}
+
+/**
+ * Makes the console reader stop reading.
+ */
+func (reader *ConsoleReader) StopReading() {
+	reader.reading = false
+}
+
+/**
+ * Checks if the console reader is currently reading.
+ */
+func (reader *ConsoleReader) IsReading() bool {
+	return reader.reading
 }
 
 /**
