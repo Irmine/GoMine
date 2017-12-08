@@ -5,8 +5,8 @@ type IEntity interface {
 	SetNameTag(string)
 	IsClosed() bool
 	Close()
-	GetHealth() int
-	SetHealth(int)
+	GetHealth() float32
+	SetHealth(float32)
 	Kill()
 	Tick()
 	GetRuntimeId() uint64

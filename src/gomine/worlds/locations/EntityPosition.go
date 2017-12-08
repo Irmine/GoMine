@@ -53,14 +53,14 @@ func (pos *EntityPosition) AsPosition() *Position {
 }
 
 /**
- * Sets the rotation of this position
+ * Sets the rotation of this position.
  */
 func (pos *EntityPosition) SetRotation(rot math.Rotation) {
 	pos.Rotation = rot
 }
 
 /**
- * returns the rotation of this position
+ * Returns the rotation of this position.
  */
 func (pos *EntityPosition) GetRotation() math.Rotation {
 	return pos.Rotation

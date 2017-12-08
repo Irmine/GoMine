@@ -16,10 +16,10 @@ type Entity struct {
 	motion *vectors.TripleVector
 	runtimeId uint64
 	closed bool
-	Health int
+	Health float32
 }
 
-func NewEntity(nameTag string, attributeMap *AttributeMap, yaw, pitch float64, position *locations.Position, motion *vectors.TripleVector, health int) Entity {
+func NewEntity(nameTag string, attributeMap *AttributeMap, yaw, pitch float64, position *locations.Position, motion *vectors.TripleVector, health float32) Entity {
 	RuntimeId++
 	return Entity{
 		nameTag,
@@ -102,14 +102,14 @@ func (entity *Entity) Close() {
 /**
  * Returns the health points of this entity.
  */
-func (entity *Entity) GetHealth() int {
+func (entity *Entity) GetHealth() float32 {
 	return entity.Health
 }
 
 /**
  * Sets the health points of this entity.
  */
-func (entity *Entity) SetHealth(health int) {
+func (entity *Entity) SetHealth(health float32) {
 	entity.Health = health
 }
 
