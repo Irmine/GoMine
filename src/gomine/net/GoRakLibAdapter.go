@@ -59,12 +59,14 @@ func (adapter *GoRakLibAdapter) Tick() {
 
 					var player, _ = adapter.server.GetPlayerFactory().GetPlayerBySession(session.GetAddress(), session.GetPort())
 
-					handlers := GetPacketHandlers(packet.GetId())
+					priorityHandlers := GetPacketHandlers(packet.GetId())
 
-					for _, handler := range handlers {
-						handler.Handle(packet, player, session, adapter.server)
+					for _, handlers := range priorityHandlers {
+						for _, handler := range handlers {
+							handler.Handle(packet, player, session, adapter.server)
+						}
 					}
-					if len(handlers) == 0 {
+					if len(priorityHandlers) == 0 {
 						adapter.server.GetLogger().Debug("Unhandled Minecraft packet with ID: " + strconv.Itoa(packet.GetId()))
 					}
 				}

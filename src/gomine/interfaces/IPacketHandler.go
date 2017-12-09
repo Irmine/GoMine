@@ -7,4 +7,6 @@ import (
 type IPacketHandler interface {
 	GetId() int
 	Handle(IPacket, IPlayer, *server.Session, IServer) bool
+	SetPriority(int) bool
+	GetPriority() int
 }

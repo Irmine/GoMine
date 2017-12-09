@@ -6,26 +6,39 @@ import (
 	"gomine/interfaces"
 )
 
-var registeredHandlers = map[int][]interfaces.IPacketHandler{}
+const (
+	PriorityFirst = 0
+	PriorityLast = 10
+)
+
+var registeredHandlers = map[int]map[int][]interfaces.IPacketHandler{}
 
 func InitHandlerPool() {
-	RegisterPacketHandler(info.LoginPacket, handlers.NewLoginHandler())
-	RegisterPacketHandler(info.RequestChunkRadiusPacket, handlers.NewChunkRadiusRequestHandler())
-	RegisterPacketHandler(info.ResourcePackClientResponsePacket, handlers.NewResourcePackClientResponseHandler())
-	RegisterPacketHandler(info.MovePlayerPacket, handlers.NewMoveHandler())
-	RegisterPacketHandler(info.CommandRequestPacket, handlers.NewCommandRequestHandler())
+	RegisterPacketHandler(info.LoginPacket, handlers.NewLoginHandler(), PriorityLast)
+	RegisterPacketHandler(info.RequestChunkRadiusPacket, handlers.NewChunkRadiusRequestHandler(), PriorityLast)
+	RegisterPacketHandler(info.ResourcePackClientResponsePacket, handlers.NewResourcePackClientResponseHandler(), PriorityLast)
+	RegisterPacketHandler(info.MovePlayerPacket, handlers.NewMoveHandler(), PriorityLast)
+	RegisterPacketHandler(info.CommandRequestPacket, handlers.NewCommandRequestHandler(), PriorityLast)
 }
 
 /**
  * Registers a new packet handler to listen for packets with the given ID.
+ * Returns a bool indicating success.
  */
-func RegisterPacketHandler(id int, handler interfaces.IPacketHandler) {
-	registeredHandlers[id] = append(registeredHandlers[id], handler)
+func RegisterPacketHandler(id int, handler interfaces.IPacketHandler, priority int) bool {
+	if !handler.SetPriority(priority) {
+		return false
+	}
+	if registeredHandlers[id] == nil {
+		registeredHandlers[id] = make(map[int][]interfaces.IPacketHandler)
+	}
+	registeredHandlers[id][priority] = append(registeredHandlers[id][priority], handler)
+	return true
 }
 
 /**
  * Returns all packet handlers registered on the given ID.
  */
-func GetPacketHandlers(id int) []interfaces.IPacketHandler {
+func GetPacketHandlers(id int) map[int][]interfaces.IPacketHandler {
 	return registeredHandlers[id]
 }

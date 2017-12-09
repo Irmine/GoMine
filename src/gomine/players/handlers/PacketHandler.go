@@ -6,13 +6,14 @@ package handlers
  */
 type PacketHandler struct {
 	id int
+	priority int
 }
 
 /**
  * Returns a new packet handler with the given ID.
  */
 func NewPacketHandler(id int) *PacketHandler {
-	return &PacketHandler{id}
+	return &PacketHandler{id, 0}
 }
 
 /**
@@ -20,4 +21,23 @@ func NewPacketHandler(id int) *PacketHandler {
 */
 func (handler *PacketHandler) GetId() int {
 	return handler.id
+}
+
+/**
+ * Sets the priority of this handler in an integer 0 - 10.
+ * 0 is executed first, 10 is executed last.
+ */
+func (handler *PacketHandler) SetPriority(priority int) bool {
+	if priority > 10 || priority < 0 {
+		return false
+	}
+	handler.priority = priority
+	return true
+}
+
+/**
+ * Returns the priority of this handler in an integer 0 - 10.
+ */
+func (handler *PacketHandler) GetPriority() int {
+	return handler.priority
 }
