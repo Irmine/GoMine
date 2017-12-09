@@ -57,11 +57,6 @@ func (reader *ConsoleReader) IsReading() bool {
  * Reading lines is blocking, and other goroutines should always be used.
  */
 func (reader *ConsoleReader) ReadLine(server interfaces.IServer) string {
-	if reader.reading {
-		return ""
-	}
-
-	reader.reading = true
 	var command, _ = reader.reader.ReadString('\n')
 	command = strings.Trim(command, "\n")
 
@@ -70,7 +65,6 @@ func (reader *ConsoleReader) ReadLine(server interfaces.IServer) string {
 		return command
 	}
 	reader.attemptReadCommand(command, server)
-	reader.reading = false
 	return command
 }
 
