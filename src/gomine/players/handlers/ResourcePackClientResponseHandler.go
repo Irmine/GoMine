@@ -6,6 +6,7 @@ import (
 	"goraklib/server"
 	"gomine/net/packets"
 	"gomine/vectors"
+	"gomine/entities/math"
 )
 
 type ResourcePackClientResponseHandler struct {
@@ -22,41 +23,43 @@ func NewResourcePackClientResponseHandler() ResourcePackClientResponseHandler {
 func (handler ResourcePackClientResponseHandler) Handle(packet interfaces.IPacket, player interfaces.IPlayer, session *server.Session, server interfaces.IServer) bool {
 	if response, ok := packet.(*packets.ResourcePackClientResponsePacket); ok {
 		if response.Status == 3 {
-			var pk = packets.NewResourcePackStackPacket()
-			server.GetRakLibAdapter().SendPacket(pk, session)
+			var stack = packets.NewResourcePackStackPacket()
+			player.SendPacket(stack)
 			return true
 		}
 
-		var pk4 = packets.NewStartGamePacket()
-		pk4.PlayerGameMode = 1
-		pk4.PlayerPosition = vectors.TripleVector{0, 20, 0}
-		pk4.LevelSeed = 12345
-		pk4.Generator = 12345
-		pk4.LevelGameMode = 1
-		pk4.LevelSpawnPosition = vectors.TripleVector{0, 20, 0}
-		pk4.MultiPlayerGame = true
-		pk4.BroadcastToXbox = true
-		pk4.BroadcastToLan = true
-		pk4.CommandsEnabled = true
-		pk4.GameRules = server.GetDefaultLevel().GetGameRules()
-		pk4.BonusChest = true
-		pk4.StartMap = true
-		pk4.TrustPlayers = true
-		pk4.DefaultPermissionLevel = 2
-		pk4.XboxBroadcastMode = 1
-		pk4.LevelName = server.GetDefaultLevel().GetName()
-		pk4.CurrentTick = int64(server.GetCurrentTick())
-		pk4.EnchantmentSeed = 312904
+		player.PlaceInWorld(vectors.TripleVector{0, 20, 0}, math.Rotation{0, 0, 0}, server.GetDefaultLevel(), server.GetDefaultLevel().GetDefaultDimension())
 
-		server.GetRakLibAdapter().SendPacket(pk4, session)
+		var startGame = packets.NewStartGamePacket()
+		startGame.PlayerGameMode = 1
+		startGame.PlayerPosition = vectors.TripleVector{0, 20, 0}
+		startGame.LevelSeed = 12345
+		startGame.Generator = 12345
+		startGame.LevelGameMode = 1
+		startGame.LevelSpawnPosition = vectors.TripleVector{0, 20, 0}
+		startGame.MultiPlayerGame = true
+		startGame.BroadcastToXbox = true
+		startGame.BroadcastToLan = true
+		startGame.CommandsEnabled = true
+		startGame.GameRules = server.GetDefaultLevel().GetGameRules()
+		startGame.BonusChest = true
+		startGame.StartMap = true
+		startGame.TrustPlayers = true
+		startGame.DefaultPermissionLevel = 2
+		startGame.XboxBroadcastMode = 1
+		startGame.LevelName = server.GetDefaultLevel().GetName()
+		startGame.CurrentTick = int64(server.GetCurrentTick())
+		startGame.EnchantmentSeed = 312904
 
-		var pk = packets.NewPlayerListPacket()
-		pk.Players = append(pk.Players, player)
-		pk.ListType = packets.ListTypeAdd
-		server.GetRakLibAdapter().SendPacket(pk, session)
+		player.SendPacket(startGame)
 
-		var pk3 = packets.NewCraftingDataPacket()
-		server.GetRakLibAdapter().SendPacket(pk3, session)
+		var playerList = packets.NewPlayerListPacket()
+		playerList.Players = append(playerList.Players, player)
+		playerList.ListType = packets.ListTypeAdd
+		player.SendPacket(playerList)
+
+		var craftingData = packets.NewCraftingDataPacket()
+		player.SendPacket(craftingData)
 	}
 
 	return true

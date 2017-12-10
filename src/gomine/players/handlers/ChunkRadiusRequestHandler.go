@@ -19,19 +19,19 @@ func NewChunkRadiusRequestHandler() ChunkRadiusRequestHandler {
  * Handles the chunk radius requests.
  */
 func (handler ChunkRadiusRequestHandler) Handle(packet interfaces.IPacket, player interfaces.IPlayer, session *server.Session, server interfaces.IServer) bool {
-	if _, ok := packet.(*packets.ChunkRadiusRequestPacket); ok {
+	if chunkRadiusPacket, ok := packet.(*packets.ChunkRadiusRequestPacket); ok {
 
-		player.SetViewDistance(2/*chunkRadiusPacket.Radius*/)
+		player.SetViewDistance(chunkRadiusPacket.Radius)
 
-		var pk = packets.NewChunkRadiusUpdatedPacket()
-		pk.Radius = player.GetViewDistance()
-		server.GetRakLibAdapter().SendPacket(pk, session)
+		var radiusUpdated = packets.NewChunkRadiusUpdatedPacket()
+		radiusUpdated.Radius = player.GetViewDistance()
+		player.SendPacket(radiusUpdated)
 
 		server.GetDefaultLevel().GetDefaultDimension().RequestChunks(player)
 
-		pk2 := packets.NewPlayStatusPacket()
-		pk2.Status = 3
-		server.GetRakLibAdapter().SendPacket(pk2, session)
+		var playStatus = packets.NewPlayStatusPacket()
+		playStatus.Status = 3
+		player.SendPacket(playStatus)
 	}
 
 	return true

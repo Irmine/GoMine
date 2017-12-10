@@ -14,7 +14,7 @@ func NewChunkRadiusUpdatedPacket() *ChunkRadiusUpdatedPacket {
 }
 
 func (pk *ChunkRadiusUpdatedPacket) Encode()  {
-	pk.PutVarInt(2/*pk.Radius*/)
+	pk.PutVarInt(pk.Radius)
 }
 
 func (pk *ChunkRadiusUpdatedPacket) Decode()  {

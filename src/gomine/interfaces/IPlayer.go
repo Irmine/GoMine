@@ -40,6 +40,8 @@ type IPlayer interface {
 	Move(x, y, z, pitch, yaw, headYaw float32)
 	Tick()
 	SendMessage(string)
+	SendPacket(packet IPacket)
+	PlaceInWorld(vectors.TripleVector, math.Rotation, ILevel, IDimension)
 	GetPosition() vectors.TripleVector
 	SetPosition(vector vectors.TripleVector)
 	GetDimension() IDimension

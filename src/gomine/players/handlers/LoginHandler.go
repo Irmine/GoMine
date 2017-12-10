@@ -33,12 +33,12 @@ func (handler LoginHandler) Handle(packet interfaces.IPacket, player interfaces.
 		player.SetGeometryName(loginPacket.GeometryName)
 		player.SetGeometryData(string(loginPacket.GeometryData))
 
-		pk := packets.NewPlayStatusPacket()
-		pk.Status = 0
-		server.GetRakLibAdapter().SendPacket(pk, session)
+		playStatus := packets.NewPlayStatusPacket()
+		playStatus.Status = 0
+		player.SendPacket(playStatus)
 
-		pk3 := packets.NewResourcePackInfoPacket()
-		server.GetRakLibAdapter().SendPacket(pk3, session)
+		resourceInfo := packets.NewResourcePackInfoPacket()
+		player.SendPacket(resourceInfo)
 
 		server.GetPlayerFactory().AddPlayer(player, session)
 	}

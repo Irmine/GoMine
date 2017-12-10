@@ -82,8 +82,8 @@ func (player *Player) IsInWorld() bool {
 /**
  * Places this player inside of a level and dimension.
  */
-func (player *Player) PlaceInWorld(position vectors.TripleVector, rotation math.Rotation, motion vectors.TripleVector, level interfaces.ILevel, dimension interfaces.IDimension) {
-	player.Human = entities.NewHuman(player.GetDisplayName(), position, rotation, motion, level, dimension)
+func (player *Player) PlaceInWorld(position vectors.TripleVector, rotation math.Rotation, level interfaces.ILevel, dimension interfaces.IDimension) {
+	player.Human = entities.NewHuman(player.GetDisplayName(), position, rotation, vectors.TripleVector{0, 0, 0}, level, dimension)
 }
 
 /**
