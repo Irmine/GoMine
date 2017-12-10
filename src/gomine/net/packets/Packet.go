@@ -5,7 +5,7 @@ import (
 	"gomine/vectors"
 	"gomine/entities"
 	"gomine/interfaces"
-	"gomine/players/math"
+	"gomine/entities/math"
 )
 
 type Packet struct {
@@ -77,14 +77,22 @@ func (pk *Packet) GetTripleVectorObject() *vectors.TripleVector {
 	return &vectors.TripleVector{X: pk.GetLittleFloat(), Y: pk.GetLittleFloat(), Z: pk.GetLittleFloat()}
 }
 
-func (pk *Packet) PutRotationObject(obj math.Rotation) {
+func (pk *Packet) PutRotationObject(obj math.Rotation, isPlayer bool) {
 	pk.PutLittleFloat(obj.Pitch)
 	pk.PutLittleFloat(obj.Yaw)
-	pk.PutLittleFloat(obj.HeadYaw)
+	if isPlayer {
+		pk.PutLittleFloat(obj.HeadYaw)
+	}
 }
 
-func (pk *Packet) GetRotationObject() math.Rotation {
-	return math.NewRotation(pk.GetLittleFloat(), pk.GetLittleFloat(), pk.GetLittleFloat())
+func (pk *Packet) GetRotationObject(isPlayer bool) math.Rotation {
+	var yaw = pk.GetLittleFloat()
+	var pitch = pk.GetLittleFloat()
+	var headYaw float32 = 0
+	if isPlayer {
+		headYaw = pk.GetLittleFloat()
+	}
+	return math.NewRotation(yaw, pitch, headYaw)
 }
 
 func (pk *Packet) PutEntityAttributes(attr map[int]entities.Attribute) {

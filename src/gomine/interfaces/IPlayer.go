@@ -3,7 +3,7 @@ package interfaces
 import (
 	"goraklib/server"
 	"gomine/vectors"
-	"gomine/players/math"
+	"gomine/entities/math"
 )
 
 type IPlayer interface {

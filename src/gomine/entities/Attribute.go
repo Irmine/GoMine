@@ -32,8 +32,8 @@ type Attribute struct {
 /**
  * Returns a new Attribute with the given name.
  */
-func NewAttribute(name string, minValue, maxValue float32) *Attribute {
-	return &Attribute{name: name, minValue: minValue, maxValue: maxValue}
+func NewAttribute(name string, value, maxValue float32) *Attribute {
+	return &Attribute{name, 0, maxValue, value, value}
 }
 
 /**

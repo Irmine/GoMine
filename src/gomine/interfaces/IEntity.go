@@ -2,7 +2,7 @@ package interfaces
 
 import (
 	"gomine/vectors"
-	"gomine/players/math"
+	"gomine/entities/math"
 )
 
 type IEntity interface {

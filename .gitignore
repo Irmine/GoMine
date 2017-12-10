@@ -1,5 +1,6 @@
 .idea/
 pkg/
+extensions/
 gomine.log
 gomine.yml
 main_go.exe

@@ -3,7 +3,7 @@ package entities
 import (
 	"gomine/vectors"
 	"gomine/interfaces"
-	"gomine/players/math"
+	"gomine/entities/math"
 )
 
 var RuntimeId uint64 = 0
@@ -13,28 +13,42 @@ type Entity struct {
 	Motion vectors.TripleVector
 	runtimeId uint64
 	closed bool
-	Health float32
 
 	Position vectors.TripleVector
 	Level interfaces.ILevel
 	Dimension interfaces.IDimension
 	Rotation math.Rotation
 
+	NameTag string
 }
 
-func NewEntity(attributeMap *AttributeMap, motion vectors.TripleVector, health float32, position vectors.TripleVector, level interfaces.ILevel, rotation math.Rotation) Entity {
+func NewEntity(position vectors.TripleVector, rotation math.Rotation, motion vectors.TripleVector, level interfaces.ILevel, dimension interfaces.IDimension) *Entity {
 	RuntimeId++
-	return Entity{
-		attributeMap,
+	return &Entity{
+		NewAttributeMap(),
 		motion,
 		RuntimeId,
 		false,
-		health,
 		position,
 		level,
-		level.GetDefaultDimension(),
+		dimension,
 		rotation,
+		"",
 	}
+}
+
+/**
+ * Returns the name tag of this entity.
+ */
+func (entity *Entity) GetNameTag() string {
+	return entity.NameTag
+}
+
+/**
+ * Sets the name tag of this entity.
+ */
+func (entity *Entity) SetNameTag(nameTag string) {
+	entity.NameTag = nameTag
 }
 
 /**
@@ -42,6 +56,13 @@ func NewEntity(attributeMap *AttributeMap, motion vectors.TripleVector, health f
  */
 func (entity *Entity) GetAttributeMap() *AttributeMap {
 	return entity.attributeMap
+}
+
+/**
+ * Sets the attribute map of this entity.
+ */
+func (entity *Entity) SetAttributeMap(attMap *AttributeMap) {
+	entity.attributeMap = attMap
 }
 
 /**
@@ -147,21 +168,21 @@ func (entity *Entity) Close() {
  * Returns the health points of this entity.
  */
 func (entity *Entity) GetHealth() float32 {
-	return entity.Health
+	return entity.attributeMap.GetAttribute(AttributeHealth).GetValue()
 }
 
 /**
  * Sets the health points of this entity.
  */
 func (entity *Entity) SetHealth(health float32) {
-	entity.Health = health
+	entity.attributeMap.GetAttribute(AttributeHealth).SetValue(health)
 }
 
 /**
  * Kills the current entity.
  */
 func (entity *Entity) Kill() {
-	entity.Health = 0
+	entity.SetHealth(0)
 	//todo
 }
 

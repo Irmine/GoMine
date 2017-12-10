@@ -3,14 +3,14 @@ package packets
 import (
 	"gomine/net/info"
 	"gomine/vectors"
-	"gomine/players/math"
+	"gomine/entities/math"
 )
 
 const (
-	Normal = iota + 0
-	Reset
-	Teleport
-	Pitch
+	MoveNormal = iota + 0
+	MoveReset
+	MoveTeleport
+	MovePitch
 )
 
 type MovePlayerPacket struct {
@@ -31,11 +31,11 @@ func NewMovePlayerPacket() *MovePlayerPacket {
 func (pk *MovePlayerPacket) Encode() {
 	pk.PutRuntimeId(pk.EntityId)
 	pk.PutTripleVectorObject(*pk.Position.AsTripleVector())
-	pk.PutRotationObject(pk.Rotation)
+	pk.PutRotationObject(pk.Rotation, true)
 	pk.PutByte(pk.Mode)
 	pk.PutBool(pk.OnGround)
 	pk.PutRuntimeId(pk.RidingEid)
-	if pk.Mode == Teleport {
+	if pk.Mode == MoveTeleport {
 		pk.PutLittleInt(pk.ExtraInt1)
 		pk.PutLittleInt(pk.ExtraInt2)
 	}
@@ -44,11 +44,11 @@ func (pk *MovePlayerPacket) Encode() {
 func (pk *MovePlayerPacket) Decode() {
 	pk.EntityId = pk.GetRuntimeId()
 	pk.Position.SetVector(pk.GetTripleVectorObject())
-	pk.Rotation = pk.GetRotationObject()
+	pk.Rotation = pk.GetRotationObject(true)
 	pk.Mode = pk.GetByte()
 	pk.OnGround = pk.GetBool()
 	pk.RidingEid = pk.GetRuntimeId()
-	if pk.Mode == Teleport {
+	if pk.Mode == MoveTeleport {
 		pk.ExtraInt1 = pk.GetLittleInt()
 		pk.ExtraInt2 = pk.GetLittleInt()
 	}

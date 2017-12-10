@@ -29,6 +29,7 @@ func main() {
 	parseFlags()
 
 	var serverPath = scanServerPath()
+	setUpDirectories(serverPath)
 
 	var server = gomine.NewServer(serverPath)
 
@@ -70,7 +71,7 @@ func scanServerPath() string {
 func checkRequirements() bool {
 	var version = runtime.Version()
 	if version != "go1.9.2" {
-		fmt.Println("Please install the GoLang 1.9.2 release.")
+		fmt.Println("Please install the Go 1.9.2 release.")
 		return false
 	}
 
@@ -86,4 +87,14 @@ func parseFlags() {
 	flag.Parse()
 
 	stopInstantly = *instantStop
+}
+
+/**
+ * Sets up all directories needed for GoMine.
+ */
+func setUpDirectories(path string) {
+	os.Mkdir(path + "extensions", os.ModeDir)
+	os.Mkdir(path + "extensions/plugins", os.ModeDir)
+	os.Mkdir(path + "extensions/behavior_packs", os.ModeDir)
+	os.Mkdir(path + "extensions/resource_packs", os.ModeDir)
 }

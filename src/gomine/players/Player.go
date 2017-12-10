@@ -6,7 +6,7 @@ import (
 	"gomine/net/packets"
 	"gomine/entities"
 	"gomine/vectors"
-	"gomine/players/math"
+	"gomine/entities/math"
 )
 
 type Player struct {
@@ -48,7 +48,6 @@ func NewPlayer(server interfaces.IServer, session *server.Session, name string, 
 
 	var player = &Player{}
 
-	entities.RuntimeId++
 	player.runtimeId = entities.RuntimeId
 	player.playerName = name
 	player.displayName = name
@@ -56,16 +55,6 @@ func NewPlayer(server interfaces.IServer, session *server.Session, name string, 
 	player.uuid = uuid
 	player.xuid = xuid
 	player.clientId = clientId
-
-	player.attributeMap = entities.NewAttributeMap()
-	player.Health = 20
-	player.closed = false
-
-	player.Position = *vectors.NewTripleVector(0, 0, 0)
-	player.Level = server.GetDefaultLevel()
-	player.Dimension = player.Level.GetDefaultDimension()
-	player.Motion = *vectors.NewTripleVector(0, 0, 0)
-	player.onGround = false
 
 	player.permissions = make(map[string]interfaces.IPermission)
 	player.permissionGroup = server.GetPermissionManager().GetDefaultGroup()
@@ -76,8 +65,25 @@ func NewPlayer(server interfaces.IServer, session *server.Session, name string, 
 	return player
 }
 
+/**
+ * Returns a new player.
+ */
 func (player *Player) New(server interfaces.IServer, session *server.Session, name string, uuid string, xuid string, clientId int) interfaces.IPlayer {
 	return NewPlayer(server, session, name, uuid, xuid, clientId)
+}
+
+/**
+ * Returns if this player has been placed in a world.
+ */
+func (player *Player) IsInWorld() bool {
+	return player.Dimension != nil && player.Level != nil
+}
+
+/**
+ * Places this player inside of a level and dimension.
+ */
+func (player *Player) PlaceInWorld(position vectors.TripleVector, rotation math.Rotation, motion vectors.TripleVector, level interfaces.ILevel, dimension interfaces.IDimension) {
+	player.Human = entities.NewHuman(player.GetDisplayName(), position, rotation, motion, level, dimension)
 }
 
 /**
@@ -223,80 +229,6 @@ func (player *Player) Teleport(v vectors.TripleVector, rot math.Rotation)  {
 	player.Position = v
 }
 
-//func (player *Player) SetDimension(dimension worlds.Dimension) {
-//	player.dimension = dimension
-//}
-
-/**
- * Returns the current position of this player.
- */
-func (player *Player) GetPosition() vectors.TripleVector {
-	return player.Position
-}
-
-/**
- * Sets the position of this player
- */
-func (player *Player) SetPosition(v vectors.TripleVector)  {
-	player.Position = v
-}
-
-/**
- * Returns the level of this player
- */
-func (player *Player) GetLevel() interfaces.ILevel {
-	return player.Level
-}
-
-/**
- * Sets the level of this player
- */
-func (player *Player) SetLevel(v interfaces.ILevel)  {
-	player.Level = v
-}
-
-/**
- * Returns the level of this player
- */
-func (player *Player) GetDimension() interfaces.IDimension {
-	return player.Dimension
-}
-
-/**
- * Sets the level of this player
- */
-func (player *Player) SetDimension(v interfaces.IDimension)  {
-	player.Dimension = v
-}
-
-/**
- * Returns the current rotation of this player.
- */
-func (player *Player) GetRotation() math.Rotation {
-	return player.Rotation
-}
-
-/**
- * Sets the rotation of this player
- */
-func (player *Player) SetRotation(v math.Rotation)  {
-	player.Rotation = v
-}
-
-/**
- * Returns the motion of this player.
- */
-func (player *Player) GetMotion() vectors.TripleVector {
-	return player.Motion
-}
-
-/**
- * sets the motion of this player
- */
-func (player *Player) SetMotion(v vectors.TripleVector)  {
-	player.Motion = v
-}
-
 /**
  * Sets the skin ID/name of the player.
  */
@@ -412,6 +344,9 @@ func (player *Player) Tick() {
 
 }
 
+/**
+ * Sends a message to this player.
+ */
 func (player *Player) SendMessage(message string) {
 	var pk = packets.NewTextPacket()
 	pk.XUID = player.GetXUID()
