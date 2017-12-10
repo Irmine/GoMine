@@ -26,9 +26,6 @@ func NewGoRakLibAdapter(server interfaces.IServer) *GoRakLibAdapter {
 	rakServer.SetDefaultGameMode("Creative")
 	rakServer.SetMotd(server.GetMotd())
 
-	InitPacketPool()
-	InitHandlerPool()
-
 	return &GoRakLibAdapter{server, rakServer}
 }
 
@@ -66,6 +63,7 @@ func (adapter *GoRakLibAdapter) Tick() {
 							handler.Handle(packet, player, session, adapter.server)
 						}
 					}
+
 					if len(priorityHandlers) == 0 {
 						adapter.server.GetLogger().Debug("Unhandled Minecraft packet with ID: " + strconv.Itoa(packet.GetId()))
 					}

@@ -14,9 +14,6 @@ import (
 	"gomine/net/info"
 	"gomine/permissions"
 	"gomine/players"
-	"gomine/worlds/blocks"
-	"gomine/worlds/generation"
-	generatorDefaults "gomine/worlds/generation/defaults"
 )
 
 var levelId = 0
@@ -78,13 +75,6 @@ func (server *Server) RegisterDefaultCommands() {
 }
 
 /**
- * Registers all default commands.
- */
-func (server *Server) RegisterGenerators() {
-	generation.RegisterGenerator(generatorDefaults.NewFlatGenerator())
-}
-
-/**
  * Returns whether the server is running or not.
  */
 func (server *Server) IsRunning() bool {
@@ -98,11 +88,8 @@ func (server *Server) Start() {
 	server.GetLogger().Info("GoMine " + GoMineVersion + " is now starting...")
 
 	server.RegisterDefaultCommands()
-	blocks.InitBlockPool()
-	generation.InitGeneratorList()
 
 	server.LoadLevels()
-	server.RegisterGenerators()
 
 	server.isRunning = true
 }

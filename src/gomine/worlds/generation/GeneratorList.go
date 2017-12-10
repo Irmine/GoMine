@@ -7,7 +7,7 @@ import (
 
 var list = map[string]interfaces.IGenerator{}
 
-func InitGeneratorList() {
+func init() {
 	RegisterGenerator(defaults.NewFlatGenerator())
 }
 

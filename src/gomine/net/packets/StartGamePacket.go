@@ -89,8 +89,8 @@ func (pk *StartGamePacket) Encode()  {
 	pk.PutBool(pk.ForcedResourcePacks) // Texture packs required
 
 	// TODO: Fix. Something causes the client to crash with game rules.
-	pk.PutUnsignedVarInt(0)
-	//pk.PutGameRules(pk.GameRules) // Game rules
+	//pk.PutUnsignedVarInt(0)
+	pk.PutGameRules(pk.GameRules) // Game rules
 
 	pk.PutBool(pk.BonusChest) // Bonus chest
 	pk.PutBool(pk.StartMap) // Start map

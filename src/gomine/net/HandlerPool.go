@@ -13,7 +13,7 @@ const (
 
 var registeredHandlers = map[int]map[int][]interfaces.IPacketHandler{}
 
-func InitHandlerPool() {
+func init() {
 	RegisterPacketHandler(info.LoginPacket, handlers.NewLoginHandler(), PriorityLast)
 	RegisterPacketHandler(info.RequestChunkRadiusPacket, handlers.NewChunkRadiusRequestHandler(), PriorityLast)
 	RegisterPacketHandler(info.ResourcePackClientResponsePacket, handlers.NewResourcePackClientResponseHandler(), PriorityLast)

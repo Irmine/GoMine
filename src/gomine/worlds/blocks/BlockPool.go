@@ -6,7 +6,7 @@ import (
 
 var blocks = map[int]func(byte) interfaces.IBlock{}
 
-func InitBlockPool() {
+func init() {
 	RegisterBlock(AIR, func(data byte) interfaces.IBlock { return NewAir(data) })
 	RegisterBlock(STONE, func(data byte) interfaces.IBlock { return NewStone(data) })
 }

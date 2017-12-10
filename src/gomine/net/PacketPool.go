@@ -8,7 +8,7 @@ import (
 
 var registeredPackets = map[int]func() interfaces.IPacket{}
 
-func InitPacketPool() {
+func init() {
 	RegisterPacket(info.LoginPacket, func() interfaces.IPacket { return packets.NewLoginPacket() })
 	RegisterPacket(info.PlayStatusPacket, func() interfaces.IPacket { return packets.NewPlayStatusPacket() })
 	RegisterPacket(info.ClientHandshakePacket, func() interfaces.IPacket { return packets.NewClientHandshakePacket() })
