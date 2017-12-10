@@ -18,7 +18,7 @@ func NewMoveHandler() MoveHandler {
 func (handler MoveHandler) Handle(packet interfaces.IPacket, player interfaces.IPlayer, session *server.Session, server interfaces.IServer) bool {
 
 	if pk, ok := packet.(*packets.MovePlayerPacket); ok {
-		player.Move(pk.Position.X, pk.Position.Y, pk.Position.Z, pk.Position.Rotation.Pitch, pk.Position.Rotation.Yaw, pk.Position.Rotation.HeadYaw)
+		player.Move(pk.Position.X, pk.Position.Y, pk.Position.Z, pk.Rotation.Pitch, pk.Rotation.Yaw, pk.Rotation.HeadYaw)
 	}
 
 	return true

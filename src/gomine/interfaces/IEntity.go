@@ -1,5 +1,10 @@
 package interfaces
 
+import (
+	"gomine/vectors"
+	"gomine/players/math"
+)
+
 type IEntity interface {
 	GetNameTag() string
 	SetNameTag(string)
@@ -10,4 +15,14 @@ type IEntity interface {
 	Kill()
 	Tick()
 	GetRuntimeId() uint64
+	GetPosition() vectors.TripleVector
+	SetPosition(vector vectors.TripleVector)
+	GetDimension() IDimension
+	SetDimension(dimension IDimension)
+	GetLevel() ILevel
+	SetLevel(level ILevel)
+	GetRotation() math.Rotation
+	SetRotation(rotation math.Rotation)
+	GetMotion() vectors.TripleVector
+	SetMotion(vector vectors.TripleVector)
 }

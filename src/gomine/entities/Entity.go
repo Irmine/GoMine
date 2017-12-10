@@ -3,34 +3,37 @@ package entities
 import (
 	"gomine/vectors"
 	"gomine/interfaces"
-	"gomine/worlds/locations"
+	"gomine/players/math"
 )
 
 var RuntimeId uint64 = 0
 
 type Entity struct {
-	nameTag      string
 	attributeMap *AttributeMap
-	yaw, pitch float64
-	position *locations.Position
-	motion *vectors.TripleVector
+	Motion vectors.TripleVector
 	runtimeId uint64
 	closed bool
 	Health float32
+
+	Position vectors.TripleVector
+	Level interfaces.ILevel
+	Dimension interfaces.IDimension
+	Rotation math.Rotation
+
 }
 
-func NewEntity(nameTag string, attributeMap *AttributeMap, yaw, pitch float64, position *locations.Position, motion *vectors.TripleVector, health float32) Entity {
+func NewEntity(attributeMap *AttributeMap, motion vectors.TripleVector, health float32, position vectors.TripleVector, level interfaces.ILevel, rotation math.Rotation) Entity {
 	RuntimeId++
 	return Entity{
-		nameTag,
 		attributeMap,
-		yaw,
-		pitch,
-		position,
 		motion,
 		RuntimeId,
 		false,
 		health,
+		position,
+		level,
+		level.GetDefaultDimension(),
+		rotation,
 	}
 }
 
@@ -42,31 +45,73 @@ func (entity *Entity) GetAttributeMap() *AttributeMap {
 }
 
 /**
- * Returns the name tag of this entity.
- */
-func (entity *Entity) GetNameTag() string {
-	return entity.nameTag
-}
-
-/**
- * Sets the name tag of this entity.
- */
-func (entity *Entity) SetNameTag(name string) {
-	entity.nameTag = name
-}
-
-/**
  * Returns the current position of this entity.
  */
-func (entity *Entity) GetPosition() *locations.Position {
-	return entity.position
+func (entity *Entity) GetPosition() vectors.TripleVector {
+	return entity.Position
+}
+
+/**
+ * Sets the position of this entity
+ */
+func (entity *Entity) SetPosition(v vectors.TripleVector)  {
+	entity.Position = v
+}
+
+/**
+ * Returns the level of this entity
+ */
+func (entity *Entity) GetLevel() interfaces.ILevel {
+	return entity.Level
+}
+
+/**
+ * Sets the level of this entity
+ */
+func (entity *Entity) SetLevel(v interfaces.ILevel)  {
+	entity.Level = v
+}
+
+/**
+ * Returns the level of this entity
+ */
+func (entity *Entity) GetDimension() interfaces.IDimension {
+	return entity.Dimension
+}
+
+/**
+ * Sets the level of this entity
+ */
+func (entity *Entity) SetDimension(v interfaces.IDimension)  {
+	entity.Dimension = v
+}
+
+/**
+ * Returns the current rotation of this entity.
+ */
+func (entity *Entity) GetRotation() math.Rotation {
+	return entity.Rotation
+}
+
+/**
+ * Sets the rotation of this entity
+ */
+func (entity *Entity) SetRotation(v math.Rotation)  {
+	entity.Rotation = v
 }
 
 /**
  * Returns the motion of this entity.
  */
-func (entity *Entity) GetMotion() *vectors.TripleVector {
-	return entity.motion
+func (entity *Entity) GetMotion() vectors.TripleVector {
+	return entity.Motion
+}
+
+/**
+ * sets the motion of this entity
+ */
+func (entity *Entity) SetMotion(v vectors.TripleVector)  {
+	entity.Motion = v
 }
 
 /**
@@ -95,8 +140,7 @@ func (entity *Entity) IsClosed() bool {
  */
 func (entity *Entity) Close() {
 	entity.closed = true
-
-	entity.position = &locations.Position{}
+	entity.Position = *vectors.NewTripleVector(0, 0, 0)
 }
 
 /**
