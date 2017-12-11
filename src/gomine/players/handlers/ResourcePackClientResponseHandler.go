@@ -42,11 +42,11 @@ func (handler ResourcePackClientResponseHandler) Handle(packet interfaces.IPacke
 		startGame.BroadcastToLan = true
 		startGame.CommandsEnabled = true
 		startGame.GameRules = server.GetDefaultLevel().GetGameRules()
-		startGame.BonusChest = true
-		startGame.StartMap = true
+		startGame.BonusChest = false
+		startGame.StartMap = false
 		startGame.TrustPlayers = true
-		startGame.DefaultPermissionLevel = 2
-		startGame.XboxBroadcastMode = 1
+		startGame.DefaultPermissionLevel = 0
+		startGame.XboxBroadcastMode = 0
 		startGame.LevelName = server.GetDefaultLevel().GetName()
 		startGame.CurrentTick = int64(server.GetCurrentTick())
 		startGame.EnchantmentSeed = 312904

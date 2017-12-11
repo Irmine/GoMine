@@ -12,7 +12,7 @@ import (
 const McpeFlag = 0xFE
 
 type MinecraftPacketBatch struct {
-	stream *utils.BinaryStream
+	*utils.BinaryStream
 
 	raw []byte
 
@@ -24,40 +24,33 @@ type MinecraftPacketBatch struct {
  */
 func NewMinecraftPacketBatch() *MinecraftPacketBatch {
 	var batch = &MinecraftPacketBatch{}
-	batch.stream = utils.NewStream()
+	batch.BinaryStream = utils.NewStream()
 
 	return batch
-}
-
-/**
- * Returns the Binary stream of this batch.
- */
-func (batch *MinecraftPacketBatch) GetStream() *utils.BinaryStream {
-	return batch.stream
 }
 
 /**
  * Decodes the batch and separates packets. This does not decode the packets.
  */
 func (batch *MinecraftPacketBatch) Decode(logger interfaces.ILogger) {
-	var mcpeFlag = batch.stream.GetByte()
+	var mcpeFlag = batch.GetByte()
 	if mcpeFlag != McpeFlag {
 		return
 	}
 
-	var reader = bytes.NewReader(batch.stream.Buffer[batch.stream.Offset:])
+	var reader = bytes.NewReader(batch.Buffer[batch.Offset:])
 	var zlibReader, _ = zlib.NewReader(reader)
 	defer zlibReader.Close()
 
 	batch.raw, _ = ioutil.ReadAll(zlibReader)
 
-	batch.stream.ResetStream()
-	batch.stream.SetBuffer(batch.raw)
+	batch.ResetStream()
+	batch.SetBuffer(batch.raw)
 
 	var packetData [][]byte
 
-	for !batch.stream.Feof() {
-		packetData = append(packetData, []byte(batch.stream.GetString()))
+	for !batch.Feof() {
+		packetData = append(packetData, []byte(batch.GetString()))
 	}
 
 	for _, data := range packetData {
@@ -79,11 +72,11 @@ func (batch *MinecraftPacketBatch) Decode(logger interfaces.ILogger) {
 }
 
 /**
- * Encodes all packets in the batch.
+ * Encodes all packets in the batch and zlib encodes them.
  */
 func (batch *MinecraftPacketBatch) Encode() {
-	batch.stream.ResetStream()
-	batch.stream.PutByte(McpeFlag)
+	batch.ResetStream()
+	batch.PutByte(McpeFlag)
 
 	var stream = utils.NewStream()
 	for _, packet := range batch.GetPackets() {
@@ -96,7 +89,7 @@ func (batch *MinecraftPacketBatch) Encode() {
 	writer.Write(stream.Buffer)
 	writer.Close()
 
-	batch.stream.PutBytes(buff.Bytes())
+	batch.PutBytes(buff.Bytes())
 }
 
 /**

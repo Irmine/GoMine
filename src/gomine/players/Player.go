@@ -337,7 +337,7 @@ func (player *Player) Move(x, y, z, pitch, yaw, headYaw float32) {
  * Sends a packet to this player.
  */
 func (player *Player) SendPacket(packet interfaces.IPacket) {
-	player.server.GetRakLibAdapter().SendPacket(packet, player.session)
+	player.server.GetRakLibAdapter().SendPacket(packet, player.session, server.PriorityMedium)
 }
 
 func (player *Player) Tick() {

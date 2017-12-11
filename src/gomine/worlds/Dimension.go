@@ -7,7 +7,9 @@ import (
 	"gomine/worlds/generation"
 	"gomine/worlds/chunks"
 	"gomine/players"
+	"goraklib/server"
 	"fmt"
+	"strconv"
 )
 
 const (
@@ -163,10 +165,11 @@ func (dimension *Dimension) GetGenerator() interfaces.IGenerator {
  * Sends chunks around a player
  */
 func (dimension *Dimension) RequestChunks(player interfaces.IPlayer) {
-	distance := player.GetViewDistance()
+	/*distance := player.GetViewDistance()
 	xD, zD := int32(player.GetPosition().X) >> 4, int32(player.GetPosition().Z) >> 4
-	for x := -(xD - distance); x <= (xD + distance); x++ {
-		for z := -(zD - distance); z <= (zD + distance); z++ {
+
+	for x := xD - distance; x <= (xD + distance); x++ {
+		for z := zD - distance; z <= (zD + distance); z++ {
 			if !dimension.IsChunkLoaded(x, z) {
 				chunk := dimension.GetChunk(x, z)
 				player.SendChunk(chunk)
@@ -174,9 +177,16 @@ func (dimension *Dimension) RequestChunks(player interfaces.IPlayer) {
 				dimension.SetChunkLoaded(x, z, chunk)
 
 				if dimension.IsChunkLoaded(x, z) {
-					fmt.Println("Chunk at x: ", x, ", z: ", z, " loaded!") // debug, don't remove
+					dimension.level.GetServer().GetLogger().Debug("Chunk at x: " + strconv.Itoa(int(x)) + ", z: " + strconv.Itoa(int(z)) + "loaded!") // debug, don't remove
 				}
 			}
+		}
+	}*/ // This loads chunks incorrectly and currently dimension loaded and player loaded chunks are treated the same, which causes problems for multiple players.
+
+	distance := player.GetViewDistance()
+	for x := -distance; x <= distance; x++ {
+		for z := -distance; z <= distance; z++ {
+			player.SendChunk(dimension.GetChunk(x, z))
 		}
 	}
 }
@@ -185,7 +195,7 @@ func (dimension *Dimension) RequestChunks(player interfaces.IPlayer) {
  * Unloads all unused chunks
  */
 func (dimension Dimension) UnloadUnusedChunks() {
-	for index, _ := range dimension.loadedChunks {
+	for index := range dimension.loadedChunks {
 		x, z := GetChunkCoordinates(index)
 		if len(dimension.GetChunkPlayers(x, z)) == 0 {
 			dimension.SetChunkUnloaded(x, z)
@@ -219,7 +229,7 @@ func (dimension *Dimension) UpdateBlocks()  {
 	}
 
 	for _, p := range players2 {
-		dimension.level.GetServer().GetRakLibAdapter().SendBatch(batch, p.GetSession())
+		dimension.level.GetServer().GetRakLibAdapter().SendBatch(batch, p.GetSession(), server.PriorityMedium)
 	}
 }
 

@@ -4,8 +4,9 @@ import (
 	"gomine/interfaces"
 	server2 "goraklib/server"
 	"gomine/net/info"
-	"goraklib/protocol"
+
 	"strconv"
+	"goraklib/protocol"
 )
 
 type GoRakLibAdapter struct {
@@ -47,7 +48,7 @@ func (adapter *GoRakLibAdapter) Tick() {
 			for _, encapsulatedPacket := range session.GetReadyEncapsulatedPackets() {
 
 				batch := NewMinecraftPacketBatch()
-				batch.stream.Buffer = encapsulatedPacket.Buffer
+				batch.Buffer = encapsulatedPacket.Buffer
 				batch.Decode(adapter.server.GetLogger())
 
 				for _, packet := range batch.GetPackets() {
@@ -78,24 +79,16 @@ func (adapter *GoRakLibAdapter) GetSession(address string, port uint16) *server2
 	return session
 }
 
-func (adapter *GoRakLibAdapter) SendPacket(pk interfaces.IPacket, session *server2.Session) {
+func (adapter *GoRakLibAdapter) SendPacket(pk interfaces.IPacket, session *server2.Session, priority byte) {
 	pk.EncodeHeader()
 	pk.Encode()
 
 	var b = NewMinecraftPacketBatch()
 	b.AddPacket(pk)
 
-	adapter.SendBatch(b, session)
+	adapter.SendBatch(b, session, priority)
 }
 
-func (adapter *GoRakLibAdapter) SendBatch(batch interfaces.IMinecraftPacketBatch, session *server2.Session) {
-	batch.Encode()
-
-	var encPacket = protocol.NewEncapsulatedPacket()
-	encPacket.SetBuffer(batch.GetStream().GetBuffer())
-
-	var datagram = protocol.NewDatagram()
-	datagram.AddPacket(encPacket)
-
-	adapter.rakLibServer.SendPacket(datagram, session)
+func (adapter *GoRakLibAdapter) SendBatch(batch interfaces.IMinecraftPacketBatch, session *server2.Session, priority byte) {
+	session.SendConnectedPacket(batch, protocol.ReliabilityReliableOrdered, priority)
 }
