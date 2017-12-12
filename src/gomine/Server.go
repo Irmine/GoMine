@@ -355,7 +355,7 @@ func (server *Server) GetCurrentTick() int {
 /**
  * Returns the resource and behavior pack handler.
  */
-func (server *Server) GetPackHandler() *packs.PackHandler {
+func (server *Server) GetPackHandler() interfaces.IPackHandler {
 	return server.packHandler
 }
 

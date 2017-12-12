@@ -9,12 +9,15 @@ import (
 	"strings"
 	"strconv"
 	"os"
+	"crypto/sha256"
 )
 
 type ResourcePack struct {
 	packPath string
 	manifest *PackManifest
 	content []byte
+	size int64
+	sha256 []byte
 }
 
 type PackManifest struct {
@@ -34,7 +37,14 @@ type PackManifest struct {
 func NewResourcePack(path string) *ResourcePack {
 	var reader, _ = os.Open(path)
 	var content, _ = ioutil.ReadAll(reader)
-	return &ResourcePack{path, &PackManifest{}, content}
+	var stat, _ = os.Stat(path)
+	var sha = sha256.Sum256(content)
+
+	var shaBytes []byte
+	for _, b := range sha {
+		shaBytes = append(shaBytes, b)
+	}
+	return &ResourcePack{path, &PackManifest{}, content, stat.Size(), shaBytes}
 }
 
 /**
@@ -42,6 +52,34 @@ func NewResourcePack(path string) *ResourcePack {
  */
 func (pack *ResourcePack) GetPath() string {
 	return pack.packPath
+}
+
+/**
+ * Returns a sha256 encoded string of the content of this resource pack.
+ */
+func (pack *ResourcePack) GetSha256() string {
+	return string(pack.sha256)
+}
+
+/**
+ * Returns the size of the pack in bytes.
+ */
+func (pack *ResourcePack) GetFileSize() int64 {
+	return pack.size
+}
+
+/**
+ * Returns the UUID of this pack.
+ */
+func (pack *ResourcePack) GetUUID() string {
+	return pack.manifest.Header.UUID
+}
+
+/**
+ * Returns the version of this pack in a readable string.
+ */
+func (pack *ResourcePack) GetVersion() string {
+	return pack.manifest.Header.VersionString
 }
 
 /**
@@ -62,7 +100,11 @@ func (pack *ResourcePack) GetContent() []byte {
  * Loads the resource pack.
  */
 func (pack *ResourcePack) Load() {
-	var zipFile, _ = zip.OpenReader(pack.packPath)
+	var zipFile, err = zip.OpenReader(pack.packPath)
+	if err != nil {
+		panic(err)
+	}
+
 	for _, file := range zipFile.File {
 		if file.Name != "manifest.json" && file.Name != "pack_manifest.json" {
 			continue
@@ -73,6 +115,7 @@ func (pack *ResourcePack) Load() {
 		manifest := &PackManifest{}
 		json.Unmarshal(bytes, manifest)
 		pack.manifest = manifest
+		return
 	}
 }
 

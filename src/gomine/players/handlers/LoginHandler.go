@@ -38,6 +38,11 @@ func (handler LoginHandler) Handle(packet interfaces.IPacket, player interfaces.
 		player.SendPacket(playStatus)
 
 		resourceInfo := packets.NewResourcePackInfoPacket()
+		resourceInfo.MustAccept = server.GetConfiguration().ForceResourcePacks
+
+		resourceInfo.ResourcePacks = server.GetPackHandler().GetResourcePackSlice()
+		resourceInfo.BehaviorPacks = server.GetPackHandler().GetBehaviorPackSlice()
+
 		player.SendPacket(resourceInfo)
 
 		server.GetPlayerFactory().AddPlayer(player, session)

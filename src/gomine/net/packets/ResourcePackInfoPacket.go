@@ -1,22 +1,25 @@
 package packets
 
-import "gomine/net/info"
+import (
+	"gomine/net/info"
+	"gomine/interfaces"
+)
 
 type ResourcePackInfoPacket struct {
 	*Packet
 	MustAccept bool
-	// Behavior pack entries
-	// Resource pack entries
+	BehaviorPacks []interfaces.IPack
+	ResourcePacks []interfaces.IPack
 }
 
 func NewResourcePackInfoPacket() *ResourcePackInfoPacket {
-	return &ResourcePackInfoPacket{NewPacket(info.ResourcePackInfoPacket), false}
+	return &ResourcePackInfoPacket{NewPacket(info.ResourcePackInfoPacket), false, []interfaces.IPack{}, []interfaces.IPack{}}
 }
 
 func (pk *ResourcePackInfoPacket) Encode()  {
 	pk.PutBool(pk.MustAccept)
-	pk.PutLittleShort(0)
-	pk.PutLittleShort(0)
+	pk.PutPacks(pk.ResourcePacks, true)
+	pk.PutPacks(pk.ResourcePacks, true)
 }
 
 func (pk *ResourcePackInfoPacket) Decode()  {

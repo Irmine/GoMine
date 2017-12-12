@@ -194,3 +194,23 @@ func (pk *Packet) PutBlockPos(vector vectors.TripleVector) {
 	pk.PutUnsignedVarInt(uint32(vector.Y))
 	pk.PutVarInt(int32(vector.Z))
 }
+
+func (pk *Packet) PutPacks(packs []interfaces.IPack, info bool) {
+	if info {
+		pk.PutLittleShort(int16(len(packs)))
+		for _, pack := range packs {
+			pk.PutString(pack.GetUUID())
+			pk.PutString(pack.GetVersion())
+			pk.PutLittleLong(pack.GetFileSize())
+			pk.PutString("")
+			pk.PutString("")
+		}
+	} else {
+		pk.PutUnsignedVarInt(uint32(len(packs)))
+		for _, pack := range packs {
+			pk.PutString(pack.GetUUID())
+			pk.PutString(pack.GetVersion())
+			pk.PutString("")
+		}
+	}
+}

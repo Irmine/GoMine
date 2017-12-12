@@ -2,10 +2,17 @@ package packets
 
 import "gomine/net/info"
 
+const (
+	StatusRefused = iota + 1
+	StatusSendPacks
+	StatusHaveAllPacks
+	StatusCompleted
+)
+
 type ResourcePackClientResponsePacket struct {
 	*Packet
 	Status byte
-	ResourcePackIds []string
+	PackUUIDs []string
 }
 
 func NewResourcePackClientResponsePacket() *ResourcePackClientResponsePacket {
@@ -20,6 +27,6 @@ func (pk *ResourcePackClientResponsePacket) Decode()  {
 	pk.Status = pk.GetByte()
 	var idCount = pk.GetLittleShort()
 	for i := int16(0); i < idCount; i++ {
-		pk.ResourcePackIds = append(pk.ResourcePackIds, pk.GetString())
+		pk.PackUUIDs = append(pk.PackUUIDs, pk.GetString())
 	}
 }
