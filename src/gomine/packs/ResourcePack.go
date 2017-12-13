@@ -22,12 +22,12 @@ type ResourcePack struct {
 
 type PackManifest struct {
 	Header struct {
-		Description string	`json:"description"`
-		Name string			`json:"name"`
-		UUID string			`json:"uuid"`
-		Version []float64	`json:"version"`
-		VersionString string
-	}	`json:"header"`
+		Description 	string				`json:"description"`
+		Name 			string				`json:"name"`
+		UUID 			string				`json:"uuid"`
+		Version 		[]float64			`json:"version"`
+		VersionString 	string
+	}									`json:"header"`
 	Modules []map[string]interface{}	`json:"modules"`
 }
 
@@ -37,14 +37,13 @@ type PackManifest struct {
 func NewResourcePack(path string) *ResourcePack {
 	var reader, _ = os.Open(path)
 	var content, _ = ioutil.ReadAll(reader)
-	var stat, _ = os.Stat(path)
 	var sha = sha256.Sum256(content)
 
 	var shaBytes []byte
 	for _, b := range sha {
 		shaBytes = append(shaBytes, b)
 	}
-	return &ResourcePack{path, &PackManifest{}, content, stat.Size(), shaBytes}
+	return &ResourcePack{path, &PackManifest{}, content, int64(len(content)), shaBytes}
 }
 
 /**
@@ -55,7 +54,7 @@ func (pack *ResourcePack) GetPath() string {
 }
 
 /**
- * Returns a sha256 encoded string of the content of this resource pack.
+ * Returns a sha256 checksum of this resource pack.
  */
 func (pack *ResourcePack) GetSha256() string {
 	return string(pack.sha256)
@@ -99,7 +98,7 @@ func (pack *ResourcePack) GetContent() []byte {
 /**
  * Loads the resource pack.
  */
-func (pack *ResourcePack) Load() {
+func (pack *ResourcePack) Load() error {
 	var zipFile, err = zip.OpenReader(pack.packPath)
 	if err != nil {
 		panic(err)
@@ -113,10 +112,12 @@ func (pack *ResourcePack) Load() {
 		bytes, _ := ioutil.ReadAll(reader)
 
 		manifest := &PackManifest{}
-		json.Unmarshal(bytes, manifest)
+		err := json.Unmarshal(bytes, manifest)
 		pack.manifest = manifest
-		return
+
+		return err
 	}
+	return errors.New("No manifest.json or pack_manifest.json could be found in zip: " + pack.packPath)
 }
 
 /**
@@ -154,8 +155,11 @@ func (pack *ResourcePack) Validate() error {
  * Returns a byte slice from the content of the pack at the given offset with the given length.
  */
 func (pack *ResourcePack) GetChunk(offset int, length int) []byte {
-	if offset > len(pack.content) || offset + length > len(pack.content) || offset < 0 || length < 1 {
+	if offset > len(pack.content) || offset < 0 || length < 1 {
 		return []byte{}
+	}
+	if offset + length > len(pack.content) {
+		length = int(pack.size) - offset
 	}
 	return pack.content[offset:offset + length]
 }

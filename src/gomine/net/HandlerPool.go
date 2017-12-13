@@ -17,7 +17,7 @@ func init() {
 	RegisterPacketHandler(info.LoginPacket, handlers.NewLoginHandler(), PriorityLast)
 	RegisterPacketHandler(info.RequestChunkRadiusPacket, handlers.NewChunkRadiusRequestHandler(), PriorityLast)
 	RegisterPacketHandler(info.ResourcePackClientResponsePacket, handlers.NewResourcePackClientResponseHandler(), PriorityLast)
-	//RegisterPacketHandler(info.MovePlayerPacket, handlers.NewMoveHandler(), PriorityLast)
+	//RegisterPacketHandler(info.MovePlayerPacket, handlers.NewMovePlayerHandler(), PriorityLast)
 	RegisterPacketHandler(info.CommandRequestPacket, handlers.NewCommandRequestHandler(), PriorityLast)
 	RegisterPacketHandler(info.ResourcePackChunkRequestPacket, handlers.NewResourcePackChunkRequestHandler(), PriorityLast)
 }

@@ -55,12 +55,18 @@ func (handler *PackHandler) LoadResourcePacks() {
 		filePath := handler.server.GetServerPath() + "extensions/resource_packs/" + file.Name()
 
 		resourcePack := NewResourcePack(filePath)
-		resourcePack.Load()
-		err := resourcePack.Validate()
+		err := resourcePack.Load()
 		if err != nil {
 			handler.server.GetLogger().LogError(err)
 			continue
 		}
+
+		err = resourcePack.Validate()
+		if err != nil {
+			handler.server.GetLogger().LogError(err)
+			continue
+		}
+
 		handler.resourcePacks[resourcePack.manifest.Header.UUID] = resourcePack
 		handler.server.GetLogger().Debug("Loaded resource pack: " + resourcePack.manifest.Header.Name)
 
@@ -141,6 +147,7 @@ func (handler *PackHandler) GetBehaviorPackSlice() []interfaces.IPack {
 	for _, pack := range packs {
 		packsSlice = append(packsSlice, pack)
 	}
+
 	return packsSlice
 }
 
@@ -154,6 +161,7 @@ func (handler *PackHandler) GetResourcePackSlice() []interfaces.IPack {
 	for _, pack := range packs {
 		packsSlice = append(packsSlice, pack)
 	}
+
 	return packsSlice
 }
 

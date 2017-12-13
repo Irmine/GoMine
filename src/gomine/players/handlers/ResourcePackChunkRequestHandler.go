@@ -21,13 +21,17 @@ func (handler ResourcePackChunkRequestHandler) Handle(packet interfaces.IPacket,
 			// TODO: Kick the player. We can't kick yet.
 			return false
 		}
+		println("Resource Pack Chunk Request with index:", request.ChunkIndex)
 
 		var pack = server.GetPackHandler().GetPack(request.PackUUID)
 		var packData = packets.NewResourcePackChunkDataPacket()
 		packData.PackUUID = request.PackUUID
 		packData.ChunkIndex = request.ChunkIndex
+
 		packData.ChunkData = pack.GetChunk(int(ChunkSize * request.ChunkIndex), ChunkSize)
 		packData.Progress = int64(ChunkSize * request.ChunkIndex)
+
+		println("Sent resource pack chunk data")
 
 		player.SendPacket(packData)
 	}

@@ -6,4 +6,5 @@ type IPack interface {
 	GetFileSize() int64
 	GetSha256() string
 	GetChunk(offset int, length int) []byte
+	GetPath() string
 }

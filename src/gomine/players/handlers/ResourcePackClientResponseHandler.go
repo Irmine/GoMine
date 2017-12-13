@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	ChunkSize = 1000000
+	ChunkSize = 1048576
 )
 
 type ResourcePackClientResponseHandler struct {
@@ -44,6 +44,7 @@ func (handler ResourcePackClientResponseHandler) Handle(packet interfaces.IPacke
 				dataInfo.PackUUID = packUUID
 				dataInfo.MaxChunkSize = ChunkSize
 				dataInfo.ChunkCount = int32(math2.Ceil(float64(pack.GetFileSize()) / float64(ChunkSize)))
+
 				dataInfo.CompressedPackSize = pack.GetFileSize()
 				dataInfo.Sha256 = pack.GetSha256()
 
@@ -54,16 +55,18 @@ func (handler ResourcePackClientResponseHandler) Handle(packet interfaces.IPacke
 			var stack = packets.NewResourcePackStackPacket()
 			stack.ResourcePacks = server.GetPackHandler().GetResourcePackSlice()
 			stack.BehaviorPacks = server.GetPackHandler().GetBehaviorPackSlice()
+			stack.MustAccept = !server.GetConfiguration().ForceResourcePacks
 			player.SendPacket(stack)
 
 		case packets.StatusCompleted:
 			player.PlaceInWorld(vectors.TripleVector{0, 20, 0}, math.Rotation{0, 0, 0}, server.GetDefaultLevel(), server.GetDefaultLevel().GetDefaultDimension())
 
+			println("Sending start game packet")
 			var startGame = packets.NewStartGamePacket()
 			startGame.PlayerGameMode = 1
 			startGame.PlayerPosition = vectors.TripleVector{0, 20, 0}
-			startGame.LevelSeed = 12345
-			startGame.Generator = 12345
+			startGame.LevelSeed = 123456
+			startGame.Generator = 123456
 			startGame.LevelGameMode = 1
 			startGame.LevelSpawnPosition = vectors.TripleVector{0, 20, 0}
 			startGame.MultiPlayerGame = true
@@ -74,11 +77,14 @@ func (handler ResourcePackClientResponseHandler) Handle(packet interfaces.IPacke
 			startGame.BonusChest = false
 			startGame.StartMap = false
 			startGame.TrustPlayers = true
-			startGame.DefaultPermissionLevel = 0
-			startGame.XboxBroadcastMode = 0
+			startGame.DefaultPermissionLevel = 1
+			startGame.XboxBroadcastMode = 1
 			startGame.LevelName = server.GetDefaultLevel().GetName()
 			startGame.CurrentTick = int64(server.GetCurrentTick())
-			startGame.EnchantmentSeed = 312904
+			startGame.EnchantmentSeed = 123456
+			startGame.ForcedResourcePacks = server.GetConfiguration().ForceResourcePacks
+			startGame.Time = 3421
+			startGame.AchievementsDisabled = true
 
 			player.SendPacket(startGame)
 

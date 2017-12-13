@@ -198,6 +198,7 @@ func (pk *Packet) PutBlockPos(vector vectors.TripleVector) {
 func (pk *Packet) PutPacks(packs []interfaces.IPack, info bool) {
 	if info {
 		pk.PutLittleShort(int16(len(packs)))
+
 		for _, pack := range packs {
 			pk.PutString(pack.GetUUID())
 			pk.PutString(pack.GetVersion())

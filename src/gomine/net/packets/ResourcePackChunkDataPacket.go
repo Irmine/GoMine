@@ -1,6 +1,8 @@
 package packets
 
-import "gomine/net/info"
+import (
+	"gomine/net/info"
+)
 
 type ResourcePackChunkDataPacket struct {
 	*Packet
@@ -15,13 +17,13 @@ func NewResourcePackChunkDataPacket() *ResourcePackChunkDataPacket {
 }
 
 func (pk *ResourcePackChunkDataPacket) Encode() {
-
-}
-
-func (pk *ResourcePackChunkDataPacket) Decode() {
 	pk.PutString(pk.PackUUID)
 	pk.PutLittleInt(pk.ChunkIndex)
 	pk.PutLittleLong(pk.Progress)
 	pk.PutLittleInt(int32(len(pk.ChunkData)))
 	pk.PutBytes(pk.ChunkData)
+}
+
+func (pk *ResourcePackChunkDataPacket) Decode() {
+
 }
