@@ -109,6 +109,12 @@ func (handler *PackHandler) LoadBehaviorPacks() {
 			continue
 		}
 
+		err = behaviorPack.ValidateDependencies(handler)
+		if err != nil {
+			handler.server.GetLogger().LogError(err)
+			continue
+		}
+
 		handler.resourcePacks[behaviorPack.manifest.Header.UUID] = behaviorPack
 		handler.server.GetLogger().Debug("Loaded behavior pack: " + behaviorPack.manifest.Header.Name)
 

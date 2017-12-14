@@ -43,7 +43,7 @@ type PackManifest struct {
 	Dependencies []struct {
 		Description		string `json:"description"`
 		Type 			string `json:"type"`
-		UUID 			string `json:"dependencies"`
+		UUID 			string `json:"uuid"`
 		Version 		[]float64 `json:"version"`
 	} `json:"dependencies"`
 }
@@ -148,8 +148,8 @@ func (pack *Pack) ValidateManifest() error {
 
 	var regex = regexp.MustCompile("-")
 	var occurrences = regex.FindAllStringIndex(manifest.Header.UUID, -1)
-	if manifest.Header.UUID == "" || len(occurrences) != 4 {
-		return errors.New("Resource pack at " + pack.packPath + " does not have a valid UUID.")
+	if len(manifest.Header.UUID) != 36 || len(occurrences) != 4 {
+		return errors.New("Resource pack at " + pack.packPath + " is missing a valid UUID.")
 	}
 
 	if len(manifest.Header.Version) < 2 {
@@ -169,7 +169,7 @@ func (pack *Pack) ValidateManifest() error {
  * Validates the modules of this pack.
  */
 func (pack *Pack) ValidateModules() error {
-	var modules = pack.manifest.Modules
+	var modules= pack.manifest.Modules
 	if len(modules) == 0 {
 		return errors.New("Pack at " + pack.packPath + " doesn't have any modules.")
 	}
@@ -180,17 +180,17 @@ func (pack *Pack) ValidateModules() error {
 		}
 
 		var regex = regexp.MustCompile("-")
-		var occurrences = regex.FindAllStringIndex(module.UUID, -1)
-		if module.UUID == "" || len(occurrences) != 4 {
-			return errors.New("Module " + strconv.Itoa(index) + " in pack at " + pack.packPath + " does not have a valid UUID.")
+		var occurrences= regex.FindAllStringIndex(module.UUID, -1)
+		if len(module.UUID) != 36 || len(occurrences) != 4 {
+			return errors.New("Module " + strconv.Itoa(index) + " in pack at " + pack.packPath + " is missing a valid UUID.")
 		}
 
 		if len(module.Version) < 2 {
 			return errors.New("Module " + strconv.Itoa(index) + " in pack at " + pack.packPath + " is missing a valid version.")
 		}
 
-		if module.Type != pack.packType {
-			return errors.New("Module " + strconv.Itoa(index) + " in pack at " + pack.packPath + " does not have the correct type. Expected: '" + pack.packType + "', got: '" + module.Type + "'")
+		if module.Type == "" {
+			return errors.New("Module " + strconv.Itoa(index) + " in pack at " + pack.packPath + " is missing a valid type.")
 		}
 	}
 
