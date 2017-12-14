@@ -112,6 +112,8 @@ func (server *Server) Shutdown() {
 	server.GetLogger().Info("Server is shutting down.")
 
 	server.isRunning = false
+
+	server.GetLogger().Notice("Server stopped.")
 }
 
 /**

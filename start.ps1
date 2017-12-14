@@ -5,8 +5,10 @@ $env:GOPATH = "${PSScriptRoot}\"
 ECHO($GOPATH)
 
 function StartServer{
-    $command = "go run ./src/main.go"
+    $command = "go build -i -o ./GoMine.exe ./src/main.go"
+    $command2 = "./GoMine.exe"
     iex $command
+    iex $command2
 }
 
 if (!(Get-Command "go" -ErrorAction SilentlyContinue)){ 

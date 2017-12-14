@@ -12,7 +12,9 @@ pause>nul & exit
 )
 
 :startScript
-powershell go run ./src/main.go
+powershell go build -i -o ./GoMine.exe ./src/main.go
+powershell ./GoMine.exe
+
 if /i "%loop%"=="true" (
     set /A "loops=loops + 1"
     echo Restarted %loops% time^(s^)
