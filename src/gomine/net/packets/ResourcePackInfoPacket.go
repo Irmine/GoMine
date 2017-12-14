@@ -18,8 +18,8 @@ func NewResourcePackInfoPacket() *ResourcePackInfoPacket {
 
 func (pk *ResourcePackInfoPacket) Encode()  {
 	pk.PutBool(pk.MustAccept)
-	pk.PutPacks(pk.ResourcePacks, true)
 	pk.PutPacks(pk.BehaviorPacks, true)
+	pk.PutPacks(pk.ResourcePacks, true)
 }
 
 func (pk *ResourcePackInfoPacket) Decode()  {

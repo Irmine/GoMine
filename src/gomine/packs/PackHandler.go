@@ -13,13 +13,14 @@ type PackHandler struct {
 	selectedResourcePack *ResourcePack
 
 	behaviorPacks map[string]interfaces.IPack
+	selectedBehaviorPack *BehaviorPack
 }
 
 /**
  * Returns a new pack handler.
  */
 func NewPackHandler(server interfaces.IServer) *PackHandler {
-	return &PackHandler{server, make(map[string]interfaces.IPack), nil, make(map[string]interfaces.IPack)}
+	return &PackHandler{server, make(map[string]interfaces.IPack), nil, make(map[string]interfaces.IPack), nil}
 }
 
 /**
@@ -52,7 +53,7 @@ func (handler *PackHandler) LoadResourcePacks() {
 			continue
 		}
 
-		filePath := handler.server.GetServerPath() + "extensions/resource_packs/" + file.Name()
+		filePath := path + file.Name()
 
 		resourcePack := NewResourcePack(filePath)
 		err := resourcePack.Load()
@@ -61,7 +62,7 @@ func (handler *PackHandler) LoadResourcePacks() {
 			continue
 		}
 
-		err = resourcePack.Validate()
+		err = resourcePack.ValidateManifest()
 		if err != nil {
 			handler.server.GetLogger().LogError(err)
 			continue
@@ -78,10 +79,58 @@ func (handler *PackHandler) LoadResourcePacks() {
 }
 
 /**
+ * Loads all behavior packs in the extensions/behavior_packs/ folder.
+ */
+func (handler *PackHandler) LoadBehaviorPacks() {
+	var path = handler.server.GetServerPath() + "extensions/behavior_packs/"
+	var files, _ = ioutil.ReadDir(path)
+	for _, file := range files {
+		if file.IsDir() {
+			continue
+		}
+
+		extension := filepath.Ext(file.Name())
+		if extension != ".mcpack" && extension != ".zip" {
+			continue
+		}
+
+		filePath := path + file.Name()
+
+		behaviorPack := NewBehaviorPack(filePath)
+		err := behaviorPack.Load()
+		if err != nil {
+			handler.server.GetLogger().LogError(err)
+			continue
+		}
+
+		err = behaviorPack.ValidateManifest()
+		if err != nil {
+			handler.server.GetLogger().LogError(err)
+			continue
+		}
+
+		handler.resourcePacks[behaviorPack.manifest.Header.UUID] = behaviorPack
+		handler.server.GetLogger().Debug("Loaded behavior pack: " + behaviorPack.manifest.Header.Name)
+
+		if file.Name() == handler.server.GetConfiguration().SelectedResourcePack {
+			handler.server.GetLogger().Info("Selected behavior pack: " + behaviorPack.manifest.Header.Name)
+			handler.selectedBehaviorPack = behaviorPack
+		}
+	}
+}
+
+/**
  * Returns the selected resource pack, or nil if none is available.
  */
 func (handler *PackHandler) GetSelectedResourcePack() interfaces.IPack {
 	return handler.selectedResourcePack
+}
+
+/**
+ * Returns the selected behavior pack, or nil if none is available.
+ */
+func (handler *PackHandler) GetSelectedBehaviorPack() interfaces.IPack {
+	return handler.selectedBehaviorPack
 }
 
 /**
@@ -163,8 +212,4 @@ func (handler *PackHandler) GetResourcePackSlice() []interfaces.IPack {
 	}
 
 	return packsSlice
-}
-
-func (handler *PackHandler) LoadBehaviorPacks() {
-	//var path = handler.server.GetServerPath() + "extensions/behavior_packs/"
 }

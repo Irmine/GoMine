@@ -55,13 +55,12 @@ func (handler ResourcePackClientResponseHandler) Handle(packet interfaces.IPacke
 			var stack = packets.NewResourcePackStackPacket()
 			stack.ResourcePacks = server.GetPackHandler().GetResourcePackSlice()
 			stack.BehaviorPacks = server.GetPackHandler().GetBehaviorPackSlice()
-			stack.MustAccept = !server.GetConfiguration().ForceResourcePacks
+			stack.MustAccept = server.GetConfiguration().ForceResourcePacks
 			player.SendPacket(stack)
 
 		case packets.StatusCompleted:
 			player.PlaceInWorld(vectors.TripleVector{0, 20, 0}, math.Rotation{0, 0, 0}, server.GetDefaultLevel(), server.GetDefaultLevel().GetDefaultDimension())
 
-			println("Sending start game packet")
 			var startGame = packets.NewStartGamePacket()
 			startGame.PlayerGameMode = 1
 			startGame.PlayerPosition = vectors.TripleVector{0, 20, 0}

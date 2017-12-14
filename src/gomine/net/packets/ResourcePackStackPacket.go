@@ -17,11 +17,11 @@ func NewResourcePackStackPacket() *ResourcePackStackPacket {
 }
 
 func (pk *ResourcePackStackPacket) Encode() {
-
+	pk.PutBool(pk.MustAccept)
+	pk.PutPacks(pk.BehaviorPacks, false)
+	pk.PutPacks(pk.ResourcePacks, false)
 }
 
 func (pk *ResourcePackStackPacket) Decode() {
-	pk.PutBool(pk.MustAccept)
-	pk.PutPacks(pk.ResourcePacks, false)
-	pk.PutPacks(pk.BehaviorPacks, false)
+
 }

@@ -149,6 +149,9 @@ func (logger *Logger) Error(message string) {
  * Logs an actual error.
  */
 func (logger *Logger) LogError(err error) {
+	if err == nil {
+		return
+	}
 	logger.Error(err.Error())
 }
 
