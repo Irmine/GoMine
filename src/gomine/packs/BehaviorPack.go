@@ -3,7 +3,7 @@ package packs
 import (
 	"errors"
 	"strconv"
-	"regexp"
+	"gomine/utils"
 )
 
 type BehaviorPack struct {
@@ -27,10 +27,7 @@ func (pack *BehaviorPack) ValidateDependencies(handler *PackHandler) error {
 			return errors.New("Dependency " + strconv.Itoa(index) + " in pack at " + pack.packPath + " is missing a description.")
 		}
 
-		var regex = regexp.MustCompile("-")
-		var occurrences = regex.FindAllStringIndex(dependency.UUID, -1)
-
-		if len(dependency.UUID) != 36 || len(occurrences) != 4 {
+		if !utils.IsValidUUID(dependency.UUID) {
 			return errors.New("Dependency " + strconv.Itoa(index) + " in pack at " + pack.packPath + " is missing a valid UUID.")
 		}
 

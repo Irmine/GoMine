@@ -7,9 +7,9 @@ import (
 	"archive/zip"
 	"encoding/json"
 	"errors"
-	"regexp"
 	"strconv"
 	"strings"
+	"gomine/utils"
 )
 
 const (
@@ -28,24 +28,24 @@ type Pack struct {
 
 type PackManifest struct {
 	Header struct {
-		Description 	string `json:"description"`
-		Name 			string `json:"name"`
-		UUID 			string `json:"uuid"`
-		Version 		[]float64 `json:"version"`
-		VersionString 	string
-	} `json:"header"`
+		Description		string		`json:"description"`
+		Name			string		`json:"name"`
+		UUID			string		`json:"uuid"`
+		Version			[]float64	`json:"version"`
+		VersionString	string
+	}								`json:"header"`
 	Modules []struct {
-		Description		string `json:"description"`
-		Type			string `json:"type"`
-		UUID 			string `json:"uuid"`
-		Version 		[]float64 `json:"version"`
-	} `json:"modules"`
+		Description		string		`json:"description"`
+		Type			string		`json:"type"`
+		UUID			string		`json:"uuid"`
+		Version			[]float64	`json:"version"`
+	}								`json:"modules"`
 	Dependencies []struct {
-		Description		string `json:"description"`
-		Type 			string `json:"type"`
-		UUID 			string `json:"uuid"`
-		Version 		[]float64 `json:"version"`
-	} `json:"dependencies"`
+		Description		string		`json:"description"`
+		Type			string		`json:"type"`
+		UUID 			string		`json:"uuid"`
+		Version			[]float64	`json:"version"`
+	}								`json:"dependencies"`
 }
 
 func NewPack(path string, packType string) *Pack {
@@ -146,9 +146,7 @@ func (pack *Pack) ValidateManifest() error {
 		return errors.New("Pack at " + pack.packPath + " is missing a name.")
 	}
 
-	var regex = regexp.MustCompile("-")
-	var occurrences = regex.FindAllStringIndex(manifest.Header.UUID, -1)
-	if len(manifest.Header.UUID) != 36 || len(occurrences) != 4 {
+	if !utils.IsValidUUID(manifest.Header.UUID) {
 		return errors.New("Resource pack at " + pack.packPath + " is missing a valid UUID.")
 	}
 
@@ -169,7 +167,7 @@ func (pack *Pack) ValidateManifest() error {
  * Validates the modules of this pack.
  */
 func (pack *Pack) ValidateModules() error {
-	var modules= pack.manifest.Modules
+	var modules = pack.manifest.Modules
 	if len(modules) == 0 {
 		return errors.New("Pack at " + pack.packPath + " doesn't have any modules.")
 	}
@@ -179,9 +177,7 @@ func (pack *Pack) ValidateModules() error {
 			return errors.New("Module " + strconv.Itoa(index) + " in pack at " + pack.packPath + " is missing a description.")
 		}
 
-		var regex = regexp.MustCompile("-")
-		var occurrences= regex.FindAllStringIndex(module.UUID, -1)
-		if len(module.UUID) != 36 || len(occurrences) != 4 {
+		if !utils.IsValidUUID(module.UUID) {
 			return errors.New("Module " + strconv.Itoa(index) + " in pack at " + pack.packPath + " is missing a valid UUID.")
 		}
 
