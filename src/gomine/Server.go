@@ -96,7 +96,7 @@ func (server *Server) Start() {
 
 	server.LoadLevels()
 
-	server.packHandler.LoadResourcePacks()
+	server.packHandler.LoadResourcePacks() // Behavior packs may depend on resource packs, so always load resource packs first.
 	server.packHandler.LoadBehaviorPacks()
 
 	server.isRunning = true
