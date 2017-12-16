@@ -65,7 +65,7 @@ func (adapter *GoRakLibAdapter) Tick() {
 					}
 
 					if len(priorityHandlers) == 0 {
-						adapter.server.GetLogger().Debug("Unhandled Minecraft packet with ID: " + strconv.Itoa(packet.GetId()))
+						adapter.server.GetLogger().Debug("Unhandled Minecraft packet with ID:", packet.GetId())
 					}
 				}
 			}

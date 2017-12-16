@@ -57,7 +57,7 @@ func (batch *MinecraftPacketBatch) Decode(logger interfaces.ILogger) {
 		packetId := int(data[0])
 
 		if !IsPacketRegistered(packetId) {
-			logger.Debug("Unknown Minecraft packet with ID: " + strconv.Itoa(packetId))
+			logger.Debug("Unknown Minecraft packet with ID:", packetId)
 			continue
 		}
 		packet := GetPacket(packetId)

@@ -82,7 +82,14 @@ func (logger *Logger) ProcessQueue(force bool) {
 /**
  * Logs the given message with the given log level and color.
  */
-func (logger *Logger) Log(message string, logLevel string, color string) {
+func (logger *Logger) Log(logLevel string, color string, messages ...interface{}) {
+	var params []string
+	for range messages {
+		params = append(params, "%v")
+	}
+	var parameterString = strings.Join(params, " ")
+	var message = strings.Trim(fmt.Sprintf(parameterString, messages), "[]")
+
 	if logLevel == Debug && !logger.debugMode {
 		return
 	}
@@ -99,50 +106,50 @@ func (logger *Logger) Log(message string, logLevel string, color string) {
 /**
  * Logs a notice message.
  */
-func (logger *Logger) Notice(message string) {
-	logger.Log(message, Notice, Yellow)
+func (logger *Logger) Notice(messages ...interface{}) {
+	logger.Log(Notice, Yellow, messages)
 }
 
 /**
  * Logs a debug message.
  */
-func (logger *Logger) Debug(message string) {
-	logger.Log(message, Debug, Orange)
+func (logger *Logger) Debug(messages ...interface{}) {
+	logger.Log(Debug, Orange, messages)
 }
 
 /**
  * Logs an info message.
  */
-func (logger *Logger) Info(message string) {
-	logger.Log(message, Info, BrightCyan)
+func (logger *Logger) Info(messages ...interface{}) {
+	logger.Log(Info, BrightCyan, messages)
 }
 
 /**
  * Logs an alert.
  */
-func (logger *Logger) Alert(message string) {
-	logger.Log(message, Alert, BrightRed)
+func (logger *Logger) Alert(messages ...interface{}) {
+	logger.Log(Alert, BrightRed, messages)
 }
 
 /**
  * Logs a warning message.
  */
-func (logger *Logger) Warning(message string) {
-	logger.Log(message, Warning, BrightRed + Bold)
+func (logger *Logger) Warning(messages ...interface{}) {
+	logger.Log(Warning, BrightRed + Bold, messages)
 }
 
 /**
  * Logs a critical warning message.
  */
-func (logger *Logger) Critical(message string) {
-	logger.Log(message, Critical, BrightRed + Underlined + Bold)
+func (logger *Logger) Critical(messages ...interface{}) {
+	logger.Log(Critical, BrightRed + Underlined + Bold, messages)
 }
 
 /**
  * Logs an error message.
  */
-func (logger *Logger) Error(message string) {
-	logger.Log(message, Error, Red)
+func (logger *Logger) Error(messages ...interface{}) {
+	logger.Log(Error, Red, messages)
 }
 
 /**

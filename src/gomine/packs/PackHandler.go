@@ -83,10 +83,10 @@ func (handler *PackHandler) LoadResourcePacks() {
 		}
 
 		handler.resourcePacks[resourcePack.manifest.Header.UUID] = resourcePack
-		handler.server.GetLogger().Debug("Loaded resource pack: " + resourcePack.manifest.Header.Name)
+		handler.server.GetLogger().Debug("Loaded resource pack:", resourcePack.manifest.Header.Name)
 
 		if file.Name() == handler.server.GetConfiguration().SelectedResourcePack {
-			handler.server.GetLogger().Info("Selected resource pack: " + resourcePack.manifest.Header.Name)
+			handler.server.GetLogger().Info("Selected resource pack:", resourcePack.manifest.Header.Name)
 			handler.GetResourceStack().AddPackOnTop(resourcePack)
 		} else {
 			handler.GetResourceStack().AddPackOnBottom(resourcePack)
@@ -132,10 +132,10 @@ func (handler *PackHandler) LoadBehaviorPacks() {
 		}
 
 		handler.resourcePacks[behaviorPack.manifest.Header.UUID] = behaviorPack
-		handler.server.GetLogger().Debug("Loaded behavior pack: " + behaviorPack.manifest.Header.Name)
+		handler.server.GetLogger().Debug("Loaded behavior pack:", behaviorPack.manifest.Header.Name)
 
 		if file.Name() == handler.server.GetConfiguration().SelectedResourcePack {
-			handler.server.GetLogger().Info("Selected behavior pack: " + behaviorPack.manifest.Header.Name)
+			handler.server.GetLogger().Info("Selected behavior pack:", behaviorPack.manifest.Header.Name)
 			handler.GetBehaviorStack().AddPackOnTop(behaviorPack)
 		} else {
 			handler.GetBehaviorStack().AddPackOnBottom(behaviorPack)
