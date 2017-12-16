@@ -11,11 +11,37 @@ type UUID struct {
 	version  int
 }
 
+var validDigits = "abcdefghijklmnopqrstuvwxyz0123456789"
+
 func NewUUID(parts [2]int64, version int) UUID {
 	v := UUID{}
 	v.parts = parts
 	v.version = version
 	return v
+}
+
+func IsValidUUID(uuid string) bool {
+	if len(uuid) != 36 {
+		return false
+	}
+	var parts = []string{uuid[0:7], uuid[9:12], uuid[14:17], uuid[19:22], uuid[24:35]}
+	var separators = string(uuid[8]) + string(uuid[13]) + string(uuid[18]) + string(uuid[23])
+
+	for _, char := range separators {
+		if string(char) != "-" {
+			return false
+		}
+	}
+
+	for _, part := range parts {
+		for _, char := range part {
+			if !strings.Contains(validDigits, string(char)) {
+				return false
+			}
+		}
+	}
+
+	return true
 }
 
 func (uuid *UUID) Parts() [2]int64 {

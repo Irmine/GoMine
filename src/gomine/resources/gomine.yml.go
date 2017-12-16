@@ -19,6 +19,9 @@ type GoMineConfig struct {
 
 	DefaultLevel string `yaml:"default-level"`
 	DefaultGenerator string `yaml:"default-generator"`
+
+	ForceResourcePacks bool `yaml:"force-resource-packs"`
+	SelectedResourcePack string `yaml:"selected-resource-pack"`
 }
 
 /**
@@ -51,6 +54,9 @@ func initializeConfig(serverPath string) {
 
 			DefaultLevel: "world",
 			DefaultGenerator: "Flat",
+
+			ForceResourcePacks: false,
+			SelectedResourcePack: "",
 		})
 		var file, _ = os.OpenFile(path, os.O_APPEND | os.O_CREATE | os.O_WRONLY, 0644)
 		file.WriteString(string(data))

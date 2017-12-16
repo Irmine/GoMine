@@ -55,6 +55,9 @@ func main() {
 	server.GetLogger().Sync()
 }
 
+/**
+ * Scans and returns the server path.
+ */
 func scanServerPath() string {
 	var executable, err = os.Executable()
 	if err != nil {

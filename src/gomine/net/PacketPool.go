@@ -23,6 +23,9 @@ func init() {
 	RegisterPacket(info.ResourcePackStackPacket, func() interfaces.IPacket { return packets.NewResourcePackStackPacket() })
 	RegisterPacket(info.MovePlayerPacket, func() interfaces.IPacket { return packets.NewMovePlayerPacket() })
 	RegisterPacket(info.CommandRequestPacket, func() interfaces.IPacket { return packets.NewCommandRequestPacket() })
+	RegisterPacket(info.ResourcePackDataInfoPacket, func() interfaces.IPacket { return packets.NewResourcePackDataInfoPacket() })
+	RegisterPacket(info.ResourcePackChunkRequestPacket, func() interfaces.IPacket { return packets.NewResourcePackChunkRequestPacket() })
+	RegisterPacket(info.ResourcePackChunkDataPacket, func() interfaces.IPacket { return packets.NewResourcePackChunkDataPacket() })
 }
 
 /**

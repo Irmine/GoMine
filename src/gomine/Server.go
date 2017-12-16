@@ -14,6 +14,7 @@ import (
 	"gomine/net/info"
 	"gomine/permissions"
 	"gomine/players"
+	"gomine/packs"
 )
 
 var levelId = 0
@@ -35,6 +36,8 @@ type Server struct {
 	config 	   *resources.GoMineConfig
 	consoleReader *ConsoleReader
 	commandHolder interfaces.ICommandHolder
+
+	packHandler *packs.PackHandler
 	permissionManager *permissions.PermissionManager
 
 	levels map[int]interfaces.ILevel
@@ -58,6 +61,8 @@ func NewServer(serverPath string) *Server {
 	server.consoleReader = NewConsoleReader(server)
 	server.commandHolder = commands.NewCommandHolder()
 	server.rakLibAdapter = net.NewGoRakLibAdapter(server)
+
+	server.packHandler = packs.NewPackHandler(server)
 
 	server.playerFactory = players.NewPlayerFactory(server)
 
@@ -91,6 +96,9 @@ func (server *Server) Start() {
 
 	server.LoadLevels()
 
+	server.packHandler.LoadResourcePacks() // Behavior packs may depend on resource packs, so always load resource packs first.
+	server.packHandler.LoadBehaviorPacks()
+
 	server.isRunning = true
 }
 
@@ -104,6 +112,8 @@ func (server *Server) Shutdown() {
 	server.GetLogger().Info("Server is shutting down.")
 
 	server.isRunning = false
+
+	server.GetLogger().Notice("Server stopped.")
 }
 
 /**
@@ -342,6 +352,13 @@ func (server *Server) GetPlayerFactory() interfaces.IPlayerFactory {
  */
 func (server *Server) GetCurrentTick() int {
 	return server.tick
+}
+
+/**
+ * Returns the resource and behavior pack handler.
+ */
+func (server *Server) GetPackHandler() interfaces.IPackHandler {
+	return server.packHandler
 }
 
 /**

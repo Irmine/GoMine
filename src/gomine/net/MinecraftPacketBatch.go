@@ -80,6 +80,8 @@ func (batch *MinecraftPacketBatch) Encode() {
 
 	var stream = utils.NewStream()
 	for _, packet := range batch.GetPackets() {
+		packet.EncodeHeader()
+		packet.Encode()
 		stream.PutUnsignedVarInt(uint32(len(packet.GetBuffer())))
 		stream.PutBytes(packet.GetBuffer())
 	}

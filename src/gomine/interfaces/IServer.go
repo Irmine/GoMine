@@ -32,6 +32,7 @@ type IServer interface {
 	GetNetworkVersion() string
 	GetRakLibAdapter() IGoRakLibAdapter
 	GetPlayerFactory() IPlayerFactory
+	GetPackHandler() IPackHandler
 	GetDefaultLevel() ILevel
 	GetLevelById(int) (ILevel, error)
 	GetLevelByName(string) (ILevel, error)

@@ -23,7 +23,6 @@ func NewGoRakLibAdapter(server interfaces.IServer) *GoRakLibAdapter {
 	rakServer.SetMinecraftVersion(info.GameVersionNetwork)
 	rakServer.SetServerName(server.GetServerName())
 	rakServer.SetMaxConnectedSessions(server.GetMaximumPlayers())
-	rakServer.SetConnectedSessionCount(0)
 	rakServer.SetDefaultGameMode("Creative")
 	rakServer.SetMotd(server.GetMotd())
 
@@ -80,9 +79,6 @@ func (adapter *GoRakLibAdapter) GetSession(address string, port uint16) *server2
 }
 
 func (adapter *GoRakLibAdapter) SendPacket(pk interfaces.IPacket, session *server2.Session, priority byte) {
-	pk.EncodeHeader()
-	pk.Encode()
-
 	var b = NewMinecraftPacketBatch()
 	b.AddPacket(pk)
 
