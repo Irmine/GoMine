@@ -53,8 +53,8 @@ func (handler ResourcePackClientResponseHandler) Handle(packet interfaces.IPacke
 
 		case packets.StatusHaveAllPacks:
 			var stack = packets.NewResourcePackStackPacket()
-			stack.ResourcePacks = server.GetPackHandler().GetResourcePackSlice()
-			stack.BehaviorPacks = server.GetPackHandler().GetBehaviorPackSlice()
+			stack.ResourcePacks = server.GetPackHandler().GetResourceStack().GetPacks()
+			stack.BehaviorPacks = server.GetPackHandler().GetBehaviorStack().GetPacks()
 			stack.MustAccept = server.GetConfiguration().ForceResourcePacks
 			player.SendPacket(stack)
 

@@ -5,14 +5,12 @@ type IPackHandler interface {
 	GetBehaviorPacks() map[string]IPack
 	LoadResourcePacks()
 	LoadBehaviorPacks()
-	GetSelectedResourcePack() IPack
-	GetSelectedBehaviorPack() IPack
 	IsResourcePackLoaded(uuid string) bool
 	IsBehaviorPackLoaded(uuid string) bool
 	GetResourcePack(uuid string) IPack
 	GetBehaviorPack(uuid string) IPack
-	GetBehaviorPackSlice() []IPack
-	GetResourcePackSlice() []IPack
 	IsPackLoaded(uuid string) bool
 	GetPack(uuid string) IPack
+	GetResourceStack() IPackStack
+	GetBehaviorStack() IPackStack
 }

@@ -10,17 +10,17 @@ type PackHandler struct {
 	server interfaces.IServer
 
 	resourcePacks map[string]interfaces.IPack
-	selectedResourcePack *ResourcePack
+	resourceStack interfaces.IPackStack
 
 	behaviorPacks map[string]interfaces.IPack
-	selectedBehaviorPack *BehaviorPack
+	behaviorStack interfaces.IPackStack
 }
 
 /**
  * Returns a new pack handler.
  */
 func NewPackHandler(server interfaces.IServer) *PackHandler {
-	return &PackHandler{server, make(map[string]interfaces.IPack), nil, make(map[string]interfaces.IPack), nil}
+	return &PackHandler{server, make(map[string]interfaces.IPack), NewPackStack(), make(map[string]interfaces.IPack), NewPackStack()}
 }
 
 /**
@@ -35,6 +35,20 @@ func (handler *PackHandler) GetResourcePacks() map[string]interfaces.IPack {
  */
 func (handler *PackHandler) GetBehaviorPacks() map[string]interfaces.IPack {
 	return handler.behaviorPacks
+}
+
+/**
+ * Returns the resource pack stack.
+ */
+func (handler *PackHandler) GetResourceStack() interfaces.IPackStack {
+	return handler.resourceStack
+}
+
+/**
+ * Returns the behavior pack stack.
+ */
+func (handler *PackHandler) GetBehaviorStack() interfaces.IPackStack {
+	return handler.behaviorStack
 }
 
 /**
@@ -73,7 +87,9 @@ func (handler *PackHandler) LoadResourcePacks() {
 
 		if file.Name() == handler.server.GetConfiguration().SelectedResourcePack {
 			handler.server.GetLogger().Info("Selected resource pack: " + resourcePack.manifest.Header.Name)
-			handler.selectedResourcePack = resourcePack
+			handler.GetResourceStack().AddPackOnTop(resourcePack)
+		} else {
+			handler.GetResourceStack().AddPackOnBottom(resourcePack)
 		}
 	}
 }
@@ -120,23 +136,11 @@ func (handler *PackHandler) LoadBehaviorPacks() {
 
 		if file.Name() == handler.server.GetConfiguration().SelectedResourcePack {
 			handler.server.GetLogger().Info("Selected behavior pack: " + behaviorPack.manifest.Header.Name)
-			handler.selectedBehaviorPack = behaviorPack
+			handler.GetBehaviorStack().AddPackOnTop(behaviorPack)
+		} else {
+			handler.GetBehaviorStack().AddPackOnBottom(behaviorPack)
 		}
 	}
-}
-
-/**
- * Returns the selected resource pack, or nil if none is available.
- */
-func (handler *PackHandler) GetSelectedResourcePack() interfaces.IPack {
-	return handler.selectedResourcePack
-}
-
-/**
- * Returns the selected behavior pack, or nil if none is available.
- */
-func (handler *PackHandler) GetSelectedBehaviorPack() interfaces.IPack {
-	return handler.selectedBehaviorPack
 }
 
 /**
@@ -190,32 +194,4 @@ func (handler *PackHandler) GetPack(uuid string) interfaces.IPack {
 		return handler.GetResourcePack(uuid)
 	}
 	return handler.GetBehaviorPack(uuid)
-}
-
-/**
- * Returns all behavior packs in a slice.
- */
-func (handler *PackHandler) GetBehaviorPackSlice() []interfaces.IPack {
-	var packs = handler.behaviorPacks
-	var packsSlice []interfaces.IPack
-
-	for _, pack := range packs {
-		packsSlice = append(packsSlice, pack)
-	}
-
-	return packsSlice
-}
-
-/**
- * Returns all resource packs in a slice.
- */
-func (handler *PackHandler) GetResourcePackSlice() []interfaces.IPack {
-	var packs = handler.resourcePacks
-	var packsSlice []interfaces.IPack
-
-	for _, pack := range packs {
-		packsSlice = append(packsSlice, pack)
-	}
-
-	return packsSlice
 }
