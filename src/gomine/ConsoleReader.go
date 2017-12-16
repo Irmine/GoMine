@@ -61,7 +61,6 @@ func (reader *ConsoleReader) ReadLine(server interfaces.IServer) string {
 	command = strings.Trim(command, "\n")
 
 	if command == "" {
-		reader.reading = false
 		return command
 	}
 	reader.attemptReadCommand(command, server)
