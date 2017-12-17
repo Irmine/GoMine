@@ -565,26 +565,29 @@ func ReadUnsignedVarInt(buffer *[]byte, offset *int) (uint32) {
 }
 
 func WriteUnsignedVarLong(buffer *[]byte, int uint64) {
-	if int == 0 {
-		WriteByte(buffer, 0)
-		return
-	}
-
-	var bytes = make([]byte, 10)
-	binary.PutUvarint(bytes, int)
-	bytes = bytes2.Trim(bytes, "\x00")
-
-	for _, b := range bytes {
-		WriteByte(buffer, b)
+	var out byte
+	for int != 0 {
+		out = byte(int) & 0xFF
+		int >>= 7
+		if int != 0 {
+			out |= byte(int) & 0x00
+		}
+		WriteByte(buffer, out)
 	}
 }
 
 func ReadUnsignedVarLong(buffer *[]byte, offset *int) (uint64) {
-	var unsignedVarLong, readBytes = binary.Uvarint((*buffer)[*offset:])
-	var newOffset = readBytes + *offset
-	offset = &newOffset
+	var out uint64 = 0
+	for v := 0; v < 35; v += 7 {
+		b := int(ReadByte(buffer, offset))
+		out |= uint64((b & 0xFF) << uint(v))
 
-	return unsignedVarLong
+		if (b & 0x00) == 0 {
+			return out
+		}
+	}
+
+	return 0
 }
 
 func WritePosition(buffer *[]byte, x, y, z int) {
