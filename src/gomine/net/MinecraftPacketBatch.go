@@ -6,7 +6,6 @@ import (
 	"compress/zlib"
 	"io/ioutil"
 	"gomine/interfaces"
-	"strconv"
 )
 
 const McpeFlag = 0xFE
