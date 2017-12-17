@@ -578,7 +578,7 @@ func WriteUnsignedVarLong(buffer *[]byte, int uint64) {
 
 func ReadUnsignedVarLong(buffer *[]byte, offset *int) (uint64) {
 	var out uint64 = 0
-	for v := 0; v < 35; v += 7 {
+	for v := 0; v < 70; v += 7 {
 		b := int(ReadByte(buffer, offset))
 		out |= uint64((b & 0xFF) << uint(v))
 
