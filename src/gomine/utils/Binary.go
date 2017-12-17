@@ -528,7 +528,7 @@ func WriteVarLong(buffer *[]byte, int int64) {
 }
 
 func ReadVarLong(buffer *[]byte, offset *int) (int64) {
-	var varLong, readBytes = binary.Varint(*buffer)
+	var varLong, readBytes = binary.Varint((*buffer)[*offset:])
 	var newOffset = readBytes + *offset
 	offset = &newOffset
 
@@ -580,7 +580,7 @@ func WriteUnsignedVarLong(buffer *[]byte, int uint64) {
 }
 
 func ReadUnsignedVarLong(buffer *[]byte, offset *int) (uint64) {
-	var unsignedVarLong, readBytes = binary.Uvarint(*buffer)
+	var unsignedVarLong, readBytes = binary.Uvarint((*buffer)[*offset:])
 	var newOffset = readBytes + *offset
 	offset = &newOffset
 
