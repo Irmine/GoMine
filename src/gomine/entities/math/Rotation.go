@@ -4,8 +4,8 @@ type Rotation struct {
 	Pitch, Yaw, HeadYaw float32
 }
 
-func NewRotation(pitch, yaw, headYaw float32) Rotation {
-	return Rotation{pitch, yaw, headYaw}
+func NewRotation(pitch, yaw, headYaw float32) *Rotation {
+	return &Rotation{pitch, yaw, headYaw}
 }
 
 func (rot *Rotation) GetPitch() float32 {

@@ -92,7 +92,7 @@ func (pk *Packet) GetRotationObject(isPlayer bool) math.Rotation {
 	if isPlayer {
 		headYaw = pk.GetLittleFloat()
 	}
-	return math.NewRotation(yaw, pitch, headYaw)
+	return *math.NewRotation(yaw, pitch, headYaw)
 }
 
 func (pk *Packet) PutEntityAttributes(attr map[int]entities.Attribute) {

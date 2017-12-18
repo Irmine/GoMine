@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	MoveNormal = iota + 0
+	MoveNormal = iota
 	MoveReset
 	MoveTeleport
 	MovePitch
@@ -25,7 +25,7 @@ type MovePlayerPacket struct {
 }
 
 func NewMovePlayerPacket() *MovePlayerPacket {
-	return &MovePlayerPacket{Packet: NewPacket(info.MovePlayerPacket), Position: *vectors.NewTripleVector(0, 0, 0), Rotation: math.NewRotation(0, 0, 0)}
+	return &MovePlayerPacket{Packet: NewPacket(info.MovePlayerPacket), Position: *vectors.NewTripleVector(0, 0, 0), Rotation: *math.NewRotation(0, 0, 0)}
 }
 
 func (pk *MovePlayerPacket) Encode() {

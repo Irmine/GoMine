@@ -15,14 +15,14 @@ type IEntity interface {
 	Kill()
 	Tick()
 	GetRuntimeId() uint64
-	GetPosition() vectors.TripleVector
-	SetPosition(vector vectors.TripleVector)
+	GetPosition() *vectors.TripleVector
+	SetPosition(*vectors.TripleVector)
 	GetDimension() IDimension
-	SetDimension(dimension IDimension)
+	SetDimension(IDimension)
 	GetLevel() ILevel
 	SetLevel(level ILevel)
-	GetRotation() math.Rotation
-	SetRotation(rotation math.Rotation)
-	GetMotion() vectors.TripleVector
-	SetMotion(vector vectors.TripleVector)
+	GetRotation() *math.Rotation
+	SetRotation(*math.Rotation)
+	GetMotion() *vectors.TripleVector
+	SetMotion(*vectors.TripleVector)
 }

@@ -10,6 +10,6 @@ type LivingEntity struct {
 	*Entity
 }
 
-func NewLivingEntity(position vectors.TripleVector, rotation math.Rotation, motion vectors.TripleVector, level interfaces.ILevel, dimension interfaces.IDimension) *LivingEntity {
+func NewLivingEntity(position *vectors.TripleVector, rotation *math.Rotation, motion *vectors.TripleVector, level interfaces.ILevel, dimension interfaces.IDimension) *LivingEntity {
 	return &LivingEntity{NewEntity(position, rotation, motion, level, dimension)}
 }

@@ -59,7 +59,7 @@ func (handler ResourcePackClientResponseHandler) Handle(packet interfaces.IPacke
 			player.SendPacket(stack)
 
 		case packets.StatusCompleted:
-			player.PlaceInWorld(vectors.TripleVector{0, 20, 0}, math.Rotation{0, 0, 0}, server.GetDefaultLevel(), server.GetDefaultLevel().GetDefaultDimension())
+			player.PlaceInWorld(vectors.NewTripleVector(0, 20, 0), math.NewRotation(0, 0, 0), server.GetDefaultLevel(), server.GetDefaultLevel().GetDefaultDimension())
 
 			var startGame = packets.NewStartGamePacket()
 			startGame.PlayerGameMode = 1

@@ -82,8 +82,8 @@ func (player *Player) IsInWorld() bool {
 /**
  * Places this player inside of a level and dimension.
  */
-func (player *Player) PlaceInWorld(position vectors.TripleVector, rotation math.Rotation, level interfaces.ILevel, dimension interfaces.IDimension) {
-	player.Human = entities.NewHuman(player.GetDisplayName(), position, rotation, vectors.TripleVector{0, 0, 0}, level, dimension)
+func (player *Player) PlaceInWorld(position *vectors.TripleVector, rotation *math.Rotation, level interfaces.ILevel, dimension interfaces.IDimension) {
+	player.Human = entities.NewHuman(player.GetDisplayName(), position, rotation, vectors.NewTripleVector(0, 0, 0), level, dimension)
 }
 
 /**
@@ -217,11 +217,11 @@ func (player *Player) RemovePermission(permission string) bool {
 /**
  * Teleport player to a new position
  */
-func (player *Player) Teleport(v vectors.TripleVector, rot math.Rotation)  {
+func (player *Player) Teleport(v *vectors.TripleVector, rot *math.Rotation)  {
 	pk := packets.NewMovePlayerPacket()
 	pk.EntityId = player.runtimeId
-	pk.Position = v
-	pk.Rotation = rot
+	pk.Position = *v
+	pk.Rotation = *rot
 	pk.OnGround = player.onGround
 	pk.RidingEid = 0
 	player.SendPacket(pk)

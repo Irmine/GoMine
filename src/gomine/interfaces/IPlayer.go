@@ -41,15 +41,15 @@ type IPlayer interface {
 	Tick()
 	SendMessage(string)
 	SendPacket(packet IPacket)
-	PlaceInWorld(vectors.TripleVector, math.Rotation, ILevel, IDimension)
-	GetPosition() vectors.TripleVector
-	SetPosition(vector vectors.TripleVector)
+	PlaceInWorld(*vectors.TripleVector, *math.Rotation, ILevel, IDimension)
+	GetPosition() *vectors.TripleVector
+	SetPosition(*vectors.TripleVector)
 	GetDimension() IDimension
-	SetDimension(dimension IDimension)
+	SetDimension(IDimension)
 	GetLevel() ILevel
-	SetLevel(level ILevel)
-	GetRotation() math.Rotation
-	SetRotation(rotation math.Rotation)
-	GetMotion() vectors.TripleVector
-	SetMotion(vector vectors.TripleVector)
+	SetLevel(ILevel)
+	GetRotation() *math.Rotation
+	SetRotation(*math.Rotation)
+	GetMotion() *vectors.TripleVector
+	SetMotion(*vectors.TripleVector)
 }

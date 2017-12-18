@@ -10,19 +10,20 @@ var RuntimeId uint64 = 0
 
 type Entity struct {
 	attributeMap *AttributeMap
-	Motion vectors.TripleVector
+	Motion *vectors.TripleVector
 	runtimeId uint64
 	closed bool
 
-	Position vectors.TripleVector
+	Position *vectors.TripleVector
+
 	Level interfaces.ILevel
 	Dimension interfaces.IDimension
-	Rotation math.Rotation
+	Rotation *math.Rotation
 
 	NameTag string
 }
 
-func NewEntity(position vectors.TripleVector, rotation math.Rotation, motion vectors.TripleVector, level interfaces.ILevel, dimension interfaces.IDimension) *Entity {
+func NewEntity(position *vectors.TripleVector, rotation *math.Rotation, motion *vectors.TripleVector, level interfaces.ILevel, dimension interfaces.IDimension) *Entity {
 	RuntimeId++
 	return &Entity{
 		NewAttributeMap(),
@@ -68,14 +69,14 @@ func (entity *Entity) SetAttributeMap(attMap *AttributeMap) {
 /**
  * Returns the current position of this entity.
  */
-func (entity *Entity) GetPosition() vectors.TripleVector {
+func (entity *Entity) GetPosition() *vectors.TripleVector {
 	return entity.Position
 }
 
 /**
  * Sets the position of this entity
  */
-func (entity *Entity) SetPosition(v vectors.TripleVector)  {
+func (entity *Entity) SetPosition(v *vectors.TripleVector)  {
 	entity.Position = v
 }
 
@@ -110,28 +111,28 @@ func (entity *Entity) SetDimension(v interfaces.IDimension)  {
 /**
  * Returns the current rotation of this entity.
  */
-func (entity *Entity) GetRotation() math.Rotation {
+func (entity *Entity) GetRotation() *math.Rotation {
 	return entity.Rotation
 }
 
 /**
  * Sets the rotation of this entity
  */
-func (entity *Entity) SetRotation(v math.Rotation)  {
+func (entity *Entity) SetRotation(v *math.Rotation)  {
 	entity.Rotation = v
 }
 
 /**
  * Returns the motion of this entity.
  */
-func (entity *Entity) GetMotion() vectors.TripleVector {
+func (entity *Entity) GetMotion() *vectors.TripleVector {
 	return entity.Motion
 }
 
 /**
  * sets the motion of this entity
  */
-func (entity *Entity) SetMotion(v vectors.TripleVector)  {
+func (entity *Entity) SetMotion(v *vectors.TripleVector)  {
 	entity.Motion = v
 }
 
@@ -161,7 +162,9 @@ func (entity *Entity) IsClosed() bool {
  */
 func (entity *Entity) Close() {
 	entity.closed = true
-	entity.Position = *vectors.NewTripleVector(0, 0, 0)
+	entity.Level = nil
+	entity.Dimension = nil
+	entity.Position = vectors.NewTripleVector(0, 0, 0)
 }
 
 /**
