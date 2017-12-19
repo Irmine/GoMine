@@ -40,8 +40,8 @@ func (adapter *GoRakLibAdapter) GetRakLibServer() *server2.GoRakLibServer {
 func (adapter *GoRakLibAdapter) Tick() {
 	go adapter.rakLibServer.Tick()
 
-	go func() {
-		for _, session := range adapter.rakLibServer.GetSessionManager().GetSessions() {
+	for _, session := range adapter.rakLibServer.GetSessionManager().GetSessions() {
+		go func(session *server2.Session) {
 			for _, encapsulatedPacket := range session.GetReadyEncapsulatedPackets() {
 
 				batch := NewMinecraftPacketBatch()
@@ -67,8 +67,8 @@ func (adapter *GoRakLibAdapter) Tick() {
 					}
 				}
 			}
-		}
-	}()
+		}(session)
+	}
 }
 
 func (adapter *GoRakLibAdapter) GetSession(address string, port uint16) *server2.Session {
