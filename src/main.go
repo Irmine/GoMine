@@ -18,7 +18,7 @@ import (
 var stopInstantly = false
 
 var ticker = time.NewTicker(time.Second / 20)
-var currentTick = 0
+var currentTick int64 = 0
 
 func main() {
 	var startTime = time.Now()
