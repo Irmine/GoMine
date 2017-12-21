@@ -28,7 +28,7 @@ const (
 
 type Server struct {
 	isRunning  bool
-	tick int
+	tick int64
 
 	serverPath string
 	scheduler  *tasks.Scheduler
@@ -350,7 +350,7 @@ func (server *Server) GetPlayerFactory() interfaces.IPlayerFactory {
 /**
  * Returns the current tick the server is on.
  */
-func (server *Server) GetCurrentTick() int {
+func (server *Server) GetCurrentTick() int64 {
 	return server.tick
 }
 
@@ -365,7 +365,7 @@ func (server *Server) GetPackHandler() interfaces.IPackHandler {
  * Internal. Not to be used by plugins.
  * Ticks the entire server. (Levels, scheduler, GoRakLib server etc.)
  */
-func (server *Server) Tick(currentTick int) {
+func (server *Server) Tick(currentTick int64) {
 	server.tick = currentTick
 	if !server.isRunning {
 		return

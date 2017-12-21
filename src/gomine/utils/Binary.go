@@ -565,6 +565,10 @@ func ReadUnsignedVarInt(buffer *[]byte, offset *int) (uint32) {
 }
 
 func WriteUnsignedVarLong(buffer *[]byte, int uint64) {
+	if int == 0 {
+		WriteByte(buffer, 0)
+		return
+	}
 	var out byte
 	for int != 0 {
 		out = byte(int) & 0xFF

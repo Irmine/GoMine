@@ -25,7 +25,7 @@ type IServer interface {
 	GetPort() uint16
 	GetMaximumPlayers() uint
 	GetMotd() string
-	Tick(int)
+	Tick(int64)
 	GetPermissionManager() IPermissionManager
 	GetServerName() string
 	GetVersion() string
@@ -36,5 +36,5 @@ type IServer interface {
 	GetDefaultLevel() ILevel
 	GetLevelById(int) (ILevel, error)
 	GetLevelByName(string) (ILevel, error)
-	GetCurrentTick() int
+	GetCurrentTick() int64
 }
