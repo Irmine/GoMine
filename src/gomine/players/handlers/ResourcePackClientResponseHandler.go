@@ -69,15 +69,15 @@ func (handler ResourcePackClientResponseHandler) Handle(packet interfaces.IPacke
 			startGame.LevelGameMode = 1
 			startGame.LevelSpawnPosition = vectors.TripleVector{0, 20, 0}
 			startGame.MultiPlayerGame = true
-			startGame.BroadcastToXbox = true
+			startGame.BroadcastToXbox = false
 			startGame.BroadcastToLan = true
 			startGame.CommandsEnabled = true
 			startGame.GameRules = server.GetDefaultLevel().GetGameRules()
 			startGame.BonusChest = false
 			startGame.StartMap = false
 			startGame.TrustPlayers = true
-			startGame.DefaultPermissionLevel = 1
-			startGame.XboxBroadcastMode = 1
+			startGame.DefaultPermissionLevel = 0
+			startGame.XboxBroadcastMode = 0
 			startGame.LevelName = server.GetDefaultLevel().GetName()
 			startGame.CurrentTick = int64(server.GetCurrentTick())
 			startGame.EnchantmentSeed = 123456
@@ -95,7 +95,8 @@ func (handler ResourcePackClientResponseHandler) Handle(packet interfaces.IPacke
 			var craftingData = packets.NewCraftingDataPacket()
 			player.SendPacket(craftingData)
 		}
+		return true
 	}
 
-	return true
+	return false
 }

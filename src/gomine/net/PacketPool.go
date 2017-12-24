@@ -26,6 +26,7 @@ func init() {
 	RegisterPacket(info.ResourcePackDataInfoPacket, func() interfaces.IPacket { return packets.NewResourcePackDataInfoPacket() })
 	RegisterPacket(info.ResourcePackChunkRequestPacket, func() interfaces.IPacket { return packets.NewResourcePackChunkRequestPacket() })
 	RegisterPacket(info.ResourcePackChunkDataPacket, func() interfaces.IPacket { return packets.NewResourcePackChunkDataPacket() })
+	RegisterPacket(info.TextPacket, func() interfaces.IPacket { return packets.NewTextPacket() })
 }
 
 /**

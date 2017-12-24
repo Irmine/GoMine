@@ -31,7 +31,9 @@ func (handler ResourcePackChunkRequestHandler) Handle(packet interfaces.IPacket,
 		packData.Progress = int64(ChunkSize * request.ChunkIndex)
 
 		player.SendPacket(packData)
+
+		return true
 	}
 
-	return true
+	return false
 }

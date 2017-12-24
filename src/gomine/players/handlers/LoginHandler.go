@@ -46,7 +46,9 @@ func (handler LoginHandler) Handle(packet interfaces.IPacket, player interfaces.
 		player.SendPacket(resourceInfo)
 
 		server.GetPlayerFactory().AddPlayer(player, session)
+
+		return true
 	}
 
-	return true
+	return false
 }

@@ -32,7 +32,9 @@ func (handler ChunkRadiusRequestHandler) Handle(packet interfaces.IPacket, playe
 		var playStatus = packets.NewPlayStatusPacket()
 		playStatus.Status = 3
 		player.SendPacket(playStatus)
+
+		return true
 	}
 
-	return true
+	return false
 }

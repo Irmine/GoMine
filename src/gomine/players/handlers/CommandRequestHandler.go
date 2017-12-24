@@ -37,6 +37,9 @@ func (handler CommandRequestHandler) Handle(packet interfaces.IPacket, player in
 		if valid {
 			commands.ParseIntoInputAndExecute(player, command, parsedInput)
 		}
+
+		return true
 	}
-	return true
+
+	return false
 }

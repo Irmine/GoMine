@@ -20,6 +20,7 @@ func init() {
 	//RegisterPacketHandler(info.MovePlayerPacket, handlers.NewMovePlayerHandler(), PriorityLast)
 	RegisterPacketHandler(info.CommandRequestPacket, handlers.NewCommandRequestHandler(), PriorityLast)
 	RegisterPacketHandler(info.ResourcePackChunkRequestPacket, handlers.NewResourcePackChunkRequestHandler(), PriorityLast)
+	RegisterPacketHandler(info.TextPacket, handlers.NewTextHandler(), PriorityLast)
 }
 
 /**
