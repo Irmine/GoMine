@@ -63,7 +63,7 @@ func (logger *Logger) ProcessQueue(force bool) {
 			logger.terminalQueue = logger.terminalQueue[1:]
 		}
 
-		fmt.Println(message)
+		println(message)
 	}
 
 	for _, message := range logger.fileQueue {
@@ -97,7 +97,7 @@ func (logger *Logger) Log(logLevel string, color string, messages ...interface{}
 	var prefix = "[" + logger.prefix + "]"
 	var level = "[" + strings.Title(logLevel) + "] "
 
-	var line = prefix + color + level + message + AnsiReset
+	var line = AnsiBrightBlue + prefix + color + level + message + AnsiReset
 
 	logger.fileQueue = append(logger.fileQueue, line)
 	logger.terminalQueue = append(logger.terminalQueue, ConvertMcpeColorsToAnsi(line))
