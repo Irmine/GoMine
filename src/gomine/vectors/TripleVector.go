@@ -161,18 +161,18 @@ func (vector *TripleVector) Distance(vector2 TripleVector) float32 {
 }
 
 /**
- * Walks between two TripleVectors and returns TripleVectors with the given amount of steps in between.
+ * Walks between two TripleVectors and returns TripleVectors with the given interval.
  */
-func (vector *TripleVector) Walk(vector2 TripleVector, steps float32) []TripleVector {
+func (vector *TripleVector) Walk(vector2 TripleVector, interval float32) []TripleVector {
 	var distance = vector.Distance(vector2)
 
-	var xRelative = (vector2.X - vector.X) / distance * steps
-	var yRelative = (vector2.Y - vector.Y) / distance * steps
-	var zRelative = (vector2.Z - vector.Z) / distance * steps
+	var xRelative = (vector2.X - vector.X) / distance * interval
+	var yRelative = (vector2.Y - vector.Y) / distance * interval
+	var zRelative = (vector2.Z - vector.Z) / distance * interval
 
 	var vectors []TripleVector
 
-	var distanceRelative = distance / steps
+	var distanceRelative = distance / interval
 	for i := float32(1); i < distanceRelative; i++ {
 		vectors = append(vectors, vector.Add(xRelative * i, yRelative * i, zRelative * i))
 	}
@@ -197,7 +197,7 @@ func (vector *TripleVector) GetAdjacentVectors() []TripleVector {
 /**
  * Steps the given amount to the given direction and changes the x/y/z.
  */
-func (vector *TripleVector) Step(direction, steps float32) {
+func (vector *TripleVector) Step(direction int, steps float32) {
 	switch direction {
 	case Down:
 		vector.Y -= steps
@@ -217,7 +217,7 @@ func (vector *TripleVector) Step(direction, steps float32) {
 /**
  * Gets the adjacent vector to the given direction and returns a new TripleVector.
  */
-func (vector *TripleVector) GetAdjacent(direction, steps float32) TripleVector {
+func (vector *TripleVector) GetAdjacent(direction int, steps float32) TripleVector {
 	switch direction {
 	case Down:
 		return TripleVector{vector.X, vector.Y - steps, vector.Z}
