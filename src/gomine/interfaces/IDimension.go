@@ -7,7 +7,7 @@ type IDimension interface {
 	TickDimension()
 	SetChunk(int32, int32, IChunk)
 	GetChunk(int32, int32) IChunk
-	GetChunkPlayers(int32, int32) []IPlayer
+	GetChunkPlayers(int32, int32) map[int]IPlayer
 	AddChunkPlayer(int32, int32, IPlayer)
 	RequestChunks(IPlayer)
 	IsGenerated() bool
