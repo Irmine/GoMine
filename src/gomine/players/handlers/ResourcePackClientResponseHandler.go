@@ -64,25 +64,13 @@ func (handler ResourcePackClientResponseHandler) Handle(packet interfaces.IPacke
 			var startGame = packets.NewStartGamePacket()
 			startGame.PlayerGameMode = 1
 			startGame.PlayerPosition = vectors.TripleVector{0, 20, 0}
-			startGame.LevelSeed = 123456
-			startGame.Generator = 123456
 			startGame.LevelGameMode = 1
 			startGame.LevelSpawnPosition = vectors.TripleVector{0, 20, 0}
-			startGame.MultiPlayerGame = true
-			startGame.BroadcastToXbox = false
-			startGame.BroadcastToLan = true
 			startGame.CommandsEnabled = true
 			startGame.GameRules = server.GetDefaultLevel().GetGameRules()
-			startGame.BonusChest = false
-			startGame.StartMap = false
-			startGame.TrustPlayers = true
-			startGame.DefaultPermissionLevel = 0
-			startGame.XboxBroadcastMode = 0
 			startGame.LevelName = server.GetDefaultLevel().GetName()
 			startGame.CurrentTick = int64(server.GetCurrentTick())
-			startGame.EnchantmentSeed = 123456
-			startGame.ForcedResourcePacks = server.GetConfiguration().ForceResourcePacks
-			startGame.Time = 3421
+			startGame.Time = 0
 			startGame.AchievementsDisabled = true
 
 			player.SendPacket(startGame)

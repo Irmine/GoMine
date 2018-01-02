@@ -63,7 +63,7 @@ func (logger *Logger) ProcessQueue(force bool) {
 			logger.terminalQueue = logger.terminalQueue[1:]
 		}
 
-		println(message)
+		os.Stdout.Write([]byte(message))
 	}
 
 	for _, message := range logger.fileQueue {
@@ -97,7 +97,7 @@ func (logger *Logger) Log(logLevel string, color string, messages ...interface{}
 	var prefix = "[" + logger.prefix + "]"
 	var level = "[" + strings.Title(logLevel) + "] "
 
-	var line = AnsiBrightBlue + prefix + color + level + message + AnsiReset
+	var line = prefix + color + level + message + AnsiReset + "\n"
 
 	logger.fileQueue = append(logger.fileQueue, line)
 	logger.terminalQueue = append(logger.terminalQueue, ConvertMcpeColorsToAnsi(line))
@@ -166,7 +166,7 @@ func (logger *Logger) LogError(err error) {
  * Writes the given line to the log and appends a new line.
  */
 func (logger *Logger) write(line string) {
-	logger.file.WriteString(StripAllColors(line + "\n"))
+	logger.file.WriteString(StripAllColors(line))
 }
 
 /**
