@@ -7,7 +7,10 @@ import (
 	"plugin"
 	"errors"
 	"strings"
-	"gomine"
+)
+
+const (
+	ApiVersion = "0.0.1"
 )
 
 type PluginManager struct {
@@ -81,8 +84,8 @@ func (manager *PluginManager) LoadPlugin(filePath string) error {
 		return errors.New("Plugin at '" + filePath + "' does not have a Manifest.")
 	}
 
-	manifest, err := manifestSymbol.(Manifest)
-	if err != nil {
+	manifest, ok := manifestSymbol.(IManifest)
+	if !ok {
 		return errors.New("Plugin at '" + filePath + "' does not have a valid Manifest.")
 	}
 
@@ -96,14 +99,16 @@ func (manager *PluginManager) LoadPlugin(filePath string) error {
 		return errors.New("Plugin at '" + filePath + "' does not have a NewPlugin function.")
 	}
 
-	pluginFunc, err := newPluginSymbol.(func(server interfaces.IServer) IPlugin)
-	if err != nil {
+	pluginFunc, ok := newPluginSymbol.(func(server interfaces.IServer) IPlugin)
+	if !ok {
 		return errors.New("Plugin at '" + filePath + "' does not have a valid NewPlugin function.")
 	}
+
 	var finalPlugin = pluginFunc(manager.server)
 	finalPlugin.setManifest(manifest)
 
 	manager.plugins[finalPlugin.GetName()] = finalPlugin
+	finalPlugin.OnEnable()
 
 	return nil
 }
@@ -111,23 +116,23 @@ func (manager *PluginManager) LoadPlugin(filePath string) error {
 /**
  * Validates the plugin manifest.
  */
-func (manager *PluginManager) ValidateManifest(manifest Manifest, path string) error {
-	if manifest.Name == "" {
+func (manager *PluginManager) ValidateManifest(manifest IManifest, path string) error {
+	if manifest.GetName() == "" {
 		return errors.New("Plugin manifest at " + path + " is missing a name.")
 	}
-	if manifest.Description == "" {
+	if manifest.GetDescription() == "" {
 		return errors.New("Plugin manifest at " + path + " is missing a description.")
 	}
-	var dotCount = strings.Count(manifest.Version, ".")
+	var dotCount = strings.Count(manifest.GetVersion(), ".")
 	if dotCount < 1 {
 		return errors.New("Plugin manifest at " + path + " is missing a valid version.")
 	}
 
-	var digits = strings.Split(manifest.APIVersion, ".")
+	var digits = strings.Split(manifest.GetAPIVersion(), ".")
 	if len(digits) < 2 {
 		return errors.New("Plugin manifest at " + path + " is missing a valid API version.")
 	}
-	var currentDigits = strings.Split(gomine.ApiVersion, ".")
+	var currentDigits = strings.Split(ApiVersion, ".")
 
 	if digits[0] != currentDigits[0] {
 		return errors.New("Plugin manifest at " + path + " has an incompatible greater API version. Got: " + digits[0] + ".~, Expected: " + currentDigits[0] + ".~")

@@ -11,6 +11,15 @@ type Manifest struct {
 	Organisation string
 }
 
+type IManifest interface {
+	GetName() string
+	GetDescription() string
+	GetVersion() string
+	GetAPIVersion() string
+	GetAuthor() string
+	GetOrganisation() string
+}
+
 type IPlugin interface {
 	GetServer() interfaces.IServer
 	OnEnable()
@@ -20,65 +29,107 @@ type IPlugin interface {
 	GetAuthor() string
 	GetOrganisation() string
 	GetAPIVersion() string
-	setManifest(Manifest)
+	setManifest(IManifest)
 }
 
 type Plugin struct {
 	server interfaces.IServer
 
-	manifest Manifest
+	manifest IManifest
 }
 
 func NewPlugin(server interfaces.IServer) *Plugin {
-	return &Plugin{server, nil}
+	return &Plugin{server, Manifest{}}
+}
+
+/**
+ * Returns the name of the manifest.
+ */
+func (manifest Manifest) GetName() string {
+	return manifest.Name
+}
+
+/**
+ * Returns the version of the manifest.
+ */
+func (manifest Manifest) GetVersion() string {
+	return manifest.Version
+}
+
+/**
+ * Returns the author of the manifest.
+ */
+func (manifest Manifest) GetOrganisation() string {
+	return manifest.Organisation
+}
+
+/**
+ * Returns the API Version of the manifest.
+ */
+func (manifest Manifest) GetAPIVersion() string {
+	return manifest.APIVersion
+}
+
+/**
+ * Returns the author of the manifest.
+ */
+func (manifest Manifest) GetAuthor() string {
+	return manifest.Author
+}
+
+/**
+ * Returns the description of the manifest.
+ */
+func (manifest Manifest) GetDescription() string {
+	return manifest.Description
 }
 
 /**
  * Returns the name of the plugin.
  */
 func (plug *Plugin) GetName() string {
-	return plug.manifest.Name
+	return plug.manifest.GetName()
 }
 
 /**
  * Returns the version of the plugin.
  */
 func (plug *Plugin) GetVersion() string {
-	return plug.manifest.Version
+	return plug.manifest.GetVersion()
 }
 
 /**
  * Returns the author of the plugin.
  */
 func (plug *Plugin) GetOrganisation() string {
-	return plug.manifest.Organisation
+	return plug.manifest.GetOrganisation()
 }
 
 /**
  * Returns the API Version of the plugin.
  */
 func (plug *Plugin) GetAPIVersion() string {
-	return plug.manifest.APIVersion
+	return plug.manifest.GetAPIVersion()
 }
 
 /**
  * Returns the author of the plugin.
  */
 func (plug *Plugin) GetAuthor() string {
-	return plug.manifest.Author
+	return plug.manifest.GetAuthor()
 }
 
 /**
  * Returns the description of the plugin.
  */
 func (plug *Plugin) GetDescription() string {
-	return plug.manifest.Description
+	return plug.manifest.GetDescription()
 }
 
 /**
  * Sets the manifest of this plugin.
  */
-func (plug *Plugin) setManifest(manifest Manifest) {
+func (plug *Plugin) setManifest(manifest IManifest) {
 	plug.manifest = manifest
 }
 
