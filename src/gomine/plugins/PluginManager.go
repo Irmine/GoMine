@@ -6,6 +6,8 @@ import (
 	"path/filepath"
 	"plugin"
 	"errors"
+	"strings"
+	"gomine"
 )
 
 type PluginManager struct {
@@ -84,7 +86,7 @@ func (manager *PluginManager) LoadPlugin(filePath string) error {
 		return errors.New("Plugin at '" + filePath + "' does not have a valid Manifest.")
 	}
 
-	err = manager.ValidateManifest(manifest)
+	err = manager.ValidateManifest(manifest, filePath)
 	if err != nil {
 		return err
 	}
@@ -109,6 +111,27 @@ func (manager *PluginManager) LoadPlugin(filePath string) error {
 /**
  * Validates the plugin manifest.
  */
-func (manager *PluginManager) ValidateManifest(manifest Manifest) error {
-	return nil // TODO
+func (manager *PluginManager) ValidateManifest(manifest Manifest, path string) error {
+	if manifest.Name == "" {
+		return errors.New("Plugin manifest at " + path + " is missing a name.")
+	}
+	if manifest.Description == "" {
+		return errors.New("Plugin manifest at " + path + " is missing a description.")
+	}
+	var dotCount = strings.Count(manifest.Version, ".")
+	if dotCount < 1 {
+		return errors.New("Plugin manifest at " + path + " is missing a valid version.")
+	}
+
+	var digits = strings.Split(manifest.APIVersion, ".")
+	if len(digits) < 2 {
+		return errors.New("Plugin manifest at " + path + " is missing a valid API version.")
+	}
+	var currentDigits = strings.Split(gomine.ApiVersion, ".")
+
+	if digits[0] != currentDigits[0] {
+		return errors.New("Plugin manifest at " + path + " has an incompatible greater API version. Got: " + digits[0] + ".~, Expected: " + currentDigits[0] + ".~")
+	}
+
+	return nil
 }
