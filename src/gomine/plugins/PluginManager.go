@@ -15,7 +15,7 @@ import (
 const (
 	ApiVersion = "0.0.1"
 
-	OutdatedPlugin = "plugin.Open: plugin was built with a different version of package gomine/plugins"
+	OutdatedPlugin = "plugin.Open: plugin was built with a different version of package"
 	NoPluginsSupported = "plugin: not implemented"
 )
 
@@ -59,6 +59,7 @@ func (manager *PluginManager) IsPluginLoaded(name string) bool {
 func (manager *PluginManager) LoadPlugins() {
 	var path = manager.server.GetServerPath() + "extensions/plugins/"
 	var files, _ = ioutil.ReadDir(path)
+
 	for _, file := range files {
 		if file.IsDir() {
 			continue
@@ -87,14 +88,14 @@ func (manager *PluginManager) LoadPlugins() {
  */
 func (manager *PluginManager) CompilePlugin(filePath string) (*plugin.Plugin, error) {
 	var compiledPath = strings.Replace(strings.Replace(filePath, ".go", "", 1), "\\", "/", -1)
-	compiledPath += "-" + utils.GenerateRandomUUID() + ".so"
+	compiledPath += "~" + utils.GenerateRandomUUID() + ".so"
 
 	var cmd = exec.Command("go", "build", "-buildmode=plugin", "-i", "-o", compiledPath, filePath)
 	var output, err = cmd.CombinedOutput()
 
 	if err != nil {
 		manager.server.GetLogger().LogError(err)
-		manager.server.GetLogger().Error(output)
+		manager.server.GetLogger().Error(string(output))
 	}
 
 	plug, err := plugin.Open(compiledPath)
@@ -107,6 +108,8 @@ func (manager *PluginManager) CompilePlugin(filePath string) (*plugin.Plugin, er
  */
 func (manager *PluginManager) RecompilePlugin(filePath string) (*plugin.Plugin, error) {
 	var decompiledPath = strings.Replace(strings.Replace(filePath, ".so", ".go", 1), "\\", "/", -1)
+	decompiledPath = strings.Split(decompiledPath, "~")[0]
+
 	os.Remove(filePath)
 
 	return manager.CompilePlugin(decompiledPath)
@@ -119,7 +122,7 @@ func (manager *PluginManager) LoadPlugin(filePath string) error {
 	var plug, err = plugin.Open(filePath)
 
 	if err != nil {
-		if err.Error() == OutdatedPlugin {
+		if strings.Contains(err.Error(), OutdatedPlugin) {
 			manager.server.GetLogger().Notice("Outdated plugin. Recompiling plugin... This might take a bit.")
 			var newPlugin, newErr = manager.RecompilePlugin(filePath)
 			if newErr != nil {
@@ -166,15 +169,20 @@ func (manager *PluginManager) LoadPlugin(filePath string) error {
 }
 
 /**
- * Validates the plugin manifest.
+ * Validates the plugin manifest and checks for duplicated plugins.
  */
 func (manager *PluginManager) ValidateManifest(manifest IManifest, path string) error {
 	if manifest.GetName() == "" {
 		return errors.New("Plugin manifest at " + path + " is missing a name.")
 	}
+	if manager.IsPluginLoaded(manifest.GetName()) {
+		return errors.New("Found duplicated plugin at " + path)
+	}
+
 	if manifest.GetDescription() == "" {
 		return errors.New("Plugin manifest at " + path + " is missing a description.")
 	}
+
 	var dotCount = strings.Count(manifest.GetVersion(), ".")
 	if dotCount < 1 {
 		return errors.New("Plugin manifest at " + path + " is missing a valid version.")

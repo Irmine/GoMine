@@ -48,15 +48,17 @@ func IsValidUUID(uuid string) bool {
 
 func GenerateRandomUUID() string {
 	var uuid = ""
-	rand.Seed(time.Now().Unix())
+	var random = rand.New(rand.NewSource(time.Now().Unix()))
+
 	for i := 0; i < 36; i++ {
 		if i == 8 || i == 13 || i == 18 || i == 23 {
 			uuid += "-"
 		} else {
-			offset := rand.Intn(35)
+			offset := random.Intn(35)
 			uuid += string(validDigits[offset])
 		}
 	}
+
 	return uuid
 }
 
