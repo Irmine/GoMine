@@ -7,10 +7,16 @@ import (
 	"plugin"
 	"errors"
 	"strings"
+	"os/exec"
+	"os"
+	"gomine/utils"
 )
 
 const (
 	ApiVersion = "0.0.1"
+
+	OutdatedPlugin = "plugin.Open: plugin was built with a different version of package gomine/plugins"
+	NoPluginsSupported = "plugin: not implemented"
 )
 
 type PluginManager struct {
@@ -66,17 +72,63 @@ func (manager *PluginManager) LoadPlugins() {
 		}
 
 		err := manager.LoadPlugin(filePath)
+		if err != nil {
+			if err.Error() == NoPluginsSupported {
+				manager.server.GetLogger().Error("Go does currently not support plugins for your operating system.")
+				return
+			}
+		}
 		manager.server.GetLogger().LogError(err)
 	}
+}
+
+/**
+ * Compiles a plugin.go at the given path during runtime, and opens it. This action is extremely time consuming.
+ */
+func (manager *PluginManager) CompilePlugin(filePath string) (*plugin.Plugin, error) {
+	var compiledPath = strings.Replace(strings.Replace(filePath, ".go", "", 1), "\\", "/", -1)
+	compiledPath += "-" + utils.GenerateRandomUUID() + ".so"
+
+	var cmd = exec.Command("go", "build", "-buildmode=plugin", "-i", "-o", compiledPath, filePath)
+	var output, err = cmd.CombinedOutput()
+
+	if err != nil {
+		manager.server.GetLogger().LogError(err)
+		manager.server.GetLogger().Error(output)
+	}
+
+	plug, err := plugin.Open(compiledPath)
+
+	return plug, err
+}
+
+/**
+ * Recompiles a plugin.so at the given path, provided the main source file is at the same location suffixed with .go.
+ */
+func (manager *PluginManager) RecompilePlugin(filePath string) (*plugin.Plugin, error) {
+	var decompiledPath = strings.Replace(strings.Replace(filePath, ".so", ".go", 1), "\\", "/", -1)
+	os.Remove(filePath)
+
+	return manager.CompilePlugin(decompiledPath)
 }
 
 /**
  * Loads a plugin at the given file path and returns an error if applicable.
  */
 func (manager *PluginManager) LoadPlugin(filePath string) error {
-	plug, err := plugin.Open(filePath)
+	var plug, err = plugin.Open(filePath)
+
 	if err != nil {
-		return err
+		if err.Error() == OutdatedPlugin {
+			manager.server.GetLogger().Notice("Outdated plugin. Recompiling plugin... This might take a bit.")
+			var newPlugin, newErr = manager.RecompilePlugin(filePath)
+			if newErr != nil {
+				return newErr
+			}
+			plug = newPlugin
+		} else {
+			return err
+		}
 	}
 
 	manifestSymbol, err := plug.Lookup("Manifest")

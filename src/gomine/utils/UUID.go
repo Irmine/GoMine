@@ -4,6 +4,8 @@ import (
 	"encoding/hex"
 	"fmt"
 	"strings"
+	"math/rand"
+	"time"
 )
 
 type UUID struct {
@@ -42,6 +44,20 @@ func IsValidUUID(uuid string) bool {
 	}
 
 	return true
+}
+
+func GenerateRandomUUID() string {
+	var uuid = ""
+	rand.Seed(time.Now().Unix())
+	for i := 0; i < 36; i++ {
+		if i == 8 || i == 13 || i == 18 || i == 23 {
+			uuid += "-"
+		} else {
+			offset := rand.Intn(35)
+			uuid += string(validDigits[offset])
+		}
+	}
+	return uuid
 }
 
 func (uuid *UUID) Parts() [2]int64 {
