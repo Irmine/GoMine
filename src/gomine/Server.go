@@ -15,15 +15,14 @@ import (
 	"gomine/permissions"
 	"gomine/players"
 	"gomine/packs"
+	"gomine/plugins"
 )
 
 var levelId = 0
 
 const (
 	GoMineName = "GoMine"
-
 	GoMineVersion = "0.0.1"
-	ApiVersion = "0.0.1"
 )
 
 type Server struct {
@@ -45,6 +44,8 @@ type Server struct {
 	playerFactory *players.PlayerFactory
 
 	rakLibAdapter *net.GoRakLibAdapter
+
+	pluginManager *plugins.PluginManager
 }
 
 /**
@@ -67,6 +68,8 @@ func NewServer(serverPath string) *Server {
 	server.playerFactory = players.NewPlayerFactory(server)
 
 	server.permissionManager = permissions.NewPermissionManager(server)
+
+	server.pluginManager = plugins.NewPluginManager(server)
 
 	return server
 }
@@ -98,6 +101,8 @@ func (server *Server) Start() {
 
 	server.packHandler.LoadResourcePacks() // Behavior packs may depend on resource packs, so always load resource packs first.
 	server.packHandler.LoadBehaviorPacks()
+
+	server.pluginManager.LoadPlugins()
 
 	server.isRunning = true
 }
@@ -359,6 +364,13 @@ func (server *Server) GetCurrentTick() int64 {
  */
 func (server *Server) GetPackHandler() interfaces.IPackHandler {
 	return server.packHandler
+}
+
+/**
+ * Returns the plugin manager of the server.
+ */
+func (server *Server) GetPluginManager() *plugins.PluginManager {
+	return server.pluginManager
 }
 
 /**
