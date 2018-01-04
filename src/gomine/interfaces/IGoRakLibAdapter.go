@@ -2,7 +2,6 @@ package interfaces
 
 import (
 	"goraklib/server"
-	"github.com/Irmine/GoMine/src/gomine/interfaces"
 )
 
 type IGoRakLibAdapter interface {
@@ -16,4 +15,6 @@ type IGoRakLibAdapter interface {
 	GetPacket(int) IPacket
 	RegisterPacketHandler(int, IPacketHandler, int) bool
 	GetPacketHandlers(int) map[int][]IPacketHandler
+	DeregisterPacketHandler(id int, priority int)
+	DeletePacket(id int)
 }

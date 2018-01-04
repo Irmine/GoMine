@@ -44,3 +44,10 @@ func RegisterPacketHandler(id int, handler interfaces.IPacketHandler, priority i
 func GetPacketHandlers(id int) map[int][]interfaces.IPacketHandler {
 	return registeredHandlers[id]
 }
+
+/**
+ * Deletes all packet handlers listening for packets with the given ID, on the given priority.
+ */
+func DeregisterPacketHandler(id int, priority int) {
+	delete(registeredHandlers[id], priority)
+}

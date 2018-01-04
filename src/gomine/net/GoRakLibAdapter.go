@@ -122,3 +122,17 @@ func (adapter *GoRakLibAdapter) RegisterPacketHandler(id int, handler interfaces
 func (adapter *GoRakLibAdapter) GetPacketHandlers(id int) map[int][]interfaces.IPacketHandler {
 	return GetPacketHandlers(id)
 }
+
+/**
+ * Deletes all packet handlers listening for packets with the given ID, on the given priority.
+ */
+func (adapter *GoRakLibAdapter) DeregisterPacketHandler(id int, priority int) {
+	DeregisterPacketHandler(id, priority)
+}
+
+/**
+ * Deletes a registered packet with the given ID.
+ */
+func (adapter *GoRakLibAdapter) DeletePacket(id int) {
+	DeregisterPacket(id)
+}
