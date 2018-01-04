@@ -6,7 +6,7 @@ type BinaryStream struct {
 }
 
 func NewStream() *BinaryStream {
-	return &BinaryStream{0, make([]byte, 4096)}
+	return &BinaryStream{0, []byte{}}
 }
 
 func (stream *BinaryStream) GetOffset() int {
