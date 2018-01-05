@@ -3,7 +3,6 @@ package gomine
 import (
 	"errors"
 	"os"
-	"gomine/tasks"
 	"gomine/utils"
 	"gomine/resources"
 	"gomine/worlds"
@@ -30,7 +29,6 @@ type Server struct {
 	tick int64
 
 	serverPath string
-	scheduler  *tasks.Scheduler
 	logger     interfaces.ILogger
 	config 	   *resources.GoMineConfig
 	consoleReader *ConsoleReader
@@ -56,7 +54,6 @@ func NewServer(serverPath string) *Server {
 	var server = &Server{}
 	server.serverPath = serverPath
 	server.config = resources.NewGoMineConfig(serverPath)
-	server.scheduler = tasks.NewScheduler()
 	server.logger = utils.NewLogger(GoMineName, serverPath, server.GetConfiguration().DebugMode)
 	server.levels = make(map[int]interfaces.ILevel)
 	server.consoleReader = NewConsoleReader(server)
@@ -135,13 +132,6 @@ func (server *Server) GetVersion() string {
  */
 func (server *Server) GetNetworkVersion() string {
 	return info.GameVersionNetwork
-}
-
-/**
- * Returns the scheduler used for scheduling tasks.
- */
-func (server *Server) GetScheduler() *tasks.Scheduler {
-	return server.scheduler
 }
 
 /**
@@ -382,7 +372,6 @@ func (server *Server) Tick(currentTick int64) {
 	if !server.isRunning {
 		return
 	}
-	server.GetScheduler().DoTick()
 	for _, level := range server.levels {
 		level.TickLevel()
 	}

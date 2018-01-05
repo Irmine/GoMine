@@ -1,7 +1,6 @@
 package interfaces
 
 import (
-	"gomine/tasks"
 	"gomine/resources"
 )
 
@@ -9,7 +8,6 @@ type IServer interface {
 	IsRunning() bool
 	Start()
 	Shutdown()
-	GetScheduler() *tasks.Scheduler
 	GetServerPath() string
 	GetLogger() ILogger
 	GetConfiguration() *resources.GoMineConfig
