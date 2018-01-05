@@ -4,6 +4,7 @@ import (
 	"os"
 	"fmt"
 	"strings"
+	"time"
 )
 
 const (
@@ -42,8 +43,11 @@ func NewLogger(prefix string, outputDir string, debugMode bool) *Logger {
 	var logger = &Logger{prefix, path, file, debugMode, []string{}, []string{}, false}
 
 	go func() {
-		for !logger.terminated {
-			logger.ProcessQueue(false)
+		var ticker = time.NewTicker(time.Second / 40)
+		for range ticker.C {
+			if !logger.terminated {
+				logger.ProcessQueue(false)
+			}
 		}
 	}()
 
