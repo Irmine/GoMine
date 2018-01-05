@@ -628,18 +628,6 @@ func ReadId(buffer *[]byte, offset *int) (id string) {//OR THIS
 	return id
 }
 
-func WriteUUID(buffer *[]byte, uuid UUID) {
-	WriteLong(buffer, uuid.parts[0])
-	WriteLong(buffer, uuid.parts[1])
-}
-
-func ReadUUID(buffer *[]byte, offset *int) (UUID) {
-	v := UUID{}
-	v.parts[0] = ReadLong(buffer, offset)
-	v.parts[1] = ReadLong(buffer, offset)
-	return v
-}
-
 func ReadBigEndianTriad(buffer *[]byte, offset *int) uint32 {
 	var out uint32
 	var bytes = Read(buffer, offset, 3)

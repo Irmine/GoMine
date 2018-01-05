@@ -215,3 +215,14 @@ func (pk *Packet) PutPacks(packs []interfaces.IPack, info bool) {
 		}
 	}
 }
+
+func (pk *Packet) GetUUID() utils.UUID {
+	return utils.UUIDFromBinary(&pk.Buffer, &pk.Offset)
+}
+
+func (pk *Packet) PutUUID(uuid utils.UUID) {
+	pk.PutLittleInt(uuid.GetParts()[1])
+	pk.PutLittleInt(uuid.GetParts()[0])
+	pk.PutLittleInt(uuid.GetParts()[3])
+	pk.PutLittleInt(uuid.GetParts()[2])
+}

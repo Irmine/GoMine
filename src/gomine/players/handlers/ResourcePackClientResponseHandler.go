@@ -76,9 +76,18 @@ func (handler ResourcePackClientResponseHandler) Handle(packet interfaces.IPacke
 			player.SendPacket(startGame)
 
 			var playerList = packets.NewPlayerListPacket()
-			playerList.Players = append(playerList.Players, player)
+			playerList.Players = server.GetPlayerFactory().GetPlayers()
 			playerList.ListType = packets.ListTypeAdd
 			player.SendPacket(playerList)
+
+			for _, receiver := range server.GetPlayerFactory().GetPlayers() {
+				if player != receiver {
+					var list = packets.NewPlayerListPacket()
+					list.ListType = packets.ListTypeAdd
+					list.Players = map[string]interfaces.IPlayer{player.GetName(): player}
+					receiver.SendPacket(list)
+				}
+			}
 
 			var craftingData = packets.NewCraftingDataPacket()
 			player.SendPacket(craftingData)

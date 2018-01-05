@@ -7,6 +7,7 @@ import (
 	"gomine/entities"
 	"gomine/vectors"
 	"gomine/entities/math"
+	"gomine/utils"
 )
 
 type Player struct {
@@ -27,7 +28,7 @@ type Player struct {
 
 	language string
 
-	uuid string
+	uuid utils.UUID
 	xuid string
 	clientId int
 
@@ -44,8 +45,7 @@ type Player struct {
 /**
  * Returns a new player with the given credentials.
  */
-func NewPlayer(server interfaces.IServer, session *server.Session, name string, uuid string, xuid string, clientId int) *Player {
-
+func NewPlayer(server interfaces.IServer, session *server.Session, name string, uuid utils.UUID, xuid string, clientId int) *Player {
 	var player = &Player{}
 
 	player.runtimeId = entities.RuntimeId
@@ -68,7 +68,7 @@ func NewPlayer(server interfaces.IServer, session *server.Session, name string, 
 /**
  * Returns a new player.
  */
-func (player *Player) New(server interfaces.IServer, session *server.Session, name string, uuid string, xuid string, clientId int) interfaces.IPlayer {
+func (player *Player) New(server interfaces.IServer, session *server.Session, name string, uuid utils.UUID, xuid string, clientId int) interfaces.IPlayer {
 	return NewPlayer(server, session, name, uuid, xuid, clientId)
 }
 
@@ -89,7 +89,7 @@ func (player *Player) PlaceInWorld(position *vectors.TripleVector, rotation *mat
 /**
  * Returns the UUID of this player.
  */
-func (player *Player) GetUUID() string {
+func (player *Player) GetUUID() utils.UUID {
 	return player.uuid
 }
 
