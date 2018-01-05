@@ -61,19 +61,19 @@ func GenerateRandomUUID() string {
 	return uuid
 }
 
-func (uuid *UUID) GetParts() [4]int32 {
+func (uuid UUID) GetParts() [4]int32 {
 	return uuid.parts
 }
 
-func (uuid *UUID) GetVersion() int {
+func (uuid UUID) GetVersion() int {
 	return uuid.version
 }
 
-func (uuid *UUID) SetVersion(version int) {
+func (uuid UUID) SetVersion(version int) {
 	uuid.version = version
 }
 
-func (uuid *UUID) Equals(uuid2 UUID) bool {
+func (uuid UUID) Equals(uuid2 UUID) bool {
 	return uuid.parts == uuid2.parts
 }
 
@@ -81,7 +81,7 @@ func UUIDFromString(str string) UUID {
 	if !IsValidUUID(str) {
 		return UUID{}
 	}
-	println(str)
+	
 	var bytes, _ = hex.DecodeString(strings.Replace(str, "-", "", -1))
 	var offset = 0
 	return UUIDFromBinary(&bytes, &offset)
@@ -94,7 +94,7 @@ func UUIDFromBinary(buffer *[]byte, offset *int) UUID {
 	return NewUUID([4]int32{ReadInt(buffer, offset), ReadInt(buffer, offset), ReadInt(buffer, offset), ReadInt(buffer, offset)})
 }
 
-func (uuid *UUID) ToBinary() []byte {
+func (uuid UUID) ToBinary() []byte {
 	var buffer []byte
 	for i := 0; i < 4; i++ {
 		WriteInt(&buffer, uuid.parts[i])
@@ -102,7 +102,7 @@ func (uuid *UUID) ToBinary() []byte {
 	return buffer
 }
 
-func (uuid *UUID) StringValue() string {
+func (uuid UUID) StringValue() string {
 	v := uuid.ToBinary()
 	out := hex.EncodeToString(v)
 	res := out[0:4] + "-"
