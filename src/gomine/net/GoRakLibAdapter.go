@@ -5,6 +5,7 @@ import (
 	server2 "goraklib/server"
 	"gomine/net/info"
 	"goraklib/protocol"
+	"gomine/players/handlers"
 )
 
 type GoRakLibAdapter struct {
@@ -52,7 +53,7 @@ func (adapter *GoRakLibAdapter) Tick() {
 					packet.DecodeHeader()
 					packet.Decode()
 
-					var player, _ = adapter.server.GetPlayerFactory().GetPlayerBySession(session.GetAddress(), session.GetPort())
+					var player, _ = adapter.server.GetPlayerFactory().GetPlayerBySession(session)
 
 					priorityHandlers := GetPacketHandlers(packet.GetId())
 
@@ -69,6 +70,16 @@ func (adapter *GoRakLibAdapter) Tick() {
 			}
 		}(session)
 	}
+
+	for _, session := range adapter.rakLibServer.GetSessionManager().GetDisconnectedSessions() {
+		player, _ := adapter.server.GetPlayerFactory().GetPlayerBySession(session)
+		handler := handlers.NewDisconnectHandler()
+		handler.Handle(player, session, adapter.server)
+	}
+}
+
+func (adapter *GoRakLibAdapter) HandleDisconnect(player interfaces.IPlayer, session *server2.Session) {
+
 }
 
 func (adapter *GoRakLibAdapter) GetSession(address string, port uint16) *server2.Session {

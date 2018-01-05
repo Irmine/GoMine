@@ -4,7 +4,6 @@ import (
 	"gomine/interfaces"
 	"errors"
 	"goraklib/server"
-	"strconv"
 )
 
 type PlayerFactory struct {
@@ -25,7 +24,7 @@ func NewPlayerFactory(server interfaces.IServer) *PlayerFactory {
  */
 func (factory *PlayerFactory) AddPlayer(player interfaces.IPlayer, session *server.Session) {
 	factory.players[player.GetName()] = player
-	factory.playersAddress[session.GetAddress() + strconv.Itoa(int(session.GetPort()))] = player
+	factory.playersAddress[server.GetSessionIndex(session)] = player
 }
 
 /**
@@ -43,9 +42,9 @@ func (factory *PlayerFactory) GetPlayerByName(name string) (interfaces.IPlayer, 
 /**
  * Returns a player by its GoRakLib session.
  */
-func (factory *PlayerFactory) GetPlayerBySession(address string, port uint16) (interfaces.IPlayer, error) {
+func (factory *PlayerFactory) GetPlayerBySession(session *server.Session) (interfaces.IPlayer, error) {
 	var player Player
-	var key = address + strconv.Itoa(int(port))
+	var key = server.GetSessionIndex(session)
 
 	if _, ok := factory.playersAddress[key]; ok {
 		return factory.playersAddress[key], nil
@@ -58,6 +57,14 @@ func (factory *PlayerFactory) GetPlayerBySession(address string, port uint16) (i
  */
 func (factory *PlayerFactory) GetPlayers() map[string]interfaces.IPlayer {
 	return factory.players
+}
+
+/**
+ * Removes a player from the player factory.
+ */
+func (factory *PlayerFactory) RemovePlayer(player interfaces.IPlayer) {
+	delete(factory.players, player.GetName())
+	delete(factory.playersAddress, server.GetSessionIndex(player.GetSession()))
 }
 
 /**

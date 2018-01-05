@@ -25,7 +25,7 @@ func (handler TextHandler) Handle(packet interfaces.IPacket, player interfaces.I
 			pk.Message = textPacket.Message
 			pk.TextType = textPacket.TextType
 			pk.TextSource = player.GetDisplayName()
-			pk.XUID = "" // FIXME
+			pk.XUID = player.GetXUID()
 
 			receiver.SendPacket(pk)
 		}
