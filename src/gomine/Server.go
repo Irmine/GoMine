@@ -77,6 +77,7 @@ func NewServer(serverPath string) *Server {
 func (server *Server) RegisterDefaultCommands() {
 	server.commandHolder.RegisterCommand(defaults.NewStop(server))
 	server.commandHolder.RegisterCommand(defaults.NewTest(server))
+	server.commandHolder.RegisterCommand(defaults.NewPing())
 }
 
 /**
