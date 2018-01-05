@@ -10,6 +10,7 @@ type ILogger interface {
 	Error(...interface{})
 	Warning(...interface{})
 	Critical(...interface{})
+	LogChat(...interface{})
 	ProcessQueue(bool)
 	Terminate()
 	Sync()

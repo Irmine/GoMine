@@ -15,6 +15,7 @@ const (
 	Error	 = "error"
 	Warning  = "warning"
 	Critical = "critical"
+	Chat     = "chat"
 )
 
 type Logger struct {
@@ -154,6 +155,13 @@ func (logger *Logger) Critical(messages ...interface{}) {
  */
 func (logger *Logger) Error(messages ...interface{}) {
 	logger.Log(Error, Red, messages)
+}
+
+/**
+ * Logs a chat message to the logger.
+ */
+func (logger *Logger) LogChat(messages ...interface{}) {
+	logger.Log(Chat, BrightCyan, messages)
 }
 
 /**

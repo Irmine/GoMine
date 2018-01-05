@@ -365,6 +365,26 @@ func (server *Server) GetPluginManager() *plugins.PluginManager {
 }
 
 /**
+ * Broadcasts a message to all receivers.
+ */
+func (server *Server) BroadcastMessageTo(message string, receivers []interfaces.IPlayer) {
+	for _, player := range receivers {
+		player.SendMessage(message)
+	}
+	server.logger.LogChat(message)
+}
+
+/**
+ * Broadcasts a message to all players and the console in the server.
+ */
+func (server *Server) BroadcastMessage(message string) {
+	for _, player := range server.GetPlayerFactory().GetPlayers() {
+		player.SendMessage(message)
+	}
+	server.logger.LogChat(message)
+}
+
+/**
  * Internal. Not to be used by plugins.
  * Ticks the entire server. (Levels, scheduler, GoRakLib server etc.)
  */

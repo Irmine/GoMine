@@ -28,6 +28,8 @@ func (handler TextHandler) Handle(packet interfaces.IPacket, player interfaces.I
 			pk.XUID = player.GetXUID()
 
 			receiver.SendPacket(pk)
+
+			server.GetLogger().LogChat("<" + player.GetDisplayName() + "> " + pk.Message)
 		}
 
 		return true

@@ -35,4 +35,6 @@ type IServer interface {
 	GetLevelById(int) (ILevel, error)
 	GetLevelByName(string) (ILevel, error)
 	GetCurrentTick() int64
+	BroadcastMessageTo(message string, receivers []IPlayer)
+	BroadcastMessage(message string)
 }
