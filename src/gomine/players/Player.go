@@ -40,6 +40,8 @@ type Player struct {
 	capeData []byte
 	geometryName string
 	geometryData string
+
+	usedChunks map[int]interfaces.IChunk
 }
 
 /**
@@ -51,6 +53,8 @@ func NewPlayer(server interfaces.IServer, session *server.Session, name string, 
 	player.runtimeId = entities.RuntimeId
 	player.playerName = name
 	player.displayName = name
+
+	player.usedChunks = make(map[int]interfaces.IChunk)
 
 	player.uuid = uuid
 	player.xuid = xuid
@@ -316,21 +320,51 @@ func (player *Player) GetPing() uint64 {
 /**
  * Sends a chunk to the player.
  */
-func (player *Player) SendChunk(chunk interfaces.IChunk)  {
+func (player *Player) SendChunk(chunk interfaces.IChunk, index int)  {
 	var pk = packets.NewFullChunkPacket()
 
 	pk.ChunkX = chunk.GetX()
 	pk.ChunkZ = chunk.GetZ()
 	pk.Chunk = chunk
 
+	player.usedChunks[index] = chunk
+
 	player.SendPacket(pk)
 }
 
 /**
- * Called on every player move
+ * Synchronizes the server's player movement with the client movement and adjusts chunks.
  */
-func (player *Player) Move(x, y, z, pitch, yaw, headYaw float32) {
+func (player *Player) SyncMove(x, y, z, pitch, yaw, headYaw float32) {
+	player.Position.SetComponents(x, y, z)
+	player.Rotation.Pitch += pitch
+	player.Rotation.Yaw += yaw
+	player.Rotation.HeadYaw += headYaw
 
+	for index, chunk := range player.usedChunks {
+		if chunk.GetX() > (int32(player.GetPosition().X) >> 4) + player.GetViewDistance() || chunk.GetX() < (int32(player.GetPosition().X) >> 4) - player.GetViewDistance() {
+			delete(player.usedChunks, index)
+			continue
+		}
+		if chunk.GetZ() > (int32(player.GetPosition().Z) >> 4) + player.GetViewDistance() || chunk.GetZ() < (int32(player.GetPosition().Z) >> 4) - player.GetViewDistance() {
+			delete(player.usedChunks, index)
+		}
+	}
+}
+
+/**
+ * Checks if the player has a chunk with the given index in use.
+ */
+func (player *Player) HasChunkInUse(index int) bool {
+	_, ok := player.usedChunks[index]
+	return ok
+}
+
+/**
+ * Checks if the player has any used chunks.
+ */
+func (player *Player) HasAnyChunkInUse() bool {
+	return len(player.usedChunks) > 0
 }
 
 /**
@@ -349,7 +383,6 @@ func (player *Player) Tick() {
  */
 func (player *Player) SendMessage(message string) {
 	var pk = packets.NewTextPacket()
-	pk.XUID = player.GetXUID()
 	pk.Message = message
 	player.SendPacket(pk)
 }

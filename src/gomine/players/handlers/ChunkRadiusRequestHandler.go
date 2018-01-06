@@ -30,11 +30,14 @@ func (handler ChunkRadiusRequestHandler) Handle(packet interfaces.IPacket, playe
 
 		server.GetDefaultLevel().GetDefaultDimension().RequestChunks(player)
 
+		if player.HasAnyChunkInUse() {
+			return true
+		}
+
 		var playerList = packets.NewPlayerListPacket()
 		playerList.Players = server.GetPlayerFactory().GetPlayers()
 		playerList.ListType = packets.ListTypeAdd
 		player.SendPacket(playerList)
-
 
 		for _, receiver := range server.GetPlayerFactory().GetPlayers() {
 			if player != receiver {

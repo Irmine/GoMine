@@ -25,7 +25,6 @@ type Dimension struct {
 	chunks 		map[int]interfaces.IChunk
 	chunkPlayers map[int][]interfaces.IPlayer
 	updatedBlocks map[int][]interfaces.IBlock
-	loadedChunks map[int]interfaces.IChunk
 
 	generator interfaces.IGenerator
 }
@@ -41,7 +40,6 @@ func NewDimension(name string, dimensionId int, level *Level, generator string, 
 		chunks: chunks,
 		chunkPlayers: make(map[int][]interfaces.IPlayer),
 		updatedBlocks: make(map[int][]interfaces.IBlock),
-		loadedChunks: make(map[int]interfaces.IChunk),
 	}
 
 	if len(generator) == 0 {
@@ -78,17 +76,8 @@ func (dimension *Dimension) GetLevel() interfaces.ILevel {
  * Returns if chunk is loaded
  */
 func (dimension *Dimension) IsChunkLoaded(x, z int32) bool {
-	var _, ok = dimension.loadedChunks[GetChunkIndex(x, z)]
+	var _, ok = dimension.chunks[GetChunkIndex(x, z)]
 	return ok
-}
-
-/**
- * Sets this chunk loaded
- */
-func (dimension *Dimension) SetChunkLoaded(x, z int32, chunk interfaces.IChunk) {
-	if !dimension.IsChunkLoaded(x, z) {
-		dimension.loadedChunks[GetChunkIndex(x, z)] = chunk
-	}
 }
 
 /**
@@ -96,7 +85,7 @@ func (dimension *Dimension) SetChunkLoaded(x, z int32, chunk interfaces.IChunk) 
  */
 func (dimension *Dimension) SetChunkUnloaded(x, z int32) {
 	if !dimension.IsChunkLoaded(x, z) {
-		delete(dimension.loadedChunks, GetChunkIndex(x, z))
+		delete(dimension.chunks, GetChunkIndex(x, z))
 	}
 }
 
@@ -114,6 +103,7 @@ func (dimension *Dimension) GetChunk(x, z int32) interfaces.IChunk {
 	if v, ok := dimension.chunks[GetChunkIndex(x, z)]; ok {
 		return v
 	} else {
+		println("Generating chunk", x, z)
 		var chunk = dimension.generator.GetNewChunk(chunks.NewChunk(x, z))
 		dimension.chunks[GetChunkIndex(x, z)] = chunk
 		return chunk
@@ -160,31 +150,28 @@ func (dimension *Dimension) GetGenerator() interfaces.IGenerator {
 }
 
 /**
- * Sends chunks around a player
+ * Sends all chunks required around the player.
  */
 func (dimension *Dimension) RequestChunks(player interfaces.IPlayer) {
-	/*distance := player.GetViewDistance()
+	distance := player.GetViewDistance()
 	xD, zD := int32(player.GetPosition().X) >> 4, int32(player.GetPosition().Z) >> 4
 
-	for x := xD - distance; x <= (xD + distance); x++ {
-		for z := zD - distance; z <= (zD + distance); z++ {
-			if !dimension.IsChunkLoaded(x, z) {
-				chunk := dimension.GetChunk(x, z)
-				player.SendChunk(chunk)
-				dimension.AddChunkPlayer(x, z, player)
-				dimension.SetChunkLoaded(x, z, chunk)
+	for x := -distance + xD; x <= distance + xD; x++ {
+		for z := -distance + zD; z <= distance + zD; z++ {
 
-				if dimension.IsChunkLoaded(x, z) {
-					dimension.level.GetServer().GetLogger().Debug("Chunk at x: " + strconv.Itoa(int(x)) + ", z: " + strconv.Itoa(int(z)) + "loaded!") // debug, don't remove
+			var xRel = x - xD
+			var zRel = z - zD
+			if xRel * xRel + zRel * zRel <= distance * distance {
+				index := GetChunkIndex(x, z)
+
+				if player.HasChunkInUse(index) {
+					continue
 				}
-			}
-		}
-	}*/ // This loads chunks incorrectly and currently dimension loaded and player loaded chunks are treated the same, which causes problems for multiple players.
 
-	distance := player.GetViewDistance()
-	for x := -distance; x <= distance; x++ {
-		for z := -distance; z <= distance; z++ {
-			player.SendChunk(dimension.GetChunk(x, z))
+				chunk := dimension.GetChunk(x, z)
+				player.SendChunk(chunk, index)
+				dimension.AddChunkPlayer(x, z, player)
+			}
 		}
 	}
 }
@@ -193,7 +180,7 @@ func (dimension *Dimension) RequestChunks(player interfaces.IPlayer) {
  * Unloads all unused chunks
  */
 func (dimension Dimension) UnloadUnusedChunks() {
-	for index := range dimension.loadedChunks {
+	for index := range dimension.chunks {
 		x, z := GetChunkCoordinates(index)
 		if len(dimension.GetChunkPlayers(x, z)) == 0 {
 			dimension.SetChunkUnloaded(x, z)
@@ -248,5 +235,5 @@ func (dimension *Dimension) UpdateChunks() {
 
 func (dimension *Dimension) TickDimension() {
 	dimension.UpdateBlocks()
-	dimension.UpdateChunks()
+	//dimension.UpdateChunks()
 }

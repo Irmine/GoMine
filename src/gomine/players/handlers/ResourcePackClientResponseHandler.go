@@ -62,6 +62,9 @@ func (handler ResourcePackClientResponseHandler) Handle(packet interfaces.IPacke
 			player.PlaceInWorld(vectors.NewTripleVector(0, 20, 0), math.NewRotation(0, 0, 0), server.GetDefaultLevel(), server.GetDefaultLevel().GetDefaultDimension())
 
 			var startGame = packets.NewStartGamePacket()
+			startGame.TrustPlayers = true
+			startGame.EntityRuntimeId = player.GetRuntimeId()
+			startGame.EntityUniqueId = int64(player.GetRuntimeId())
 			startGame.PlayerGameMode = 1
 			startGame.PlayerPosition = vectors.TripleVector{0, 20, 0}
 			startGame.LevelGameMode = 1

@@ -36,6 +36,8 @@ func (pk *PlayerListPacket) Encode() {
 			pk.PutString(entry.GetGeometryData())
 
 			pk.PutString(entry.GetXUID())
+		} else {
+			pk.PutUUID(entry.GetUUID())
 		}
 	}
 }
