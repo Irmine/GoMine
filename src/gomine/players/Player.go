@@ -8,6 +8,7 @@ import (
 	"gomine/vectors"
 	"gomine/entities/math"
 	"gomine/utils"
+	math2 "math"
 )
 
 type Player struct {
@@ -322,11 +323,7 @@ func (player *Player) GetPing() uint64 {
  */
 func (player *Player) SendChunk(chunk interfaces.IChunk, index int)  {
 	var pk = packets.NewFullChunkPacket()
-
-	pk.ChunkX = chunk.GetX()
-	pk.ChunkZ = chunk.GetZ()
 	pk.Chunk = chunk
-
 	player.usedChunks[index] = chunk
 
 	player.SendPacket(pk)
@@ -341,12 +338,15 @@ func (player *Player) SyncMove(x, y, z, pitch, yaw, headYaw float32) {
 	player.Rotation.Yaw += yaw
 	player.Rotation.HeadYaw += headYaw
 
+	var chunkX = int32(math2.Floor(float64(x))) >> 4
+	var chunkZ = int32(math2.Floor(float64(z))) >> 4
+
+	var rs = player.GetViewDistance() * player.GetViewDistance()
+
 	for index, chunk := range player.usedChunks {
-		if chunk.GetX() > (int32(player.GetPosition().X) >> 4) + player.GetViewDistance() || chunk.GetX() < (int32(player.GetPosition().X) >> 4) - player.GetViewDistance() {
-			delete(player.usedChunks, index)
-			continue
-		}
-		if chunk.GetZ() > (int32(player.GetPosition().Z) >> 4) + player.GetViewDistance() || chunk.GetZ() < (int32(player.GetPosition().Z) >> 4) - player.GetViewDistance() {
+		xDist := chunkX - chunk.GetX()
+		zDist := chunkZ - chunk.GetZ()
+		if xDist * xDist + zDist * zDist > rs {
 			delete(player.usedChunks, index)
 		}
 	}

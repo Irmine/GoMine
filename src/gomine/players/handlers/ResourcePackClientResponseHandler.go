@@ -8,6 +8,7 @@ import (
 	"gomine/vectors"
 	"gomine/entities/math"
 	math2 "math"
+	"gomine/permissions"
 )
 
 const (
@@ -62,11 +63,14 @@ func (handler ResourcePackClientResponseHandler) Handle(packet interfaces.IPacke
 			player.PlaceInWorld(vectors.NewTripleVector(0, 20, 0), math.NewRotation(0, 0, 0), server.GetDefaultLevel(), server.GetDefaultLevel().GetDefaultDimension())
 
 			var startGame = packets.NewStartGamePacket()
+			startGame.Generator = 1
+			startGame.LevelSeed = 312402
 			startGame.TrustPlayers = true
+			startGame.DefaultPermissionLevel = permissions.LevelOperator
 			startGame.EntityRuntimeId = player.GetRuntimeId()
 			startGame.EntityUniqueId = int64(player.GetRuntimeId())
 			startGame.PlayerGameMode = 1
-			startGame.PlayerPosition = vectors.TripleVector{0, 20, 0}
+			startGame.PlayerPosition = vectors.TripleVector{20, 20, 20}
 			startGame.LevelGameMode = 1
 			startGame.LevelSpawnPosition = vectors.TripleVector{0, 20, 0}
 			startGame.CommandsEnabled = true
@@ -75,6 +79,8 @@ func (handler ResourcePackClientResponseHandler) Handle(packet interfaces.IPacke
 			startGame.CurrentTick = int64(server.GetCurrentTick())
 			startGame.Time = 0
 			startGame.AchievementsDisabled = true
+			startGame.BroadcastToXbox = true
+			startGame.XboxBroadcastMode = 0
 
 			player.SendPacket(startGame)
 

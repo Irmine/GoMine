@@ -394,7 +394,7 @@ func (chunk *Chunk) ToBinary() []byte {
 	}
 	stream.PutByte(0)
 
-	stream.PutUnsignedVarInt(0)
+	stream.PutVarInt(0)
 
 	return stream.GetBuffer()
 }

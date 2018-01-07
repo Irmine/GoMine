@@ -477,12 +477,15 @@ func WriteString(buffer *[]byte, string string) {
 }
 
 func ReadString(buffer *[]byte, offset *int) (string) {
-	bytes := Read(buffer, offset, int(ReadUnsignedVarInt(buffer, offset)))
+	var l = int(ReadUnsignedVarInt(buffer, offset))
+	bytes := Read(buffer, offset, l)
 	return string(bytes)
 }
 
 func WriteVarInt(buffer *[]byte, int int32) {
-	int = int << 1
+	int <<= 32 >> 32
+	int = (int << 1) ^ (int >> 31)
+
 	for u := 0; u < 5; u++ {
 		if (int >> 7) != 0 {
 			Write(buffer, byte(int | 0x80))
@@ -501,15 +504,18 @@ func ReadVarInt(buffer *[]byte, offset *int) int32 {
 		out |= int32(b << v)
 
 		if (b & 0x80) == 0 {
-			return out >> 1
+			break
 		}
 	}
 
-	return 0
+	var out2 = (((out << 32) >> 32) ^ out) >> 1
+	return out2 ^ (out & (1 << 30))
 }
 
 func WriteVarLong(buffer *[]byte, int int64) {
-	int = int << 1
+	int <<= 64 >> 64
+	int = (int << 1) ^ (int >> 63)
+
 	for u := 0; u < 10; u++ {
 		if (int >> 7) != 0 {
 			Write(buffer, byte(int | 0x80))
@@ -528,11 +534,12 @@ func ReadVarLong(buffer *[]byte, offset *int) (int64) {
 		out |= int64(b << v)
 
 		if (b & 0x80) == 0 {
-			return out >> 1
+			break
 		}
 	}
 
-	return 0
+	var out2 = (((out << 64) >> 64) ^ out) >> 1
+	return out2 ^ (out & (1 << 62))
 }
 
 func WriteUnsignedVarInt(buffer *[]byte, int uint32) {
