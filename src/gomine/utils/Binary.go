@@ -3,8 +3,6 @@ package utils
 import (
 	"fmt"
 	"math"
-	"encoding/binary"
-	bytes2 "bytes"
 )
 
 func Read(buffer *[]byte, offset *int, length int) ([]byte) {

@@ -211,14 +211,6 @@ func (stream *BinaryStream) GetLittleDouble() float64 {
 	return ReadDouble(&stream.Buffer, &stream.Offset)
 }
 
-func (stream *BinaryStream) PutPosition(x, y, z int) {
-	WritePosition(&stream.Buffer, x, y, z)
-}
-
-func (stream *BinaryStream) GetPosition() (int, int, int) {
-	return ReadPosition(&stream.Buffer, &stream.Offset)
-}
-
 func (stream *BinaryStream) PutTriad(v uint32) {
 	WriteBigEndianTriad(&stream.Buffer, v)
 }
