@@ -484,17 +484,15 @@ func ReadString(buffer *[]byte, offset *int) (string) {
 }
 
 func WriteVarInt(buffer *[]byte, int int32) {
-	if int == 0 {
-		WriteByte(buffer, 0)
-		return
-	}
-	var buf = make([]byte, binary.MaxVarintLen32)
-	binary.PutVarint(buf, int64(int))
-
-	buf = bytes2.Trim(buf, "\x00")
-
-	for _, b := range buf {
-		Write(buffer, b)
+	int = int << 1
+	for u := 0; u < 5; u++ {
+		if (int >> 7) != 0 {
+			Write(buffer, byte(int | 0x80))
+		} else {
+			Write(buffer, byte(int & 0x7f))
+			break
+		}
+		int >>= 7
 	}
 }
 
@@ -505,7 +503,7 @@ func ReadVarInt(buffer *[]byte, offset *int) int32 {
 		out |= int32(b << v)
 
 		if (b & 0x80) == 0 {
-			return out
+			return out >> 1
 		}
 	}
 
@@ -513,48 +511,49 @@ func ReadVarInt(buffer *[]byte, offset *int) int32 {
 }
 
 func WriteVarLong(buffer *[]byte, int int64) {
-	if int == 0 {
-		WriteByte(buffer, 0)
-		return
-	}
-
-	var bytes = make([]byte, 10)
-	binary.PutVarint(bytes, int)
-	bytes = bytes2.Trim(bytes, "\x00")
-
-	for _, b := range bytes {
-		WriteByte(buffer, b)
+	int = int << 1
+	for u := 0; u < 10; u++ {
+		if (int >> 7) != 0 {
+			Write(buffer, byte(int | 0x80))
+		} else {
+			Write(buffer, byte(int & 0x7f))
+			break
+		}
+		int >>= 7
 	}
 }
 
 func ReadVarLong(buffer *[]byte, offset *int) (int64) {
-	var varLong, readBytes = binary.Varint((*buffer)[*offset:])
-	var newOffset = readBytes + *offset
-	offset = &newOffset
+	var out int64 = 0
+	for v := uint(0); v <= 63; v += 7 {
+		b := int(ReadByte(buffer, offset))
+		out |= int64(b << v)
 
-	return varLong
+		if (b & 0x80) == 0 {
+			return out >> 1
+		}
+	}
+
+	return 0
 }
 
 func WriteUnsignedVarInt(buffer *[]byte, int uint32) {
-	if int == 0 {
-		WriteByte(buffer, 0)
-		return
-	}
-	var buf = make([]byte, binary.MaxVarintLen32)
-	binary.PutUvarint(buf, uint64(int))
-
-	buf = bytes2.Trim(buf, "\x00")
-
-	for _, b := range buf {
-		Write(buffer, b)
+	for u := 0; u < 5; u++ {
+		if (int >> 7) != 0 {
+			Write(buffer, byte(int | 0x80))
+		} else {
+			Write(buffer, byte(int & 0x7f))
+			break
+		}
+		int >>= 7
 	}
 }
 
 func ReadUnsignedVarInt(buffer *[]byte, offset *int) (uint32) {
 	var out uint32 = 0
-	for v := 0; v < 35; v += 7 {
+	for v := uint(0); v < 35; v += 7 {
 		b := int(ReadByte(buffer, offset))
-		out |= uint32((b & 0x7f) << uint(v))
+		out |= uint32(b << v)
 
 		if (b & 0x80) == 0 {
 			return out
@@ -565,67 +564,29 @@ func ReadUnsignedVarInt(buffer *[]byte, offset *int) (uint32) {
 }
 
 func WriteUnsignedVarLong(buffer *[]byte, int uint64) {
-	if int == 0 {
-		WriteByte(buffer, 0)
-		return
-	}
-	var out byte
-	for int != 0 {
-		out = byte(int) & 0xFF
-		int >>= 7
-		if int != 0 {
-			out |= byte(int) & 0x00
+	for u := 0; u < 10; u++ {
+		if (int >> 7) != 0 {
+			Write(buffer, byte(int | 0x80))
+		} else {
+			Write(buffer, byte(int & 0x7f))
+			break
 		}
-		WriteByte(buffer, out)
+		int >>= 7
 	}
 }
 
 func ReadUnsignedVarLong(buffer *[]byte, offset *int) (uint64) {
 	var out uint64 = 0
-	for v := 0; v < 70; v += 7 {
+	for v := uint(0); v <= 63; v += 7 {
 		b := int(ReadByte(buffer, offset))
-		out |= uint64((b & 0xFF) << uint(v))
+		out |= uint64(b << v)
 
-		if (b & 0x00) == 0 {
+		if (b & 0x80) == 0 {
 			return out
 		}
 	}
 
 	return 0
-}
-
-func WritePosition(buffer *[]byte, x, y, z int) {
-	var v int
-	v = (x & 0x3FFFFFF) << 38
-	v |= (y & 0xFFF) << 26
-	v |= (z & 0x3FFFFFF) << 38
-	WriteVarLong(buffer, int64(v))
-}
-
-func ReadPosition(buffer *[]byte, offset *int) (x, y, z int) {
-	long := ReadVarLong(buffer, offset)
-	x = int(long >> 38)
-	y = int(long >> 26) & 0xFFF
-	z = int(long << 38 >> 38)
-	return x, y, z
-}
-
-func WriteEId(buffer *[]byte, eid int32) {
-	WriteVarInt(buffer, eid)
-}
-
-func ReadEId(buffer *[]byte, offset *int) (eid int32) {
-	eid = ReadVarInt(buffer, offset)
-	return eid
-}
-
-func WriteId(buffer *[]byte, id string) {//NO IDEA WHAT THIS DOES
-	WriteString(buffer, id)
-}
-
-func ReadId(buffer *[]byte, offset *int) (id string) {//OR THIS
-	id = ReadString(buffer, offset)
-	return id
 }
 
 func ReadBigEndianTriad(buffer *[]byte, offset *int) uint32 {
