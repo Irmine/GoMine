@@ -28,28 +28,30 @@ func (handler ChunkRadiusRequestHandler) Handle(packet interfaces.IPacket, playe
 		radiusUpdated.Radius = player.GetViewDistance()
 		player.SendPacket(radiusUpdated)
 
-		server.GetDefaultLevel().GetDefaultDimension().RequestChunks(player)
+		var hasChunksInUse = player.HasAnyChunkInUse()
 
-		var playerList = packets.NewPlayerListPacket()
-		playerList.Players = server.GetPlayerFactory().GetPlayers()
-		playerList.ListType = packets.ListTypeAdd
-		player.SendPacket(playerList)
+		server.GetDefaultLevel().GetDefaultDimension().RequestChunks(player, 10)
 
+		if !hasChunksInUse {
+			var playerList = packets.NewPlayerListPacket()
+			playerList.Players = server.GetPlayerFactory().GetPlayers()
+			playerList.ListType = packets.ListTypeAdd
+			player.SendPacket(playerList)
 
-		for _, receiver := range server.GetPlayerFactory().GetPlayers() {
-			if player != receiver {
-				var list = packets.NewPlayerListPacket()
-				list.ListType = packets.ListTypeAdd
-				list.Players = map[string]interfaces.IPlayer{player.GetName(): player}
-				receiver.SendPacket(list)
+			for _, receiver := range server.GetPlayerFactory().GetPlayers() {
+				if player != receiver {
+					var list = packets.NewPlayerListPacket()
+					list.ListType = packets.ListTypeAdd
+					list.Players = map[string]interfaces.IPlayer{player.GetName(): player}
+					receiver.SendPacket(list)
+				}
 			}
+			server.BroadcastMessage(utils.Yellow + player.GetName() + " has joined the server")
 		}
 
 		var playStatus = packets.NewPlayStatusPacket()
 		playStatus.Status = 3
 		player.SendPacket(playStatus)
-
-		server.BroadcastMessage(utils.Yellow + player.GetName() + " has joined the server")
 
 		return true
 	}

@@ -100,50 +100,50 @@ func (vector *TripleVector) GetComponents() []float32 {
 /**
  * Adds the given vector to the current vector and creates a new TripleVector.
  */
-func (vector *TripleVector) AddVector(vector2 TripleVector) TripleVector {
-	return TripleVector{vector.X + vector2.X, vector.Y + vector2.Y, vector.Z + vector2.Z}
+func (vector *TripleVector) AddVector(vector2 TripleVector) *TripleVector {
+	return &TripleVector{vector.X + vector2.X, vector.Y + vector2.Y, vector.Z + vector2.Z}
 }
 
 /**
  * Adds the given XYZ values to the current vector and creates a new TripleVector.
  */
-func (vector *TripleVector) Add(x float32, y float32, z float32) TripleVector {
-	return TripleVector{vector.X + x, vector.Y + y, vector.Z + z}
+func (vector *TripleVector) Add(x float32, y float32, z float32) *TripleVector {
+	return &TripleVector{vector.X + x, vector.Y + y, vector.Z + z}
 }
 
 /**
  * Subtracts the given vector from the current vector and creates a new TripleVector.
  */
-func (vector *TripleVector) SubtractVector(vector2 TripleVector) TripleVector {
+func (vector *TripleVector) SubtractVector(vector2 TripleVector) *TripleVector {
 	return vector.Add(-vector2.X, -vector2.Y, -vector2.Z)
 }
 
 /**
  * Subtracts the given XYZ values from the current vector and creates a new TripleVector.
  */
-func (vector *TripleVector) Subtract(x float32, y float32, z float32) TripleVector {
+func (vector *TripleVector) Subtract(x float32, y float32, z float32) *TripleVector {
 	return vector.Add(-x, -y, -z)
 }
 
 /**
  * Returns a new TripleVector with the current values made absolute.
  */
-func (vector *TripleVector) Abs() TripleVector {
-	return TripleVector{float32(math.Abs(float64(vector.X))), float32(math.Abs(float64(vector.Y))), float32(math.Abs(float64(vector.Z)))}
+func (vector *TripleVector) Abs() *TripleVector {
+	return &TripleVector{float32(math.Abs(float64(vector.X))), float32(math.Abs(float64(vector.Y))), float32(math.Abs(float64(vector.Z)))}
 }
 
 /**
  * Multiplies all vectors by the given amount and returns a new TripleVector.
  */
-func (vector *TripleVector) Multiply(value float32) TripleVector {
-	return TripleVector{vector.X * value, vector.Y * value, vector.Z * value}
+func (vector *TripleVector) Multiply(value float32) *TripleVector {
+	return &TripleVector{vector.X * value, vector.Y * value, vector.Z * value}
 }
 
 /**
  * Divides all vectors by the given amount and returns a new TripleVector.
  */
-func (vector *TripleVector) Divide(value float32) TripleVector {
-	return TripleVector{vector.X / value, vector.Y / value, vector.Z / value}
+func (vector *TripleVector) Divide(value float32) *TripleVector {
+	return &TripleVector{vector.X / value, vector.Y / value, vector.Z / value}
 }
 
 /**
@@ -163,14 +163,14 @@ func (vector *TripleVector) Distance(vector2 TripleVector) float32 {
 /**
  * Walks between two TripleVectors and returns TripleVectors with the given interval.
  */
-func (vector *TripleVector) Walk(vector2 TripleVector, interval float32) []TripleVector {
+func (vector *TripleVector) Walk(vector2 TripleVector, interval float32) []*TripleVector {
 	var distance = vector.Distance(vector2)
 
 	var xRelative = (vector2.X - vector.X) / distance * interval
 	var yRelative = (vector2.Y - vector.Y) / distance * interval
 	var zRelative = (vector2.Z - vector.Z) / distance * interval
 
-	var vectors []TripleVector
+	var vectors []*TripleVector
 
 	var distanceRelative = distance / interval
 	for i := float32(1); i < distanceRelative; i++ {
@@ -183,8 +183,8 @@ func (vector *TripleVector) Walk(vector2 TripleVector, interval float32) []Tripl
 /**
  * Returns a TripleVector slice with all adjacent vectors.
  */
-func (vector *TripleVector) GetAdjacentVectors() []TripleVector {
-	return []TripleVector{
+func (vector *TripleVector) GetAdjacentVectors() []*TripleVector {
+	return []*TripleVector{
 		{vector.X + 1, vector.Y, vector.Z},
 		{vector.X - 1, vector.Y, vector.Z},
 		{vector.X, vector.Y + 1, vector.Z},
@@ -217,20 +217,20 @@ func (vector *TripleVector) Step(direction int, steps float32) {
 /**
  * Gets the adjacent vector to the given direction and returns a new TripleVector.
  */
-func (vector *TripleVector) GetAdjacent(direction int, steps float32) TripleVector {
+func (vector *TripleVector) GetAdjacent(direction int, steps float32) *TripleVector {
 	switch direction {
 	case Down:
-		return TripleVector{vector.X, vector.Y - steps, vector.Z}
+		return &TripleVector{vector.X, vector.Y - steps, vector.Z}
 	case Up:
-		return TripleVector{vector.X, vector.Y + steps, vector.Z}
+		return &TripleVector{vector.X, vector.Y + steps, vector.Z}
 	case North:
-		return TripleVector{vector.X, vector.Y, vector.Z - steps}
+		return &TripleVector{vector.X, vector.Y, vector.Z - steps}
 	case South:
-		return TripleVector{vector.X, vector.Y, vector.Z + steps}
+		return &TripleVector{vector.X, vector.Y, vector.Z + steps}
 	case West:
-		return TripleVector{vector.X - steps, vector.Y, vector.Z}
+		return &TripleVector{vector.X - steps, vector.Y, vector.Z}
 	case East:
-		return TripleVector{vector.X + steps, vector.Y, vector.Z}
+		return &TripleVector{vector.X + steps, vector.Y, vector.Z}
 	}
-	return TripleVector{}
+	return &TripleVector{}
 }

@@ -35,10 +35,10 @@ type IPlayer interface {
 	SetGeometryName(string)
 	GetGeometryData() string
 	SetGeometryData(string)
-	SendChunk(IChunk)
+	SendChunk(IChunk, int)
 	New(IServer, *server.Session, string, utils.UUID, string, int) IPlayer
 	GetPing() uint64
-	Move(x, y, z, pitch, yaw, headYaw float32)
+	SyncMove(x, y, z, pitch, yaw, headYaw float32)
 	Tick()
 	SendMessage(string)
 	SendPacket(IPacket)
@@ -53,4 +53,7 @@ type IPlayer interface {
 	SetRotation(*math.Rotation)
 	GetMotion() *vectors.TripleVector
 	SetMotion(*vectors.TripleVector)
+	HasChunkInUse(int) bool
+	HasAnyChunkInUse() bool
+	GetRuntimeId() uint64
 }

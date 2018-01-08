@@ -7,8 +7,6 @@ import (
 
 type FullChunkPacket struct {
 	*Packet
-	ChunkX int32
-	ChunkZ int32
 	Chunk interfaces.IChunk
 }
 
@@ -17,10 +15,10 @@ func NewFullChunkPacket() *FullChunkPacket {
 }
 
 func (pk *FullChunkPacket) Encode() {
-	pk.PutVarInt(pk.ChunkX)
-	pk.PutVarInt(pk.ChunkZ)
+	pk.PutVarInt(pk.Chunk.GetX())
+	pk.PutVarInt(pk.Chunk.GetZ())
 	var bytes = pk.Chunk.ToBinary()
-	pk.PutVarInt(int32(len(bytes)))
+	pk.PutUnsignedVarInt(uint32(len(bytes)))
 	pk.PutBytes(bytes)
 }
 

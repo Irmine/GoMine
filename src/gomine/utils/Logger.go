@@ -165,7 +165,7 @@ func (logger *Logger) LogChat(messages ...interface{}) {
 }
 
 /**
- * Logs an actual error.
+ * Logs an actual error, or nothing if the error is nil.
  */
 func (logger *Logger) LogError(err error) {
 	if err == nil {

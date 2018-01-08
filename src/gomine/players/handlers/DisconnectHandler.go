@@ -20,6 +20,10 @@ func NewDisconnectHandler() DisconnectHandler {
  * The disconnect handler is a special case. It does not follow the rules of the other handlers.
  */
 func (handler DisconnectHandler) Handle(player interfaces.IPlayer, session *server.Session, server interfaces.IServer) {
+	if player.GetSession() == nil {
+		return
+	}
+
 	server.GetPlayerFactory().RemovePlayer(player)
 
 	for _, online := range server.GetPlayerFactory().GetPlayers() {

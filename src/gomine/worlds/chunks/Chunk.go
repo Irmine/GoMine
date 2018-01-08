@@ -16,7 +16,7 @@ type Chunk struct {
 	tiles map[uint64]tiles.Tile
 	entities map[uint64]interfaces.IEntity
 	biomes map[int]int
-	heightMap [4096]byte
+	heightMap [257]int16
 }
 
 func NewChunk(x, z int32) *Chunk {
@@ -30,7 +30,7 @@ func NewChunk(x, z int32) *Chunk {
 		make(map[uint64]tiles.Tile),
 		make(map[uint64]interfaces.IEntity),
 		make(map[int]int),
-		[4096]byte{},
+		[257]int16{},
 	}
 }
 
@@ -282,14 +282,14 @@ func (chunk *Chunk) GetSubChunks() map[int]interfaces.ISubChunk {
 /**
  * Sets the HeightMap of this chunk.
  */
-func (chunk *Chunk) SetHeightMap(x, z int, value byte) {
+func (chunk *Chunk) SetHeightMap(x, z int, value int16) {
 	chunk.heightMap[chunk.GetHeightMapIndex(x, z)] = value
 }
 
 /**
  * Returns the height in the HeightMap on the given index.
  */
-func (chunk *Chunk) GetHeightMap(x, z int) byte {
+func (chunk *Chunk) GetHeightMap(x, z int) int16 {
 	return chunk.heightMap[chunk.GetHeightMapIndex(x, z)]
 }
 
@@ -306,7 +306,7 @@ func (chunk *Chunk) RecalculateHeightMap() {
 				break
 			}
 
-			chunk.SetHeightMap(x, z, byte(chunk.GetHighestBlock(x, z) + 1))
+			chunk.SetHeightMap(x, z, chunk.GetHighestBlock(x, z) + 1)
 		}
 	}
 }
@@ -346,8 +346,8 @@ func (chunk *Chunk) GetHighestBlockData(x, z int) byte {
 /**
  * Returns highest light filtering block at certain x, z coordinates in this chunk
  */
-func (chunk *Chunk) GetHighestBlock(x, z int) int {
-	return chunk.GetHighestSubChunk().GetHighestBlock(x, z)
+func (chunk *Chunk) GetHighestBlock(x, z int) int16 {
+	return int16(chunk.GetHighestSubChunk().GetHighestBlock(x, z))
 }
 
 /**
@@ -378,7 +378,6 @@ func (chunk *Chunk) PruneEmptySubChunks() {
  */
 func (chunk *Chunk) ToBinary() []byte {
 	var stream = utils.NewStream()
-	stream.ResetStream()
 	var subChunkCount = chunk.GetFilledSubChunks()
 
 	stream.PutByte(subChunkCount)
@@ -386,8 +385,8 @@ func (chunk *Chunk) ToBinary() []byte {
 		stream.PutBytes(chunk.subChunks[i].ToBinary())
 	}
 
-	for i := 4095; i >= 0; i-- {
-		stream.PutByte(chunk.heightMap[i])
+	for i := 256; i >= 0; i-- {
+		stream.PutShort(chunk.heightMap[i])
 	}
 
 	for _, biome := range chunk.biomes {
@@ -395,7 +394,7 @@ func (chunk *Chunk) ToBinary() []byte {
 	}
 	stream.PutByte(0)
 
-	stream.PutUnsignedVarInt(0)
+	stream.PutVarInt(0)
 
 	return stream.GetBuffer()
 }

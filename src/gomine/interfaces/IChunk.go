@@ -27,7 +27,7 @@ type IChunk interface {
 	GetSubChunks() map[int]ISubChunk
 	GetHighestBlockId(int, int) byte
 	GetHighestBlockData(int, int) byte
-	GetHighestBlock(int, int) int
+	GetHighestBlock(int, int) int16
 	ToBinary() []byte
 	RecalculateHeightMap()
 }

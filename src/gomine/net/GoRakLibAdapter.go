@@ -78,10 +78,6 @@ func (adapter *GoRakLibAdapter) Tick() {
 	}
 }
 
-func (adapter *GoRakLibAdapter) HandleDisconnect(player interfaces.IPlayer, session *server2.Session) {
-
-}
-
 func (adapter *GoRakLibAdapter) GetSession(address string, port uint16) *server2.Session {
 	var session, _ = adapter.rakLibServer.GetSessionManager().GetSession(address, port)
 	return session
