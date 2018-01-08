@@ -22,7 +22,7 @@ func (handler LoginHandler) Handle(packet interfaces.IPacket, player interfaces.
 	if loginPacket, ok := packet.(*packets.LoginPacket); ok {
 		_, online := server.GetPlayerFactory().GetPlayerByName(loginPacket.Username)
 		if online == nil {
-			//return false // Players can't 'quit' currently, so don't check for double names.
+			return false
 		}
 
 		var player = player.New(server, session, loginPacket.Username, loginPacket.ClientUUID, loginPacket.ClientXUID, loginPacket.ClientId)

@@ -1,28 +1,26 @@
 package utils
 
 import (
-	"fmt"
 	"math"
 )
 
 func Read(buffer *[]byte, offset *int, length int) ([]byte) {
-	bytes := make([]byte, 0)
+	var initialLen = len((*buffer)[*offset:])
+	defer func() {
+		if err := recover(); err != nil {
+			println("Requested length:", length, ", have length:", initialLen)
+		}
+	}()
+
+	var bytes []byte
 	if length == 0 {
 		return bytes
 	}
-	if *offset >= len(*buffer) {
-		fmt.Printf("An error occurred: %v", "no bytes left to read")
-		panic("Aborting...")
+
+	for i := 0; i < length; i++ {
+		bytes = append(bytes, (*buffer)[*offset])
+		*offset++
 	}
-	if length > 1 {
-		for i := 0; i < length; i++ {
-			bytes = append(bytes, (*buffer)[*offset])
-			*offset++
-		}
-		return bytes
-	}
-	bytes = append(bytes, (*buffer)[*offset])
-	*offset++
 	return bytes
 }
 
@@ -499,9 +497,9 @@ func WriteVarInt(buffer *[]byte, int int32) {
 
 func ReadVarInt(buffer *[]byte, offset *int) int32 {
 	var out int32 = 0
-	for v := uint(0); v < 35; v += 7 {
+	for v := uint(0); v <= 35; v += 7 {
 		b := int(ReadByte(buffer, offset))
-		out |= int32(b << v)
+		out |= int32((b & 0x7f) << v)
 
 		if (b & 0x80) == 0 {
 			break
@@ -529,9 +527,9 @@ func WriteVarLong(buffer *[]byte, int int64) {
 
 func ReadVarLong(buffer *[]byte, offset *int) (int64) {
 	var out int64 = 0
-	for v := uint(0); v <= 63; v += 7 {
+	for v := uint(0); v <= 70; v += 7 {
 		b := int(ReadByte(buffer, offset))
-		out |= int64(b << v)
+		out |= int64((b & 0x7f) << v)
 
 		if (b & 0x80) == 0 {
 			break
@@ -556,16 +554,16 @@ func WriteUnsignedVarInt(buffer *[]byte, int uint32) {
 
 func ReadUnsignedVarInt(buffer *[]byte, offset *int) (uint32) {
 	var out uint32 = 0
-	for v := uint(0); v < 35; v += 7 {
+	for v := uint(0); v <= 35; v += 7 {
 		b := int(ReadByte(buffer, offset))
-		out |= uint32(b << v)
+		out |= uint32((b & 0x7f) << v)
 
 		if (b & 0x80) == 0 {
-			return out
+			break
 		}
 	}
 
-	return 0
+	return out
 }
 
 func WriteUnsignedVarLong(buffer *[]byte, int uint64) {
@@ -582,9 +580,9 @@ func WriteUnsignedVarLong(buffer *[]byte, int uint64) {
 
 func ReadUnsignedVarLong(buffer *[]byte, offset *int) (uint64) {
 	var out uint64 = 0
-	for v := uint(0); v <= 63; v += 7 {
+	for v := uint(0); v <= 70; v += 7 {
 		b := int(ReadByte(buffer, offset))
-		out |= uint64(b << v)
+		out |= uint64((b & 0x7f) << v)
 
 		if (b & 0x80) == 0 {
 			return out

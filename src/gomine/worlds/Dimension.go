@@ -6,7 +6,6 @@ import (
 	"gomine/net/packets"
 	"gomine/worlds/generation"
 	"gomine/worlds/chunks"
-	"gomine/players"
 	"goraklib/server"
 )
 
@@ -103,7 +102,6 @@ func (dimension *Dimension) GetChunk(x, z int32) interfaces.IChunk {
 	if v, ok := dimension.chunks[GetChunkIndex(x, z)]; ok {
 		return v
 	} else {
-		println("Generating chunk", x, z)
 		var chunk = dimension.generator.GetNewChunk(chunks.NewChunk(x, z))
 		dimension.chunks[GetChunkIndex(x, z)] = chunk
 		return chunk
@@ -152,8 +150,7 @@ func (dimension *Dimension) GetGenerator() interfaces.IGenerator {
 /**
  * Sends all chunks required around the player.
  */
-func (dimension *Dimension) RequestChunks(player interfaces.IPlayer) {
-	distance := player.GetViewDistance()
+func (dimension *Dimension) RequestChunks(player interfaces.IPlayer, distance int32) {
 	xD, zD := int32(player.GetPosition().X) >> 4, int32(player.GetPosition().Z) >> 4
 
 	for x := -distance + xD; x <= distance + xD; x++ {
@@ -219,17 +216,9 @@ func (dimension *Dimension) UpdateBlocks()  {
 }
 
 /**
- * This functions updates all chunks for every player in it
+ * Unloads all unused chunks of the dimension.
  */
 func (dimension *Dimension) UpdateChunks() {
-	for _, p := range dimension.chunkPlayers {
-		for _, p2 := range p {
-			p2, ok := p2.(*players.Player)
-			if ok {
-				dimension.RequestChunks(p2)
-			}
-		}
-	}
 	dimension.UnloadUnusedChunks()
 }
 
