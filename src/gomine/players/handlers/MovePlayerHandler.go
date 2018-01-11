@@ -20,6 +20,10 @@ func (handler MovePlayerHandler) Handle(packet interfaces.IPacket, player interf
 		player.SyncMove(pk.Position.X, pk.Position.Y, pk.Position.Z, pk.Rotation.Pitch, pk.Rotation.Yaw, pk.Rotation.HeadYaw)
 		player.GetDimension().RequestChunks(player, player.GetViewDistance())
 
+		for _, player2 := range player.GetViewers() {
+			player2.SendPacket(packet)
+		}
+
 		return true
 	}
 

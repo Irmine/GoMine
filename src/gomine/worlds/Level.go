@@ -12,6 +12,8 @@ type Level struct {
 	defaultDimension interfaces.IDimension
 
 	gameRules map[string]interfaces.IGameRule
+
+	entityHelper interfaces.IEntityHelper
 }
 
 /**
@@ -22,9 +24,14 @@ func NewLevel(levelName string, levelId int, server interfaces.IServer, chunks m
 
 	var defaultDimension = NewDimension("Overworld", OverworldId, level, "", chunks)
 	level.SetDefaultDimension(defaultDimension)
+	level.entityHelper = NewEntityHelper()
 
 	level.initializeGameRules()
 	return level
+}
+
+func (level *Level) GetEntityHelper() interfaces.IEntityHelper {
+	return level.entityHelper
 }
 
 /**

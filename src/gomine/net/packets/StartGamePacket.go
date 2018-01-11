@@ -58,8 +58,8 @@ func NewStartGamePacket() *StartGamePacket {
 }
 
 func (pk *StartGamePacket) Encode()  {
-	pk.PutVarLong(pk.EntityUniqueId) // Entity Unique ID
-	pk.PutUnsignedVarLong(pk.EntityRuntimeId) // Entity runtime ID
+	pk.PutUniqueId(pk.EntityUniqueId) // Entity Unique ID
+	pk.PutRuntimeId(pk.EntityRuntimeId) // Entity runtime ID
 
 	pk.PutVarInt(pk.PlayerGameMode) // Player game mode.
 

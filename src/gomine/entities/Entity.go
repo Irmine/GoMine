@@ -4,6 +4,7 @@ import (
 	"gomine/vectors"
 	"gomine/interfaces"
 	"gomine/entities/math"
+	math2 "math"
 )
 
 var RuntimeId uint64 = 0
@@ -21,6 +22,8 @@ type Entity struct {
 	Rotation *math.Rotation
 
 	NameTag string
+
+	SpawnedTo map[uint64]interfaces.IPlayer
 }
 
 func NewEntity(position *vectors.TripleVector, rotation *math.Rotation, motion *vectors.TripleVector, level interfaces.ILevel, dimension interfaces.IDimension) *Entity {
@@ -35,6 +38,7 @@ func NewEntity(position *vectors.TripleVector, rotation *math.Rotation, motion *
 		dimension,
 		rotation,
 		"",
+		map[uint64]interfaces.IPlayer{},
 	}
 }
 
@@ -78,6 +82,41 @@ func (entity *Entity) GetPosition() *vectors.TripleVector {
  */
 func (entity *Entity) SetPosition(v *vectors.TripleVector)  {
 	entity.Position = v
+
+	var newChunkX = int32(math2.Floor(float64(v.X))) >> 4
+	var newChunkZ = int32(math2.Floor(float64(v.Z))) >> 4
+
+	var oldChunkX = int32(math2.Floor(float64(entity.Position.X))) >> 4
+	var oldChunkZ = int32(math2.Floor(float64(v.Z))) >> 4
+
+	var oldChunk = entity.GetDimension().GetChunk(oldChunkX, oldChunkZ)
+	var newChunk = entity.GetDimension().GetChunk(newChunkX, newChunkZ)
+
+	if oldChunk != newChunk {
+		newChunk.AddEntity(entity)
+		oldChunk.RemoveEntity(entity)
+	}
+}
+
+/**
+ * Returns all players that have the chunk loaded in which this entity is.
+ */
+func (entity *Entity) GetViewers() map[uint64]interfaces.IPlayer {
+	return entity.SpawnedTo
+}
+
+/**
+ * Adds a viewer to this entity.
+ */
+func (entity *Entity) AddViewer(player interfaces.IPlayer) {
+	entity.SpawnedTo[player.GetRuntimeId()] = player
+}
+
+/**
+ * Removes a viewer from this player.
+ */
+func (entity *Entity) RemoveViewer(player interfaces.IPlayer) {
+	delete(entity.SpawnedTo, player.GetRuntimeId())
 }
 
 /**
@@ -144,9 +183,17 @@ func (entity *Entity) GetRuntimeId() uint64 {
 }
 
 /**
+ * Returns the unique ID of this entity.
+ * NOTE: This is currently unimplemented, and returns the runtime ID.
+ */
+func (entity *Entity) GetUniqueId() int64 {
+	return int64(entity.runtimeId)
+}
+
+/**
  * Returns the entity ID of this entity.
  */
-func (entity *Entity) GetEntityId() int32 {
+func (entity *Entity) GetEntityId() uint32 {
 	return 0
 }
 
@@ -164,7 +211,6 @@ func (entity *Entity) Close() {
 	entity.closed = true
 	entity.Level = nil
 	entity.Dimension = nil
-	entity.Position = vectors.NewTripleVector(0, 0, 0)
 }
 
 /**
@@ -189,16 +235,36 @@ func (entity *Entity) Kill() {
 	//todo
 }
 
+/**
+ * Spawns this entity to the given player.
+ */
 func (entity *Entity) SpawnTo(player interfaces.IPlayer)  {
-	//todo
+	entity.GetLevel().GetEntityHelper().SpawnEntityTo(entity, player)
 }
 
+/**
+ * Despawns this entity from the given player.
+ */
+func (entity *Entity) DespawnFrom(player interfaces.IPlayer) {
+	entity.GetLevel().GetEntityHelper().DespawnEntityFrom(entity, player)
+}
+
+/**
+ * Despawns this entity from all players.
+ */
+func (entity *Entity) DespawnFromAll() {
+	for _, p := range entity.GetLevel().GetServer().GetPlayerFactory().GetPlayers() {
+		entity.DespawnFrom(p)
+	}
+}
+
+/**
+ * Spawns this entity to all players.
+ */
 func (entity *Entity) SpawnToAll()  {
-	//todo
-}
-
-func (entity *Entity) SpawnPacket(player interfaces.IPlayer)  {
-	//todo
+	for _, p := range entity.GetLevel().GetServer().GetPlayerFactory().GetPlayers() {
+		entity.SpawnTo(p)
+	}
 }
 
 func (entity *Entity) Tick()  {

@@ -42,6 +42,8 @@ type Player struct {
 	geometryName string
 	geometryData string
 
+	finalized bool
+
 	usedChunks map[int]interfaces.IChunk
 }
 
@@ -89,6 +91,40 @@ func (player *Player) IsInWorld() bool {
  */
 func (player *Player) PlaceInWorld(position *vectors.TripleVector, rotation *math.Rotation, level interfaces.ILevel, dimension interfaces.IDimension) {
 	player.Human = entities.NewHuman(player.GetDisplayName(), position, rotation, vectors.NewTripleVector(0, 0, 0), level, dimension)
+}
+
+/**
+ * Checks if this player is finalized.
+ */
+func (player *Player) IsFinalized() bool {
+	return player.finalized
+}
+
+/**
+ * Sets this player finalized.
+ */
+func (player *Player) SetFinalized() {
+	player.finalized = true
+}
+
+/**
+ * Spawns this player to the given other player.
+ */
+func (player *Player) SpawnPlayerTo(player2 interfaces.IPlayer) {
+	player.GetLevel().GetEntityHelper().SpawnPlayerTo(player, player2)
+	player.SpawnTo(player2)
+}
+
+/**
+ * Spawns this player to all other players.
+ */
+func (player *Player) SpawnPlayerToAll() {
+	for _, p := range player.GetServer().GetPlayerFactory().GetPlayers() {
+		if player == p {
+			continue
+		}
+		player.SpawnPlayerTo(p)
+	}
 }
 
 /**
@@ -333,7 +369,7 @@ func (player *Player) SendChunk(chunk interfaces.IChunk, index int)  {
  * Synchronizes the server's player movement with the client movement and adjusts chunks.
  */
 func (player *Player) SyncMove(x, y, z, pitch, yaw, headYaw float32) {
-	player.Position.SetComponents(x, y, z)
+	player.SetPosition(vectors.NewTripleVector(x, y, z))
 	player.Rotation.Pitch += pitch
 	player.Rotation.Yaw += yaw
 	player.Rotation.HeadYaw += headYaw
@@ -348,6 +384,9 @@ func (player *Player) SyncMove(x, y, z, pitch, yaw, headYaw float32) {
 		zDist := chunkZ - chunk.GetZ()
 		if xDist * xDist + zDist * zDist > rs {
 			delete(player.usedChunks, index)
+			for _, entity := range chunk.GetEntities() {
+				entity.DespawnFrom(player)
+			}
 		}
 	}
 }

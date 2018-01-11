@@ -26,7 +26,7 @@ func (pk *PlayerListPacket) Encode() {
 	for _, entry := range pk.Players {
 		if pk.ListType == byte(ListTypeAdd) {
 			pk.PutUUID(entry.GetUUID())
-			pk.PutVarLong(0)
+			pk.PutUniqueId(entry.GetUniqueId())
 
 			pk.PutString(entry.GetDisplayName())
 			pk.PutString(entry.GetSkinId())

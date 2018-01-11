@@ -124,6 +124,13 @@ func (chunk *Chunk) RemoveEntity(entity interfaces.IEntity) {
 	}
 }
 
+/**
+ * Returns all entities in this chunk.
+ */
+func (chunk *Chunk) GetEntities() map[uint64]interfaces.IEntity {
+	return chunk.entities
+}
+
 func (chunk *Chunk) AddTile(tile tiles.Tile) bool {
 	if tile.IsClosed() {
 		panic("Cannot add closed entity to chunk")

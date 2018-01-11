@@ -2,11 +2,8 @@ package worlds
 
 import (
 	"gomine/interfaces"
-	"gomine/net"
-	"gomine/net/packets"
 	"gomine/worlds/generation"
 	"gomine/worlds/chunks"
-	"goraklib/server"
 )
 
 const (
@@ -22,7 +19,6 @@ type Dimension struct {
 	isGenerated bool
 
 	chunks 		map[int]interfaces.IChunk
-	chunkPlayers map[int][]interfaces.IPlayer
 	updatedBlocks map[int][]interfaces.IBlock
 
 	generator interfaces.IGenerator
@@ -37,7 +33,6 @@ func NewDimension(name string, dimensionId int, level *Level, generator string, 
 		dimensionId: dimensionId,
 		level: level,
 		chunks: chunks,
-		chunkPlayers: make(map[int][]interfaces.IPlayer),
 		updatedBlocks: make(map[int][]interfaces.IBlock),
 	}
 
@@ -110,23 +105,6 @@ func (dimension *Dimension) GetChunk(x, z int32) interfaces.IChunk {
 }
 
 /**
- * Gets all the players located in a chunk.
- */
-func (dimension *Dimension) GetChunkPlayers(x, z int32) []interfaces.IPlayer {
-	if v, ok := dimension.chunkPlayers[GetChunkIndex(x, z)]; ok {
-		return v
-	}
-	return nil
-}
-
-/**
- * Adds a player to a chunk.
- */
-func (dimension *Dimension) AddChunkPlayer(x, z int32, player interfaces.IPlayer) {
-	dimension.chunkPlayers[GetChunkIndex(x, z)] = append(dimension.chunkPlayers[GetChunkIndex(x, z)], player)
-}
-
-/**
  * Returns if the dimension is generated or not.
  */
 func (dimension *Dimension) IsGenerated() bool {
@@ -167,7 +145,10 @@ func (dimension *Dimension) RequestChunks(player interfaces.IPlayer, distance in
 
 				chunk := dimension.GetChunk(x, z)
 				player.SendChunk(chunk, index)
-				dimension.AddChunkPlayer(x, z, player)
+
+				for _, entity := range chunk.GetEntities() {
+					entity.SpawnTo(player)
+				}
 			}
 		}
 	}
@@ -177,19 +158,14 @@ func (dimension *Dimension) RequestChunks(player interfaces.IPlayer, distance in
  * Unloads all unused chunks
  */
 func (dimension Dimension) UnloadUnusedChunks() {
-	for index := range dimension.chunks {
-		x, z := GetChunkCoordinates(index)
-		if len(dimension.GetChunkPlayers(x, z)) == 0 {
-			dimension.SetChunkUnloaded(x, z)
-		}
-	}
+
 }
 
 /**
  * this function updates every block that gets changed.
  */
 func (dimension *Dimension) UpdateBlocks()  {
-	var players2 []interfaces.IPlayer
+	/*var players2 []interfaces.IPlayer
 	batch := net.NewMinecraftPacketBatch()
 
 	for i, blocks := range dimension.updatedBlocks {
@@ -212,7 +188,7 @@ func (dimension *Dimension) UpdateBlocks()  {
 
 	for _, p := range players2 {
 		dimension.level.GetServer().GetRakLibAdapter().SendBatch(batch, p.GetSession(), server.PriorityMedium)
-	}
+	}*/
 }
 
 /**

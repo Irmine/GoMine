@@ -61,6 +61,7 @@ func (handler ResourcePackClientResponseHandler) Handle(packet interfaces.IPacke
 
 		case packets.StatusCompleted:
 			player.PlaceInWorld(vectors.NewTripleVector(0, 20, 0), math.NewRotation(0, 0, 0), server.GetDefaultLevel(), server.GetDefaultLevel().GetDefaultDimension())
+			player.SetFinalized()
 
 			var startGame = packets.NewStartGamePacket()
 			startGame.Generator = 1
@@ -68,7 +69,7 @@ func (handler ResourcePackClientResponseHandler) Handle(packet interfaces.IPacke
 			startGame.TrustPlayers = true
 			startGame.DefaultPermissionLevel = permissions.LevelOperator
 			startGame.EntityRuntimeId = player.GetRuntimeId()
-			startGame.EntityUniqueId = int64(player.GetRuntimeId())
+			startGame.EntityUniqueId = player.GetUniqueId()
 			startGame.PlayerGameMode = 1
 			startGame.PlayerPosition = vectors.TripleVector{20, 20, 20}
 			startGame.LevelGameMode = 1

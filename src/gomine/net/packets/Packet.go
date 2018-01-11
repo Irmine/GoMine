@@ -59,12 +59,20 @@ func (pk *Packet) DecodeHeader() {
 	}
 }
 
-func (pk *Packet) PutRuntimeId(eid uint64) {
-	pk.PutUnsignedVarLong(eid)
+func (pk *Packet) PutRuntimeId(id uint64) {
+	pk.PutUnsignedVarLong(id)
 }
 
 func (pk *Packet) GetRuntimeId() uint64 {
 	return pk.GetUnsignedVarLong()
+}
+
+func (pk *Packet) PutUniqueId(id int64) {
+	pk.PutVarLong(id)
+}
+
+func (pk *Packet) GetUniqueId() int64 {
+	return pk.GetVarLong()
 }
 
 func (pk *Packet) PutTripleVectorObject(obj vectors.TripleVector) {

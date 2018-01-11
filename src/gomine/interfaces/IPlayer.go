@@ -56,4 +56,16 @@ type IPlayer interface {
 	HasChunkInUse(int) bool
 	HasAnyChunkInUse() bool
 	GetRuntimeId() uint64
+	SpawnPlayerTo(IPlayer)
+	SpawnPlayerToAll()
+	DespawnFrom(IPlayer)
+	DespawnFromAll()
+	SpawnTo(IPlayer)
+	SpawnToAll()
+	GetViewers() map[uint64]IPlayer
+	AddViewer(IPlayer)
+	RemoveViewer(IPlayer)
+	GetUniqueId() int64
+	IsFinalized() bool
+	SetFinalized()
 }

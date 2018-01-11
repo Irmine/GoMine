@@ -44,8 +44,13 @@ func (handler ChunkRadiusRequestHandler) Handle(packet interfaces.IPacket, playe
 					list.ListType = packets.ListTypeAdd
 					list.Players = map[string]interfaces.IPlayer{player.GetName(): player}
 					receiver.SendPacket(list)
+
+					receiver.SpawnPlayerTo(player)
 				}
 			}
+
+			player.SpawnPlayerToAll()
+
 			server.BroadcastMessage(utils.Yellow + player.GetName() + " has joined the server")
 		}
 

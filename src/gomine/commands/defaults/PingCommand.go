@@ -3,7 +3,6 @@ package defaults
 import (
 	"gomine/commands"
 	"gomine/interfaces"
-	"gomine/players"
 	"gomine/utils"
 	"strconv"
 )
@@ -20,7 +19,7 @@ func NewPing() PingCommand {
 }
 
 func (command PingCommand) Execute(sender interfaces.ICommandSender) {
-	if player, ok := sender.(*players.Player); ok {
+	if player, ok := sender.(interfaces.IPlayer); ok {
 		player.SendMessage(utils.Yellow + "Your current latency/ping is: " + strconv.Itoa(int(player.GetPing())))
 	}
 }

@@ -30,4 +30,5 @@ type IChunk interface {
 	GetHighestBlock(int, int) int16
 	ToBinary() []byte
 	RecalculateHeightMap()
+	GetEntities() map[uint64]IEntity
 }
