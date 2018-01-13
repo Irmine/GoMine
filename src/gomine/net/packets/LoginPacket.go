@@ -5,6 +5,11 @@ import (
 	"gomine/utils"
 	"gomine/net/info"
 	"encoding/base64"
+	"strings"
+)
+
+const (
+	MojangPublicKey = "MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAE8ELkixyLcwlZryUQcu1TvPOmI2B7vX83ndnWRUaXm74wFfa5f/lwQNTfrLVHa2PmenpGI6JhIMUJaWZrjmMj90NoKNFSNBuKdm8rYiXsfaz3K36x/1U26HpG0ZxK/V1V"
 )
 
 type LoginPacket struct {
@@ -22,12 +27,43 @@ type LoginPacket struct {
 	SkinData []byte
 	CapeData []byte
 	GeometryName string
-	GeometryData []byte
+	GeometryData string
+
+	ClientData ClientDataKeys
+	Chains []Chain
 }
 
 type ChainDataKeys struct {
-	Chain []string `json:"chain"`
+	RawChains []string `json:"chain"`
+	Chains []Chain
 }
+
+
+type Chain struct {
+	Header ChainHeader
+	Payload ChainPayload
+	Signature string
+}
+
+type ChainHeader struct {
+	X5u string `json:"x5u"`
+	Alg string `json:"alg"`
+
+	Raw string
+}
+
+type ChainPayload struct {
+	CertificateAuthority bool `json:"certificateAuthority"`
+	ExpirationTime int `json:"exp"`
+	IdentityPublicKey int `json:"identityPublicKey"`
+	NotBefore int `json:"nbf"`
+	RandomNonce int `json:"randomNonce"`
+	Issuer string `json:"iss"`
+	IssuedAt int `json:"iat"`
+
+	Raw string
+}
+
 
 type WebTokenKeys struct {
 	ExtraData map[string]interface{} `json:"extraData"`
@@ -43,10 +79,17 @@ type ClientDataKeys struct {
 	CapeData string `json:"CapeData"`
 	GeometryId string `json:"SkinGeometryName"`
 	GeometryData string `json:"SkinGeometry"`
+	CurrentInputMode string `json:"CurrentInputMode"`
+	DefaultInputMode string `json:"DefaultInputMode"`
+	DeviceModel string `json:"DeviceModel"`
+	DeviceOS int `json:"DeviceOS"`
+	GameVersion string `json:"GameVersion"`
+	GuiScale int `json:"GuiScale"`
+	UIProfile int `json:"UIProfile"`
 }
 
 func NewLoginPacket() *LoginPacket {
-	pk := &LoginPacket{NewPacket(info.LoginPacket), "", 0, utils.UUID{}, 0, "", "", "", "", "", []byte{}, []byte{}, "", []byte{}}
+	pk := &LoginPacket{NewPacket(info.LoginPacket), "", 0, utils.UUID{}, 0, "", "", "", "", "", []byte{}, []byte{}, "", "", ClientDataKeys{}, []Chain{}}
 	return pk
 }
 
@@ -67,16 +110,37 @@ func (pk *LoginPacket) Decode()  {
 	var stream = utils.NewStream()
 	stream.Buffer = []byte(pk.GetString())
 
-
-	var length = stream.GetLittleInt()
+	var length = int(stream.GetLittleInt())
 
 	var chainData = &ChainDataKeys{}
-	json.Unmarshal(stream.Get(int(length)), &chainData)
+	json.Unmarshal(stream.Get(length), &chainData)
 
-	for _, v := range chainData.Chain {
+	for _, v := range chainData.RawChains {
 		WebToken := &WebTokenKeys{}
 
-		utils.DecodeJwt(v, WebToken)
+		jwt := utils.DecodeJwt(v)
+		var base64s = strings.Split(v, ".")
+
+		chain := Chain{}
+		for i, str := range jwt {
+			switch i {
+			case 0:
+				header := ChainHeader{}
+				json.Unmarshal([]byte(str), &header)
+				header.Raw = base64s[i]
+				chain.Header = header
+			case 1:
+				payload := ChainPayload{}
+				json.Unmarshal([]byte(str), &payload)
+				payload.Raw = base64s[i]
+				chain.Payload = payload
+			case 2:
+				chain.Signature = str
+			}
+		}
+		pk.Chains = append(pk.Chains, chain)
+
+		utils.DecodeJwtPayload(v, WebToken)
 
 		if v, ok := WebToken.ExtraData["displayName"]; ok {
 			pk.Username = v.(string)
@@ -92,10 +156,12 @@ func (pk *LoginPacket) Decode()  {
 		}
 	}
 
+	println(len(pk.Chains))
+
 	var clientDataJwt = stream.Get(int(stream.GetLittleInt()))
 	var clientData = &ClientDataKeys{}
 
-	utils.DecodeJwt(string(clientDataJwt), clientData)
+	utils.DecodeJwtPayload(string(clientDataJwt), clientData)
 
 	pk.ClientId = clientData.ClientRandomId
 	pk.ServerAddress = clientData.ServerAddress
@@ -108,5 +174,8 @@ func (pk *LoginPacket) Decode()  {
 	pk.SkinId = clientData.SkinId
 	pk.SkinData, _ = base64.RawStdEncoding.DecodeString(clientData.SkinData)
 	pk.CapeData, _ = base64.RawStdEncoding.DecodeString(clientData.CapeData)
-	pk.GeometryData, _ = base64.RawStdEncoding.DecodeString(clientData.GeometryData)
+	var geometry, _ = base64.RawStdEncoding.DecodeString(clientData.GeometryData)
+	pk.GeometryData = string(geometry)
+
+	pk.ClientData = *clientData
 }
