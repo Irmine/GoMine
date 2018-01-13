@@ -59,12 +59,20 @@ func (pk *Packet) DecodeHeader() {
 	}
 }
 
-func (pk *Packet) PutRuntimeId(eid uint64) {
-	pk.PutUnsignedVarLong(eid)
+func (pk *Packet) PutRuntimeId(id uint64) {
+	pk.PutUnsignedVarLong(id)
 }
 
 func (pk *Packet) GetRuntimeId() uint64 {
 	return pk.GetUnsignedVarLong()
+}
+
+func (pk *Packet) PutUniqueId(id int64) {
+	pk.PutVarLong(id)
+}
+
+func (pk *Packet) GetUniqueId() int64 {
+	return pk.GetVarLong()
 }
 
 func (pk *Packet) PutTripleVectorObject(obj vectors.TripleVector) {
@@ -95,8 +103,10 @@ func (pk *Packet) GetRotationObject(isPlayer bool) math.Rotation {
 	return *math.NewRotation(yaw, pitch, headYaw)
 }
 
-func (pk *Packet) PutEntityAttributes(attr map[int]entities.Attribute) {
-	for _, v := range attr {
+func (pk *Packet) PutEntityAttributeMap(attr *entities.AttributeMap) {
+	attrList := attr.GetAttributes()
+	pk.PutUnsignedVarInt(uint32(len(attrList)))
+	for _, v := range attrList {
 		pk.PutLittleFloat(v.GetMinValue())
 		pk.PutLittleFloat(v.GetMaxValue())
 		pk.PutLittleFloat(v.GetValue())
@@ -105,9 +115,23 @@ func (pk *Packet) PutEntityAttributes(attr map[int]entities.Attribute) {
 	}
 }
 
-func (pk *Packet) GetEntityAttributes() map[int]entities.Attribute {
-	//todo
-	return map[int]entities.Attribute{}
+func (pk *Packet) GetEntityAttributeMap() *entities.AttributeMap {
+	attributes := entities.NewAttributeMap()
+	c := pk.GetUnsignedVarInt()
+
+	for i := uint32(0); i < c; i++ {
+		pk.GetLittleFloat()
+		max := pk.GetLittleFloat()
+		value := pk.GetLittleFloat()
+		pk.GetLittleFloat()
+		name := pk.GetString()
+
+		if entities.AttributeExists(name) {
+			attributes.SetAttribute(entities.NewAttribute(name, value, max))
+		}
+	}
+
+	return attributes
 }
 
 func (pk *Packet) PutEntityData(dat map[uint32][]interface{}) {
@@ -115,7 +139,7 @@ func (pk *Packet) PutEntityData(dat map[uint32][]interface{}) {
 	for k, v := range dat {
 		pk.PutUnsignedVarInt(k)
 		pk.PutUnsignedVarInt(v[0].(uint32))
-		switch v[1] {
+		switch v[0] {
 		case entities.Byte:
 			pk.PutByte(v[1].(byte))
 		case entities.Short:
@@ -214,4 +238,15 @@ func (pk *Packet) PutPacks(packs []interfaces.IPack, info bool) {
 			pk.PutString("")
 		}
 	}
+}
+
+func (pk *Packet) GetUUID() utils.UUID {
+	return utils.UUIDFromBinary(&pk.Buffer, &pk.Offset)
+}
+
+func (pk *Packet) PutUUID(uuid utils.UUID) {
+	pk.PutLittleInt(uuid.GetParts()[1])
+	pk.PutLittleInt(uuid.GetParts()[0])
+	pk.PutLittleInt(uuid.GetParts()[3])
+	pk.PutLittleInt(uuid.GetParts()[2])
 }

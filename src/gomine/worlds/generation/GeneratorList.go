@@ -9,6 +9,7 @@ var list = map[string]interfaces.IGenerator{}
 
 func init() {
 	RegisterGenerator(defaults.NewFlatGenerator())
+	RegisterGenerator(defaults.NewWhackGenerator())
 }
 
 func RegisterGenerator(generator interfaces.IGenerator) {

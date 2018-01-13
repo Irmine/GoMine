@@ -36,12 +36,15 @@ func (batch *MinecraftPacketBatch) Decode(logger interfaces.ILogger) {
 	if mcpeFlag != McpeFlag {
 		return
 	}
+	var err error
 
 	var reader = bytes.NewReader(batch.Buffer[batch.Offset:])
-	var zlibReader, _ = zlib.NewReader(reader)
+	zlibReader, err := zlib.NewReader(reader)
+	logger.LogError(err)
 	defer zlibReader.Close()
 
-	batch.raw, _ = ioutil.ReadAll(zlibReader)
+	batch.raw, err = ioutil.ReadAll(zlibReader)
+	logger.LogError(err)
 
 	batch.ResetStream()
 	batch.SetBuffer(batch.raw)
@@ -49,10 +52,13 @@ func (batch *MinecraftPacketBatch) Decode(logger interfaces.ILogger) {
 	var packetData [][]byte
 
 	for !batch.Feof() {
-		packetData = append(packetData, []byte(batch.GetString()))
+		packetData = append(packetData, batch.Get(int(batch.GetUnsignedVarInt())))
 	}
 
 	for _, data := range packetData {
+		if len(data) == 0 {
+			continue
+		}
 		packetId := int(data[0])
 
 		if !IsPacketRegistered(packetId) {
@@ -61,13 +67,9 @@ func (batch *MinecraftPacketBatch) Decode(logger interfaces.ILogger) {
 		}
 		packet := GetPacket(packetId)
 
-		packet.ResetStream()
-
 		packet.SetBuffer(data)
 		batch.packets = append(batch.packets, packet)
 	}
-
-	return
 }
 
 /**

@@ -13,11 +13,11 @@ const (
 type PlayerListPacket struct {
 	*Packet
 	ListType byte
-	Players []interfaces.IPlayer
+	Players map[string]interfaces.IPlayer
 }
 
 func NewPlayerListPacket() *PlayerListPacket {
-	return &PlayerListPacket{NewPacket(info.PlayerListPacket), 0, []interfaces.IPlayer{}}
+	return &PlayerListPacket{NewPacket(info.PlayerListPacket), 0, map[string]interfaces.IPlayer{}}
 }
 
 func (pk *PlayerListPacket) Encode() {
@@ -25,15 +25,8 @@ func (pk *PlayerListPacket) Encode() {
 	pk.PutUnsignedVarInt(uint32(len(pk.Players)))
 	for _, entry := range pk.Players {
 		if pk.ListType == byte(ListTypeAdd) {
-
-			// TODO: Correctly implement UUID handling and implement this.
-			pk.PutLittleInt(0)
-			pk.PutLittleInt(0)
-			pk.PutLittleInt(0)
-			pk.PutLittleInt(0)
-			// ---
-
-			pk.PutVarLong(0)
+			pk.PutUUID(entry.GetUUID())
+			pk.PutUniqueId(entry.GetUniqueId())
 
 			pk.PutString(entry.GetDisplayName())
 			pk.PutString(entry.GetSkinId())
@@ -43,6 +36,8 @@ func (pk *PlayerListPacket) Encode() {
 			pk.PutString(entry.GetGeometryData())
 
 			pk.PutString(entry.GetXUID())
+		} else {
+			pk.PutUUID(entry.GetUUID())
 		}
 	}
 }

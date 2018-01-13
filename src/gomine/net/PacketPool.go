@@ -52,3 +52,10 @@ func RegisterPacket(id int, function func() interfaces.IPacket) {
 func GetPacket(id int) interfaces.IPacket {
 	return registeredPackets[id]()
 }
+
+/**
+ * Deletes a registered packet with the given ID.
+ */
+func DeregisterPacket(id int) {
+	delete(registeredPackets, id)
+}

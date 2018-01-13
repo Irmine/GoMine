@@ -8,6 +8,7 @@ import (
 	"gomine/vectors"
 	"gomine/entities/math"
 	math2 "math"
+	"gomine/permissions"
 )
 
 const (
@@ -60,37 +61,29 @@ func (handler ResourcePackClientResponseHandler) Handle(packet interfaces.IPacke
 
 		case packets.StatusCompleted:
 			player.PlaceInWorld(vectors.NewTripleVector(0, 20, 0), math.NewRotation(0, 0, 0), server.GetDefaultLevel(), server.GetDefaultLevel().GetDefaultDimension())
+			player.SetFinalized()
 
 			var startGame = packets.NewStartGamePacket()
+			startGame.Generator = 1
+			startGame.LevelSeed = 312402
+			startGame.TrustPlayers = true
+			startGame.DefaultPermissionLevel = permissions.LevelOperator
+			startGame.EntityRuntimeId = player.GetRuntimeId()
+			startGame.EntityUniqueId = player.GetUniqueId()
 			startGame.PlayerGameMode = 1
-			startGame.PlayerPosition = vectors.TripleVector{0, 20, 0}
-			startGame.LevelSeed = 123456
-			startGame.Generator = 123456
+			startGame.PlayerPosition = vectors.TripleVector{20, 20, 20}
 			startGame.LevelGameMode = 1
 			startGame.LevelSpawnPosition = vectors.TripleVector{0, 20, 0}
-			startGame.MultiPlayerGame = true
-			startGame.BroadcastToXbox = false
-			startGame.BroadcastToLan = true
 			startGame.CommandsEnabled = true
 			startGame.GameRules = server.GetDefaultLevel().GetGameRules()
-			startGame.BonusChest = false
-			startGame.StartMap = false
-			startGame.TrustPlayers = true
-			startGame.DefaultPermissionLevel = 0
-			startGame.XboxBroadcastMode = 0
 			startGame.LevelName = server.GetDefaultLevel().GetName()
 			startGame.CurrentTick = int64(server.GetCurrentTick())
-			startGame.EnchantmentSeed = 123456
-			startGame.ForcedResourcePacks = server.GetConfiguration().ForceResourcePacks
-			startGame.Time = 3421
+			startGame.Time = 0
 			startGame.AchievementsDisabled = true
+			startGame.BroadcastToXbox = true
+			startGame.XboxBroadcastMode = 0
 
 			player.SendPacket(startGame)
-
-			var playerList = packets.NewPlayerListPacket()
-			playerList.Players = append(playerList.Players, player)
-			playerList.ListType = packets.ListTypeAdd
-			player.SendPacket(playerList)
 
 			var craftingData = packets.NewCraftingDataPacket()
 			player.SendPacket(craftingData)

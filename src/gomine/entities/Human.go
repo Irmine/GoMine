@@ -16,3 +16,7 @@ func NewHuman(nameTag string, position *vectors.TripleVector, rotation *math.Rot
 
 	return human
 }
+
+func (human *Human) GetEntityId() uint32 {
+	return Player
+}

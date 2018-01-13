@@ -2,13 +2,9 @@ package worlds
 
 import (
 	"gomine/interfaces"
-	"gomine/net"
-	"gomine/net/packets"
 	"gomine/worlds/generation"
 	"gomine/worlds/chunks"
-	"gomine/players"
-	"goraklib/server"
-	"fmt"
+	"sync"
 )
 
 const (
@@ -24,11 +20,11 @@ type Dimension struct {
 	isGenerated bool
 
 	chunks 		map[int]interfaces.IChunk
-	chunkPlayers map[int]map[int]interfaces.IPlayer
 	updatedBlocks map[int][]interfaces.IBlock
-	loadedChunks map[int]interfaces.IChunk
 
 	generator interfaces.IGenerator
+
+	mux sync.Mutex
 }
 
 /**
@@ -40,9 +36,7 @@ func NewDimension(name string, dimensionId int, level *Level, generator string, 
 		dimensionId: dimensionId,
 		level: level,
 		chunks: chunks,
-		chunkPlayers: make(map[int]map[int]interfaces.IPlayer),
 		updatedBlocks: make(map[int][]interfaces.IBlock),
-		loadedChunks: make(map[int]interfaces.IChunk),
 	}
 
 	if len(generator) == 0 {
@@ -79,17 +73,10 @@ func (dimension *Dimension) GetLevel() interfaces.ILevel {
  * Returns if chunk is loaded
  */
 func (dimension *Dimension) IsChunkLoaded(x, z int32) bool {
-	var _, ok = dimension.loadedChunks[GetChunkIndex(x, z)]
+	dimension.mux.Lock()
+	var _, ok = dimension.chunks[GetChunkIndex(x, z)]
+	defer dimension.mux.Unlock()
 	return ok
-}
-
-/**
- * Sets this chunk loaded
- */
-func (dimension *Dimension) SetChunkLoaded(x, z int32, chunk interfaces.IChunk) {
-	if !dimension.IsChunkLoaded(x, z) {
-		dimension.loadedChunks[GetChunkIndex(x, z)] = chunk
-	}
 }
 
 /**
@@ -97,7 +84,9 @@ func (dimension *Dimension) SetChunkLoaded(x, z int32, chunk interfaces.IChunk) 
  */
 func (dimension *Dimension) SetChunkUnloaded(x, z int32) {
 	if !dimension.IsChunkLoaded(x, z) {
-		delete(dimension.loadedChunks, GetChunkIndex(x, z))
+		dimension.mux.Lock()
+		delete(dimension.chunks, GetChunkIndex(x, z))
+		defer dimension.mux.Unlock()
 	}
 }
 
@@ -105,7 +94,9 @@ func (dimension *Dimension) SetChunkUnloaded(x, z int32) {
  * Sets a new chunk in the dimension at the x/z coordinates.
  */
 func (dimension *Dimension) SetChunk(x, z int32, chunk interfaces.IChunk) {
+	dimension.mux.Lock()
 	dimension.chunks[GetChunkIndex(x, z)] = chunk
+	defer dimension.mux.Unlock()
 }
 
 /**
@@ -116,41 +107,12 @@ func (dimension *Dimension) GetChunk(x, z int32) interfaces.IChunk {
 		return v
 	} else {
 		var chunk = dimension.generator.GetNewChunk(chunks.NewChunk(x, z))
+		dimension.mux.Lock()
 		dimension.chunks[GetChunkIndex(x, z)] = chunk
+		defer dimension.mux.Unlock()
 		return chunk
 	}
 	return nil
-}
-
-/**
- * Gets all the players located in a chunk.
- */
-func (dimension *Dimension) GetChunkPlayers(x, z int32) map[int]interfaces.IPlayer {
-	if v, ok := dimension.chunkPlayers[GetChunkIndex(x, z)]; ok {
-		return v
-	}
-	return nil
-}
-
-/**
- * checks if player in chunk
- */
-func (dimension *Dimension) IsPlayerInChunk(x, z int32, player interfaces.IPlayer) bool {
-	if v := dimension.GetChunkPlayers(x, z); v != nil {
-		_, ok := v[player.GetClientId()]
-		return ok
-	}
-	return false
-}
-
-/**
- * Adds a player to a chunk.
- */
-func (dimension *Dimension) AddChunkPlayer(x, z int32, player interfaces.IPlayer) {
-	if dimension.GetChunkPlayers(x, z) == nil {
-		dimension.chunkPlayers[GetChunkIndex(x, z)] = map[int]interfaces.IPlayer{}
-	}
-	dimension.chunkPlayers[GetChunkIndex(x, z)][player.GetClientId()] = player
 }
 
 /**
@@ -175,27 +137,30 @@ func (dimension *Dimension) GetGenerator() interfaces.IGenerator {
 }
 
 /**
- * Sends chunks around a player
+ * Sends all chunks required around the player.
  */
-func (dimension *Dimension) RequestChunks(player interfaces.IPlayer) {
-
-	distance := player.GetViewDistance()
+func (dimension *Dimension) RequestChunks(player interfaces.IPlayer, distance int32) {
 	xD, zD := int32(player.GetPosition().X) >> 4, int32(player.GetPosition().Z) >> 4
 
-	for x := xD - distance; x <= xD + distance; x++ {
-		for z := zD - distance; z <= zD + distance; z++ {
+	for x := -distance + xD; x <= distance + xD; x++ {
+		for z := -distance + zD; z <= distance + zD; z++ {
 
-			fmt.Println("x ", x, ", z ", z)
+			var xRel = x - xD
+			var zRel = z - zD
+			if xRel * xRel + zRel * zRel <= distance * distance {
+				index := GetChunkIndex(x, z)
 
-			if dimension.IsChunkLoaded(x, z) && dimension.IsPlayerInChunk(x, z, player) {
-				continue
+				if player.HasChunkInUse(index) {
+					continue
+				}
+
+				chunk := dimension.GetChunk(x, z)
+				player.SendChunk(chunk, index)
+
+				for _, entity := range chunk.GetEntities() {
+					entity.SpawnTo(player)
+				}
 			}
-
-			chunk := dimension.GetChunk(x, z)
-			player.SendChunk(chunk)
-			dimension.AddChunkPlayer(x, z, player)
-			dimension.SetChunkLoaded(x, z, chunk)
-			//fmt.Println("Chunk at x: " + x + ", z: " + z + " loaded!")
 		}
 	}
 }
@@ -204,14 +169,14 @@ func (dimension *Dimension) RequestChunks(player interfaces.IPlayer) {
  * Unloads all unused chunks
  */
 func (dimension Dimension) UnloadUnusedChunks() {
-	//todo
+
 }
 
 /**
  * this function updates every block that gets changed.
  */
 func (dimension *Dimension) UpdateBlocks()  {
-	var players2 map[int]interfaces.IPlayer
+	/*var players2 []interfaces.IPlayer
 	batch := net.NewMinecraftPacketBatch()
 
 	for i, blocks := range dimension.updatedBlocks {
@@ -234,25 +199,17 @@ func (dimension *Dimension) UpdateBlocks()  {
 
 	for _, p := range players2 {
 		dimension.level.GetServer().GetRakLibAdapter().SendBatch(batch, p.GetSession(), server.PriorityMedium)
-	}
+	}*/
 }
 
 /**
- * This functions updates all chunks for every player in it
+ * Unloads all unused chunks of the dimension.
  */
 func (dimension *Dimension) UpdateChunks() {
-	for _, p := range dimension.chunkPlayers {
-		for _, p2 := range p {
-			p2, ok := p2.(*players.Player)
-			if ok {
-				dimension.RequestChunks(p2)
-			}
-		}
-	}
-	//dimension.UnloadUnusedChunks()
+	dimension.UnloadUnusedChunks()
 }
 
 func (dimension *Dimension) TickDimension() {
 	dimension.UpdateBlocks()
-	dimension.UpdateChunks()
+	//dimension.UpdateChunks()
 }

@@ -17,7 +17,12 @@ func NewMovePlayerHandler() MovePlayerHandler {
 
 func (handler MovePlayerHandler) Handle(packet interfaces.IPacket, player interfaces.IPlayer, session *server.Session, server interfaces.IServer) bool {
 	if pk, ok := packet.(*packets.MovePlayerPacket); ok {
-		player.Move(pk.Position.X, pk.Position.Y, pk.Position.Z, pk.Rotation.Pitch, pk.Rotation.Yaw, pk.Rotation.HeadYaw)
+		player.SyncMove(pk.Position.X, pk.Position.Y, pk.Position.Z, pk.Rotation.Pitch, pk.Rotation.Yaw, pk.Rotation.HeadYaw, pk.OnGround)
+		player.GetDimension().RequestChunks(player, player.GetViewDistance())
+
+		for _, player2 := range player.GetViewers() {
+			player2.SendPacket(packet)
+		}
 
 		return true
 	}

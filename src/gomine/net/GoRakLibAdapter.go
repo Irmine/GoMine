@@ -5,6 +5,7 @@ import (
 	server2 "goraklib/server"
 	"gomine/net/info"
 	"goraklib/protocol"
+	"gomine/players/handlers"
 )
 
 type GoRakLibAdapter struct {
@@ -52,7 +53,7 @@ func (adapter *GoRakLibAdapter) Tick() {
 					packet.DecodeHeader()
 					packet.Decode()
 
-					var player, _ = adapter.server.GetPlayerFactory().GetPlayerBySession(session.GetAddress(), session.GetPort())
+					var player, _ = adapter.server.GetPlayerFactory().GetPlayerBySession(session)
 
 					priorityHandlers := GetPacketHandlers(packet.GetId())
 
@@ -68,6 +69,12 @@ func (adapter *GoRakLibAdapter) Tick() {
 				}
 			}
 		}(session)
+	}
+
+	for _, session := range adapter.rakLibServer.GetSessionManager().GetDisconnectedSessions() {
+		player, _ := adapter.server.GetPlayerFactory().GetPlayerBySession(session)
+		handler := handlers.NewDisconnectHandler()
+		handler.Handle(player, session, adapter.server)
 	}
 }
 
@@ -85,4 +92,54 @@ func (adapter *GoRakLibAdapter) SendPacket(pk interfaces.IPacket, session *serve
 
 func (adapter *GoRakLibAdapter) SendBatch(batch interfaces.IMinecraftPacketBatch, session *server2.Session, priority byte) {
 	session.SendConnectedPacket(batch, protocol.ReliabilityReliableOrdered, priority)
+}
+
+/**
+ * Returns if a packet with the given ID is registered.
+ */
+func (adapter *GoRakLibAdapter) IsPacketRegistered(id int) bool {
+	return IsPacketRegistered(id)
+}
+
+/**
+ * Returns a new packet with the given ID and a function that returns that packet.
+ */
+func (adapter *GoRakLibAdapter) RegisterPacket(id int, function func() interfaces.IPacket) {
+	RegisterPacket(id, function)
+}
+
+/**
+ * Returns a new packet with the given ID.
+ */
+func (adapter *GoRakLibAdapter) GetPacket(id int) interfaces.IPacket {
+	return GetPacket(id)
+}
+
+/**
+ * Registers a new packet handler to listen for packets with the given ID.
+ * Returns a bool indicating success.
+ */
+func (adapter *GoRakLibAdapter) RegisterPacketHandler(id int, handler interfaces.IPacketHandler, priority int) bool {
+	return RegisterPacketHandler(id, handler, priority)
+}
+
+/**
+ * Returns all packet handlers registered on the given ID.
+ */
+func (adapter *GoRakLibAdapter) GetPacketHandlers(id int) map[int][]interfaces.IPacketHandler {
+	return GetPacketHandlers(id)
+}
+
+/**
+ * Deletes all packet handlers listening for packets with the given ID, on the given priority.
+ */
+func (adapter *GoRakLibAdapter) DeregisterPacketHandler(id int, priority int) {
+	DeregisterPacketHandler(id, priority)
+}
+
+/**
+ * Deletes a registered packet with the given ID.
+ */
+func (adapter *GoRakLibAdapter) DeletePacket(id int) {
+	DeregisterPacket(id)
 }

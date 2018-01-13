@@ -14,6 +14,7 @@ type ILevel interface {
 	GetGameRule(string) IGameRule
 	AddGameRule(IGameRule)
 	GetRuntimeId() int
+	GetEntityHelper() IEntityHelper
 }
 
 type IGameRule interface {

@@ -4,6 +4,7 @@ import (
 	"goraklib/server"
 	"gomine/vectors"
 	"gomine/entities/math"
+	"gomine/utils"
 )
 
 type IPlayer interface {
@@ -19,12 +20,12 @@ type IPlayer interface {
 	GetServer() IServer
 	SetViewDistance(int32)
 	GetViewDistance() int32
-	GetUUID() string
+	GetUUID() utils.UUID
 	GetXUID() string
 	SetLanguage(string)
 	GetLanguage() string
 	GetClientId() int
-	SetSkinId(id string)
+	SetSkinId(string)
 	GetSkinId() string
 	GetSkinData() []byte
 	SetSkinData([]byte)
@@ -34,13 +35,13 @@ type IPlayer interface {
 	SetGeometryName(string)
 	GetGeometryData() string
 	SetGeometryData(string)
-	SendChunk(IChunk)
-	New(IServer, *server.Session, string, string, string, int) IPlayer
+	SendChunk(IChunk, int)
+	New(IServer, *server.Session, string, utils.UUID, string, int) IPlayer
 	GetPing() uint64
-	Move(x, y, z, pitch, yaw, headYaw float32)
+	SyncMove(x, y, z, pitch, yaw, headYaw float32, onGround bool)
 	Tick()
 	SendMessage(string)
-	SendPacket(packet IPacket)
+	SendPacket(IPacket)
 	PlaceInWorld(*vectors.TripleVector, *math.Rotation, ILevel, IDimension)
 	GetPosition() *vectors.TripleVector
 	SetPosition(*vectors.TripleVector)
@@ -52,4 +53,20 @@ type IPlayer interface {
 	SetRotation(*math.Rotation)
 	GetMotion() *vectors.TripleVector
 	SetMotion(*vectors.TripleVector)
+	HasChunkInUse(int) bool
+	HasAnyChunkInUse() bool
+	GetRuntimeId() uint64
+	SpawnPlayerTo(IPlayer)
+	SpawnPlayerToAll()
+	DespawnFrom(IPlayer)
+	DespawnFromAll()
+	SpawnTo(IPlayer)
+	SpawnToAll()
+	GetViewers() map[uint64]IPlayer
+	AddViewer(IPlayer)
+	RemoveViewer(IPlayer)
+	GetUniqueId() int64
+	IsFinalized() bool
+	SetFinalized()
+	UpdateAttributes()
 }

@@ -25,4 +25,14 @@ type IEntity interface {
 	SetRotation(*math.Rotation)
 	GetMotion() *vectors.TripleVector
 	SetMotion(*vectors.TripleVector)
+	SpawnTo(IPlayer)
+	SpawnToAll()
+	DespawnFrom(IPlayer)
+	DespawnFromAll()
+	GetViewers() map[uint64]IPlayer
+	AddViewer(IPlayer)
+	RemoveViewer(IPlayer)
+	GetUniqueId() int64
+	GetEntityId() uint32
+	GetEntityData() map[uint32][]interface{}
 }

@@ -1,7 +1,6 @@
 package interfaces
 
 import (
-	"gomine/tasks"
 	"gomine/resources"
 )
 
@@ -9,7 +8,6 @@ type IServer interface {
 	IsRunning() bool
 	Start()
 	Shutdown()
-	GetScheduler() *tasks.Scheduler
 	GetServerPath() string
 	GetLogger() ILogger
 	GetConfiguration() *resources.GoMineConfig
@@ -37,4 +35,6 @@ type IServer interface {
 	GetLevelById(int) (ILevel, error)
 	GetLevelByName(string) (ILevel, error)
 	GetCurrentTick() int64
+	BroadcastMessageTo(message string, receivers []IPlayer)
+	BroadcastMessage(message string)
 }

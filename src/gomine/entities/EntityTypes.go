@@ -1,9 +1,6 @@
 package entities
 
 const (
-
-	//peaceful
-
 	Chicken = iota + 10
 	Pig
 	Sheep
@@ -24,9 +21,9 @@ const (
 	PolarBear
 	Llama
 	Parrot
+)
 
-	//Hostile
-
+const (
 	Zombie = iota + 32
 	Creeper
 	Skeleton
@@ -53,4 +50,51 @@ const (
 	Endermite
 	LearnToCodeMascot
 	Vindicator
+)
+
+const (
+	ArmorStand = iota + 61
+	TripodCamera
+	Player
+	Item
+	Tnt
+	FallingBlock
+	MovingBlock
+	XpBottle
+	XpOrb
+	EyeOfEnderSignal
+	EnderCrystal
+	FireworksRocket
+)
+
+const (
+	ShulkerBullet = iota + 76
+	FishingHook
+	ChalkBoard
+	DragonFireball
+	Arrow
+	Snowball
+	Egg
+	Painting
+	Minecart
+	LargeFireball
+	SplashPotion
+	EnderPearl
+	LeashKnot
+	WitherSkull
+	Boat
+	WitherSkullDangerous
+	LightningBolt
+	SmallFireball
+	AreaEffectCloud
+	HopperMinecart
+	TntMinecart
+	ChestMinecart
+	Unused
+	CommandBlockMinecart
+	LingeringPotion
+	LlamaSpit
+	EvocationFang
+	Evoker
+	Vex
 )

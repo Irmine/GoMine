@@ -11,7 +11,7 @@ type LoginPacket struct {
 	*Packet
 	Username string
 	Protocol int32
-	ClientUUID string
+	ClientUUID utils.UUID
 	ClientId int
 	ClientXUID string
 	IdentityPublicKey string
@@ -46,7 +46,7 @@ type ClientDataKeys struct {
 }
 
 func NewLoginPacket() *LoginPacket {
-	pk := &LoginPacket{NewPacket(info.LoginPacket), "", 0, "", 0, "", "", "", "", "", []byte{}, []byte{}, "", []byte{}}
+	pk := &LoginPacket{NewPacket(info.LoginPacket), "", 0, utils.UUID{}, 0, "", "", "", "", "", []byte{}, []byte{}, "", []byte{}}
 	return pk
 }
 
@@ -82,7 +82,7 @@ func (pk *LoginPacket) Decode()  {
 			pk.Username = v.(string)
 		}
 		if v, ok := WebToken.ExtraData["identity"]; ok {
-			pk.ClientUUID = v.(string)
+			pk.ClientUUID = utils.UUIDFromString(v.(string))
 		}
 		if v, ok := WebToken.ExtraData["XUID"]; ok {
 			pk.ClientXUID = v.(string)

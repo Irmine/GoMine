@@ -6,7 +6,7 @@ type BinaryStream struct {
 }
 
 func NewStream() *BinaryStream {
-	return &BinaryStream{0, make([]byte, 4096)}
+	return &BinaryStream{0, []byte{}}
 }
 
 func (stream *BinaryStream) GetOffset() int {
@@ -209,14 +209,6 @@ func (stream *BinaryStream) PutLittleDouble(v float64) {
 
 func (stream *BinaryStream) GetLittleDouble() float64 {
 	return ReadDouble(&stream.Buffer, &stream.Offset)
-}
-
-func (stream *BinaryStream) PutPosition(x, y, z int) {
-	WritePosition(&stream.Buffer, x, y, z)
-}
-
-func (stream *BinaryStream) GetPosition() (int, int, int) {
-	return ReadPosition(&stream.Buffer, &stream.Offset)
 }
 
 func (stream *BinaryStream) PutTriad(v uint32) {

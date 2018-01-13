@@ -7,6 +7,9 @@ import (
 	"gomine/entities"
 	"gomine/vectors"
 	"gomine/entities/math"
+	"gomine/utils"
+	math2 "math"
+	"sync"
 )
 
 type Player struct {
@@ -23,11 +26,9 @@ type Player struct {
 	permissions map[string]interfaces.IPermission
 	permissionGroup interfaces.IPermissionGroup
 
-	server interfaces.IServer
-
 	language string
 
-	uuid string
+	uuid utils.UUID
 	xuid string
 	clientId int
 
@@ -39,18 +40,26 @@ type Player struct {
 	capeData []byte
 	geometryName string
 	geometryData string
+
+	finalized bool
+
+	Server interfaces.IServer
+
+	mux sync.Mutex
+	usedChunks map[int]interfaces.IChunk
 }
 
 /**
  * Returns a new player with the given credentials.
  */
-func NewPlayer(server interfaces.IServer, session *server.Session, name string, uuid string, xuid string, clientId int) *Player {
-
+func NewPlayer(server interfaces.IServer, session *server.Session, name string, uuid utils.UUID, xuid string, clientId int) *Player {
 	var player = &Player{}
 
 	player.runtimeId = entities.RuntimeId
 	player.playerName = name
 	player.displayName = name
+
+	player.usedChunks = make(map[int]interfaces.IChunk)
 
 	player.uuid = uuid
 	player.xuid = xuid
@@ -59,8 +68,9 @@ func NewPlayer(server interfaces.IServer, session *server.Session, name string, 
 	player.permissions = make(map[string]interfaces.IPermission)
 	player.permissionGroup = server.GetPermissionManager().GetDefaultGroup()
 
-	player.server = server
+	player.Server = server
 	player.session = session
+	player.attributeMap = entities.NewAttributeMap()
 
 	return player
 }
@@ -68,7 +78,7 @@ func NewPlayer(server interfaces.IServer, session *server.Session, name string, 
 /**
  * Returns a new player.
  */
-func (player *Player) New(server interfaces.IServer, session *server.Session, name string, uuid string, xuid string, clientId int) interfaces.IPlayer {
+func (player *Player) New(server interfaces.IServer, session *server.Session, name string, uuid utils.UUID, xuid string, clientId int) interfaces.IPlayer {
 	return NewPlayer(server, session, name, uuid, xuid, clientId)
 }
 
@@ -87,9 +97,43 @@ func (player *Player) PlaceInWorld(position *vectors.TripleVector, rotation *mat
 }
 
 /**
+ * Checks if this player is finalized.
+ */
+func (player *Player) IsFinalized() bool {
+	return player.finalized
+}
+
+/**
+ * Sets this player finalized.
+ */
+func (player *Player) SetFinalized() {
+	player.finalized = true
+}
+
+/**
+ * Spawns this player to the given other player.
+ */
+func (player *Player) SpawnPlayerTo(player2 interfaces.IPlayer) {
+	player.GetLevel().GetEntityHelper().SpawnPlayerTo(player, player2)
+	player.SpawnTo(player2)
+}
+
+/**
+ * Spawns this player to all other players.
+ */
+func (player *Player) SpawnPlayerToAll() {
+	for _, p := range player.GetServer().GetPlayerFactory().GetPlayers() {
+		if player == p {
+			continue
+		}
+		player.SpawnPlayerTo(p)
+	}
+}
+
+/**
  * Returns the UUID of this player.
  */
-func (player *Player) GetUUID() string {
+func (player *Player) GetUUID() utils.UUID {
 	return player.uuid
 }
 
@@ -139,7 +183,7 @@ func (player *Player) GetViewDistance() int32 {
  * Returns the main server.
  */
 func (player *Player) GetServer() interfaces.IServer {
-	return player.server
+	return player.Server
 }
 
 /**
@@ -316,28 +360,66 @@ func (player *Player) GetPing() uint64 {
 /**
  * Sends a chunk to the player.
  */
-func (player *Player) SendChunk(chunk interfaces.IChunk)  {
+func (player *Player) SendChunk(chunk interfaces.IChunk, index int)  {
 	var pk = packets.NewFullChunkPacket()
-
-	pk.ChunkX = chunk.GetX()
-	pk.ChunkZ = chunk.GetZ()
 	pk.Chunk = chunk
-
+	player.mux.Lock()
+	player.usedChunks[index] = chunk
+	defer player.mux.Unlock()
 	player.SendPacket(pk)
 }
 
 /**
- * Called on every player move
+ * Synchronizes the server's player movement with the client movement and adjusts chunks.
  */
-func (player *Player) Move(x, y, z, pitch, yaw, headYaw float32) {
+func (player *Player) SyncMove(x, y, z, pitch, yaw, headYaw float32, onGround bool) {
+	player.SetPosition(vectors.NewTripleVector(x, y, z))
+	player.Rotation.Pitch += pitch
+	player.Rotation.Yaw += yaw
+	player.Rotation.HeadYaw += headYaw
+	player.onGround = onGround
 
+	var chunkX = int32(math2.Floor(float64(x))) >> 4
+	var chunkZ = int32(math2.Floor(float64(z))) >> 4
+
+	var rs = player.GetViewDistance() * player.GetViewDistance()
+
+	player.mux.Lock()
+	for index, chunk := range player.usedChunks {
+		xDist := chunkX - chunk.GetX()
+		zDist := chunkZ - chunk.GetZ()
+		if xDist * xDist + zDist * zDist > rs {
+			delete(player.usedChunks, index)
+			for _, entity := range chunk.GetEntities() {
+				entity.DespawnFrom(player)
+			}
+		}
+	}
+	defer player.mux.Unlock()
+}
+
+/**
+ * Checks if the player has a chunk with the given index in use.
+ */
+func (player *Player) HasChunkInUse(index int) bool {
+	player.mux.Lock()
+	_, ok := player.usedChunks[index]
+	defer player.mux.Unlock()
+	return ok
+}
+
+/**
+ * Checks if the player has any used chunks.
+ */
+func (player *Player) HasAnyChunkInUse() bool {
+	return len(player.usedChunks) > 0
 }
 
 /**
  * Sends a packet to this player.
  */
 func (player *Player) SendPacket(packet interfaces.IPacket) {
-	player.server.GetRakLibAdapter().SendPacket(packet, player.session, server.PriorityMedium)
+	player.Server.GetRakLibAdapter().SendPacket(packet, player.session, server.PriorityMedium)
 }
 
 func (player *Player) Tick() {
@@ -345,11 +427,27 @@ func (player *Player) Tick() {
 }
 
 /**
+ * Updates all entity attributes
+ */
+func (player *Player) UpdateAttributes() {
+	pk := packets.NewUpdateAttributesPacket()
+	pk.EntityId = player.runtimeId
+	pk.Attributes = player.attributeMap
+	player.SendPacket(pk)
+}
+
+
+/**
+ * Sends entity data
+ */
+func (player *Player) SendEntityData()  {
+}
+
+/**
  * Sends a message to this player.
  */
 func (player *Player) SendMessage(message string) {
 	var pk = packets.NewTextPacket()
-	pk.XUID = player.GetXUID()
 	pk.Message = message
 	player.SendPacket(pk)
 }

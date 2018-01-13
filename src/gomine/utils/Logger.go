@@ -4,6 +4,7 @@ import (
 	"os"
 	"fmt"
 	"strings"
+	"time"
 )
 
 const (
@@ -14,6 +15,7 @@ const (
 	Error	 = "error"
 	Warning  = "warning"
 	Critical = "critical"
+	Chat     = "chat"
 )
 
 type Logger struct {
@@ -42,8 +44,11 @@ func NewLogger(prefix string, outputDir string, debugMode bool) *Logger {
 	var logger = &Logger{prefix, path, file, debugMode, []string{}, []string{}, false}
 
 	go func() {
-		for !logger.terminated {
-			logger.ProcessQueue(false)
+		var ticker = time.NewTicker(time.Second / 40)
+		for range ticker.C {
+			if !logger.terminated {
+				logger.ProcessQueue(false)
+			}
 		}
 	}()
 
@@ -63,7 +68,7 @@ func (logger *Logger) ProcessQueue(force bool) {
 			logger.terminalQueue = logger.terminalQueue[1:]
 		}
 
-		println(message)
+		os.Stdout.Write([]byte(message))
 	}
 
 	for _, message := range logger.fileQueue {
@@ -97,7 +102,7 @@ func (logger *Logger) Log(logLevel string, color string, messages ...interface{}
 	var prefix = "[" + logger.prefix + "]"
 	var level = "[" + strings.Title(logLevel) + "] "
 
-	var line = AnsiBrightBlue + prefix + color + level + message + AnsiReset
+	var line = prefix + color + level + message + AnsiReset + "\n"
 
 	logger.fileQueue = append(logger.fileQueue, line)
 	logger.terminalQueue = append(logger.terminalQueue, ConvertMcpeColorsToAnsi(line))
@@ -153,7 +158,14 @@ func (logger *Logger) Error(messages ...interface{}) {
 }
 
 /**
- * Logs an actual error.
+ * Logs a chat message to the logger.
+ */
+func (logger *Logger) LogChat(messages ...interface{}) {
+	logger.Log(Chat, BrightCyan, messages)
+}
+
+/**
+ * Logs an actual error, or nothing if the error is nil.
  */
 func (logger *Logger) LogError(err error) {
 	if err == nil {
@@ -166,7 +178,7 @@ func (logger *Logger) LogError(err error) {
  * Writes the given line to the log and appends a new line.
  */
 func (logger *Logger) write(line string) {
-	logger.file.WriteString(StripAllColors(line + "\n"))
+	logger.file.WriteString(StripAllColors(line))
 }
 
 /**

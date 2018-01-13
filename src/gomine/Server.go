@@ -3,7 +3,6 @@ package gomine
 import (
 	"errors"
 	"os"
-	"gomine/tasks"
 	"gomine/utils"
 	"gomine/resources"
 	"gomine/worlds"
@@ -15,15 +14,14 @@ import (
 	"gomine/permissions"
 	"gomine/players"
 	"gomine/packs"
+	"gomine/plugins"
 )
 
 var levelId = 0
 
 const (
 	GoMineName = "GoMine"
-
 	GoMineVersion = "0.0.1"
-	ApiVersion = "0.0.1"
 )
 
 type Server struct {
@@ -31,7 +29,6 @@ type Server struct {
 	tick int64
 
 	serverPath string
-	scheduler  *tasks.Scheduler
 	logger     interfaces.ILogger
 	config 	   *resources.GoMineConfig
 	consoleReader *ConsoleReader
@@ -45,6 +42,8 @@ type Server struct {
 	playerFactory *players.PlayerFactory
 
 	rakLibAdapter *net.GoRakLibAdapter
+
+	pluginManager *plugins.PluginManager
 }
 
 /**
@@ -55,7 +54,6 @@ func NewServer(serverPath string) *Server {
 	var server = &Server{}
 	server.serverPath = serverPath
 	server.config = resources.NewGoMineConfig(serverPath)
-	server.scheduler = tasks.NewScheduler()
 	server.logger = utils.NewLogger(GoMineName, serverPath, server.GetConfiguration().DebugMode)
 	server.levels = make(map[int]interfaces.ILevel)
 	server.consoleReader = NewConsoleReader(server)
@@ -68,6 +66,8 @@ func NewServer(serverPath string) *Server {
 
 	server.permissionManager = permissions.NewPermissionManager(server)
 
+	server.pluginManager = plugins.NewPluginManager(server)
+
 	return server
 }
 
@@ -77,6 +77,7 @@ func NewServer(serverPath string) *Server {
 func (server *Server) RegisterDefaultCommands() {
 	server.commandHolder.RegisterCommand(defaults.NewStop(server))
 	server.commandHolder.RegisterCommand(defaults.NewTest(server))
+	server.commandHolder.RegisterCommand(defaults.NewPing())
 }
 
 /**
@@ -98,6 +99,8 @@ func (server *Server) Start() {
 
 	server.packHandler.LoadResourcePacks() // Behavior packs may depend on resource packs, so always load resource packs first.
 	server.packHandler.LoadBehaviorPacks()
+
+	server.pluginManager.LoadPlugins()
 
 	server.isRunning = true
 }
@@ -130,13 +133,6 @@ func (server *Server) GetVersion() string {
  */
 func (server *Server) GetNetworkVersion() string {
 	return info.GameVersionNetwork
-}
-
-/**
- * Returns the scheduler used for scheduling tasks.
- */
-func (server *Server) GetScheduler() *tasks.Scheduler {
-	return server.scheduler
 }
 
 /**
@@ -362,6 +358,33 @@ func (server *Server) GetPackHandler() interfaces.IPackHandler {
 }
 
 /**
+ * Returns the plugin manager of the server.
+ */
+func (server *Server) GetPluginManager() *plugins.PluginManager {
+	return server.pluginManager
+}
+
+/**
+ * Broadcasts a message to all receivers.
+ */
+func (server *Server) BroadcastMessageTo(message string, receivers []interfaces.IPlayer) {
+	for _, player := range receivers {
+		player.SendMessage(message)
+	}
+	server.logger.LogChat(message)
+}
+
+/**
+ * Broadcasts a message to all players and the console in the server.
+ */
+func (server *Server) BroadcastMessage(message string) {
+	for _, player := range server.GetPlayerFactory().GetPlayers() {
+		player.SendMessage(message)
+	}
+	server.logger.LogChat(message)
+}
+
+/**
  * Internal. Not to be used by plugins.
  * Ticks the entire server. (Levels, scheduler, GoRakLib server etc.)
  */
@@ -370,7 +393,6 @@ func (server *Server) Tick(currentTick int64) {
 	if !server.isRunning {
 		return
 	}
-	server.GetScheduler().DoTick()
 	for _, level := range server.levels {
 		level.TickLevel()
 	}

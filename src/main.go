@@ -36,7 +36,7 @@ func main() {
 	server.Start()
 	var startupTime = time.Now().Sub(startTime)
 
-	server.GetLogger().Info("Server startup done! Took: " + startupTime.String())
+	server.GetLogger().Info("Server startup done! Took:", startupTime.String())
 
 	for range ticker.C {
 		server.Tick(currentTick)

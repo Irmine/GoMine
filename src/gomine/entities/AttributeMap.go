@@ -1,6 +1,8 @@
 package entities
 
-import "math"
+import (
+	"math"
+)
 
 type AttributeMap struct {
 	attributes map[string]*Attribute
@@ -8,7 +10,7 @@ type AttributeMap struct {
 
 var defaultAttributes = map[string]*Attribute{
 	AttributeHealth: NewAttribute(AttributeHealth, 20, 1024),
-	AttributeMovementSpeed: NewAttribute(AttributeMovementSpeed, 0.7, 1024),
+	AttributeMovementSpeed: NewAttribute(AttributeMovementSpeed, 0.1, 1024),
 	AttributeAttackDamage: NewAttribute(AttributeAttackDamage, 2, 2048),
 	AttributeAbsorption: NewAttribute(AttributeAbsorption, 0, 1024),
 	AttributeHunger: NewAttribute(AttributeHunger, 20, 20),
@@ -21,6 +23,14 @@ var defaultAttributes = map[string]*Attribute{
 	AttributeJumpStrength: NewAttribute(AttributeJumpStrength, 0.7, 2),
 }
 
+/**
+ * Returns if attribute exists
+ */
+func AttributeExists(name string) bool {
+	 _, ok := defaultAttributes[name]
+	 return ok
+}
+
 func NewAttributeMap() *AttributeMap {
 	return &AttributeMap{defaultAttributes}
 }
@@ -28,7 +38,7 @@ func NewAttributeMap() *AttributeMap {
 /**
  * Returns all attributes in a name => attribute map.
  */
-func (attMap *AttributeMap) getAttributes() map[string]*Attribute {
+func (attMap *AttributeMap) GetAttributes() map[string]*Attribute {
 	return attMap.attributes
 }
 

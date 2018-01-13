@@ -58,8 +58,8 @@ func NewStartGamePacket() *StartGamePacket {
 }
 
 func (pk *StartGamePacket) Encode()  {
-	pk.PutVarLong(pk.EntityUniqueId) // Entity Unique ID
-	pk.PutUnsignedVarLong(pk.EntityRuntimeId) // Entity runtime ID
+	pk.PutUniqueId(pk.EntityUniqueId) // Entity Unique ID
+	pk.PutRuntimeId(pk.EntityRuntimeId) // Entity runtime ID
 
 	pk.PutVarInt(pk.PlayerGameMode) // Player game mode.
 
@@ -99,7 +99,7 @@ func (pk *StartGamePacket) Encode()  {
 	pk.PutString(base64.RawStdEncoding.EncodeToString([]byte(pk.LevelName))) // Level name base64 encoded
 	pk.PutString(pk.LevelName) // Level name
 	pk.PutString("") // Premium world template ID
-	pk.PutBool(true) // Unknown
+	pk.PutBool(false) // Unknown
 	pk.PutLittleLong(pk.CurrentTick) // Tick
 	pk.PutVarInt(pk.EnchantmentSeed) // Enchantment seed
 }
