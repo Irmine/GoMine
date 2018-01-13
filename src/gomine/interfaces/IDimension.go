@@ -17,4 +17,5 @@ type IEntityHelper interface {
 	SpawnPlayerTo(IPlayer, IPlayer)
 	SpawnEntityTo(IEntity, IPlayer)
 	DespawnEntityFrom(IEntity, IPlayer)
+	SendEntityData(IEntity, IPlayer)
 }

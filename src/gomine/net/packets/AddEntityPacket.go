@@ -16,7 +16,7 @@ type AddEntityPacket struct {
 	Motion     vectors.TripleVector
 	Rotation   math.Rotation
 
-	Attributes map[int]entities.Attribute
+	Attributes *entities.AttributeMap
 	EntityData map[uint32][]interface{}
 }
 
@@ -31,7 +31,7 @@ func (pk *AddEntityPacket) Encode() {
 	pk.PutTripleVectorObject(pk.Position)
 	pk.PutTripleVectorObject(pk.Motion)
 	pk.PutRotationObject(pk.Rotation, false)
-	pk.PutEntityAttributes(pk.Attributes)
+	pk.PutEntityAttributeMap(pk.Attributes)
 	pk.PutEntityData(pk.EntityData)
 	pk.PutUnsignedVarInt(0)
 }
@@ -43,6 +43,6 @@ func (pk *AddEntityPacket) Decode() {
 	pk.Position.SetVector(pk.GetTripleVectorObject())
 	pk.Motion = *pk.GetTripleVectorObject()
 	pk.Rotation = pk.GetRotationObject(false)
-	pk.Attributes = pk.GetEntityAttributes()
+	pk.Attributes = pk.GetEntityAttributeMap()
 	pk.EntityData = pk.GetEntityData()
 }

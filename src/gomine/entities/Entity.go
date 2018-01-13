@@ -9,6 +9,14 @@ import (
 
 var RuntimeId uint64 = 0
 
+const (
+	DataFlags = 0
+)
+
+const (
+	AffectedByGravity = 46
+)
+
 type Entity struct {
 	attributeMap *AttributeMap
 	Motion *vectors.TripleVector
@@ -24,11 +32,13 @@ type Entity struct {
 	NameTag string
 
 	SpawnedTo map[uint64]interfaces.IPlayer
+
+	EntityData map[uint32][]interface{}
 }
 
 func NewEntity(position *vectors.TripleVector, rotation *math.Rotation, motion *vectors.TripleVector, level interfaces.ILevel, dimension interfaces.IDimension) *Entity {
 	RuntimeId++
-	return &Entity{
+	ent := Entity{
 		NewAttributeMap(),
 		motion,
 		RuntimeId,
@@ -39,7 +49,10 @@ func NewEntity(position *vectors.TripleVector, rotation *math.Rotation, motion *
 		rotation,
 		"",
 		map[uint64]interfaces.IPlayer{},
+		make(map[uint32][]interface{}),
 	}
+	ent.InitDataFlags()
+	return &ent
 }
 
 /**
@@ -68,6 +81,40 @@ func (entity *Entity) GetAttributeMap() *AttributeMap {
  */
 func (entity *Entity) SetAttributeMap(attMap *AttributeMap) {
 	entity.attributeMap = attMap
+}
+
+/**
+ * returns the entity data
+ */
+func (entity *Entity) GetEntityData() map[uint32][]interface{} {
+	return entity.EntityData
+}
+
+/**
+ * Initiates all entity data flags
+ */
+func (entity *Entity) InitDataFlags() {
+	entity.EntityData[DataFlags] = append(entity.EntityData[DataFlags], uint32(Long))
+	entity.EntityData[DataFlags] = append(entity.EntityData[DataFlags], int64(0))
+	entity.SetDataFlag(AffectedByGravity, true)
+}
+
+/**
+ * Sets entity data flag
+ */
+func (entity *Entity) SetDataFlag(flagId int, value bool)  {
+	v := entity.EntityData[DataFlags][1].(int64)
+	if value != entity.GetDataFlag(flagId) {
+		v ^= int64(1 << uint(flagId))
+		entity.EntityData[DataFlags][1] = v
+	}
+}
+
+/**
+ * Returns entity data flag
+ */
+func (entity *Entity) GetDataFlag(flagId int) bool {
+	return (entity.EntityData[DataFlags][1].(int64) & (1 << uint(flagId))) > 0
 }
 
 /**

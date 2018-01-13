@@ -103,8 +103,10 @@ func (pk *Packet) GetRotationObject(isPlayer bool) math.Rotation {
 	return *math.NewRotation(yaw, pitch, headYaw)
 }
 
-func (pk *Packet) PutEntityAttributes(attr map[int]entities.Attribute) {
-	for _, v := range attr {
+func (pk *Packet) PutEntityAttributeMap(attr *entities.AttributeMap) {
+	attrList := attr.GetAttributes()
+	pk.PutUnsignedVarInt(uint32(len(attrList)))
+	for _, v := range attrList {
 		pk.PutLittleFloat(v.GetMinValue())
 		pk.PutLittleFloat(v.GetMaxValue())
 		pk.PutLittleFloat(v.GetValue())
@@ -113,9 +115,23 @@ func (pk *Packet) PutEntityAttributes(attr map[int]entities.Attribute) {
 	}
 }
 
-func (pk *Packet) GetEntityAttributes() map[int]entities.Attribute {
-	//todo
-	return map[int]entities.Attribute{}
+func (pk *Packet) GetEntityAttributeMap() *entities.AttributeMap {
+	attributes := entities.NewAttributeMap()
+	c := pk.GetUnsignedVarInt()
+
+	for i := uint32(0); i < c; i++ {
+		pk.GetLittleFloat()
+		max := pk.GetLittleFloat()
+		value := pk.GetLittleFloat()
+		pk.GetLittleFloat()
+		name := pk.GetString()
+
+		if entities.AttributeExists(name) {
+			attributes.SetAttribute(entities.NewAttribute(name, value, max))
+		}
+	}
+
+	return attributes
 }
 
 func (pk *Packet) PutEntityData(dat map[uint32][]interface{}) {
@@ -123,7 +139,7 @@ func (pk *Packet) PutEntityData(dat map[uint32][]interface{}) {
 	for k, v := range dat {
 		pk.PutUnsignedVarInt(k)
 		pk.PutUnsignedVarInt(v[0].(uint32))
-		switch v[1] {
+		switch v[0] {
 		case entities.Byte:
 			pk.PutByte(v[1].(byte))
 		case entities.Short:

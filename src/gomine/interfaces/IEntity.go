@@ -34,4 +34,5 @@ type IEntity interface {
 	RemoveViewer(IPlayer)
 	GetUniqueId() int64
 	GetEntityId() uint32
+	GetEntityData() map[uint32][]interface{}
 }

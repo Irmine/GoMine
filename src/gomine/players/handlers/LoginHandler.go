@@ -24,6 +24,7 @@ func NewLoginHandler() LoginHandler {
  * Handles the main login process.
  */
 func (handler LoginHandler) Handle(packet interfaces.IPacket, player interfaces.IPlayer, session *server.Session, server interfaces.IServer) bool {
+
 	if loginPacket, ok := packet.(*packets.LoginPacket); ok {
 		_, online := server.GetPlayerFactory().GetPlayerByName(loginPacket.Username)
 		if online == nil {

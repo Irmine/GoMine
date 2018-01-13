@@ -9,6 +9,7 @@ import (
 	"gomine/entities/math"
 	"gomine/utils"
 	math2 "math"
+	"sync"
 )
 
 type Player struct {
@@ -24,8 +25,6 @@ type Player struct {
 
 	permissions map[string]interfaces.IPermission
 	permissionGroup interfaces.IPermissionGroup
-
-	server interfaces.IServer
 
 	language string
 
@@ -44,6 +43,9 @@ type Player struct {
 
 	finalized bool
 
+	Server interfaces.IServer
+
+	mux sync.Mutex
 	usedChunks map[int]interfaces.IChunk
 }
 
@@ -66,8 +68,9 @@ func NewPlayer(server interfaces.IServer, session *server.Session, name string, 
 	player.permissions = make(map[string]interfaces.IPermission)
 	player.permissionGroup = server.GetPermissionManager().GetDefaultGroup()
 
-	player.server = server
+	player.Server = server
 	player.session = session
+	player.attributeMap = entities.NewAttributeMap()
 
 	return player
 }
@@ -179,7 +182,7 @@ func (player *Player) GetViewDistance() int32 {
  * Returns the main server.
  */
 func (player *Player) GetServer() interfaces.IServer {
-	return player.server
+	return player.Server
 }
 
 /**
@@ -359,25 +362,28 @@ func (player *Player) GetPing() uint64 {
 func (player *Player) SendChunk(chunk interfaces.IChunk, index int)  {
 	var pk = packets.NewFullChunkPacket()
 	pk.Chunk = chunk
+	player.mux.Lock()
 	player.usedChunks[index] = chunk
-
+	defer player.mux.Unlock()
 	player.SendPacket(pk)
 }
 
 /**
  * Synchronizes the server's player movement with the client movement and adjusts chunks.
  */
-func (player *Player) SyncMove(x, y, z, pitch, yaw, headYaw float32) {
+func (player *Player) SyncMove(x, y, z, pitch, yaw, headYaw float32, onGround bool) {
 	player.SetPosition(vectors.NewTripleVector(x, y, z))
 	player.Rotation.Pitch += pitch
 	player.Rotation.Yaw += yaw
 	player.Rotation.HeadYaw += headYaw
+	player.onGround = onGround
 
 	var chunkX = int32(math2.Floor(float64(x))) >> 4
 	var chunkZ = int32(math2.Floor(float64(z))) >> 4
 
 	var rs = player.GetViewDistance() * player.GetViewDistance()
 
+	player.mux.Lock()
 	for index, chunk := range player.usedChunks {
 		xDist := chunkX - chunk.GetX()
 		zDist := chunkZ - chunk.GetZ()
@@ -388,13 +394,16 @@ func (player *Player) SyncMove(x, y, z, pitch, yaw, headYaw float32) {
 			}
 		}
 	}
+	defer player.mux.Unlock()
 }
 
 /**
  * Checks if the player has a chunk with the given index in use.
  */
 func (player *Player) HasChunkInUse(index int) bool {
+	player.mux.Lock()
 	_, ok := player.usedChunks[index]
+	defer player.mux.Unlock()
 	return ok
 }
 
@@ -409,11 +418,28 @@ func (player *Player) HasAnyChunkInUse() bool {
  * Sends a packet to this player.
  */
 func (player *Player) SendPacket(packet interfaces.IPacket) {
-	player.server.GetRakLibAdapter().SendPacket(packet, player.session, server.PriorityMedium)
+	player.Server.GetRakLibAdapter().SendPacket(packet, player.session, server.PriorityMedium)
 }
 
 func (player *Player) Tick() {
 
+}
+
+/**
+ * Updates all entity attributes
+ */
+func (player *Player) UpdateAttributes() {
+	pk := packets.NewUpdateAttributesPacket()
+	pk.EntityId = player.runtimeId
+	pk.Attributes = player.attributeMap
+	player.SendPacket(pk)
+}
+
+
+/**
+ * Sends entity data
+ */
+func (player *Player) SendEntityData()  {
 }
 
 /**

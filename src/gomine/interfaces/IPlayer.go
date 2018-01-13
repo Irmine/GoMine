@@ -38,7 +38,7 @@ type IPlayer interface {
 	SendChunk(IChunk, int)
 	New(IServer, *server.Session, string, utils.UUID, string, int) IPlayer
 	GetPing() uint64
-	SyncMove(x, y, z, pitch, yaw, headYaw float32)
+	SyncMove(x, y, z, pitch, yaw, headYaw float32, onGround bool)
 	Tick()
 	SendMessage(string)
 	SendPacket(IPacket)
@@ -68,4 +68,5 @@ type IPlayer interface {
 	GetUniqueId() int64
 	IsFinalized() bool
 	SetFinalized()
+	UpdateAttributes()
 }

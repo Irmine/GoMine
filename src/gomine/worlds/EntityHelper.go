@@ -53,3 +53,13 @@ func (manager *EntityHelper) DespawnEntityFrom(entity interfaces.IEntity, player
 
 	entity.RemoveViewer(player)
 }
+
+/**
+ * Sends entity meta data
+ */
+func (manager *EntityHelper) SendEntityData(entity interfaces.IEntity, player interfaces.IPlayer) {
+	pk := packets.NewSetEntityDataPacket()
+	pk.EntityId = entity.GetRuntimeId()
+	pk.EntityData = entity.GetEntityData()
+	player.SendPacket(pk)
+}

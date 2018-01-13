@@ -50,6 +50,8 @@ func (handler ChunkRadiusRequestHandler) Handle(packet interfaces.IPacket, playe
 			}
 
 			player.SpawnPlayerToAll()
+			player.UpdateAttributes()
+			player.GetLevel().GetEntityHelper().SendEntityData(player.(interfaces.IEntity), player)
 
 			server.BroadcastMessage(utils.Yellow + player.GetName() + " has joined the server")
 		}
