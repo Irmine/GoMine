@@ -10,6 +10,7 @@ import (
 	"encoding/pem"
 	"math/big"
 	"crypto/sha512"
+	"time"
 )
 
 type LoginHandler struct {
@@ -31,7 +32,16 @@ func (handler LoginHandler) Handle(packet interfaces.IPacket, player interfaces.
 			return false
 		}
 
-		handler.VerifyLoginRequest(loginPacket.Chains, server)
+		var successful, authenticated = handler.VerifyLoginRequest(loginPacket.Chains, server)
+		if !successful {
+			server.GetLogger().Error(loginPacket.Username, "had an invalid chain and is denied access")
+			return false
+		}
+		if authenticated {
+			server.GetLogger().Debug(loginPacket.Username, "has joined while being logged into XBOX Live")
+		} else {
+			server.GetLogger().Debug(loginPacket.Username, "tried to join, but is not logged into XBOX Live")
+		}
 
 		var player = player.New(server, session, loginPacket.Username, loginPacket.ClientUUID, loginPacket.ClientXUID, loginPacket.ClientId)
 		player.SetLanguage(loginPacket.Language)
@@ -61,26 +71,26 @@ func (handler LoginHandler) Handle(packet interfaces.IPacket, player interfaces.
 	return false
 }
 
-func (handler LoginHandler) VerifyLoginRequest(chains []packets.Chain, server interfaces.IServer) bool {
+func (handler LoginHandler) VerifyLoginRequest(chains []packets.Chain, server interfaces.IServer) (successful bool, authenticated bool) {
 	var publicKeyRaw = ""
 	var publicKey *ecdsa.PublicKey
 	for _, chain := range chains {
 		if publicKeyRaw == "" {
 			if chain.Header.X5u == "" {
-				return false
+				return false, authenticated
 			}
+			publicKeyRaw = chain.Header.X5u
 		}
 
 		sig := []byte(chain.Signature)
 		data := []byte(chain.Header.Raw + "." + chain.Payload.Raw)
 
-		publicKeyRaw = chain.Header.X5u
 		block, _ := pem.Decode([]byte("-----BEGIN PUBLIC KEY-----\n" + publicKeyRaw + "\n-----END PUBLIC KEY-----"))
 
 		key, err := x509.ParsePKIXPublicKey(block.Bytes)
 		if err != nil {
 			server.GetLogger().LogError(err)
-			return false
+			return false, authenticated
 		}
 
 		hash := sha512.New384()
@@ -90,9 +100,28 @@ func (handler LoginHandler) VerifyLoginRequest(chains []packets.Chain, server in
 		r := new(big.Int).SetBytes(sig[:len(sig) / 2])
 		s := new(big.Int).SetBytes(sig[len(sig) / 2:])
 
-		println("Signature validation:", ecdsa.Verify(publicKey, hash.Sum(nil), r, s))
+		if !ecdsa.Verify(publicKey, hash.Sum(nil), r, s) {
+			return false, authenticated
+		}
 
-		println(chain.Header.Alg)
+		if publicKeyRaw == packets.MojangPublicKey {
+			authenticated = true
+		}
+
+		t := time.Now().Unix()
+		if chain.Payload.ExpirationTime <= t {
+			return false, authenticated
+		}
+
+		if chain.Payload.NotBefore > t {
+			return false, authenticated
+		}
+
+		if chain.Payload.IssuedAt > chain.Payload.ExpirationTime {
+			return false, authenticated
+		}
+
+		publicKeyRaw = chain.Payload.IdentityPublicKey
 	}
-	return true
+	return true, authenticated
 }

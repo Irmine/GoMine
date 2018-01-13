@@ -54,12 +54,12 @@ type ChainHeader struct {
 
 type ChainPayload struct {
 	CertificateAuthority bool `json:"certificateAuthority"`
-	ExpirationTime int `json:"exp"`
-	IdentityPublicKey int `json:"identityPublicKey"`
-	NotBefore int `json:"nbf"`
+	ExpirationTime int64 `json:"exp"`
+	IdentityPublicKey string `json:"identityPublicKey"`
+	NotBefore int64 `json:"nbf"`
 	RandomNonce int `json:"randomNonce"`
 	Issuer string `json:"iss"`
-	IssuedAt int `json:"iat"`
+	IssuedAt int64 `json:"iat"`
 
 	Raw string
 }
@@ -155,8 +155,6 @@ func (pk *LoginPacket) Decode()  {
 			pk.IdentityPublicKey = WebToken.IdentityPublicKey
 		}
 	}
-
-	println(len(pk.Chains))
 
 	var clientDataJwt = stream.Get(int(stream.GetLittleInt()))
 	var clientData = &ClientDataKeys{}
