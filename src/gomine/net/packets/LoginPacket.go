@@ -117,28 +117,7 @@ func (pk *LoginPacket) Decode()  {
 
 	for _, v := range chainData.RawChains {
 		WebToken := &WebTokenKeys{}
-
-		jwt := utils.DecodeJwt(v)
-		var base64s = strings.Split(v, ".")
-
-		chain := Chain{}
-		for i, str := range jwt {
-			switch i {
-			case 0:
-				header := ChainHeader{}
-				json.Unmarshal([]byte(str), &header)
-				header.Raw = base64s[i]
-				chain.Header = header
-			case 1:
-				payload := ChainPayload{}
-				json.Unmarshal([]byte(str), &payload)
-				payload.Raw = base64s[i]
-				chain.Payload = payload
-			case 2:
-				chain.Signature = str
-			}
-		}
-		pk.Chains = append(pk.Chains, chain)
+		pk.Chains = append(pk.Chains, pk.BuildChain(v))
 
 		utils.DecodeJwtPayload(v, WebToken)
 
@@ -170,10 +149,34 @@ func (pk *LoginPacket) Decode()  {
 	}
 
 	pk.SkinId = clientData.SkinId
-	pk.SkinData, _ = base64.RawStdEncoding.DecodeString(clientData.SkinData)
-	pk.CapeData, _ = base64.RawStdEncoding.DecodeString(clientData.CapeData)
-	var geometry, _ = base64.RawStdEncoding.DecodeString(clientData.GeometryData)
+	pk.SkinData, _ = base64.RawURLEncoding.DecodeString(clientData.SkinData)
+	pk.CapeData, _ = base64.RawURLEncoding.DecodeString(clientData.CapeData)
+	var geometry, _ = base64.RawURLEncoding.DecodeString(clientData.GeometryData)
 	pk.GeometryData = string(geometry)
 
 	pk.ClientData = *clientData
+}
+
+func (pk *LoginPacket) BuildChain(raw string) Chain {
+	jwt := utils.DecodeJwt(raw)
+	var base64s = strings.Split(raw, ".")
+
+	chain := Chain{}
+	for i, str := range jwt {
+		switch i {
+		case 0:
+			header := ChainHeader{}
+			json.Unmarshal([]byte(str), &header)
+			header.Raw = base64s[i]
+			chain.Header = header
+		case 1:
+			payload := ChainPayload{}
+			json.Unmarshal([]byte(str), &payload)
+			payload.Raw = base64s[i]
+			chain.Payload = payload
+		case 2:
+			chain.Signature = str
+		}
+	}
+	return chain
 }

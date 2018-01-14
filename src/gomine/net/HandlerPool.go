@@ -15,6 +15,7 @@ var registeredHandlers = map[int]map[int][]interfaces.IPacketHandler{}
 
 func init() {
 	RegisterPacketHandler(info.LoginPacket, handlers.NewLoginHandler(), PriorityLast)
+	RegisterPacketHandler(info.ClientHandshakePacket, handlers.NewClientHandshakeHandler(), PriorityLast)
 	RegisterPacketHandler(info.RequestChunkRadiusPacket, handlers.NewChunkRadiusRequestHandler(), PriorityLast)
 	RegisterPacketHandler(info.ResourcePackClientResponsePacket, handlers.NewResourcePackClientResponseHandler(), PriorityLast)
 	RegisterPacketHandler(info.MovePlayerPacket, handlers.NewMovePlayerHandler(), PriorityLast)

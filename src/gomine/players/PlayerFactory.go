@@ -36,6 +36,7 @@ func (factory *PlayerFactory) GetPlayerByName(name string) (interfaces.IPlayer, 
 	if _, ok := factory.players[name]; ok {
 		return factory.players[name], nil
 	}
+
 	return &player, errors.New("player does not exist")
 }
 

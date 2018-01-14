@@ -24,6 +24,7 @@ func NewGoRakLibAdapter(server interfaces.IServer) *GoRakLibAdapter {
 	rakServer.SetMaxConnectedSessions(server.GetMaximumPlayers())
 	rakServer.SetDefaultGameMode("Creative")
 	rakServer.SetMotd(server.GetMotd())
+	rakServer.SetEncryption(true)
 
 	return &GoRakLibAdapter{server, rakServer}
 }
@@ -57,8 +58,8 @@ func (adapter *GoRakLibAdapter) Tick() {
 
 					priorityHandlers := GetPacketHandlers(packet.GetId())
 
-					for _, handlers := range priorityHandlers {
-						for _, handler := range handlers {
+					for _, h := range priorityHandlers {
+						for _, handler := range h {
 							handler.Handle(packet, player, session, adapter.server)
 						}
 					}

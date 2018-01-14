@@ -15,6 +15,9 @@ import (
 	"gomine/players"
 	"gomine/packs"
 	"gomine/plugins"
+	"crypto/ecdsa"
+	"crypto/elliptic"
+	"crypto/rand"
 )
 
 var levelId = 0
@@ -27,6 +30,8 @@ const (
 type Server struct {
 	isRunning  bool
 	tick int64
+	privateKey *ecdsa.PrivateKey
+	token []byte
 
 	serverPath string
 	logger     interfaces.ILogger
@@ -63,10 +68,23 @@ func NewServer(serverPath string) *Server {
 	server.packHandler = packs.NewPackHandler(server)
 
 	server.playerFactory = players.NewPlayerFactory(server)
-
 	server.permissionManager = permissions.NewPermissionManager(server)
 
 	server.pluginManager = plugins.NewPluginManager(server)
+
+	var curve = elliptic.P384()
+
+	var err error
+	server.privateKey, err = ecdsa.GenerateKey(curve, rand.Reader)
+	server.logger.LogError(err)
+
+	if !curve.IsOnCurve(server.privateKey.X, server.privateKey.Y) {
+		server.logger.Error("Invalid private key generated")
+	}
+
+	var token = make([]byte, 16)
+	rand.Read(token)
+	server.token = token
 
 	return server
 }
@@ -382,6 +400,27 @@ func (server *Server) BroadcastMessage(message string) {
 		player.SendMessage(message)
 	}
 	server.logger.LogChat(message)
+}
+
+/**
+ * Returns the ECDSA private key of the server.
+ */
+func (server *Server) GetPrivateKey() *ecdsa.PrivateKey {
+	return server.privateKey
+}
+
+/**
+ * Returns the ECDSA public key of the private key of the server.
+ */
+func (server *Server) GetPublicKey() *ecdsa.PublicKey {
+	return &server.privateKey.PublicKey
+}
+
+/**
+ * Returns the server token byte sequence.
+ */
+func (server *Server) GetServerToken() []byte {
+	return server.token
 }
 
 /**

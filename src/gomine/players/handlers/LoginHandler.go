@@ -11,6 +11,7 @@ import (
 	"math/big"
 	"crypto/sha512"
 	"time"
+	"gomine/utils"
 )
 
 type LoginHandler struct {
@@ -27,12 +28,12 @@ func NewLoginHandler() LoginHandler {
 func (handler LoginHandler) Handle(packet interfaces.IPacket, player interfaces.IPlayer, session *server.Session, server interfaces.IServer) bool {
 
 	if loginPacket, ok := packet.(*packets.LoginPacket); ok {
-		_, online := server.GetPlayerFactory().GetPlayerByName(loginPacket.Username)
-		if online == nil {
+		_, err := server.GetPlayerFactory().GetPlayerByName(loginPacket.Username)
+		if err == nil {
 			return false
 		}
 
-		var successful, authenticated = handler.VerifyLoginRequest(loginPacket.Chains, server)
+		var successful, authenticated, _ = handler.VerifyLoginRequest(loginPacket.Chains, server)
 		if !successful {
 			server.GetLogger().Error(loginPacket.Username, "had an invalid chain and is denied access")
 			return false
@@ -44,6 +45,7 @@ func (handler LoginHandler) Handle(packet interfaces.IPacket, player interfaces.
 		}
 
 		var player = player.New(server, session, loginPacket.Username, loginPacket.ClientUUID, loginPacket.ClientXUID, loginPacket.ClientId)
+
 		player.SetLanguage(loginPacket.Language)
 		player.SetSkinId(loginPacket.SkinId)
 		player.SetSkinData(loginPacket.SkinData)
@@ -51,7 +53,13 @@ func (handler LoginHandler) Handle(packet interfaces.IPacket, player interfaces.
 		player.SetGeometryName(loginPacket.GeometryName)
 		player.SetGeometryData(loginPacket.GeometryData)
 
-		playStatus := packets.NewPlayStatusPacket()
+		var handshake = packets.NewServerHandshakePacket()
+		var jwt = utils.ConstructEncryptionJwt(server.GetPrivateKey(), server.GetServerToken())
+		utils.DecodeJwt(jwt)
+		handshake.Jwt = jwt
+		player.SendPacket(handshake)
+
+		/*playStatus := packets.NewPlayStatusPacket()
 		playStatus.Status = 0
 		player.SendPacket(playStatus)
 
@@ -61,7 +69,7 @@ func (handler LoginHandler) Handle(packet interfaces.IPacket, player interfaces.
 		resourceInfo.ResourcePacks = server.GetPackHandler().GetResourceStack().GetPacks()
 		resourceInfo.BehaviorPacks = server.GetPackHandler().GetBehaviorStack().GetPacks()
 
-		player.SendPacket(resourceInfo)
+		player.SendPacket(resourceInfo)*/
 
 		server.GetPlayerFactory().AddPlayer(player, session)
 
@@ -71,13 +79,13 @@ func (handler LoginHandler) Handle(packet interfaces.IPacket, player interfaces.
 	return false
 }
 
-func (handler LoginHandler) VerifyLoginRequest(chains []packets.Chain, server interfaces.IServer) (successful bool, authenticated bool) {
-	var publicKeyRaw = ""
+func (handler LoginHandler) VerifyLoginRequest(chains []packets.Chain, server interfaces.IServer) (successful bool, authenticated bool, clientPublicKey *ecdsa.PublicKey) {
 	var publicKey *ecdsa.PublicKey
+	var publicKeyRaw string
 	for _, chain := range chains {
 		if publicKeyRaw == "" {
 			if chain.Header.X5u == "" {
-				return false, authenticated
+				return
 			}
 			publicKeyRaw = chain.Header.X5u
 		}
@@ -90,7 +98,7 @@ func (handler LoginHandler) VerifyLoginRequest(chains []packets.Chain, server in
 		key, err := x509.ParsePKIXPublicKey(block.Bytes)
 		if err != nil {
 			server.GetLogger().LogError(err)
-			return false, authenticated
+			return
 		}
 
 		hash := sha512.New384()
@@ -101,7 +109,7 @@ func (handler LoginHandler) VerifyLoginRequest(chains []packets.Chain, server in
 		s := new(big.Int).SetBytes(sig[len(sig) / 2:])
 
 		if !ecdsa.Verify(publicKey, hash.Sum(nil), r, s) {
-			return false, authenticated
+			return
 		}
 
 		if publicKeyRaw == packets.MojangPublicKey {
@@ -109,19 +117,31 @@ func (handler LoginHandler) VerifyLoginRequest(chains []packets.Chain, server in
 		}
 
 		t := time.Now().Unix()
-		if chain.Payload.ExpirationTime <= t {
-			return false, authenticated
+		if chain.Payload.ExpirationTime <= t && chain.Payload.ExpirationTime != 0 {
+			return
 		}
 
 		if chain.Payload.NotBefore > t {
-			return false, authenticated
+			return
 		}
 
 		if chain.Payload.IssuedAt > chain.Payload.ExpirationTime {
-			return false, authenticated
+			return
 		}
 
 		publicKeyRaw = chain.Payload.IdentityPublicKey
 	}
-	return true, authenticated
+
+	block, _ := pem.Decode([]byte("-----BEGIN PUBLIC KEY-----\n" + publicKeyRaw + "\n-----END PUBLIC KEY-----"))
+
+	key, err := x509.ParsePKIXPublicKey(block.Bytes)
+	if err != nil {
+		server.GetLogger().LogError(err)
+		return
+	}
+
+	clientPublicKey = key.(*ecdsa.PublicKey)
+
+	successful = true
+	return
 }

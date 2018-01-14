@@ -47,6 +47,8 @@ type Player struct {
 
 	mux sync.Mutex
 	usedChunks map[int]interfaces.IChunk
+
+	encryptionHandler *EncryptionHandler
 }
 
 /**
@@ -71,6 +73,8 @@ func NewPlayer(server interfaces.IServer, session *server.Session, name string, 
 	player.Server = server
 	player.session = session
 	player.attributeMap = entities.NewAttributeMap()
+
+	player.encryptionHandler = NewEncryptionHandler()
 
 	return player
 }
@@ -449,4 +453,11 @@ func (player *Player) SendMessage(message string) {
 	var pk = packets.NewTextPacket()
 	pk.Message = message
 	player.SendPacket(pk)
+}
+
+/**
+ * Returns the handler used for encryption.
+ */
+func (player *Player) GetEncryptionHandler() *EncryptionHandler {
+	return player.encryptionHandler
 }

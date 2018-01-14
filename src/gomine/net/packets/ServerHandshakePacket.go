@@ -18,5 +18,5 @@ func (pk *ServerHandshakePacket) Encode()  {
 }
 
 func (pk *ServerHandshakePacket) Decode()  {
-	pk.Jwt = pk.GetString()
+
 }
