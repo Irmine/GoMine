@@ -82,7 +82,7 @@ func NewServer(serverPath string) *Server {
 		server.logger.Error("Invalid private key generated")
 	}
 
-	var token = make([]byte, 16)
+	var token = make([]byte, 8)
 	rand.Read(token)
 	server.token = token
 

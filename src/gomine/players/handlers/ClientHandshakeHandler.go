@@ -5,6 +5,7 @@ import (
 	"gomine/interfaces"
 	"goraklib/server"
 	"gomine/net/packets"
+	"encoding/hex"
 )
 
 type ClientHandshakeHandler struct {
@@ -20,7 +21,7 @@ func NewClientHandshakeHandler() ClientHandshakeHandler {
  */
 func (handler ClientHandshakeHandler) Handle(packet interfaces.IPacket, player interfaces.IPlayer, session *server.Session, server interfaces.IServer) bool {
 	if _, ok := packet.(*packets.ClientHandshakePacket); ok {
-		println("Client handshake!")
+		println("Got client handshake with buffer: ", hex.EncodeToString(packet.GetBuffer()))
 
 		playStatus := packets.NewPlayStatusPacket()
 		playStatus.Status = 0

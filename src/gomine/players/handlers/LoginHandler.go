@@ -7,11 +7,11 @@ import (
 	"goraklib/server"
 	"crypto/x509"
 	"crypto/ecdsa"
-	"encoding/pem"
 	"math/big"
 	"crypto/sha512"
 	"time"
 	"gomine/utils"
+	"encoding/base64"
 )
 
 type LoginHandler struct {
@@ -33,7 +33,7 @@ func (handler LoginHandler) Handle(packet interfaces.IPacket, player interfaces.
 			return false
 		}
 
-		var successful, authenticated, _ = handler.VerifyLoginRequest(loginPacket.Chains, server)
+		var successful, authenticated, pubKey = handler.VerifyLoginRequest(loginPacket.Chains, server)
 		if !successful {
 			server.GetLogger().Error(loginPacket.Username, "had an invalid chain and is denied access")
 			return false
@@ -45,6 +45,12 @@ func (handler LoginHandler) Handle(packet interfaces.IPacket, player interfaces.
 		}
 
 		var player = player.New(server, session, loginPacket.Username, loginPacket.ClientUUID, loginPacket.ClientXUID, loginPacket.ClientId)
+		player.GetEncryptionHandler().Data = &utils.EncryptionData{
+			ClientPublicKey: pubKey,
+			ServerPrivateKey: server.GetPrivateKey(),
+			ServerToken: server.GetServerToken(),
+		}
+		player.EnableEncryption()
 
 		player.SetLanguage(loginPacket.Language)
 		player.SetSkinId(loginPacket.SkinId)
@@ -93,9 +99,10 @@ func (handler LoginHandler) VerifyLoginRequest(chains []packets.Chain, server in
 		sig := []byte(chain.Signature)
 		data := []byte(chain.Header.Raw + "." + chain.Payload.Raw)
 
-		block, _ := pem.Decode([]byte("-----BEGIN PUBLIC KEY-----\n" + publicKeyRaw + "\n-----END PUBLIC KEY-----"))
+		var b64, errB64 = base64.RawStdEncoding.DecodeString(publicKeyRaw)
+		server.GetLogger().LogError(errB64)
 
-		key, err := x509.ParsePKIXPublicKey(block.Bytes)
+		key, err := x509.ParsePKIXPublicKey(b64)
 		if err != nil {
 			server.GetLogger().LogError(err)
 			return
@@ -132,9 +139,10 @@ func (handler LoginHandler) VerifyLoginRequest(chains []packets.Chain, server in
 		publicKeyRaw = chain.Payload.IdentityPublicKey
 	}
 
-	block, _ := pem.Decode([]byte("-----BEGIN PUBLIC KEY-----\n" + publicKeyRaw + "\n-----END PUBLIC KEY-----"))
+	var b64, errB64 = base64.RawStdEncoding.DecodeString(publicKeyRaw)
+	server.GetLogger().LogError(errB64)
 
-	key, err := x509.ParsePKIXPublicKey(block.Bytes)
+	key, err := x509.ParsePKIXPublicKey(b64)
 	if err != nil {
 		server.GetLogger().LogError(err)
 		return

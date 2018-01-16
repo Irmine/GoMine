@@ -48,7 +48,8 @@ type Player struct {
 	mux sync.Mutex
 	usedChunks map[int]interfaces.IChunk
 
-	encryptionHandler *EncryptionHandler
+	encryptionHandler *utils.EncryptionHandler
+	usesEncryption bool
 }
 
 /**
@@ -74,7 +75,7 @@ func NewPlayer(server interfaces.IServer, session *server.Session, name string, 
 	player.session = session
 	player.attributeMap = entities.NewAttributeMap()
 
-	player.encryptionHandler = NewEncryptionHandler()
+	player.encryptionHandler = utils.NewEncryptionHandler()
 
 	return player
 }
@@ -458,6 +459,22 @@ func (player *Player) SendMessage(message string) {
 /**
  * Returns the handler used for encryption.
  */
-func (player *Player) GetEncryptionHandler() *EncryptionHandler {
+func (player *Player) GetEncryptionHandler() *utils.EncryptionHandler {
 	return player.encryptionHandler
+}
+
+/**
+ * Checks if the player uses encryption or not.
+ */
+func (player *Player) UsesEncryption() bool {
+	return player.usesEncryption
+}
+
+/**
+ * Enables encryption for this player and computes secret key bytes.
+ */
+func (player *Player) EnableEncryption() {
+	player.usesEncryption = true
+	player.encryptionHandler.Data.ComputeSharedSecret()
+	player.encryptionHandler.Data.ComputeSecretKeyBytes()
 }

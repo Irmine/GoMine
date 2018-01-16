@@ -69,4 +69,7 @@ type IPlayer interface {
 	IsFinalized() bool
 	SetFinalized()
 	UpdateAttributes()
+	GetEncryptionHandler() *utils.EncryptionHandler
+	UsesEncryption() bool
+	EnableEncryption()
 }

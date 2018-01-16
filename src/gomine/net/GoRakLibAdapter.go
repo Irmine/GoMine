@@ -45,16 +45,15 @@ func (adapter *GoRakLibAdapter) Tick() {
 	for _, session := range adapter.rakLibServer.GetSessionManager().GetSessions() {
 		go func(session *server2.Session) {
 			for _, encapsulatedPacket := range session.GetReadyEncapsulatedPackets() {
+				player, _ := adapter.server.GetPlayerFactory().GetPlayerBySession(session)
 
 				batch := NewMinecraftPacketBatch()
 				batch.Buffer = encapsulatedPacket.Buffer
-				batch.Decode(adapter.server.GetLogger())
+				batch.Decode(player, adapter.server.GetLogger())
 
 				for _, packet := range batch.GetPackets() {
 					packet.DecodeHeader()
 					packet.Decode()
-
-					var player, _ = adapter.server.GetPlayerFactory().GetPlayerBySession(session)
 
 					priorityHandlers := GetPacketHandlers(packet.GetId())
 

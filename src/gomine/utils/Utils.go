@@ -49,11 +49,12 @@ func DecodeJwt(v string) []string {
 func ConstructEncryptionJwt(key *ecdsa.PrivateKey, token []byte) string {
 	var header = EncryptionHeader{}
 	header.Algorithm = "ES384"
-	var bytes, _ = x509.MarshalPKIXPublicKey(&key.PublicKey)
-	header.X5u = base64.StdEncoding.EncodeToString(bytes)
+	var b, _ = x509.MarshalPKIXPublicKey(&key.PublicKey)
+
+	header.X5u = base64.RawStdEncoding.EncodeToString(b)
 
 	var payload = EncryptionPayload{}
-	payload.Token = base64.RawURLEncoding.EncodeToString(token)
+	payload.Token = base64.RawStdEncoding.EncodeToString(token)
 
 	var headerData, _ = json.Marshal(header)
 	var headerStr = base64.RawURLEncoding.EncodeToString(headerData)

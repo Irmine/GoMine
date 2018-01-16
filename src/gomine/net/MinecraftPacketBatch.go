@@ -6,6 +6,7 @@ import (
 	"compress/zlib"
 	"io/ioutil"
 	"gomine/interfaces"
+	"crypto/cipher"
 )
 
 const McpeFlag = 0xFE
@@ -31,16 +32,29 @@ func NewMinecraftPacketBatch() *MinecraftPacketBatch {
 /**
  * Decodes the batch and separates packets. This does not decode the packets.
  */
-func (batch *MinecraftPacketBatch) Decode(logger interfaces.ILogger) {
+func (batch *MinecraftPacketBatch) Decode(player interfaces.IPlayer, logger interfaces.ILogger) {
 	var mcpeFlag = batch.GetByte()
 	if mcpeFlag != McpeFlag {
 		return
 	}
 	var err error
 
-	var reader = bytes.NewReader(batch.Buffer[batch.Offset:])
+	batch.raw = batch.Buffer[batch.Offset:]
+
+	if player.UsesEncryption() {
+		for i, b := range batch.raw {
+			var cfb = cipher.NewCFBDecrypter(player.GetEncryptionHandler().Data.Cipher, player.GetEncryptionHandler().Data.IV)
+			cfb.XORKeyStream(batch.raw[i:i + 1], batch.raw[i:i + 1])
+			player.GetEncryptionHandler().Data.IV = append(player.GetEncryptionHandler().Data.IV[1:], b)
+		}
+	}
+
+	var reader = bytes.NewReader(batch.raw)
 	zlibReader, err := zlib.NewReader(reader)
 	logger.LogError(err)
+	if zlibReader == nil {
+		return
+	}
 	defer zlibReader.Close()
 
 	batch.raw, err = ioutil.ReadAll(zlibReader)
