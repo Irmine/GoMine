@@ -50,7 +50,6 @@ func (handler LoginHandler) Handle(packet interfaces.IPacket, player interfaces.
 			ServerPrivateKey: server.GetPrivateKey(),
 			ServerToken: server.GetServerToken(),
 		}
-		player.EnableEncryption()
 
 		player.SetLanguage(loginPacket.Language)
 		player.SetSkinId(loginPacket.SkinId)
@@ -78,6 +77,7 @@ func (handler LoginHandler) Handle(packet interfaces.IPacket, player interfaces.
 		player.SendPacket(resourceInfo)*/
 
 		server.GetPlayerFactory().AddPlayer(player, session)
+		player.EnableEncryption()
 
 		return true
 	}

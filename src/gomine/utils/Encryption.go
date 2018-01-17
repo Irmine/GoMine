@@ -13,8 +13,12 @@ type EncryptionData struct {
 	ServerToken []byte
 	SharedSecret []byte
 	SecretKeyBytes [32]byte
-	IV []byte
+
+	SendIV []byte
+	ReceiveIV []byte
 	Cipher cipher.Block
+
+	SendCounter int64
 }
 
 func (data *EncryptionData) ComputeSharedSecret() {
@@ -26,7 +30,8 @@ func (data *EncryptionData) ComputeSecretKeyBytes() {
 	data.SecretKeyBytes = sha256.Sum256(append(data.ServerToken, data.SharedSecret...))
 
 	data.Cipher, _ = aes.NewCipher(data.SecretKeyBytes[:])
-	data.IV = data.SecretKeyBytes[:aes.BlockSize]
+	data.SendIV = data.SecretKeyBytes[:aes.BlockSize]
+	data.ReceiveIV = data.SecretKeyBytes[:aes.BlockSize]
 }
 
 type EncryptionHandler struct {
@@ -35,4 +40,13 @@ type EncryptionHandler struct {
 
 func NewEncryptionHandler() *EncryptionHandler {
 	return &EncryptionHandler{&EncryptionData{}}
+}
+
+func (handler *EncryptionHandler) ComputeSendChecksum(d []byte) []byte {
+	var buffer []byte
+	WriteLittleLong(&buffer, handler.Data.SendCounter)
+
+	var sum = sha256.Sum256(append(buffer, append(d, handler.Data.SecretKeyBytes[:]...)...))
+	handler.Data.SendCounter++
+	return sum[:8]
 }

@@ -47,9 +47,9 @@ func (adapter *GoRakLibAdapter) Tick() {
 			for _, encapsulatedPacket := range session.GetReadyEncapsulatedPackets() {
 				player, _ := adapter.server.GetPlayerFactory().GetPlayerBySession(session)
 
-				batch := NewMinecraftPacketBatch()
+				batch := NewMinecraftPacketBatch(player, adapter.server.GetLogger())
 				batch.Buffer = encapsulatedPacket.Buffer
-				batch.Decode(player, adapter.server.GetLogger())
+				batch.Decode()
 
 				for _, packet := range batch.GetPackets() {
 					packet.DecodeHeader()
@@ -83,11 +83,11 @@ func (adapter *GoRakLibAdapter) GetSession(address string, port uint16) *server2
 	return session
 }
 
-func (adapter *GoRakLibAdapter) SendPacket(pk interfaces.IPacket, session *server2.Session, priority byte) {
-	var b = NewMinecraftPacketBatch()
+func (adapter *GoRakLibAdapter) SendPacket(pk interfaces.IPacket, player interfaces.IPlayer, priority byte) {
+	var b = NewMinecraftPacketBatch(player, adapter.server.GetLogger())
 	b.AddPacket(pk)
 
-	adapter.SendBatch(b, session, priority)
+	adapter.SendBatch(b, player.GetSession(), priority)
 }
 
 func (adapter *GoRakLibAdapter) SendBatch(batch interfaces.IMinecraftPacketBatch, session *server2.Session, priority byte) {

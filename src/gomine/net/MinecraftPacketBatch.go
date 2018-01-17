@@ -17,14 +17,19 @@ type MinecraftPacketBatch struct {
 	raw []byte
 
 	packets []interfaces.IPacket
+
+	player interfaces.IPlayer
+	logger interfaces.ILogger
 }
 
 /**
  * Returns a new Minecraft Packet Batch used to decode/encode batches from Encapsulated Packets.
  */
-func NewMinecraftPacketBatch() *MinecraftPacketBatch {
+func NewMinecraftPacketBatch(player interfaces.IPlayer, logger interfaces.ILogger) *MinecraftPacketBatch {
 	var batch = &MinecraftPacketBatch{}
 	batch.BinaryStream = utils.NewStream()
+	batch.player = player
+	batch.logger = logger
 
 	return batch
 }
@@ -32,33 +37,17 @@ func NewMinecraftPacketBatch() *MinecraftPacketBatch {
 /**
  * Decodes the batch and separates packets. This does not decode the packets.
  */
-func (batch *MinecraftPacketBatch) Decode(player interfaces.IPlayer, logger interfaces.ILogger) {
+func (batch *MinecraftPacketBatch) Decode() {
 	var mcpeFlag = batch.GetByte()
 	if mcpeFlag != McpeFlag {
 		return
 	}
-	var err error
-
 	batch.raw = batch.Buffer[batch.Offset:]
 
-	if player.UsesEncryption() {
-		for i, b := range batch.raw {
-			var cfb = cipher.NewCFBDecrypter(player.GetEncryptionHandler().Data.Cipher, player.GetEncryptionHandler().Data.IV)
-			cfb.XORKeyStream(batch.raw[i:i + 1], batch.raw[i:i + 1])
-			player.GetEncryptionHandler().Data.IV = append(player.GetEncryptionHandler().Data.IV[1:], b)
-		}
+	if batch.player.UsesEncryption() {
+		batch.decrypt()
 	}
-
-	var reader = bytes.NewReader(batch.raw)
-	zlibReader, err := zlib.NewReader(reader)
-	logger.LogError(err)
-	if zlibReader == nil {
-		return
-	}
-	defer zlibReader.Close()
-
-	batch.raw, err = ioutil.ReadAll(zlibReader)
-	logger.LogError(err)
+	batch.decompress()
 
 	batch.ResetStream()
 	batch.SetBuffer(batch.raw)
@@ -69,21 +58,7 @@ func (batch *MinecraftPacketBatch) Decode(player interfaces.IPlayer, logger inte
 		packetData = append(packetData, batch.Get(int(batch.GetUnsignedVarInt())))
 	}
 
-	for _, data := range packetData {
-		if len(data) == 0 {
-			continue
-		}
-		packetId := int(data[0])
-
-		if !IsPacketRegistered(packetId) {
-			logger.Debug("Unknown Minecraft packet with ID:", packetId)
-			continue
-		}
-		packet := GetPacket(packetId)
-
-		packet.SetBuffer(data)
-		batch.packets = append(batch.packets, packet)
-	}
+	batch.fetchPackets(packetData)
 }
 
 /**
@@ -94,19 +69,110 @@ func (batch *MinecraftPacketBatch) Encode() {
 	batch.PutByte(McpeFlag)
 
 	var stream = utils.NewStream()
+	batch.putPackets(stream)
+
+	var zlibData = batch.compress(stream)
+	var data = zlibData
+	if batch.player.UsesEncryption() {
+		data = batch.encrypt(zlibData)
+	}
+
+	batch.PutBytes(data)
+}
+
+/**
+ * Fetches all packets from the raw packet buffers.
+ */
+func (batch *MinecraftPacketBatch) fetchPackets(packetData [][]byte) {
+	for _, data := range packetData {
+		if len(data) == 0 {
+			continue
+		}
+		packetId := int(data[0])
+
+		if !IsPacketRegistered(packetId) {
+			batch.logger.Debug("Unknown Minecraft packet with ID:", packetId)
+			continue
+		}
+		packet := GetPacket(packetId)
+
+		packet.SetBuffer(data)
+		batch.packets = append(batch.packets, packet)
+	}
+}
+
+/**
+ * Encrypts the data passed to the function.
+ */
+func (batch *MinecraftPacketBatch) encrypt(d []byte) []byte {
+	var data = batch.player.GetEncryptionHandler().Data
+
+	for i := range d {
+		var cfb = cipher.NewCFBEncrypter(data.Cipher, data.SendIV)
+		cfb.XORKeyStream(d[i:i + 1], d[i:i + 1])
+		data.SendIV = append(data.SendIV[1:], d[i])
+	}
+	
+	data.ReceiveIV = data.SendIV
+	d = append(d, batch.player.GetEncryptionHandler().ComputeSendChecksum(d)...)
+
+	return d
+}
+
+/**
+ * Decrypts the buffer of the packet.
+ */
+func (batch *MinecraftPacketBatch) decrypt() {
+	var data = batch.player.GetEncryptionHandler().Data
+	for i, b := range batch.raw {
+		var cfb = cipher.NewCFBDecrypter(data.Cipher, data.ReceiveIV)
+		cfb.XORKeyStream(batch.raw[i:i + 1], batch.raw[i:i + 1])
+		data.ReceiveIV = append(data.ReceiveIV[1:], b)
+	}
+	data.SendIV = data.ReceiveIV
+}
+
+/**
+ * Puts all packets of the batch inside of the stream.
+ */
+func (batch *MinecraftPacketBatch) putPackets(stream *utils.BinaryStream) {
 	for _, packet := range batch.GetPackets() {
 		packet.EncodeHeader()
 		packet.Encode()
 		stream.PutUnsignedVarInt(uint32(len(packet.GetBuffer())))
 		stream.PutBytes(packet.GetBuffer())
 	}
+}
 
+/**
+ * Zlib compresses the data in the stream and returns it.
+ */
+func (batch *MinecraftPacketBatch) compress(stream *utils.BinaryStream) []byte {
 	var buff = bytes.Buffer{}
 	var writer = zlib.NewWriter(&buff)
 	writer.Write(stream.Buffer)
 	writer.Close()
 
-	batch.PutBytes(buff.Bytes())
+	return buff.Bytes()
+}
+
+/**
+ * Decompresses the zlib compressed buffer.
+ */
+func (batch *MinecraftPacketBatch) decompress() {
+	var reader = bytes.NewReader(batch.raw)
+	zlibReader, err := zlib.NewReader(reader)
+	batch.logger.LogError(err)
+	if err != nil {
+		println("Decompressing went wrong!!!")
+	}
+	if zlibReader == nil {
+		return
+	}
+	defer zlibReader.Close()
+
+	batch.raw, err = ioutil.ReadAll(zlibReader)
+	batch.logger.LogError(err)
 }
 
 /**
