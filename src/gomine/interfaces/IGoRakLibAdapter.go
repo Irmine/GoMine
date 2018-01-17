@@ -14,7 +14,7 @@ type IGoRakLibAdapter interface {
 	RegisterPacket(int, func() IPacket)
 	GetPacket(int) IPacket
 	RegisterPacketHandler(int, IPacketHandler, int) bool
-	GetPacketHandlers(int) map[int][]IPacketHandler
-	DeregisterPacketHandler(id int, priority int)
+	GetPacketHandlers(int) [][]IPacketHandler
+	DeregisterPacketHandlers(id int, priority int)
 	DeletePacket(id int)
 }

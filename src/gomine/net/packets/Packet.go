@@ -12,10 +12,11 @@ type Packet struct {
 	*utils.BinaryStream
 	PacketId int
 	ExtraBytes [2]byte
+	discarded bool
 }
 
 func NewPacket(id int) *Packet {
-	return &Packet{utils.NewStream(), id, [2]byte{}}
+	return &Packet{utils.NewStream(), id, [2]byte{}, false}
 }
 
 func (pk *Packet) GetId() int {
@@ -36,6 +37,14 @@ func (pk *Packet) SkipId() {
 
 func (pk *Packet) SkipSplitBytes() {
 	pk.Offset += 2
+}
+
+func (pk *Packet) Discard() {
+	pk.discarded = true
+}
+
+func (pk *Packet) IsDiscarded() bool {
+	return pk.discarded
 }
 
 func (pk *Packet) EncodeHeader() {

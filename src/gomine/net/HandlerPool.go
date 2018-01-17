@@ -11,7 +11,7 @@ const (
 	PriorityLast = 10
 )
 
-var registeredHandlers = map[int]map[int][]interfaces.IPacketHandler{}
+var registeredHandlers = map[int][][]interfaces.IPacketHandler{}
 
 func init() {
 	RegisterPacketHandler(info.LoginPacket, handlers.NewLoginHandler(), PriorityLast)
@@ -32,7 +32,7 @@ func RegisterPacketHandler(id int, handler interfaces.IPacketHandler, priority i
 		return false
 	}
 	if registeredHandlers[id] == nil {
-		registeredHandlers[id] = make(map[int][]interfaces.IPacketHandler)
+		registeredHandlers[id] = make([][]interfaces.IPacketHandler, 11)
 	}
 	registeredHandlers[id][priority] = append(registeredHandlers[id][priority], handler)
 	return true
@@ -41,13 +41,13 @@ func RegisterPacketHandler(id int, handler interfaces.IPacketHandler, priority i
 /**
  * Returns all packet handlers registered on the given ID.
  */
-func GetPacketHandlers(id int) map[int][]interfaces.IPacketHandler {
+func GetPacketHandlers(id int) [][]interfaces.IPacketHandler {
 	return registeredHandlers[id]
 }
 
 /**
  * Deletes all packet handlers listening for packets with the given ID, on the given priority.
  */
-func DeregisterPacketHandler(id int, priority int) {
-	delete(registeredHandlers[id], priority)
+func DeregisterPacketHandlers(id int, priority int) {
+	registeredHandlers[id][priority] = []interfaces.IPacketHandler{}
 }

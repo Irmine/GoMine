@@ -11,4 +11,6 @@ type IPacket interface {
 	ResetStream()
 	GetOffset() int
 	SetOffset(int)
+	Discard()
+	IsDiscarded() bool
 }

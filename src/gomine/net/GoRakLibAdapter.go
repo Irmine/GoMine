@@ -57,13 +57,21 @@ func (adapter *GoRakLibAdapter) Tick() {
 
 					priorityHandlers := GetPacketHandlers(packet.GetId())
 
-					for _, handlers := range priorityHandlers {
-						for _, handler := range handlers {
-							handler.Handle(packet, player, session, adapter.server)
+					var handled = false
+					for _, h := range priorityHandlers {
+						for _, handler := range h {
+							if packet.IsDiscarded() {
+								return
+							}
+
+							ret := handler.Handle(packet, player, session, adapter.server)
+							if !handled {
+								handled = ret
+							}
 						}
 					}
 
-					if len(priorityHandlers) == 0 {
+					if !handled {
 						adapter.server.GetLogger().Debug("Unhandled Minecraft packet with ID:", packet.GetId())
 					}
 				}
@@ -126,15 +134,15 @@ func (adapter *GoRakLibAdapter) RegisterPacketHandler(id int, handler interfaces
 /**
  * Returns all packet handlers registered on the given ID.
  */
-func (adapter *GoRakLibAdapter) GetPacketHandlers(id int) map[int][]interfaces.IPacketHandler {
+func (adapter *GoRakLibAdapter) GetPacketHandlers(id int) [][]interfaces.IPacketHandler {
 	return GetPacketHandlers(id)
 }
 
 /**
  * Deletes all packet handlers listening for packets with the given ID, on the given priority.
  */
-func (adapter *GoRakLibAdapter) DeregisterPacketHandler(id int, priority int) {
-	DeregisterPacketHandler(id, priority)
+func (adapter *GoRakLibAdapter) DeregisterPacketHandlers(id int, priority int) {
+	DeregisterPacketHandlers(id, priority)
 }
 
 /**
