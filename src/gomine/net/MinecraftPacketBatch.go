@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"gomine/interfaces"
 	"crypto/cipher"
+	"encoding/hex"
 )
 
 const McpeFlag = 0xFE
@@ -19,6 +20,7 @@ type MinecraftPacketBatch struct {
 	packets []interfaces.IPacket
 
 	player interfaces.IPlayer
+	needsEncryption bool
 	logger interfaces.ILogger
 }
 
@@ -29,6 +31,7 @@ func NewMinecraftPacketBatch(player interfaces.IPlayer, logger interfaces.ILogge
 	var batch = &MinecraftPacketBatch{}
 	batch.BinaryStream = utils.NewStream()
 	batch.player = player
+	batch.needsEncryption = player.UsesEncryption()
 	batch.logger = logger
 
 	return batch
@@ -44,7 +47,7 @@ func (batch *MinecraftPacketBatch) Decode() {
 	}
 	batch.raw = batch.Buffer[batch.Offset:]
 
-	if batch.player.UsesEncryption() {
+	if batch.needsEncryption {
 		batch.decrypt()
 	}
 	batch.decompress()
@@ -73,8 +76,10 @@ func (batch *MinecraftPacketBatch) Encode() {
 
 	var zlibData = batch.compress(stream)
 	var data = zlibData
-	if batch.player.UsesEncryption() {
-		data = batch.encrypt(zlibData)
+	if batch.needsEncryption {
+		println("Before:", hex.EncodeToString(data))
+		data = batch.encrypt(data)
+		println("After:", hex.EncodeToString(data))
 	}
 
 	batch.PutBytes(data)
@@ -108,12 +113,11 @@ func (batch *MinecraftPacketBatch) encrypt(d []byte) []byte {
 	var data = batch.player.GetEncryptionHandler().Data
 
 	for i := range d {
-		var cfb = cipher.NewCFBEncrypter(data.Cipher, data.SendIV)
+		var cfb = cipher.NewCFBEncrypter(data.Cipher, data.IV)
 		cfb.XORKeyStream(d[i:i + 1], d[i:i + 1])
-		data.SendIV = append(data.SendIV[1:], d[i])
+		data.IV = append(data.IV[1:], d[i])
 	}
 	
-	data.ReceiveIV = data.SendIV
 	d = append(d, batch.player.GetEncryptionHandler().ComputeSendChecksum(d)...)
 
 	return d
@@ -125,11 +129,10 @@ func (batch *MinecraftPacketBatch) encrypt(d []byte) []byte {
 func (batch *MinecraftPacketBatch) decrypt() {
 	var data = batch.player.GetEncryptionHandler().Data
 	for i, b := range batch.raw {
-		var cfb = cipher.NewCFBDecrypter(data.Cipher, data.ReceiveIV)
+		var cfb = cipher.NewCFBDecrypter(data.Cipher, data.IV)
 		cfb.XORKeyStream(batch.raw[i:i + 1], batch.raw[i:i + 1])
-		data.ReceiveIV = append(data.ReceiveIV[1:], b)
+		data.IV = append(data.IV[1:], b)
 	}
-	data.SendIV = data.ReceiveIV
 }
 
 /**
