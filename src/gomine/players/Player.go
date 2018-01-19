@@ -21,6 +21,7 @@ type Player struct {
 	playerName  string
 	displayName string
 
+	spawned bool
 	closed bool
 
 	permissions map[string]interfaces.IPermission
@@ -47,6 +48,10 @@ type Player struct {
 
 	mux sync.Mutex
 	usedChunks map[int]interfaces.IChunk
+
+	encryptionHandler *utils.EncryptionHandler
+	usesEncryption bool
+	xboxLiveAuthenticated bool
 }
 
 /**
@@ -71,6 +76,8 @@ func NewPlayer(server interfaces.IServer, session *server.Session, name string, 
 	player.Server = server
 	player.session = session
 	player.attributeMap = entities.NewAttributeMap()
+
+	player.encryptionHandler = utils.NewEncryptionHandler()
 
 	return player
 }
@@ -115,7 +122,6 @@ func (player *Player) SetFinalized() {
  */
 func (player *Player) SpawnPlayerTo(player2 interfaces.IPlayer) {
 	player.GetLevel().GetEntityHelper().SpawnPlayerTo(player, player2)
-	player.SpawnTo(player2)
 }
 
 /**
@@ -365,7 +371,7 @@ func (player *Player) SendChunk(chunk interfaces.IChunk, index int)  {
 	pk.Chunk = chunk
 	player.mux.Lock()
 	player.usedChunks[index] = chunk
-	defer player.mux.Unlock()
+	player.mux.Unlock()
 	player.SendPacket(pk)
 }
 
@@ -395,16 +401,14 @@ func (player *Player) SyncMove(x, y, z, pitch, yaw, headYaw float32, onGround bo
 			}
 		}
 	}
-	defer player.mux.Unlock()
+	player.mux.Unlock()
 }
 
 /**
  * Checks if the player has a chunk with the given index in use.
  */
 func (player *Player) HasChunkInUse(index int) bool {
-	player.mux.Lock()
 	_, ok := player.usedChunks[index]
-	defer player.mux.Unlock()
 	return ok
 }
 
@@ -419,7 +423,7 @@ func (player *Player) HasAnyChunkInUse() bool {
  * Sends a packet to this player.
  */
 func (player *Player) SendPacket(packet interfaces.IPacket) {
-	player.Server.GetRakLibAdapter().SendPacket(packet, player.session, server.PriorityMedium)
+	player.Server.GetRakLibAdapter().SendPacket(packet, player, server.PriorityMedium)
 }
 
 func (player *Player) Tick() {
@@ -450,4 +454,55 @@ func (player *Player) SendMessage(message string) {
 	var pk = packets.NewTextPacket()
 	pk.Message = message
 	player.SendPacket(pk)
+}
+
+/**
+ * Returns the handler used for encryption.
+ */
+func (player *Player) GetEncryptionHandler() *utils.EncryptionHandler {
+	return player.encryptionHandler
+}
+
+/**
+ * Checks if the player uses encryption or not.
+ */
+func (player *Player) UsesEncryption() bool {
+	return player.usesEncryption
+}
+
+/**
+ * Enables encryption for this player and computes secret key bytes.
+ */
+func (player *Player) EnableEncryption() {
+	player.usesEncryption = true
+	player.encryptionHandler.Data.ComputeSharedSecret()
+	player.encryptionHandler.Data.ComputeSecretKeyBytes()
+}
+
+/**
+ * Checks if the player logged in while being logged into XBOX Live.
+ */
+func (player *Player) IsXBOXLiveAuthenticated() bool {
+	return player.xboxLiveAuthenticated
+}
+
+/**
+ * Sets the player XBOX Live authenticated.
+ */
+func (player *Player) SetXBOXLiveAuthenticated(value bool) {
+	player.xboxLiveAuthenticated = value
+}
+
+/**
+ * Checks if this player has spawned.
+ */
+func (player *Player) HasSpawned() bool {
+	return player.spawned
+}
+
+/**
+ * Sets this player spawned.
+ */
+func (player *Player) SetSpawned(value bool) {
+	player.spawned = value
 }

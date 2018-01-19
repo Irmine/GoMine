@@ -2,6 +2,7 @@ package interfaces
 
 import (
 	"gomine/resources"
+	"crypto/ecdsa"
 )
 
 type IServer interface {
@@ -37,4 +38,7 @@ type IServer interface {
 	GetCurrentTick() int64
 	BroadcastMessageTo(message string, receivers []IPlayer)
 	BroadcastMessage(message string)
+	GetPrivateKey() *ecdsa.PrivateKey
+	GetPublicKey() *ecdsa.PublicKey
+	GetServerToken() []byte
 }

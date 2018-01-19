@@ -4,6 +4,6 @@ type IMinecraftPacketBatch interface {
 	GetPackets() []IPacket
 	AddPacket(IPacket)
 	Encode()
-	Decode(ILogger)
+	Decode()
 	GetBuffer() []byte
 }

@@ -9,8 +9,8 @@ const (
 const (
 	LoginPacket = 0x01
 	PlayStatusPacket = 0x02
-	ClientHandshakePacket = 0x03
-	ServerHandshakePacket = 0x04
+	ServerHandshakePacket = 0x03
+	ClientHandshakePacket = 0x04
 	DisconnectPacket = 0x05
 	ResourcePackInfoPacket = 0x06
 	ResourcePackStackPacket = 0x07

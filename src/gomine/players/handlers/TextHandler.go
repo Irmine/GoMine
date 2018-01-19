@@ -15,11 +15,15 @@ func NewTextHandler() TextHandler {
 	return TextHandler{NewPacketHandler(info.TextPacket)}
 }
 
+/**
+ * Handles chatting of players.
+ */
 func (handler TextHandler) Handle(packet interfaces.IPacket, player interfaces.IPlayer, session *server.Session, server interfaces.IServer) bool {
 	if textPacket, ok := packet.(*packets.TextPacket); ok {
 		if textPacket.TextType != packets.TextChat {
 			return false
 		}
+
 		for _, receiver := range server.GetPlayerFactory().GetPlayers() {
 			pk := packets.NewTextPacket()
 			pk.Message = textPacket.Message

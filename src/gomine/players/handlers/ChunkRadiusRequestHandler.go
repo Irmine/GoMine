@@ -17,7 +17,7 @@ func NewChunkRadiusRequestHandler() ChunkRadiusRequestHandler {
 }
 
 /**
- * Handles the chunk radius requests.
+ * Handles the chunk radius requests and initial spawns.
  */
 func (handler ChunkRadiusRequestHandler) Handle(packet interfaces.IPacket, player interfaces.IPlayer, session *server.Session, server interfaces.IServer) bool {
 	if chunkRadiusPacket, ok := packet.(*packets.ChunkRadiusRequestPacket); ok {
@@ -34,9 +34,6 @@ func (handler ChunkRadiusRequestHandler) Handle(packet interfaces.IPacket, playe
 
 		if !hasChunksInUse {
 			var playerList = packets.NewPlayerListPacket()
-			playerList.Players = server.GetPlayerFactory().GetPlayers()
-			playerList.ListType = packets.ListTypeAdd
-			player.SendPacket(playerList)
 
 			for _, receiver := range server.GetPlayerFactory().GetPlayers() {
 				if player != receiver {
@@ -49,7 +46,19 @@ func (handler ChunkRadiusRequestHandler) Handle(packet interfaces.IPacket, playe
 				}
 			}
 
+			player.SetSpawned(true)
+
+			playerList.Players = server.GetPlayerFactory().GetPlayers()
+			for name, pl := range playerList.Players {
+				if !pl.HasSpawned() {
+					delete(playerList.Players, name)
+				}
+			}
+			playerList.ListType = packets.ListTypeAdd
+			player.SendPacket(playerList)
+
 			player.SpawnPlayerToAll()
+
 			player.UpdateAttributes()
 			player.GetLevel().GetEntityHelper().SendEntityData(player.(interfaces.IEntity), player)
 

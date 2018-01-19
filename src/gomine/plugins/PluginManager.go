@@ -108,7 +108,9 @@ func (manager *PluginManager) CompilePlugin(filePath string) (*plugin.Plugin, er
  */
 func (manager *PluginManager) RecompilePlugin(filePath string) (*plugin.Plugin, error) {
 	var decompiledPath = strings.Replace(strings.Replace(filePath, ".so", ".go", 1), "\\", "/", -1)
-	decompiledPath = strings.Split(decompiledPath, "~")[0]
+	if strings.Contains(filePath, "~") {
+		decompiledPath = strings.Split(decompiledPath, "~")[0] + ".go"
+	}
 
 	os.Remove(filePath)
 

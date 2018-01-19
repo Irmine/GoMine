@@ -69,4 +69,11 @@ type IPlayer interface {
 	IsFinalized() bool
 	SetFinalized()
 	UpdateAttributes()
+	GetEncryptionHandler() *utils.EncryptionHandler
+	UsesEncryption() bool
+	EnableEncryption()
+	IsXBOXLiveAuthenticated() bool
+	SetXBOXLiveAuthenticated(bool)
+	HasSpawned() bool
+	SetSpawned(bool)
 }
