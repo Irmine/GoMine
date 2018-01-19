@@ -286,6 +286,9 @@ func (entity *Entity) Kill() {
  * Spawns this entity to the given player.
  */
 func (entity *Entity) SpawnTo(player interfaces.IPlayer)  {
+	if !player.HasSpawned() {
+		return
+	}
 	entity.GetLevel().GetEntityHelper().SpawnEntityTo(entity, player)
 }
 
@@ -293,6 +296,9 @@ func (entity *Entity) SpawnTo(player interfaces.IPlayer)  {
  * Despawns this entity from the given player.
  */
 func (entity *Entity) DespawnFrom(player interfaces.IPlayer) {
+	if !player.HasSpawned() {
+		return
+	}
 	entity.GetLevel().GetEntityHelper().DespawnEntityFrom(entity, player)
 }
 

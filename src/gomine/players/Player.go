@@ -121,6 +121,9 @@ func (player *Player) SetFinalized() {
  * Spawns this player to the given other player.
  */
 func (player *Player) SpawnPlayerTo(player2 interfaces.IPlayer) {
+	if !player2.HasSpawned() {
+		return
+	}
 	player.GetLevel().GetEntityHelper().SpawnPlayerTo(player, player2)
 }
 
