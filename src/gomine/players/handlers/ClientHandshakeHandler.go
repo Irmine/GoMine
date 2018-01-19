@@ -20,8 +20,6 @@ func NewClientHandshakeHandler() ClientHandshakeHandler {
  */
 func (handler ClientHandshakeHandler) Handle(packet interfaces.IPacket, player interfaces.IPlayer, session *server.Session, server interfaces.IServer) bool {
 	if _, ok := packet.(*packets.ClientHandshakePacket); ok {
-		println("client handshake")
-
 		playStatus := packets.NewPlayStatusPacket()
 		playStatus.Status = 0
 		player.SendPacket(playStatus)

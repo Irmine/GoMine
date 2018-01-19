@@ -28,7 +28,6 @@ func NewResourcePackClientResponseHandler() ResourcePackClientResponseHandler {
  */
 func (handler ResourcePackClientResponseHandler) Handle(packet interfaces.IPacket, player interfaces.IPlayer, session *server.Session, server interfaces.IServer) bool {
 	if response, ok := packet.(*packets.ResourcePackClientResponsePacket); ok {
-		println("resource pack response")
 		switch response.Status {
 		case packets.StatusRefused:
 			// TODO: Kick the player. We can't kick yet.
