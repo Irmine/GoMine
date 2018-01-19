@@ -18,6 +18,9 @@ func NewCommandRequestHandler() CommandRequestHandler {
 	return CommandRequestHandler{NewPacketHandler(info.CommandRequestPacket)}
 }
 
+/**
+ * Handles commands issues by players.
+ */
 func (handler CommandRequestHandler) Handle(packet interfaces.IPacket, player interfaces.IPlayer, session *server.Session, server interfaces.IServer) bool {
 	if pk, ok := packet.(*packets.CommandRequestPacket); ok {
 		pk.CommandText = pk.CommandText[1:]

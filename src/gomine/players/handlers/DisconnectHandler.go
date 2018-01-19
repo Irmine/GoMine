@@ -17,7 +17,7 @@ func NewDisconnectHandler() DisconnectHandler {
 }
 
 /**
- * The disconnect handler is a special case. It does not follow the rules of the other handlers.
+ * The disconnect handler is a special case. It does not follow the rules of the other handlers, and has no own packet.
  */
 func (handler DisconnectHandler) Handle(player interfaces.IPlayer, session *server.Session, server interfaces.IServer) {
 	if player.GetSession() == nil {
@@ -26,18 +26,16 @@ func (handler DisconnectHandler) Handle(player interfaces.IPlayer, session *serv
 
 	server.GetPlayerFactory().RemovePlayer(player)
 
-	for _, online := range server.GetPlayerFactory().GetPlayers() {
-		if online != player {
+	if player.HasSpawned() {
+		for _, online := range server.GetPlayerFactory().GetPlayers() {
 			var list = packets.NewPlayerListPacket()
 			list.ListType = packets.ListTypeRemove
 			list.Players = map[string]interfaces.IPlayer{player.GetName(): player}
 			online.SendPacket(list)
 		}
-	}
 
-	if player.IsFinalized() {
 		player.DespawnFromAll()
-	}
 
-	server.BroadcastMessage(utils.Yellow + player.GetName() + " has left the server")
+		server.BroadcastMessage(utils.Yellow + player.GetName() + " has left the server")
+	}
 }

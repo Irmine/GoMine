@@ -12,10 +12,13 @@ type EncryptionData struct {
 	ServerPrivateKey *ecdsa.PrivateKey
 	ServerToken []byte
 	SharedSecret []byte
-	SecretKeyBytes [32]byte
+	DecryptSecretKeyBytes [32]byte
+	EncryptSecretKeyBytes [32]byte
 
-	IV []byte
-	Cipher cipher.Block
+	DecryptIV []byte
+	EncryptIV []byte
+	DecryptCipher cipher.Block
+	EncryptCipher cipher.Block
 
 	SendCounter int64
 }
@@ -26,10 +29,15 @@ func (data *EncryptionData) ComputeSharedSecret() {
 }
 
 func (data *EncryptionData) ComputeSecretKeyBytes() {
-	data.SecretKeyBytes = sha256.Sum256(append(data.ServerToken, data.SharedSecret...))
+	var secret = sha256.Sum256(append(data.ServerToken, data.SharedSecret...))
+	data.DecryptSecretKeyBytes = secret
+	data.EncryptSecretKeyBytes = secret
 
-	data.Cipher, _ = aes.NewCipher(data.SecretKeyBytes[:])
-	data.IV = data.SecretKeyBytes[:aes.BlockSize]
+	data.DecryptCipher, _ = aes.NewCipher(data.DecryptSecretKeyBytes[:])
+	data.EncryptCipher, _ = aes.NewCipher(data.EncryptSecretKeyBytes[:])
+
+	data.DecryptIV = data.DecryptSecretKeyBytes[:aes.BlockSize]
+	data.EncryptIV = data.DecryptSecretKeyBytes[:aes.BlockSize]
 }
 
 type EncryptionHandler struct {
@@ -42,13 +50,15 @@ func NewEncryptionHandler() *EncryptionHandler {
 
 func (handler *EncryptionHandler) ComputeSendChecksum(d []byte) []byte {
 	var buffer []byte
+	var secret = handler.Data.EncryptSecretKeyBytes[:]
+
 	WriteLittleLong(&buffer, handler.Data.SendCounter)
 	handler.Data.SendCounter++
 
 	var hash = sha256.New()
 	hash.Write(buffer)
 	hash.Write(d)
-	hash.Write(handler.Data.SecretKeyBytes[:])
+	hash.Write(secret)
 
 	var sum = hash.Sum(nil)
 	return sum[:8]

@@ -7,21 +7,24 @@ import (
 )
 
 type GoMineConfig struct {
-	ServerName string `yaml:"server-name"`
-	ServerMotd string `yaml:"server-motd"`
-	ServerIp string `yaml:"server-ip"`
-	ServerPort uint16 `yaml:"server-port"`
+	ServerName string `yaml:"Server LAN Name"`
+	ServerMotd string `yaml:"Server MOTD"`
+	ServerIp string `yaml:"Server IP"`
+	ServerPort uint16 `yaml:"Server Port"`
 
-	MaximumPlayers uint `yaml:"max-players"`
-	DefaultGameMode byte `yaml:"default-gamemode"`
+	MaximumPlayers uint `yaml:"Maximum Players"`
+	DefaultGameMode byte `yaml:"Default Gamemode"`
 
-	DebugMode bool `yaml:"debug-mode"`
+	DebugMode bool `yaml:"Debug Mode"`
 
-	DefaultLevel string `yaml:"default-level"`
-	DefaultGenerator string `yaml:"default-generator"`
+	DefaultLevel string `yaml:"Default Level"`
+	DefaultGenerator string `yaml:"Default Generator"`
 
-	ForceResourcePacks bool `yaml:"force-resource-packs"`
-	SelectedResourcePack string `yaml:"selected-resource-pack"`
+	ForceResourcePacks bool `yaml:"Forced Resource Packs"`
+	SelectedResourcePack string `yaml:"Selected Resource Pack"`
+
+	XBOXLiveAuth bool `yaml:"XBOX Live Auth"`
+	UseEncryption bool `yaml:"Use Encryption"`
 }
 
 /**
@@ -57,6 +60,9 @@ func initializeConfig(serverPath string) {
 
 			ForceResourcePacks: false,
 			SelectedResourcePack: "",
+
+			XBOXLiveAuth: true,
+			UseEncryption: false,
 		})
 		var file, _ = os.OpenFile(path, os.O_APPEND | os.O_CREATE | os.O_WRONLY, 0644)
 		file.WriteString(string(data))

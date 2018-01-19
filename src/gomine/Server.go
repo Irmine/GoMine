@@ -72,19 +72,21 @@ func NewServer(serverPath string) *Server {
 
 	server.pluginManager = plugins.NewPluginManager(server)
 
-	var curve = elliptic.P384()
+	if server.config.UseEncryption {
+		var curve = elliptic.P384()
 
-	var err error
-	server.privateKey, err = ecdsa.GenerateKey(curve, rand.Reader)
-	server.logger.LogError(err)
+		var err error
+		server.privateKey, err = ecdsa.GenerateKey(curve, rand.Reader)
+		server.logger.LogError(err)
 
-	if !curve.IsOnCurve(server.privateKey.X, server.privateKey.Y) {
-		server.logger.Error("Invalid private key generated")
+		if !curve.IsOnCurve(server.privateKey.X, server.privateKey.Y) {
+			server.logger.Error("Invalid private key generated")
+		}
+
+		var token = make([]byte, 128)
+		rand.Read(token)
+		server.token = token
 	}
-
-	var token = make([]byte, 8)
-	rand.Read(token)
-	server.token = token
 
 	return server
 }

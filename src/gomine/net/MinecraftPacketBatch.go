@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"gomine/interfaces"
 	"crypto/cipher"
+	"errors"
 	"encoding/hex"
 )
 
@@ -50,7 +51,11 @@ func (batch *MinecraftPacketBatch) Decode() {
 	if batch.needsEncryption {
 		batch.decrypt()
 	}
-	batch.decompress()
+	var err = batch.decompress()
+	if err != nil {
+		batch.logger.LogError(err)
+		return
+	}
 
 	batch.ResetStream()
 	batch.SetBuffer(batch.raw)
@@ -77,9 +82,7 @@ func (batch *MinecraftPacketBatch) Encode() {
 	var zlibData = batch.compress(stream)
 	var data = zlibData
 	if batch.needsEncryption {
-		println("Before:", hex.EncodeToString(data))
 		data = batch.encrypt(data)
-		println("After:", hex.EncodeToString(data))
 	}
 
 	batch.PutBytes(data)
@@ -111,15 +114,14 @@ func (batch *MinecraftPacketBatch) fetchPackets(packetData [][]byte) {
  */
 func (batch *MinecraftPacketBatch) encrypt(d []byte) []byte {
 	var data = batch.player.GetEncryptionHandler().Data
-
-	for i := range d {
-		var cfb = cipher.NewCFBEncrypter(data.Cipher, data.IV)
-		cfb.XORKeyStream(d[i:i + 1], d[i:i + 1])
-		data.IV = append(data.IV[1:], d[i])
-	}
-	
 	d = append(d, batch.player.GetEncryptionHandler().ComputeSendChecksum(d)...)
 
+	for i := range d {
+		var cfb = cipher.NewCFBEncrypter(data.EncryptCipher, data.EncryptIV)
+		cfb.XORKeyStream(d[i:i + 1], d[i:i + 1])
+		data.EncryptIV = append(data.EncryptIV[1:], d[i])
+	}
+	
 	return d
 }
 
@@ -129,9 +131,9 @@ func (batch *MinecraftPacketBatch) encrypt(d []byte) []byte {
 func (batch *MinecraftPacketBatch) decrypt() {
 	var data = batch.player.GetEncryptionHandler().Data
 	for i, b := range batch.raw {
-		var cfb = cipher.NewCFBDecrypter(data.Cipher, data.IV)
+		var cfb = cipher.NewCFBDecrypter(data.DecryptCipher, data.DecryptIV)
 		cfb.XORKeyStream(batch.raw[i:i + 1], batch.raw[i:i + 1])
-		data.IV = append(data.IV[1:], b)
+		data.DecryptIV = append(data.DecryptIV[1:], b)
 	}
 }
 
@@ -162,20 +164,23 @@ func (batch *MinecraftPacketBatch) compress(stream *utils.BinaryStream) []byte {
 /**
  * Decompresses the zlib compressed buffer.
  */
-func (batch *MinecraftPacketBatch) decompress() {
+func (batch *MinecraftPacketBatch) decompress() error {
 	var reader = bytes.NewReader(batch.raw)
 	zlibReader, err := zlib.NewReader(reader)
 	batch.logger.LogError(err)
+
 	if err != nil {
-		println("Decompressing went wrong!!!")
+		println(hex.EncodeToString(batch.raw))
+		return err
 	}
 	if zlibReader == nil {
-		return
+		return errors.New("an error occurred when decompressing zlib")
 	}
-	defer zlibReader.Close()
+	zlibReader.Close()
 
 	batch.raw, err = ioutil.ReadAll(zlibReader)
-	batch.logger.LogError(err)
+
+	return err
 }
 
 /**

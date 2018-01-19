@@ -35,13 +35,18 @@ func (handler LoginHandler) Handle(packet interfaces.IPacket, player interfaces.
 
 		var successful, authenticated, pubKey = handler.VerifyLoginRequest(loginPacket.Chains, server)
 		if !successful {
-			server.GetLogger().Error(loginPacket.Username, "had an invalid chain and is denied access")
-			return false
+			server.GetLogger().Debug(loginPacket.Username, "has joined with invalid login data.")
+			return true
 		}
+
 		if authenticated {
-			server.GetLogger().Debug(loginPacket.Username, "has joined while being logged into XBOX Live")
+			server.GetLogger().Debug(loginPacket.Username, "has joined while being logged into XBOX Live.")
 		} else {
-			server.GetLogger().Debug(loginPacket.Username, "tried to join, but is not logged into XBOX Live")
+			if server.GetConfiguration().XBOXLiveAuth {
+				server.GetLogger().Debug(loginPacket.Username, "has tried to join while not being logged into XBOX Live.")
+				return true
+			}
+			server.GetLogger().Debug(loginPacket.Username, "has joined while not being logged into XBOX Live.")
 		}
 
 		var player = player.New(server, session, loginPacket.Username, loginPacket.ClientUUID, loginPacket.ClientXUID, loginPacket.ClientId)
@@ -58,26 +63,31 @@ func (handler LoginHandler) Handle(packet interfaces.IPacket, player interfaces.
 		player.SetGeometryName(loginPacket.GeometryName)
 		player.SetGeometryData(loginPacket.GeometryData)
 
-		var handshake = packets.NewServerHandshakePacket()
-		var jwt = utils.ConstructEncryptionJwt(server.GetPrivateKey(), server.GetServerToken())
-		utils.DecodeJwt(jwt)
-		handshake.Jwt = jwt
-		player.SendPacket(handshake)
+		player.SetXBOXLiveAuthenticated(authenticated)
 
-		/*playStatus := packets.NewPlayStatusPacket()
-		playStatus.Status = 0
-		player.SendPacket(playStatus)
+		if server.GetConfiguration().UseEncryption {
+			var handshake = packets.NewServerHandshakePacket()
+			var jwt = utils.ConstructEncryptionJwt(server.GetPrivateKey(), server.GetServerToken())
+			utils.DecodeJwt(jwt)
+			handshake.Jwt = jwt
+			player.SendPacket(handshake)
 
-		resourceInfo := packets.NewResourcePackInfoPacket()
-		resourceInfo.MustAccept = server.GetConfiguration().ForceResourcePacks
+			player.EnableEncryption()
+		} else {
+			playStatus := packets.NewPlayStatusPacket()
+			playStatus.Status = 0
+			player.SendPacket(playStatus)
 
-		resourceInfo.ResourcePacks = server.GetPackHandler().GetResourceStack().GetPacks()
-		resourceInfo.BehaviorPacks = server.GetPackHandler().GetBehaviorStack().GetPacks()
+			resourceInfo := packets.NewResourcePackInfoPacket()
+			resourceInfo.MustAccept = server.GetConfiguration().ForceResourcePacks
 
-		player.SendPacket(resourceInfo)*/
+			resourceInfo.ResourcePacks = server.GetPackHandler().GetResourceStack().GetPacks()
+			resourceInfo.BehaviorPacks = server.GetPackHandler().GetBehaviorStack().GetPacks()
+
+			player.SendPacket(resourceInfo)
+		}
 
 		server.GetPlayerFactory().AddPlayer(player, session)
-		player.EnableEncryption()
 
 		return true
 	}

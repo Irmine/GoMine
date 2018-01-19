@@ -21,6 +21,7 @@ type Player struct {
 	playerName  string
 	displayName string
 
+	spawned bool
 	closed bool
 
 	permissions map[string]interfaces.IPermission
@@ -50,6 +51,7 @@ type Player struct {
 
 	encryptionHandler *utils.EncryptionHandler
 	usesEncryption bool
+	xboxLiveAuthenticated bool
 }
 
 /**
@@ -369,7 +371,7 @@ func (player *Player) SendChunk(chunk interfaces.IChunk, index int)  {
 	pk.Chunk = chunk
 	player.mux.Lock()
 	player.usedChunks[index] = chunk
-	defer player.mux.Unlock()
+	player.mux.Unlock()
 	player.SendPacket(pk)
 }
 
@@ -399,16 +401,14 @@ func (player *Player) SyncMove(x, y, z, pitch, yaw, headYaw float32, onGround bo
 			}
 		}
 	}
-	defer player.mux.Unlock()
+	player.mux.Unlock()
 }
 
 /**
  * Checks if the player has a chunk with the given index in use.
  */
 func (player *Player) HasChunkInUse(index int) bool {
-	player.mux.Lock()
 	_, ok := player.usedChunks[index]
-	defer player.mux.Unlock()
 	return ok
 }
 
@@ -477,4 +477,32 @@ func (player *Player) EnableEncryption() {
 	player.usesEncryption = true
 	player.encryptionHandler.Data.ComputeSharedSecret()
 	player.encryptionHandler.Data.ComputeSecretKeyBytes()
+}
+
+/**
+ * Checks if the player logged in while being logged into XBOX Live.
+ */
+func (player *Player) IsXBOXLiveAuthenticated() bool {
+	return player.xboxLiveAuthenticated
+}
+
+/**
+ * Sets the player XBOX Live authenticated.
+ */
+func (player *Player) SetXBOXLiveAuthenticated(value bool) {
+	player.xboxLiveAuthenticated = value
+}
+
+/**
+ * Checks if this player has spawned.
+ */
+func (player *Player) HasSpawned() bool {
+	return player.spawned
+}
+
+/**
+ * Sets this player spawned.
+ */
+func (player *Player) SetSpawned(value bool) {
+	player.spawned = value
 }
