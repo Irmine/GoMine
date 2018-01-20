@@ -51,6 +51,7 @@ func NewEntity(position *vectors.TripleVector, rotation *math.Rotation, motion *
 		map[uint64]interfaces.IPlayer{},
 		make(map[uint32][]interface{}),
 	}
+
 	ent.InitDataFlags()
 	return &ent
 }
@@ -258,6 +259,7 @@ func (entity *Entity) Close() {
 	entity.closed = true
 	entity.Level = nil
 	entity.Dimension = nil
+	entity.SpawnedTo = nil
 }
 
 /**
@@ -316,10 +318,19 @@ func (entity *Entity) DespawnFromAll() {
  */
 func (entity *Entity) SpawnToAll()  {
 	for _, p := range entity.GetLevel().GetServer().GetPlayerFactory().GetPlayers() {
-		entity.SpawnTo(p)
+		if p.GetRuntimeId() != entity.GetRuntimeId() {
+			entity.SpawnTo(p)
+		}
 	}
 }
 
+/**
+ * Ticks the entity.
+ */
 func (entity *Entity) Tick()  {
-
+	for runtimeId, player := range entity.GetViewers() {
+		if player.IsClosed() {
+			delete(entity.SpawnedTo, runtimeId)
+		}
+	}
 }

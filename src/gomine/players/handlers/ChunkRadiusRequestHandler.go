@@ -33,21 +33,9 @@ func (handler ChunkRadiusRequestHandler) Handle(packet interfaces.IPacket, playe
 		server.GetDefaultLevel().GetDefaultDimension().RequestChunks(player, 10)
 
 		if !hasChunksInUse {
-			var playerList = packets.NewPlayerListPacket()
-
-			for _, receiver := range server.GetPlayerFactory().GetPlayers() {
-				if player != receiver {
-					var list = packets.NewPlayerListPacket()
-					list.ListType = packets.ListTypeAdd
-					list.Players = map[string]interfaces.IPlayer{player.GetName(): player}
-					receiver.SendPacket(list)
-
-					receiver.SpawnPlayerTo(player)
-				}
-			}
-
 			player.SetSpawned(true)
 
+			var playerList = packets.NewPlayerListPacket()
 			playerList.Players = server.GetPlayerFactory().GetPlayers()
 			for name, pl := range playerList.Players {
 				if !pl.HasSpawned() {
@@ -57,6 +45,19 @@ func (handler ChunkRadiusRequestHandler) Handle(packet interfaces.IPacket, playe
 			playerList.ListType = packets.ListTypeAdd
 			player.SendPacket(playerList)
 
+			for _, receiver := range server.GetPlayerFactory().GetPlayers() {
+				if player != receiver {
+					list := packets.NewPlayerListPacket()
+					list.ListType = packets.ListTypeAdd
+					list.Players = map[string]interfaces.IPlayer{player.GetName(): player}
+					receiver.SendPacket(list)
+
+					receiver.SpawnTo(player)
+					receiver.SpawnPlayerTo(player)
+				}
+			}
+
+			player.SpawnToAll()
 			player.SpawnPlayerToAll()
 
 			player.UpdateAttributes()

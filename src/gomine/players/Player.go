@@ -272,11 +272,10 @@ func (player *Player) RemovePermission(permission string) bool {
  */
 func (player *Player) Teleport(v *vectors.TripleVector, rot *math.Rotation)  {
 	pk := packets.NewMovePlayerPacket()
-	pk.EntityId = player.runtimeId
 	pk.Position = *v
 	pk.Rotation = *rot
 	pk.OnGround = player.onGround
-	pk.RidingEid = 0
+	pk.RuntimeId = player.GetRuntimeId()
 	player.SendPacket(pk)
 
 	player.Position = v
@@ -430,7 +429,7 @@ func (player *Player) SendPacket(packet interfaces.IPacket) {
 }
 
 func (player *Player) Tick() {
-
+	//player.Entity.Tick()
 }
 
 /**

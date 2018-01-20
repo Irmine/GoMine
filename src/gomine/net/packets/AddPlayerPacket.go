@@ -36,6 +36,7 @@ func NewAddPlayerPacket() *AddPlayerPacket {
 func (pk *AddPlayerPacket) Encode()  {
 	pk.PutUUID(pk.UUID)
 	pk.PutString(pk.Username)
+
 	pk.PutUniqueId(pk.EntityUniqueId)
 	pk.PutRuntimeId(pk.EntityRuntimeId)
 	pk.PutTripleVectorObject(pk.Position)

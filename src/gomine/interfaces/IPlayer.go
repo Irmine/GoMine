@@ -76,4 +76,6 @@ type IPlayer interface {
 	SetXBOXLiveAuthenticated(bool)
 	HasSpawned() bool
 	SetSpawned(bool)
+	Close()
+	IsClosed() bool
 }

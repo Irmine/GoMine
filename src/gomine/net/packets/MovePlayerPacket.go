@@ -15,7 +15,7 @@ const (
 
 type MovePlayerPacket struct {
 	*Packet
-	EntityId uint64
+	RuntimeId uint64
 	Position vectors.TripleVector
 	Rotation math.Rotation
 	Mode byte
@@ -29,7 +29,7 @@ func NewMovePlayerPacket() *MovePlayerPacket {
 }
 
 func (pk *MovePlayerPacket) Encode() {
-	pk.PutRuntimeId(pk.EntityId)
+	pk.PutRuntimeId(pk.RuntimeId)
 	pk.PutTripleVectorObject(*pk.Position.AsTripleVector())
 	pk.PutRotationObject(pk.Rotation, true)
 	pk.PutByte(pk.Mode)
@@ -42,7 +42,7 @@ func (pk *MovePlayerPacket) Encode() {
 }
 
 func (pk *MovePlayerPacket) Decode() {
-	pk.EntityId = pk.GetRuntimeId()
+	pk.RuntimeId = pk.GetRuntimeId()
 	pk.Position.SetVector(pk.GetTripleVectorObject())
 	pk.Rotation = pk.GetRotationObject(true)
 	pk.Mode = pk.GetByte()
