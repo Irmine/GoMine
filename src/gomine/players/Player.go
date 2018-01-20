@@ -509,3 +509,13 @@ func (player *Player) HasSpawned() bool {
 func (player *Player) SetSpawned(value bool) {
 	player.spawned = value
 }
+
+/**
+ * Transfers the player to another server.
+ */
+func (player *Player) Transfer(address string, port uint16) {
+	var packet = packets.NewTransferPacket()
+	packet.Address = address
+	packet.Port = port
+	player.SendPacket(packet)
+}
