@@ -228,9 +228,16 @@ func (stream *BinaryStream) GetLittleTriad() uint32 {
 }
 
 func (stream *BinaryStream) PutBytes(bytes []byte) {
-	for _, byte2 := range bytes {
-		stream.PutByte(byte2)
-	}
+	stream.Buffer = append(stream.Buffer, bytes...)
+}
+
+func (stream *BinaryStream) PutLengthPrefixedBytes(bytes []byte) {
+	stream.PutUnsignedVarInt(uint32(len(bytes)))
+	stream.PutBytes(bytes)
+}
+
+func (stream *BinaryStream) GetLengthPrefixedBytes() []byte {
+	return []byte(stream.GetString())
 }
 
 func (stream *BinaryStream) ResetStream() {

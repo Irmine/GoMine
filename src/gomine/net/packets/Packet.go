@@ -249,13 +249,15 @@ func (pk *Packet) PutPacks(packs []interfaces.IPack, info bool) {
 	}
 }
 
-func (pk *Packet) GetUUID() utils.UUID {
-	return utils.UUIDFromBinary(&pk.Buffer, &pk.Offset)
-}
-
 func (pk *Packet) PutUUID(uuid utils.UUID) {
 	pk.PutLittleInt(uuid.GetParts()[1])
 	pk.PutLittleInt(uuid.GetParts()[0])
 	pk.PutLittleInt(uuid.GetParts()[3])
 	pk.PutLittleInt(uuid.GetParts()[2])
+}
+
+func (pk *Packet) GetUUID() utils.UUID {
+	var unorderedParts = [4]int32{pk.GetLittleInt(), pk.GetLittleInt(), pk.GetLittleInt(), pk.GetLittleInt()}
+	var parts = [4]int32{unorderedParts[1], unorderedParts[0], unorderedParts[3], unorderedParts[2]}
+	return utils.NewUUID(parts)
 }

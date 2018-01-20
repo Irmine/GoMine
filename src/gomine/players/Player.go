@@ -429,7 +429,9 @@ func (player *Player) SendPacket(packet interfaces.IPacket) {
 }
 
 func (player *Player) Tick() {
-	//player.Entity.Tick()
+	if player.HasSpawned() {
+		player.Entity.Tick()
+	}
 }
 
 /**

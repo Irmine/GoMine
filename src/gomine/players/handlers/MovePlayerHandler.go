@@ -23,6 +23,9 @@ func (handler MovePlayerHandler) Handle(packet interfaces.IPacket, player interf
 		if !player.HasSpawned() {
 			return false
 		}
+
+		println("Player", player.GetName(), pk.RuntimeId, player.GetRuntimeId())
+
 		player.SyncMove(pk.Position.X, pk.Position.Y, pk.Position.Z, pk.Rotation.Pitch, pk.Rotation.Yaw, pk.Rotation.HeadYaw, pk.OnGround)
 		player.GetDimension().RequestChunks(player, player.GetViewDistance())
 

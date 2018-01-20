@@ -63,7 +63,7 @@ func (batch *MinecraftPacketBatch) Decode() {
 	var packetData [][]byte
 
 	for !batch.Feof() {
-		packetData = append(packetData, batch.Get(int(batch.GetUnsignedVarInt())))
+		packetData = append(packetData, batch.GetLengthPrefixedBytes())
 	}
 
 	batch.fetchPackets(packetData)
@@ -144,8 +144,7 @@ func (batch *MinecraftPacketBatch) putPackets(stream *utils.BinaryStream) {
 	for _, packet := range batch.GetPackets() {
 		packet.EncodeHeader()
 		packet.Encode()
-		stream.PutUnsignedVarInt(uint32(len(packet.GetBuffer())))
-		stream.PutBytes(packet.GetBuffer())
+		stream.PutLengthPrefixedBytes(packet.GetBuffer())
 	}
 }
 

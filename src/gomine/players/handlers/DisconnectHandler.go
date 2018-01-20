@@ -37,6 +37,7 @@ func (handler DisconnectHandler) Handle(player interfaces.IPlayer, session *serv
 		player.DespawnFromAll()
 
 		player.Close()
+		player.SetSpawned(false)
 
 		server.BroadcastMessage(utils.Yellow + player.GetName() + " has left the server")
 	}
