@@ -57,6 +57,7 @@ type Server struct {
  */
 func NewServer(serverPath string) *Server {
 	var server = &Server{}
+
 	server.serverPath = serverPath
 	server.config = resources.NewGoMineConfig(serverPath)
 	server.logger = utils.NewLogger(GoMineName, serverPath, server.GetConfiguration().DebugMode)
@@ -96,6 +97,7 @@ func NewServer(serverPath string) *Server {
  */
 func (server *Server) RegisterDefaultCommands() {
 	server.commandHolder.RegisterCommand(defaults.NewStop(server))
+	server.commandHolder.RegisterCommand(defaults.NewList(server))
 	server.commandHolder.RegisterCommand(defaults.NewTest(server))
 	server.commandHolder.RegisterCommand(defaults.NewPing())
 }
