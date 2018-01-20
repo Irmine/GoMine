@@ -393,7 +393,7 @@ func (chunk *Chunk) ToBinary() []byte {
 	}
 
 	for i := 256; i >= 0; i-- {
-		stream.PutShort(chunk.heightMap[i])
+		stream.PutLittleShort(chunk.heightMap[i])
 	}
 
 	for _, biome := range chunk.biomes {

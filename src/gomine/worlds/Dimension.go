@@ -73,9 +73,7 @@ func (dimension *Dimension) GetLevel() interfaces.ILevel {
  * Returns if chunk is loaded
  */
 func (dimension *Dimension) IsChunkLoaded(x, z int32) bool {
-	dimension.mux.Lock()
 	var _, ok = dimension.chunks[GetChunkIndex(x, z)]
-	defer dimension.mux.Unlock()
 	return ok
 }
 
@@ -86,7 +84,7 @@ func (dimension *Dimension) SetChunkUnloaded(x, z int32) {
 	if !dimension.IsChunkLoaded(x, z) {
 		dimension.mux.Lock()
 		delete(dimension.chunks, GetChunkIndex(x, z))
-		defer dimension.mux.Unlock()
+		dimension.mux.Unlock()
 	}
 }
 
@@ -96,7 +94,7 @@ func (dimension *Dimension) SetChunkUnloaded(x, z int32) {
 func (dimension *Dimension) SetChunk(x, z int32, chunk interfaces.IChunk) {
 	dimension.mux.Lock()
 	dimension.chunks[GetChunkIndex(x, z)] = chunk
-	defer dimension.mux.Unlock()
+	dimension.mux.Unlock()
 }
 
 /**
@@ -109,7 +107,7 @@ func (dimension *Dimension) GetChunk(x, z int32) interfaces.IChunk {
 		var chunk = dimension.generator.GetNewChunk(chunks.NewChunk(x, z))
 		dimension.mux.Lock()
 		dimension.chunks[GetChunkIndex(x, z)] = chunk
-		defer dimension.mux.Unlock()
+		dimension.mux.Unlock()
 		return chunk
 	}
 	return nil

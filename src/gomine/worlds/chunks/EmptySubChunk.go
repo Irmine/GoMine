@@ -15,8 +15,12 @@ func (subChunk *EmptySubChunk) IsAllAir() bool {
 	return true
 }
 
-func (subChunk *EmptySubChunk) GetIndex(x, y, z int) int {
-	return 0
+func (subChunk *EmptySubChunk) GetIdIndex(x, y, z int) int {
+	return (x << 8) | (z << 4) | y
+}
+
+func (subChunk *EmptySubChunk) GetDataIndex(x, y, z int) int {
+	return (x << 7) + (z << 3) + (y >> 1)
 }
 
 func (subChunk *EmptySubChunk) GetBlockId(x, y, z int) byte {

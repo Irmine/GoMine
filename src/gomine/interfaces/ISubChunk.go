@@ -2,7 +2,8 @@ package interfaces
 
 type ISubChunk interface{
 	IsAllAir() bool
-	GetIndex(int, int, int) int
+	GetIdIndex(int, int, int) int
+	GetDataIndex(int, int, int) int
 	GetBlockId(int, int, int) byte
 	SetBlockId(int, int, int, byte)
 	GetBlockLight(int, int, int) byte
