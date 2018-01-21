@@ -410,7 +410,9 @@ func (player *Player) SyncMove(x, y, z, pitch, yaw, headYaw float32, onGround bo
  * Checks if the player has a chunk with the given index in use.
  */
 func (player *Player) HasChunkInUse(index int) bool {
+	player.mux.Lock()
 	_, ok := player.usedChunks[index]
+	player.mux.Unlock()
 	return ok
 }
 
@@ -509,4 +511,14 @@ func (player *Player) HasSpawned() bool {
  */
 func (player *Player) SetSpawned(value bool) {
 	player.spawned = value
+}
+
+/**
+ * Transfers the player to another server.
+ */
+func (player *Player) Transfer(address string, port uint16) {
+	var packet = packets.NewTransferPacket()
+	packet.Address = address
+	packet.Port = port
+	player.SendPacket(packet)
 }

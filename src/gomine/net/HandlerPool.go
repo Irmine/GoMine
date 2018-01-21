@@ -14,14 +14,14 @@ const (
 var registeredHandlers = map[int][][]interfaces.IPacketHandler{}
 
 func init() {
-	RegisterPacketHandler(info.LoginPacket, handlers.NewLoginHandler(), PriorityLast)
-	RegisterPacketHandler(info.ClientHandshakePacket, handlers.NewClientHandshakeHandler(), PriorityLast)
-	RegisterPacketHandler(info.RequestChunkRadiusPacket, handlers.NewChunkRadiusRequestHandler(), PriorityLast)
-	RegisterPacketHandler(info.ResourcePackClientResponsePacket, handlers.NewResourcePackClientResponseHandler(), PriorityLast)
-	RegisterPacketHandler(info.MovePlayerPacket, handlers.NewMovePlayerHandler(), PriorityLast)
-	RegisterPacketHandler(info.CommandRequestPacket, handlers.NewCommandRequestHandler(), PriorityLast)
-	RegisterPacketHandler(info.ResourcePackChunkRequestPacket, handlers.NewResourcePackChunkRequestHandler(), PriorityLast)
-	RegisterPacketHandler(info.TextPacket, handlers.NewTextHandler(), PriorityLast)
+	RegisterPacketHandler(info.LoginPacket, handlers.NewLoginHandler(), 8)
+	RegisterPacketHandler(info.ClientHandshakePacket, handlers.NewClientHandshakeHandler(), 8)
+	RegisterPacketHandler(info.RequestChunkRadiusPacket, handlers.NewChunkRadiusRequestHandler(), 8)
+	RegisterPacketHandler(info.ResourcePackClientResponsePacket, handlers.NewResourcePackClientResponseHandler(), 8)
+	RegisterPacketHandler(info.MovePlayerPacket, handlers.NewMovePlayerHandler(), 8)
+	RegisterPacketHandler(info.CommandRequestPacket, handlers.NewCommandRequestHandler(), 8)
+	RegisterPacketHandler(info.ResourcePackChunkRequestPacket, handlers.NewResourcePackChunkRequestHandler(), 8)
+	RegisterPacketHandler(info.TextPacket, handlers.NewTextHandler(), 8)
 }
 
 /**

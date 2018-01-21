@@ -5,6 +5,7 @@ import (
 	"gomine/interfaces"
 	"gomine/entities/math"
 	math2 "math"
+	"sync"
 )
 
 var RuntimeId uint64 = 0
@@ -33,6 +34,8 @@ type Entity struct {
 
 	SpawnedTo map[uint64]interfaces.IPlayer
 
+	mutex sync.Mutex
+
 	EntityData map[uint32][]interface{}
 }
 
@@ -49,6 +52,7 @@ func NewEntity(position *vectors.TripleVector, rotation *math.Rotation, motion *
 		rotation,
 		"",
 		map[uint64]interfaces.IPlayer{},
+		sync.Mutex{},
 		make(map[uint32][]interface{}),
 	}
 
@@ -157,14 +161,18 @@ func (entity *Entity) GetViewers() map[uint64]interfaces.IPlayer {
  * Adds a viewer to this entity.
  */
 func (entity *Entity) AddViewer(player interfaces.IPlayer) {
+	entity.mutex.Lock()
 	entity.SpawnedTo[player.GetRuntimeId()] = player
+	entity.mutex.Unlock()
 }
 
 /**
  * Removes a viewer from this player.
  */
 func (entity *Entity) RemoveViewer(player interfaces.IPlayer) {
+	entity.mutex.Lock()
 	delete(entity.SpawnedTo, player.GetRuntimeId())
+	entity.mutex.Unlock()
 }
 
 /**
