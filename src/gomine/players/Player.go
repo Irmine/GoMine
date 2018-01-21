@@ -411,7 +411,9 @@ func (player *Player) SyncMove(x, y, z, pitch, yaw, headYaw float32, onGround bo
  * Checks if the player has a chunk with the given index in use.
  */
 func (player *Player) HasChunkInUse(index int) bool {
+	player.mux.Lock()
 	_, ok := player.usedChunks[index]
+	player.mux.Unlock()
 	return ok
 }
 
