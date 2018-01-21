@@ -78,4 +78,5 @@ type IPlayer interface {
 	SetSpawned(bool)
 	Close()
 	IsClosed() bool
+	Transfer(string, uint16)
 }
