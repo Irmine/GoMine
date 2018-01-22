@@ -60,6 +60,8 @@ func (manager *QueryManager) sendQuery(query *Query) {
 /**
  * Queries a server with the given address and port.
  * The call times out after the given timeout duration if no response is given.
+ *
+ * NOTE: This function is time consuming and should be used one a different goroutine where adequate.
  */
 func QueryServer(address string, port uint16, timeout time.Duration) (QueryResult, error) {
 	defer func() {
