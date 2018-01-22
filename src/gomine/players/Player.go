@@ -427,7 +427,7 @@ func (player *Player) HasAnyChunkInUse() bool {
  * Sends a packet to this player.
  */
 func (player *Player) SendPacket(packet interfaces.IPacket) {
-	player.Server.GetRakLibAdapter().SendPacket(packet, player, server.PriorityMedium)
+	player.Server.GetNetworkAdapter().SendPacket(packet, player, server.PriorityMedium)
 }
 
 func (player *Player) Tick() {

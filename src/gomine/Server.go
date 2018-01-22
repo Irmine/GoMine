@@ -20,7 +20,6 @@ import (
 	"crypto/rand"
 	"gomine/net/query"
 	"goraklib/server"
-	"strings"
 )
 
 var levelId = 0
@@ -49,7 +48,7 @@ type Server struct {
 
 	playerFactory *players.PlayerFactory
 
-	rakLibAdapter *net.GoRakLibAdapter
+	networkAdapter *net.NetworkAdapter
 
 	pluginManager *plugins.PluginManager
 
@@ -69,7 +68,7 @@ func NewServer(serverPath string) *Server {
 	server.levels = make(map[int]interfaces.ILevel)
 	server.consoleReader = NewConsoleReader(server)
 	server.commandHolder = commands.NewCommandHolder()
-	server.rakLibAdapter = net.NewGoRakLibAdapter(server)
+	server.networkAdapter = net.NewNetworkAdapter(server)
 
 	server.packHandler = packs.NewPackHandler(server)
 
@@ -344,11 +343,11 @@ func (server *Server) GetMaximumPlayers() uint {
 }
 
 /**
- * Returns the GoRakLibAdapter of the server.
+ * Returns the NetworkAdapter of the server.
  * This is used for network features.
  */
-func (server *Server) GetRakLibAdapter() interfaces.IGoRakLibAdapter {
-	return server.rakLibAdapter
+func (server *Server) GetNetworkAdapter() interfaces.INetworkAdapter {
+	return server.networkAdapter
 }
 
 /**
@@ -503,7 +502,7 @@ func (server *Server) Tick(currentTick int64) {
 		p.Tick()
 	}
 
-	server.rakLibAdapter.Tick()
+	server.networkAdapter.Tick()
 
-	server.rakLibAdapter.GetRakLibServer().SetConnectedSessionCount(server.GetPlayerFactory().GetPlayerCount())
+	server.networkAdapter.GetRakLibServer().SetConnectedSessionCount(server.GetPlayerFactory().GetPlayerCount())
 }

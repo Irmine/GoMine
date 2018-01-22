@@ -76,7 +76,7 @@ func (query *Query) EncodeServer() {
 }
 
 func (query *Query) EncodeClient() {
-	query.PutBytes(queryHeader)
+	query.PutBytes(QueryHeader)
 	query.PutByte(query.Header)
 	query.PutInt(query.QueryId)
 

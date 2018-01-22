@@ -54,7 +54,7 @@ func (manager *QueryManager) sendQuery(query *Query) {
 	raw.Buffer = query.Buffer
 	raw.Address = query.Address
 	raw.Port = query.Port
-	manager.server.GetRakLibAdapter().GetRakLibServer().SendRaw(raw)
+	manager.server.GetNetworkAdapter().GetRakLibServer().SendRaw(raw)
 }
 
 /**

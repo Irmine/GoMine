@@ -4,7 +4,7 @@ import (
 	"goraklib/server"
 )
 
-type IGoRakLibAdapter interface {
+type INetworkAdapter interface {
 	GetSession(string, uint16) *server.Session
 	SendBatch(IMinecraftPacketBatch, *server.Session, byte)
 	SendPacket(IPacket, IPlayer, byte)
@@ -15,6 +15,6 @@ type IGoRakLibAdapter interface {
 	GetPacket(int) IPacket
 	RegisterPacketHandler(int, IPacketHandler, int) bool
 	GetPacketHandlers(int) [][]IPacketHandler
-	DeregisterPacketHandlers(id int, priority int)
+	DeregisterPacketHandlers(int, int)
 	DeletePacket(id int)
 }

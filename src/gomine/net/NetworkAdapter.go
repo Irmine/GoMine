@@ -8,15 +8,15 @@ import (
 	"gomine/players/handlers"
 )
 
-type GoRakLibAdapter struct {
+type NetworkAdapter struct {
 	server interfaces.IServer
 	rakLibServer *server2.GoRakLibServer
 }
 
 /**
- * Returns a new GoRakLib adapter to adapt to the RakNet server.
+ * Returns a new Network adapter to adapt to the RakNet server.
  */
-func NewGoRakLibAdapter(server interfaces.IServer) *GoRakLibAdapter {
+func NewNetworkAdapter(server interfaces.IServer) *NetworkAdapter {
 	var rakServer = server2.NewGoRakLibServer(server.GetName(), server.GetAddress(), server.GetPort())
 	rakServer.SetMinecraftProtocol(info.LatestProtocol)
 	rakServer.SetMinecraftVersion(info.GameVersionNetwork)
@@ -24,20 +24,20 @@ func NewGoRakLibAdapter(server interfaces.IServer) *GoRakLibAdapter {
 	rakServer.SetDefaultGameMode("Creative")
 	rakServer.SetMotd(server.GetMotd())
 
-	return &GoRakLibAdapter{server, rakServer}
+	return &NetworkAdapter{server, rakServer}
 }
 
 /**
  * Returns the GoRakLib server.
  */
-func (adapter *GoRakLibAdapter) GetRakLibServer() *server2.GoRakLibServer {
+func (adapter *NetworkAdapter) GetRakLibServer() *server2.GoRakLibServer {
 	return adapter.rakLibServer
 }
 
 /**
  * Ticks the adapter
  */
-func (adapter *GoRakLibAdapter) Tick() {
+func (adapter *NetworkAdapter) Tick() {
 	go adapter.rakLibServer.Tick()
 
 	for _, session := range adapter.rakLibServer.GetSessionManager().GetSessions() {
@@ -89,40 +89,40 @@ func (adapter *GoRakLibAdapter) Tick() {
 	}
 }
 
-func (adapter *GoRakLibAdapter) GetSession(address string, port uint16) *server2.Session {
+func (adapter *NetworkAdapter) GetSession(address string, port uint16) *server2.Session {
 	var session, _ = adapter.rakLibServer.GetSessionManager().GetSession(address, port)
 	return session
 }
 
-func (adapter *GoRakLibAdapter) SendPacket(pk interfaces.IPacket, player interfaces.IPlayer, priority byte) {
+func (adapter *NetworkAdapter) SendPacket(pk interfaces.IPacket, player interfaces.IPlayer, priority byte) {
 	var b = NewMinecraftPacketBatch(player, adapter.server.GetLogger())
 	b.AddPacket(pk)
 
 	adapter.SendBatch(b, player.GetSession(), priority)
 }
 
-func (adapter *GoRakLibAdapter) SendBatch(batch interfaces.IMinecraftPacketBatch, session *server2.Session, priority byte) {
+func (adapter *NetworkAdapter) SendBatch(batch interfaces.IMinecraftPacketBatch, session *server2.Session, priority byte) {
 	session.SendConnectedPacket(batch, protocol.ReliabilityReliableOrdered, priority)
 }
 
 /**
  * Returns if a packet with the given ID is registered.
  */
-func (adapter *GoRakLibAdapter) IsPacketRegistered(id int) bool {
+func (adapter *NetworkAdapter) IsPacketRegistered(id int) bool {
 	return IsPacketRegistered(id)
 }
 
 /**
  * Returns a new packet with the given ID and a function that returns that packet.
  */
-func (adapter *GoRakLibAdapter) RegisterPacket(id int, function func() interfaces.IPacket) {
+func (adapter *NetworkAdapter) RegisterPacket(id int, function func() interfaces.IPacket) {
 	RegisterPacket(id, function)
 }
 
 /**
  * Returns a new packet with the given ID.
  */
-func (adapter *GoRakLibAdapter) GetPacket(id int) interfaces.IPacket {
+func (adapter *NetworkAdapter) GetPacket(id int) interfaces.IPacket {
 	return GetPacket(id)
 }
 
@@ -130,27 +130,27 @@ func (adapter *GoRakLibAdapter) GetPacket(id int) interfaces.IPacket {
  * Registers a new packet handler to listen for packets with the given ID.
  * Returns a bool indicating success.
  */
-func (adapter *GoRakLibAdapter) RegisterPacketHandler(id int, handler interfaces.IPacketHandler, priority int) bool {
+func (adapter *NetworkAdapter) RegisterPacketHandler(id int, handler interfaces.IPacketHandler, priority int) bool {
 	return RegisterPacketHandler(id, handler, priority)
 }
 
 /**
  * Returns all packet handlers registered on the given ID.
  */
-func (adapter *GoRakLibAdapter) GetPacketHandlers(id int) [][]interfaces.IPacketHandler {
+func (adapter *NetworkAdapter) GetPacketHandlers(id int) [][]interfaces.IPacketHandler {
 	return GetPacketHandlers(id)
 }
 
 /**
  * Deletes all packet handlers listening for packets with the given ID, on the given priority.
  */
-func (adapter *GoRakLibAdapter) DeregisterPacketHandlers(id int, priority int) {
+func (adapter *NetworkAdapter) DeregisterPacketHandlers(id int, priority int) {
 	DeregisterPacketHandlers(id, priority)
 }
 
 /**
  * Deletes a registered packet with the given ID.
  */
-func (adapter *GoRakLibAdapter) DeletePacket(id int) {
+func (adapter *NetworkAdapter) DeletePacket(id int) {
 	DeregisterPacket(id)
 }
