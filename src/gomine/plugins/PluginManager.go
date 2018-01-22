@@ -29,6 +29,13 @@ func NewPluginManager(server interfaces.IServer) *PluginManager {
 }
 
 /**
+ * Returns all plugins currently loaded on the server.
+ */
+func (manager *PluginManager) GetPlugins() map[string]IPlugin {
+	return manager.plugins
+}
+
+/**
  * Returns the main server.
  */
 func (manager *PluginManager) GetServer() interfaces.IServer {

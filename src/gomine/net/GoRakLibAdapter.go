@@ -20,7 +20,6 @@ func NewGoRakLibAdapter(server interfaces.IServer) *GoRakLibAdapter {
 	var rakServer = server2.NewGoRakLibServer(server.GetName(), server.GetAddress(), server.GetPort())
 	rakServer.SetMinecraftProtocol(info.LatestProtocol)
 	rakServer.SetMinecraftVersion(info.GameVersionNetwork)
-	rakServer.SetServerName(server.GetServerName())
 	rakServer.SetMaxConnectedSessions(server.GetMaximumPlayers())
 	rakServer.SetDefaultGameMode("Creative")
 	rakServer.SetMotd(server.GetMotd())
@@ -44,6 +43,7 @@ func (adapter *GoRakLibAdapter) Tick() {
 	for _, session := range adapter.rakLibServer.GetSessionManager().GetSessions() {
 		go func(session *server2.Session) {
 			for _, encapsulatedPacket := range session.GetReadyEncapsulatedPackets() {
+
 				player, _ := adapter.server.GetPlayerFactory().GetPlayerBySession(session)
 
 				batch := NewMinecraftPacketBatch(player, adapter.server.GetLogger())
@@ -76,6 +76,10 @@ func (adapter *GoRakLibAdapter) Tick() {
 				}
 			}
 		}(session)
+	}
+
+	for _, pk := range adapter.rakLibServer.GetRawPackets() {
+		adapter.server.HandleRaw(pk)
 	}
 
 	for _, session := range adapter.rakLibServer.GetSessionManager().GetDisconnectedSessions() {

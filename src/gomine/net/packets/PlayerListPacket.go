@@ -30,8 +30,9 @@ func (pk *PlayerListPacket) Encode() {
 
 			pk.PutString(entry.GetDisplayName())
 			pk.PutString(entry.GetSkinId())
-			pk.PutString(string(entry.GetSkinData()))
-			pk.PutString(string(entry.GetCapeData()))
+			pk.PutLengthPrefixedBytes(entry.GetSkinData())
+			pk.PutLengthPrefixedBytes(entry.GetCapeData())
+
 			pk.PutString(entry.GetGeometryName())
 			pk.PutString(entry.GetGeometryData())
 

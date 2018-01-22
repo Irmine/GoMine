@@ -3,6 +3,7 @@ package interfaces
 import (
 	"gomine/resources"
 	"crypto/ecdsa"
+	"goraklib/server"
 )
 
 type IServer interface {
@@ -26,7 +27,7 @@ type IServer interface {
 	GetMotd() string
 	Tick(int64)
 	GetPermissionManager() IPermissionManager
-	GetServerName() string
+	GetEngineName() string
 	GetVersion() string
 	GetNetworkVersion() string
 	GetRakLibAdapter() IGoRakLibAdapter
@@ -41,4 +42,6 @@ type IServer interface {
 	GetPrivateKey() *ecdsa.PrivateKey
 	GetPublicKey() *ecdsa.PublicKey
 	GetServerToken() []byte
+	HandleRaw(server.RawPacket)
+	GenerateQueryResult(bool) []byte
 }

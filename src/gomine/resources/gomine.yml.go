@@ -25,6 +25,9 @@ type GoMineConfig struct {
 
 	XBOXLiveAuth bool `yaml:"XBOX Live Auth"`
 	UseEncryption bool `yaml:"Use Encryption"`
+
+	AllowQuery bool `yaml:"Allow Query"`
+	AllowPluginQuery bool `yaml:"Allow Plugin Query"`
 }
 
 /**
@@ -63,6 +66,9 @@ func initializeConfig(serverPath string) {
 
 			XBOXLiveAuth: true,
 			UseEncryption: false,
+
+			AllowQuery: true,
+			AllowPluginQuery: true,
 		})
 		var file, _ = os.OpenFile(path, os.O_APPEND | os.O_CREATE | os.O_WRONLY, 0644)
 		file.WriteString(string(data))

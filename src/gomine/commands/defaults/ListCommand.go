@@ -19,9 +19,14 @@ func NewList(server interfaces.IServer) ListCommand {
 }
 
 func (list ListCommand) Execute(sender interfaces.ICommandSender) {
-	var playerList = utils.BrightGreen + "-----" + utils.White + " Player List (" + strconv.Itoa(len(list.server.GetPlayerFactory().GetPlayers())) + " Players) " + utils.BrightGreen + "-----\n"
+	var s = "s"
+	if len(list.server.GetPlayerFactory().GetPlayers()) == 1 {
+		s = ""
+	}
+
+	var playerList = utils.BrightGreen + "-----" + utils.White + " Player List (" + strconv.Itoa(len(list.server.GetPlayerFactory().GetPlayers())) + " Player" + s + ") " + utils.BrightGreen + "-----\n"
 	for name, player := range list.server.GetPlayerFactory().GetPlayers() {
-		playerList += utils.BrightGreen + name + ": " + utils.Yellow + utils.Bold + strconv.Itoa(int(player.GetPing())) + "ms\n"
+		playerList += utils.BrightGreen + name + ": " + utils.Yellow + utils.Bold + strconv.Itoa(int(player.GetPing())) + "ms" + utils.Reset + "\n"
 	}
 	sender.SendMessage(playerList)
 }

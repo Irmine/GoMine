@@ -18,6 +18,9 @@ import (
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
+	"gomine/net/query"
+	"goraklib/server"
+	"strings"
 )
 
 var levelId = 0
@@ -49,6 +52,8 @@ type Server struct {
 	rakLibAdapter *net.GoRakLibAdapter
 
 	pluginManager *plugins.PluginManager
+
+	queryManager query.QueryManager
 }
 
 /**
@@ -72,6 +77,8 @@ func NewServer(serverPath string) *Server {
 	server.permissionManager = permissions.NewPermissionManager(server)
 
 	server.pluginManager = plugins.NewPluginManager(server)
+
+	server.queryManager = query.NewQueryManager(server)
 
 	if server.config.UseEncryption {
 		var curve = elliptic.P384()
@@ -304,14 +311,14 @@ func (server *Server) SendMessage(message string) {
 /**
  * Returns the GoMine Name.
  */
-func (server *Server) GetName() string {
+func (server *Server) GetEngineName() string {
 	return GoMineName
 }
 
 /**
  * Returns the name of the server specified in the configuration.
  */
-func (server *Server) GetServerName() string {
+func (server *Server) GetName() string {
 	return server.config.ServerName
 }
 
@@ -425,6 +432,58 @@ func (server *Server) GetPublicKey() *ecdsa.PublicKey {
  */
 func (server *Server) GetServerToken() []byte {
 	return server.token
+}
+
+/**
+ * Returns the query data of the server in a byte array.
+ */
+func (server *Server) GenerateQueryResult(shortData bool) []byte {
+	var plugs []string
+	for _, plug := range server.pluginManager.GetPlugins() {
+		plugs = append(plugs, plug.GetName() + " v" + plug.GetVersion())
+	}
+
+	var ps []string
+	for _, player := range server.playerFactory.GetPlayers() {
+		ps = append(ps, player.GetDisplayName())
+	}
+
+	var result = query.QueryResult{
+		MOTD: server.GetMotd(),
+		ListPlugins: server.config.AllowPluginQuery,
+		PluginNames: plugs,
+		PlayerNames: ps,
+		GameMode: "SMP",
+		Version: server.GetVersion(),
+		ServerEngine: server.GetEngineName(),
+		WorldName: server.GetDefaultLevel().GetName(),
+		OnlinePlayers: int(server.GetPlayerFactory().GetPlayerCount()),
+		MaximumPlayers: int(server.config.MaximumPlayers),
+		Whitelist: "off",
+		Port: server.config.ServerPort,
+		Address: server.config.ServerIp,
+	}
+
+	if shortData {
+		return result.GetShort()
+	}
+	return result.GetLong()
+}
+
+/**
+ * Handles a raw packet, for instance a query packet.
+ */
+func (server *Server) HandleRaw(packet server.RawPacket) {
+	if string(packet.Buffer[0:2]) == string(query.QueryHeader) {
+		if !server.config.AllowQuery {
+			return
+		}
+
+		var q = query.NewQueryFromRaw(packet)
+		q.DecodeServer()
+
+		server.queryManager.HandleQuery(q)
+	}
 }
 
 /**

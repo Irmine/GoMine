@@ -17,6 +17,10 @@ func Read(buffer *[]byte, offset *int, length int) ([]byte) {
 		return bytes
 	}
 
+	if length == -1 {
+		return (*buffer)[*offset:]
+	}
+
 	for i := 0; i < length; i++ {
 		bytes = append(bytes, (*buffer)[*offset])
 		*offset++
