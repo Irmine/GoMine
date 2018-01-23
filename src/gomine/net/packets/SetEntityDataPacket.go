@@ -6,7 +6,7 @@ import (
 
 type SetEntityDataPacket struct {
 	*Packet
-	EntityId uint64
+	RuntimeId uint64
 	EntityData map[uint32][]interface{}
 }
 
@@ -15,11 +15,11 @@ func NewSetEntityDataPacket() *SetEntityDataPacket {
 }
 
 func (pk *SetEntityDataPacket) Encode() {
-	pk.PutRuntimeId(pk.EntityId)
+	pk.PutRuntimeId(pk.RuntimeId)
 	pk.PutEntityData(pk.EntityData)
 }
 
 func (pk *SetEntityDataPacket) Decode() {
-	pk.EntityId = pk.GetRuntimeId()
+	pk.RuntimeId = pk.GetRuntimeId()
 	pk.EntityData = pk.GetEntityData()
 }
