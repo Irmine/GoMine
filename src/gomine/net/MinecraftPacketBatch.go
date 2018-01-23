@@ -20,7 +20,7 @@ type MinecraftPacketBatch struct {
 
 	packets []interfaces.IPacket
 
-	player interfaces.IPlayer
+	session interfaces.IMinecraftSession
 	needsEncryption bool
 	logger interfaces.ILogger
 }
@@ -28,11 +28,17 @@ type MinecraftPacketBatch struct {
 /**
  * Returns a new Minecraft Packet Batch used to decode/encode batches from Encapsulated Packets.
  */
-func NewMinecraftPacketBatch(player interfaces.IPlayer, logger interfaces.ILogger) *MinecraftPacketBatch {
+func NewMinecraftPacketBatch(session interfaces.IMinecraftSession, logger interfaces.ILogger) *MinecraftPacketBatch {
 	var batch = &MinecraftPacketBatch{}
 	batch.BinaryStream = utils.NewStream()
-	batch.player = player
-	batch.needsEncryption = player.UsesEncryption()
+	batch.session = session
+
+	if session.IsInitialized() {
+		batch.needsEncryption = session.UsesEncryption()
+	} else {
+		batch.needsEncryption = false
+	}
+
 	batch.logger = logger
 
 	return batch
@@ -113,8 +119,8 @@ func (batch *MinecraftPacketBatch) fetchPackets(packetData [][]byte) {
  * Encrypts the data passed to the function.
  */
 func (batch *MinecraftPacketBatch) encrypt(d []byte) []byte {
-	var data = batch.player.GetEncryptionHandler().Data
-	d = append(d, batch.player.GetEncryptionHandler().ComputeSendChecksum(d)...)
+	var data = batch.session.GetEncryptionHandler().Data
+	d = append(d, batch.session.GetEncryptionHandler().ComputeSendChecksum(d)...)
 
 	for i := range d {
 		var cfb = cipher.NewCFBEncrypter(data.EncryptCipher, data.EncryptIV)
@@ -129,7 +135,7 @@ func (batch *MinecraftPacketBatch) encrypt(d []byte) []byte {
  * Decrypts the buffer of the packet.
  */
 func (batch *MinecraftPacketBatch) decrypt() {
-	var data = batch.player.GetEncryptionHandler().Data
+	var data = batch.session.GetEncryptionHandler().Data
 	for i, b := range batch.raw {
 		var cfb = cipher.NewCFBDecrypter(data.DecryptCipher, data.DecryptIV)
 		cfb.XORKeyStream(batch.raw[i:i + 1], batch.raw[i:i + 1])

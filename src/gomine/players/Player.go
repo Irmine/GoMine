@@ -2,21 +2,20 @@ package players
 
 import (
 	"gomine/interfaces"
-	"goraklib/server"
 	"gomine/net/packets"
 	"gomine/entities"
 	"gomine/vectors"
 	"gomine/entities/math"
-	"gomine/utils"
 	math2 "math"
 	"sync"
+	"gomine/net"
+	"goraklib/server"
 )
 
 type Player struct {
 	*entities.Human
-	session *server.Session
+	interfaces.IMinecraftSession
 
-	attributeMap *entities.AttributeMap
 	playerName  string
 	displayName string
 
@@ -24,12 +23,6 @@ type Player struct {
 
 	permissions map[string]interfaces.IPermission
 	permissionGroup interfaces.IPermissionGroup
-
-	language string
-
-	uuid utils.UUID
-	xuid string
-	clientId int
 
 	onGround bool
 	viewDistance int32
@@ -42,20 +35,16 @@ type Player struct {
 
 	finalized bool
 
-	Server interfaces.IServer
+	server interfaces.IServer
 
 	mux sync.Mutex
 	usedChunks map[int]interfaces.IChunk
-
-	encryptionHandler *utils.EncryptionHandler
-	usesEncryption bool
-	xboxLiveAuthenticated bool
 }
 
 /**
- * Returns a new player with the given credentials.
+ * Returns a new player with the given name.
  */
-func NewPlayer(server interfaces.IServer, session *server.Session, name string, uuid utils.UUID, xuid string, clientId int) *Player {
+func NewPlayer(server interfaces.IServer, name string) *Player {
 	var player = &Player{}
 
 	player.playerName = name
@@ -63,27 +52,29 @@ func NewPlayer(server interfaces.IServer, session *server.Session, name string, 
 
 	player.usedChunks = make(map[int]interfaces.IChunk)
 
-	player.uuid = uuid
-	player.xuid = xuid
-	player.clientId = clientId
-
 	player.permissions = make(map[string]interfaces.IPermission)
 	player.permissionGroup = server.GetPermissionManager().GetDefaultGroup()
 
-	player.Server = server
-	player.session = session
-	player.attributeMap = entities.NewAttributeMap()
-
-	player.encryptionHandler = utils.NewEncryptionHandler()
+	player.server = server
 
 	return player
 }
 
 /**
- * Returns a new player.
+ * Returns a new player with the given minecraft session.
  */
-func (player *Player) New(server interfaces.IServer, session *server.Session, name string, uuid utils.UUID, xuid string, clientId int) interfaces.IPlayer {
-	return NewPlayer(server, session, name, uuid, xuid, clientId)
+func (player *Player) New(server interfaces.IServer, session interfaces.IMinecraftSession, name string) interfaces.IPlayer {
+	var pl = NewPlayer(server, name)
+	pl.IMinecraftSession = session
+	return pl
+}
+
+/**
+ * Returns a new minecraft session with the given server, session and login packet.
+ */
+func (player *Player) NewMinecraftSession(server interfaces.IServer, session *server.Session, packet interfaces.IPacket) interfaces.IMinecraftSession {
+	var loginPacket = packet.(*packets.LoginPacket)
+	return net.NewMinecraftSession(server, session, loginPacket.Protocol, loginPacket.ClientData.GameVersion, loginPacket.ClientUUID, loginPacket.ClientXUID, loginPacket.ClientId)
 }
 
 /**
@@ -137,41 +128,6 @@ func (player *Player) SpawnPlayerToAll() {
 }
 
 /**
- * Returns the UUID of this player.
- */
-func (player *Player) GetUUID() utils.UUID {
-	return player.uuid
-}
-
-/**
- * Returns the XUID of this player.
- */
-func (player *Player) GetXUID() string {
-	return player.xuid
-}
-
-/**
- * Sets the language (locale) of this player.
- */
-func (player *Player) SetLanguage(language string) {
-	player.language = language
-}
-
-/**
- * Returns the language (locale) of this player.
- */
-func (player *Player) GetLanguage() string {
-	return player.language
-}
-
-/**
- * Returns the client ID of this player.
- */
-func (player *Player) GetClientId() int {
-	return player.clientId
-}
-
-/**
  * Sets the view distance of this player.
  */
 func (player *Player) SetViewDistance(distance int32) {
@@ -189,7 +145,7 @@ func (player *Player) GetViewDistance() int32 {
  * Returns the main server.
  */
 func (player *Player) GetServer() interfaces.IServer {
-	return player.Server
+	return player.server
 }
 
 /**
@@ -349,20 +305,6 @@ func (player *Player) SetGeometryData(data string) {
 }
 
 /**
- * Returns the GoRakLib session of this player.
- */
-func (player *Player) GetSession() *server.Session {
-	return player.session
-}
-
-/**
- * Returns the ping of the player in milliseconds.
- */
-func (player *Player) GetPing() uint64 {
-	return player.session.GetPing()
-}
-
-/**
  * Sends a chunk to the player.
  */
 func (player *Player) SendChunk(chunk interfaces.IChunk, index int)  {
@@ -420,13 +362,6 @@ func (player *Player) HasAnyChunkInUse() bool {
 	return len(player.usedChunks) > 0
 }
 
-/**
- * Sends a packet to this player.
- */
-func (player *Player) SendPacket(packet interfaces.IPacket) {
-	player.Server.GetNetworkAdapter().SendPacket(packet, player, server.PriorityMedium)
-}
-
 func (player *Player) Tick() {
 	if player.HasSpawned() {
 		player.Entity.Tick()
@@ -439,7 +374,7 @@ func (player *Player) Tick() {
 func (player *Player) UpdateAttributes() {
 	pk := packets.NewUpdateAttributesPacket()
 	pk.EntityId = player.GetRuntimeId()
-	pk.Attributes = player.attributeMap
+	pk.Attributes = player.GetAttributeMap()
 	player.SendPacket(pk)
 }
 
@@ -457,43 +392,6 @@ func (player *Player) SendMessage(message string) {
 	var pk = packets.NewTextPacket()
 	pk.Message = message
 	player.SendPacket(pk)
-}
-
-/**
- * Returns the handler used for encryption.
- */
-func (player *Player) GetEncryptionHandler() *utils.EncryptionHandler {
-	return player.encryptionHandler
-}
-
-/**
- * Checks if the player uses encryption or not.
- */
-func (player *Player) UsesEncryption() bool {
-	return player.usesEncryption
-}
-
-/**
- * Enables encryption for this player and computes secret key bytes.
- */
-func (player *Player) EnableEncryption() {
-	player.usesEncryption = true
-	player.encryptionHandler.Data.ComputeSharedSecret()
-	player.encryptionHandler.Data.ComputeSecretKeyBytes()
-}
-
-/**
- * Checks if the player logged in while being logged into XBOX Live.
- */
-func (player *Player) IsXBOXLiveAuthenticated() bool {
-	return player.xboxLiveAuthenticated
-}
-
-/**
- * Sets the player XBOX Live authenticated.
- */
-func (player *Player) SetXBOXLiveAuthenticated(value bool) {
-	player.xboxLiveAuthenticated = value
 }
 
 /**
@@ -518,4 +416,11 @@ func (player *Player) Transfer(address string, port uint16) {
 	packet.Address = address
 	packet.Port = port
 	player.SendPacket(packet)
+}
+
+/**
+ * Checks if the player is initialized.
+ */
+func (player *Player) IsInitialized() bool {
+	return player.IMinecraftSession != nil
 }

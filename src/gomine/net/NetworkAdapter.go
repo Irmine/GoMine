@@ -94,11 +94,11 @@ func (adapter *NetworkAdapter) GetSession(address string, port uint16) *server2.
 	return session
 }
 
-func (adapter *NetworkAdapter) SendPacket(pk interfaces.IPacket, player interfaces.IPlayer, priority byte) {
-	var b = NewMinecraftPacketBatch(player, adapter.server.GetLogger())
+func (adapter *NetworkAdapter) SendPacket(pk interfaces.IPacket, session interfaces.IMinecraftSession, priority byte) {
+	var b = NewMinecraftPacketBatch(session, adapter.server.GetLogger())
 	b.AddPacket(pk)
 
-	adapter.SendBatch(b, player.GetSession(), priority)
+	adapter.SendBatch(b, session.GetSession(), priority)
 }
 
 func (adapter *NetworkAdapter) SendBatch(batch interfaces.IMinecraftPacketBatch, session *server2.Session, priority byte) {

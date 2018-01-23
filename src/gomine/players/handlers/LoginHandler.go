@@ -49,7 +49,9 @@ func (handler LoginHandler) Handle(packet interfaces.IPacket, player interfaces.
 			server.GetLogger().Debug(loginPacket.Username, "has joined while not being logged into XBOX Live.")
 		}
 
-		var player = player.New(server, session, loginPacket.Username, loginPacket.ClientUUID, loginPacket.ClientXUID, loginPacket.ClientId)
+		var s = player.NewMinecraftSession(server, session, loginPacket)
+
+		var player = player.New(server, s, loginPacket.Username)
 		player.GetEncryptionHandler().Data = &utils.EncryptionData{
 			ClientPublicKey: pubKey,
 			ServerPrivateKey: server.GetPrivateKey(),

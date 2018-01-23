@@ -4,11 +4,11 @@ import (
 	"goraklib/server"
 	"gomine/vectors"
 	"gomine/entities/math"
-	"gomine/utils"
 )
 
 type IPlayer interface {
-	GetSession() *server.Session
+	IEntity
+	IMinecraftSession
 	GetName() string
 	GetDisplayName() string
 	SetDisplayName(string)
@@ -17,14 +17,8 @@ type IPlayer interface {
 	HasPermission(string) bool
 	AddPermission(IPermission) bool
 	RemovePermission(string) bool
-	GetServer() IServer
 	SetViewDistance(int32)
 	GetViewDistance() int32
-	GetUUID() utils.UUID
-	GetXUID() string
-	SetLanguage(string)
-	GetLanguage() string
-	GetClientId() int
 	SetSkinId(string)
 	GetSkinId() string
 	GetSkinData() []byte
@@ -36,47 +30,19 @@ type IPlayer interface {
 	GetGeometryData() string
 	SetGeometryData(string)
 	SendChunk(IChunk, int)
-	New(IServer, *server.Session, string, utils.UUID, string, int) IPlayer
-	GetPing() uint64
+	NewMinecraftSession(server IServer, session *server.Session, loginPacket IPacket) IMinecraftSession
+	New(IServer, IMinecraftSession, string) IPlayer
 	SyncMove(x, y, z, pitch, yaw, headYaw float32, onGround bool)
-	Tick()
 	SendMessage(string)
-	SendPacket(IPacket)
 	PlaceInWorld(*vectors.TripleVector, *math.Rotation, ILevel, IDimension)
-	GetPosition() *vectors.TripleVector
-	SetPosition(*vectors.TripleVector)
-	GetDimension() IDimension
-	SetDimension(IDimension)
-	GetLevel() ILevel
-	SetLevel(ILevel)
-	GetRotation() *math.Rotation
-	SetRotation(*math.Rotation)
-	GetMotion() *vectors.TripleVector
-	SetMotion(*vectors.TripleVector)
 	HasChunkInUse(int) bool
 	HasAnyChunkInUse() bool
-	GetRuntimeId() uint64
 	SpawnPlayerTo(IPlayer)
 	SpawnPlayerToAll()
-	DespawnFrom(IPlayer)
-	DespawnFromAll()
-	SpawnTo(IPlayer)
-	SpawnToAll()
-	GetViewers() map[uint64]IPlayer
-	AddViewer(IPlayer)
-	RemoveViewer(IPlayer)
-	GetUniqueId() int64
 	IsFinalized() bool
 	SetFinalized()
 	UpdateAttributes()
-	GetEncryptionHandler() *utils.EncryptionHandler
-	UsesEncryption() bool
-	EnableEncryption()
-	IsXBOXLiveAuthenticated() bool
-	SetXBOXLiveAuthenticated(bool)
 	HasSpawned() bool
 	SetSpawned(bool)
-	Close()
-	IsClosed() bool
 	Transfer(string, uint16)
 }
