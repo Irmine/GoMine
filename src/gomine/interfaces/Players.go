@@ -1,6 +1,10 @@
 package interfaces
 
-import "goraklib/server"
+import (
+	"goraklib/server"
+	"gomine/entities/math"
+	"gomine/vectors"
+)
 
 type IPlayerFactory interface {
 	AddPlayer(IPlayer, *server.Session)

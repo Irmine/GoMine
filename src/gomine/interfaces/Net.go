@@ -1,6 +1,9 @@
 package interfaces
 
-import "goraklib/server"
+import (
+	"goraklib/server"
+	"gomine/utils"
+)
 
 type IPacketHandler interface {
 	GetId() int

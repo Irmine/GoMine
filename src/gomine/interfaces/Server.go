@@ -1,5 +1,11 @@
 package interfaces
 
+import (
+	"gomine/resources"
+	"crypto/ecdsa"
+	"goraklib/server"
+)
+
 type IServer interface {
 	IsRunning() bool
 	Start()
