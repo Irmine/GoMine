@@ -17,12 +17,10 @@ type Player struct {
 	session *server.Session
 
 	attributeMap *entities.AttributeMap
-	runtimeId uint64
 	playerName  string
 	displayName string
 
 	spawned bool
-	closed bool
 
 	permissions map[string]interfaces.IPermission
 	permissionGroup interfaces.IPermissionGroup
@@ -60,7 +58,6 @@ type Player struct {
 func NewPlayer(server interfaces.IServer, session *server.Session, name string, uuid utils.UUID, xuid string, clientId int) *Player {
 	var player = &Player{}
 
-	player.runtimeId = entities.RuntimeId
 	player.playerName = name
 	player.displayName = name
 
@@ -441,7 +438,7 @@ func (player *Player) Tick() {
  */
 func (player *Player) UpdateAttributes() {
 	pk := packets.NewUpdateAttributesPacket()
-	pk.EntityId = player.runtimeId
+	pk.EntityId = player.GetRuntimeId()
 	pk.Attributes = player.attributeMap
 	player.SendPacket(pk)
 }
