@@ -10,22 +10,12 @@ var registeredPackets = map[int]func() interfaces.IPacket{}
 
 func init() {
 	RegisterPacket(info.LoginPacket, func() interfaces.IPacket { return packets.NewLoginPacket() })
-	RegisterPacket(info.PlayStatusPacket, func() interfaces.IPacket { return packets.NewPlayStatusPacket() })
 	RegisterPacket(info.ClientHandshakePacket, func() interfaces.IPacket { return packets.NewClientHandshakePacket() })
-	RegisterPacket(info.ServerHandshakePacket, func() interfaces.IPacket { return packets.NewServerHandshakePacket() })
-	RegisterPacket(info.ResourcePackInfoPacket, func() interfaces.IPacket { return packets.NewResourcePackInfoPacket() })
 	RegisterPacket(info.ResourcePackClientResponsePacket, func() interfaces.IPacket { return packets.NewResourcePackClientResponsePacket() })
-	RegisterPacket(info.StartGamePacket, func() interfaces.IPacket { return packets.NewStartGamePacket() })
 	RegisterPacket(info.RequestChunkRadiusPacket, func() interfaces.IPacket { return packets.NewChunkRadiusRequestPacket() })
-	RegisterPacket(info.ChunkRadiusUpdatedPacket, func() interfaces.IPacket { return packets.NewChunkRadiusUpdatedPacket() })
-	RegisterPacket(info.FullChunkDataPacket, func() interfaces.IPacket { return packets.NewFullChunkPacket() })
-	RegisterPacket(info.CraftingDataPacket, func() interfaces.IPacket { return packets.NewCraftingDataPacket() })
-	RegisterPacket(info.ResourcePackStackPacket, func() interfaces.IPacket { return packets.NewResourcePackStackPacket() })
 	RegisterPacket(info.MovePlayerPacket, func() interfaces.IPacket { return packets.NewMovePlayerPacket() })
 	RegisterPacket(info.CommandRequestPacket, func() interfaces.IPacket { return packets.NewCommandRequestPacket() })
-	RegisterPacket(info.ResourcePackDataInfoPacket, func() interfaces.IPacket { return packets.NewResourcePackDataInfoPacket() })
 	RegisterPacket(info.ResourcePackChunkRequestPacket, func() interfaces.IPacket { return packets.NewResourcePackChunkRequestPacket() })
-	RegisterPacket(info.ResourcePackChunkDataPacket, func() interfaces.IPacket { return packets.NewResourcePackChunkDataPacket() })
 	RegisterPacket(info.TextPacket, func() interfaces.IPacket { return packets.NewTextPacket() })
 	RegisterPacket(info.PlayerSkinPacket, func() interfaces.IPacket { return packets.NewPlayerListPacket() })
 }
