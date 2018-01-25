@@ -65,6 +65,9 @@ type IChunk interface {
 	ToBinary() []byte
 	RecalculateHeightMap()
 	GetEntities() map[uint64]IEntity
+	GetViewers() map[uint64]IPlayer
+	AddViewer(IPlayer)
+	RemoveViewer(IPlayer)
 }
 
 type ISubChunk interface{

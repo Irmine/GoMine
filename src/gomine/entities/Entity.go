@@ -132,22 +132,29 @@ func (entity *Entity) GetPosition() *vectors.TripleVector {
 /**
  * Sets the position of this entity
  */
-func (entity *Entity) SetPosition(v *vectors.TripleVector)  {
-	entity.Position = v
-
+func (entity *Entity) SetPosition(v *vectors.TripleVector) {
 	var newChunkX = int32(math2.Floor(float64(v.X))) >> 4
 	var newChunkZ = int32(math2.Floor(float64(v.Z))) >> 4
 
-	var oldChunkX = int32(math2.Floor(float64(entity.Position.X))) >> 4
-	var oldChunkZ = int32(math2.Floor(float64(v.Z))) >> 4
-
-	var oldChunk = entity.GetDimension().GetChunk(oldChunkX, oldChunkZ)
+	var oldChunk = entity.GetChunk()
 	var newChunk = entity.GetDimension().GetChunk(newChunkX, newChunkZ)
+
+	entity.Position = v
 
 	if oldChunk != newChunk {
 		newChunk.AddEntity(entity)
+		entity.SpawnToAll()
 		oldChunk.RemoveEntity(entity)
 	}
+}
+
+/**
+ * Returns the chunk this entity is currently in.
+ */
+func (entity *Entity) GetChunk() interfaces.IChunk {
+	var x = int32(math2.Floor(float64(entity.Position.X))) >> 4
+	var z = int32(math2.Floor(float64(entity.Position.Z))) >> 4
+	return entity.GetDimension().GetChunk(x, z)
 }
 
 /**
@@ -325,9 +332,11 @@ func (entity *Entity) DespawnFromAll() {
  * Spawns this entity to all players.
  */
 func (entity *Entity) SpawnToAll()  {
-	for _, p := range entity.GetLevel().GetServer().GetPlayerFactory().GetPlayers() {
+	for _, p := range entity.GetChunk().GetViewers() {
 		if p.GetRuntimeId() != entity.GetRuntimeId() {
-			entity.SpawnTo(p)
+			if _, ok := entity.SpawnedTo[p.GetRuntimeId()]; !ok {
+				entity.SpawnTo(p)
+			}
 		}
 	}
 }

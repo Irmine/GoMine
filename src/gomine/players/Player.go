@@ -335,8 +335,11 @@ func (player *Player) SyncMove(x, y, z, pitch, yaw, headYaw float32, onGround bo
 	for index, chunk := range player.usedChunks {
 		xDist := chunkX - chunk.GetX()
 		zDist := chunkZ - chunk.GetZ()
+
 		if xDist * xDist + zDist * zDist > rs {
+			chunk.RemoveViewer(player)
 			delete(player.usedChunks, index)
+
 			for _, entity := range chunk.GetEntities() {
 				entity.DespawnFrom(player)
 			}

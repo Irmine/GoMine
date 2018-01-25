@@ -59,7 +59,7 @@ func (manager *EntityHelper) DespawnEntityFrom(entity interfaces.IEntity, player
  */
 func (manager *EntityHelper) SendEntityData(entity interfaces.IEntity, player interfaces.IPlayer) {
 	pk := packets.NewSetEntityDataPacket()
-	pk.EntityId = entity.GetRuntimeId()
+	pk.RuntimeId = entity.GetRuntimeId()
 	pk.EntityData = entity.GetEntityData()
 	player.SendPacket(pk)
 }

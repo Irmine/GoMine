@@ -154,6 +154,7 @@ func (dimension *Dimension) RequestChunks(player interfaces.IPlayer, distance in
 				}
 
 				chunk := dimension.GetChunk(x, z)
+				chunk.AddViewer(player)
 				player.SendChunk(chunk, index)
 
 				for _, entity := range chunk.GetEntities() {

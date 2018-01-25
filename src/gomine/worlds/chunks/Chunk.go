@@ -5,6 +5,7 @@ import (
 	"gomine/interfaces"
 	"gomine/tiles"
 	"gomine/utils"
+	"sync"
 )
 
 type Chunk struct {
@@ -17,6 +18,7 @@ type Chunk struct {
 	entities map[uint64]interfaces.IEntity
 	biomes map[int]int
 	heightMap [257]int16
+	viewers sync.Map
 }
 
 func NewChunk(x, z int32) *Chunk {
@@ -31,7 +33,36 @@ func NewChunk(x, z int32) *Chunk {
 		make(map[uint64]interfaces.IEntity),
 		make(map[int]int),
 		[257]int16{},
+		sync.Map{},
 	}
+}
+
+/**
+ * Returns all viewers of the chunk.
+ * Viewers are all players that have the chunk within their view distance.
+ */
+func (chunk *Chunk) GetViewers() map[uint64]interfaces.IPlayer {
+	var players = map[uint64]interfaces.IPlayer{}
+
+	chunk.viewers.Range(func(runtimeId, player interface{}) bool {
+		players[runtimeId.(uint64)] = player.(interfaces.IPlayer)
+		return true
+	})
+	return players
+}
+
+/**
+ * Adds a viewer to the chunk.
+ */
+func (chunk *Chunk) AddViewer(player interfaces.IPlayer) {
+	chunk.viewers.Store(player.GetRuntimeId(), player)
+}
+
+/**
+ * Removes a viewer from the chunk.
+ */
+func (chunk *Chunk) RemoveViewer(player interfaces.IPlayer) {
+	chunk.viewers.Delete(player.GetRuntimeId())
 }
 
 /**
