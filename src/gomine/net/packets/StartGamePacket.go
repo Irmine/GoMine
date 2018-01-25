@@ -46,11 +46,17 @@ type StartGamePacket struct {
 
 	TrustPlayers bool
 	DefaultPermissionLevel int32
-	XboxBroadcastMode int32
+	XBOXBroadcastMode int32
+	XBOXBroadcastIntent bool
 
 	LevelName string
+	IsTrial bool
 	CurrentTick int64
 	EnchantmentSeed int32
+
+	ServerChunkTickRange int32
+	HasPlatformBroadcast bool
+	PlatformBroadcastMode uint32
 }
 
 func NewStartGamePacket() *StartGamePacket {
@@ -94,12 +100,16 @@ func (pk *StartGamePacket) Encode()  {
 	pk.PutBool(pk.StartMap) // Start map
 	pk.PutBool(pk.TrustPlayers) // Trust players
 	pk.PutVarInt(pk.DefaultPermissionLevel) // Default permission level
-	pk.PutVarInt(pk.XboxBroadcastMode) // XBOX Broadcast mode
+	pk.PutVarInt(pk.XBOXBroadcastMode) // XBOX Broadcast mode
+	pk.PutLittleInt(pk.ServerChunkTickRange)
+	pk.PutBool(pk.HasPlatformBroadcast)
+	pk.PutUnsignedVarInt(pk.PlatformBroadcastMode)
+	pk.PutBool(pk.XBOXBroadcastIntent)
 
 	pk.PutString(base64.RawStdEncoding.EncodeToString([]byte(pk.LevelName))) // Level name base64 encoded
 	pk.PutString(pk.LevelName) // Level name
 	pk.PutString("") // Premium world template ID
-	pk.PutBool(false) // Unknown
+	pk.PutBool(pk.IsTrial) // Is Trial
 	pk.PutLittleLong(pk.CurrentTick) // Tick
 	pk.PutVarInt(pk.EnchantmentSeed) // Enchantment seed
 }

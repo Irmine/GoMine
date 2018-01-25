@@ -86,6 +86,7 @@ type ClientDataKeys struct {
 	GameVersion string `json:"GameVersion"`
 	GuiScale int `json:"GuiScale"`
 	UIProfile int `json:"UIProfile"`
+	ThirdPartyName string `json:"ThirdPartyName"`
 }
 
 func NewLoginPacket() *LoginPacket {

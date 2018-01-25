@@ -73,8 +73,7 @@ func (player *Player) New(server interfaces.IServer, session interfaces.IMinecra
  * Returns a new minecraft session with the given server, session and login packet.
  */
 func (player *Player) NewMinecraftSession(server interfaces.IServer, session *server.Session, packet interfaces.IPacket) interfaces.IMinecraftSession {
-	var loginPacket = packet.(*packets.LoginPacket)
-	return net.NewMinecraftSession(server, session, loginPacket.Protocol, loginPacket.ClientData.GameVersion, loginPacket.ClientUUID, loginPacket.ClientXUID, loginPacket.ClientId)
+	return net.NewMinecraftSession(server, session, packet.(*packets.LoginPacket))
 }
 
 /**

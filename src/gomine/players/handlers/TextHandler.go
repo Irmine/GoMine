@@ -28,7 +28,10 @@ func (handler TextHandler) Handle(packet interfaces.IPacket, player interfaces.I
 			pk := packets.NewTextPacket()
 			pk.Message = textPacket.Message
 			pk.TextType = textPacket.TextType
-			pk.TextSource = player.GetDisplayName()
+			pk.SourceName = textPacket.SourceName
+			pk.SourceDisplayName = player.GetDisplayName()
+			pk.SourcePlatform = textPacket.SourcePlatform
+			pk.UnknownString = ""
 			pk.XUID = player.GetXUID()
 
 			receiver.SendPacket(pk)

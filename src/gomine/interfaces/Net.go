@@ -67,4 +67,7 @@ type IMinecraftSession interface {
 	SendPacket(IPacket)
 	SendBatch(IMinecraftPacketBatch)
 	IsInitialized() bool
+	GetPlatform() int32
+	GetProtocol() int32
+	GetGameVersion() string
 }

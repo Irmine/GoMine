@@ -81,7 +81,7 @@ func (handler ResourcePackClientResponseHandler) Handle(packet interfaces.IPacke
 			startGame.Time = 0
 			startGame.AchievementsDisabled = true
 			startGame.BroadcastToXbox = true
-			startGame.XboxBroadcastMode = 0
+			startGame.XBOXBroadcastMode = 0
 
 			player.SendPacket(startGame)
 

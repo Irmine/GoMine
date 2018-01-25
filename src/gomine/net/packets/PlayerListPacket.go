@@ -28,15 +28,25 @@ func (pk *PlayerListPacket) Encode() {
 			pk.PutUUID(entry.GetUUID())
 			pk.PutUniqueId(entry.GetUniqueId())
 
+			pk.PutString(entry.GetName())
 			pk.PutString(entry.GetDisplayName())
+			pk.PutVarInt(entry.GetPlatform())
 			pk.PutString(entry.GetSkinId())
+
+			pk.PutLittleInt(1)
 			pk.PutLengthPrefixedBytes(entry.GetSkinData())
-			pk.PutLengthPrefixedBytes(entry.GetCapeData())
+			if len(entry.GetCapeData()) > 0{
+				pk.PutLittleInt(1)
+				pk.PutLengthPrefixedBytes(entry.GetCapeData())
+			} else {
+				pk.PutLittleInt(0)
+			}
 
 			pk.PutString(entry.GetGeometryName())
 			pk.PutString(entry.GetGeometryData())
 
 			pk.PutString(entry.GetXUID())
+			pk.PutString("")
 		} else {
 			pk.PutUUID(entry.GetUUID())
 		}

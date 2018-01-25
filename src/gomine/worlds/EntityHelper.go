@@ -34,11 +34,13 @@ func (manager *EntityHelper) SpawnEntityTo(entity interfaces.IEntity, player int
 func (manager *EntityHelper) SpawnPlayerTo(player interfaces.IPlayer, receiver interfaces.IPlayer) {
 	var pk = packets.NewAddPlayerPacket()
 	pk.UUID = player.GetUUID()
-	pk.Username = player.GetDisplayName()
+	pk.Username = player.GetName()
 	pk.EntityUniqueId = player.GetUniqueId()
 	pk.EntityRuntimeId = player.GetRuntimeId()
 	pk.Position = *player.GetPosition()
 	pk.Rotation = *player.GetRotation()
+	pk.DisplayName = player.GetDisplayName()
+	pk.Platform = player.GetPlatform()
 
 	receiver.SendPacket(pk)
 }

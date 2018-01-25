@@ -5,6 +5,7 @@ import (
 	"gomine/utils"
 	"gomine/interfaces"
 	"goraklib/protocol"
+	"gomine/net/packets"
 )
 
 type MinecraftSession struct {
@@ -16,6 +17,8 @@ type MinecraftSession struct {
 	minecraftProtocol int32
 	minecraftVersion string
 	language string
+
+	clientPlatform int32
 	
 	encryptionHandler *utils.EncryptionHandler
 	usesEncryption bool
@@ -24,21 +27,43 @@ type MinecraftSession struct {
 	initialized bool
 }
 
-func NewMinecraftSession(server interfaces.IServer, session *server.Session, protocol int32, version string, uuid utils.UUID, xuid string, clientId int) *MinecraftSession {
+func NewMinecraftSession(server interfaces.IServer, session *server.Session, pk *packets.LoginPacket) *MinecraftSession {
 	return &MinecraftSession{
 		server,
 		session,
-		uuid,
-		xuid,
-		clientId,
-		protocol,
-		version,
-		"en_US",
+		pk.ClientUUID,
+		pk.ClientXUID,
+		pk.ClientId,
+		pk.Protocol,
+		pk.ClientData.GameVersion,
+		pk.Language,
+		int32(pk.ClientData.DeviceOS),
 		utils.NewEncryptionHandler(),
 		false,
 		false,
 		true,
 	}
+}
+
+/**
+ * Returns the platform the client uses to player the game.
+ */
+func (session *MinecraftSession) GetPlatform() int32 {
+	return session.clientPlatform
+}
+
+/**
+ * Returns the protocol the client used to join the server.
+ */
+func (session *MinecraftSession) GetProtocol() int32 {
+	return session.minecraftProtocol
+}
+
+/**
+ * Returns the Minecraft version the player used to join the server.
+ */
+func (session *MinecraftSession) GetGameVersion() string {
+	return session.minecraftVersion
 }
 
 /**

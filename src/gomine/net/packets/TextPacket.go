@@ -19,13 +19,16 @@ type TextPacket struct {
 	TextType byte
 	IsTranslation bool
 	TranslationParameters []string
-	TextSource string
+	SourceName string
+	SourceDisplayName string
+	SourcePlatform int32
 	Message string
 	XUID string
+	UnknownString string
 }
 
 func NewTextPacket() *TextPacket {
-	return &TextPacket{NewPacket(info.TextPacket), 0, false, []string{}, "", "", ""}
+	return &TextPacket{NewPacket(info.TextPacket), 0, false, []string{}, "", "", 0, "", "", ""}
 }
 
 func (pk *TextPacket) Decode() {
@@ -38,7 +41,9 @@ func (pk *TextPacket) Decode() {
 	case TextAnnouncement:
 		fallthrough
 	case TextWhisper:
-		pk.TextSource = pk.GetString()
+		pk.SourceName = pk.GetString()
+		pk.SourceDisplayName = pk.GetString()
+		pk.SourcePlatform = pk.GetVarInt()
 		fallthrough
 	case TextRaw:
 		fallthrough
@@ -58,6 +63,7 @@ func (pk *TextPacket) Decode() {
 		}
 	}
 	pk.XUID = pk.GetString()
+	pk.UnknownString = pk.GetString()
 }
 
 func (pk *TextPacket) Encode() {
@@ -70,7 +76,9 @@ func (pk *TextPacket) Encode() {
 	case TextWhisper:
 		fallthrough
 	case TextAnnouncement:
-		pk.PutString(pk.TextSource)
+		pk.PutString(pk.SourceName)
+		pk.PutString(pk.SourceDisplayName)
+		pk.PutVarInt(pk.SourcePlatform)
 		fallthrough
 	case TextRaw:
 		fallthrough
@@ -91,4 +99,5 @@ func (pk *TextPacket) Encode() {
 		}
 	}
 	pk.PutString(pk.XUID)
+	pk.PutString(pk.UnknownString)
 }

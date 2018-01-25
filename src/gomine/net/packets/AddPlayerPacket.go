@@ -11,6 +11,10 @@ type AddPlayerPacket struct {
 	*Packet
 	UUID utils.UUID
 	Username string
+	DisplayName string
+	Platform int32
+	UnknownString string
+
 	EntityUniqueId int64
 	EntityRuntimeId uint64
 	Position vectors.TripleVector
@@ -36,9 +40,13 @@ func NewAddPlayerPacket() *AddPlayerPacket {
 func (pk *AddPlayerPacket) Encode()  {
 	pk.PutUUID(pk.UUID)
 	pk.PutString(pk.Username)
+	pk.PutString(pk.DisplayName)
+	pk.PutVarInt(pk.Platform)
 
 	pk.PutUniqueId(pk.EntityUniqueId)
 	pk.PutRuntimeId(pk.EntityRuntimeId)
+	pk.PutString(pk.UnknownString)
+
 	pk.PutTripleVectorObject(pk.Position)
 	pk.PutTripleVectorObject(pk.Motion)
 	pk.PutRotationObject(pk.Rotation, true)
