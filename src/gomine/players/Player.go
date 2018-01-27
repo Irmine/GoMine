@@ -1,6 +1,7 @@
 package players
 
 import (
+	"gomine"
 	"gomine/interfaces"
 	"gomine/net/packets"
 	"gomine/entities"
@@ -10,6 +11,9 @@ import (
 	"sync"
 	"gomine/net"
 	"goraklib/server"
+	"gomine/worlds"
+	"gonbt"
+	"expvar"
 )
 
 type Player struct {
@@ -36,6 +40,7 @@ type Player struct {
 	finalized bool
 
 	server interfaces.IServer
+
 
 	mux sync.Mutex
 	usedChunks map[int]interfaces.IChunk
@@ -418,6 +423,13 @@ func (player *Player) Transfer(address string, port uint16) {
 	var packet = packets.NewTransferPacket()
 	packet.Address = address
 	packet.Port = port
+	player.SendPacket(packet)
+}
+
+func (player *Player) SendForm(id int32, form string) {
+	var packet = packets.NewModalFormRequestPacket()
+	packet.FormId = id
+	packet.FormData = form
 	player.SendPacket(packet)
 }
 

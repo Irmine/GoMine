@@ -20,6 +20,7 @@ import (
 	"crypto/rand"
 	"gomine/net/query"
 	"goraklib/server"
+	"gomine/items"
 )
 
 var levelId = 0
@@ -191,6 +192,7 @@ func (server *Server) GetLoadedLevels() map[int]interfaces.ILevel {
 	return server.levels
 }
 
+
 func (server *Server) LoadLevels() {
 	server.LoadLevel(server.config.DefaultLevel)
 }
@@ -247,6 +249,7 @@ func (server *Server) GetDefaultLevel() interfaces.ILevel {
 	var level, _ = server.GetLevelByName(server.config.DefaultLevel)
 	return level
 }
+
 
 /**
  * Returns a level by its ID. Returns an error if a level with the ID is not loaded.
