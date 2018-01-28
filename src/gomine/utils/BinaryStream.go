@@ -148,11 +148,12 @@ func (stream *BinaryStream) GetUnsignedVarLong() uint64 {
 }
 
 func (stream *BinaryStream) PutString(v string) {
-	WriteString(&stream.Buffer, v)
+	WriteUnsignedShort(&stream.Buffer, uint16(len(v)))
+	stream.Buffer = append(stream.Buffer, []byte(v)...)
 }
 
 func (stream *BinaryStream) GetString() string {
-	return ReadString(&stream.Buffer, &stream.Offset)
+	return string(Read(&stream.Buffer, &stream.Offset, int(stream.GetUnsignedShort())))
 }
 
 func (stream *BinaryStream) PutLittleShort(v int16) {
@@ -212,19 +213,19 @@ func (stream *BinaryStream) GetLittleDouble() float64 {
 }
 
 func (stream *BinaryStream) PutTriad(v uint32) {
-	WriteBigEndianTriad(&stream.Buffer, v)
+	WriteBigTriad(&stream.Buffer, v)
 }
 
 func (stream *BinaryStream) GetTriad() uint32 {
-	return ReadBigEndianTriad(&stream.Buffer, &stream.Offset)
+	return ReadBigTriad(&stream.Buffer, &stream.Offset)
 }
 
 func (stream *BinaryStream) PutLittleTriad(v uint32) {
-	WriteLittleEndianTriad(&stream.Buffer, v)
+	WriteLittleTriad(&stream.Buffer, v)
 }
 
 func (stream *BinaryStream) GetLittleTriad() uint32 {
-	return ReadLittleEndianTriad(&stream.Buffer, &stream.Offset)
+	return ReadLittleTriad(&stream.Buffer, &stream.Offset)
 }
 
 func (stream *BinaryStream) PutBytes(bytes []byte) {
