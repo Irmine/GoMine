@@ -42,39 +42,8 @@ func (adapter *NetworkAdapter) Tick() {
 
 	for _, session := range adapter.rakLibServer.GetSessionManager().GetSessions() {
 		go func(session *server2.Session) {
-			for _, encapsulatedPacket := range session.GetReadyEncapsulatedPackets() {
-
-				player, _ := adapter.server.GetPlayerFactory().GetPlayerBySession(session)
-
-				batch := NewMinecraftPacketBatch(player, adapter.server.GetLogger())
-				batch.Buffer = encapsulatedPacket.Buffer
-				batch.Decode()
-
-				for _, packet := range batch.GetPackets() {
-					packet.DecodeHeader()
-					packet.Decode()
-
-					priorityHandlers := GetPacketHandlers(packet.GetId())
-
-					var handled = false
-					for _, h := range priorityHandlers {
-						for _, handler := range h {
-							if packet.IsDiscarded() {
-								return
-							}
-
-							ret := handler.Handle(packet, player, session, adapter.server)
-							if !handled {
-								handled = ret
-							}
-						}
-					}
-
-					if !handled {
-						adapter.server.GetLogger().Debug("Unhandled Minecraft packet with ID:", packet.GetId())
-					}
-				}
-			}
+			player, _ := adapter.server.GetPlayerFactory().GetPlayerBySession(session)
+			adapter.HandlePackets(session, player)
 		}(session)
 	}
 
@@ -86,6 +55,48 @@ func (adapter *NetworkAdapter) Tick() {
 		player, _ := adapter.server.GetPlayerFactory().GetPlayerBySession(session)
 		handler := handlers.NewDisconnectHandler()
 		handler.Handle(player, session, adapter.server)
+	}
+}
+
+/**
+ * Handles all packets of the given session + player.
+ * LoginPackets get processed externally, instead of internally.
+ * The server does not have any information of the client before the LoginPacket,
+ * so therefore we process it in the network adapter, rather than the Minecraft session.
+ */
+func (adapter *NetworkAdapter) HandlePackets(session *server2.Session, player interfaces.IPlayer) {
+	for _, encapsulatedPacket := range session.GetReadyEncapsulatedPackets() {
+		batch := NewMinecraftPacketBatch(player, adapter.server.GetLogger())
+		batch.Buffer = encapsulatedPacket.Buffer
+		batch.Decode()
+
+		for _, packet := range batch.GetPackets() {
+			packet.DecodeHeader()
+			packet.Decode()
+
+			if packet.GetId() == info.LoginPacket {
+				priorityHandlers := GetPacketHandlers(packet.GetId())
+
+				var handled = false
+				for _, h := range priorityHandlers {
+					for _, handler := range h {
+						if packet.IsDiscarded() {
+							return
+						}
+
+						ret := handler.Handle(packet, player, session, adapter.server)
+						if !handled {
+							handled = ret
+						}
+					}
+				}
+				if !handled {
+					adapter.server.GetLogger().Debug("Unhandled Minecraft packet with ID:", packet.GetId())
+				}
+			} else {
+				player.HandlePacket(packet, player)
+			}
+		}
 	}
 }
 

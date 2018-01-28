@@ -33,10 +33,14 @@ func NewMinecraftPacketBatch(session interfaces.IMinecraftSession, logger interf
 	batch.BinaryStream = utils.NewStream()
 	batch.session = session
 
-	if session.IsInitialized() {
-		batch.needsEncryption = session.UsesEncryption()
-	} else {
+	if session == nil {
 		batch.needsEncryption = false
+	} else {
+		if session.IsInitialized() {
+			batch.needsEncryption = session.UsesEncryption()
+		} else {
+			batch.needsEncryption = false
+		}
 	}
 
 	batch.logger = logger

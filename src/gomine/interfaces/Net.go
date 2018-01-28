@@ -70,4 +70,5 @@ type IMinecraftSession interface {
 	GetPlatform() int32
 	GetProtocol() int32
 	GetGameVersion() string
+	HandlePacket(IPacket, IPlayer)
 }

@@ -182,3 +182,28 @@ func (session *MinecraftSession) SendBatch(batch interfaces.IMinecraftPacketBatc
 func (session *MinecraftSession) IsInitialized() bool {
 	return session.initialized
 }
+
+/**
+ * Handles packets after the initial LoginPacket.
+ */
+func (session *MinecraftSession) HandlePacket(packet interfaces.IPacket, player interfaces.IPlayer) {
+	priorityHandlers := GetPacketHandlers(packet.GetId())
+
+	var handled = false
+	handling:
+		for _, h := range priorityHandlers {
+			for _, handler := range h {
+				if packet.IsDiscarded() {
+					break handling
+				}
+
+				ret := handler.Handle(packet, player, session.session, session.server)
+				if !handled {
+					handled = ret
+				}
+			}
+		}
+	if !handled {
+		session.server.GetLogger().Debug("Unhandled Minecraft packet with ID:", packet.GetId())
+	}
+}
