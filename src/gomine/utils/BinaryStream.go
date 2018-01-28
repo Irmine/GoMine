@@ -33,8 +33,6 @@ func (stream *BinaryStream) Get(length int) []byte {
 	return Read(&stream.Buffer, &stream.Offset, length)
 }
 
-//big
-
 func (stream *BinaryStream) PutBool(v bool) {
 	WriteBool(&stream.Buffer, v)
 }
@@ -148,12 +146,12 @@ func (stream *BinaryStream) GetUnsignedVarLong() uint64 {
 }
 
 func (stream *BinaryStream) PutString(v string) {
-	WriteUnsignedShort(&stream.Buffer, uint16(len(v)))
+	WriteUnsignedVarInt(&stream.Buffer, uint32(len(v)))
 	stream.Buffer = append(stream.Buffer, []byte(v)...)
 }
 
 func (stream *BinaryStream) GetString() string {
-	return string(Read(&stream.Buffer, &stream.Offset, int(stream.GetUnsignedShort())))
+	return string(Read(&stream.Buffer, &stream.Offset, int(stream.GetUnsignedVarInt())))
 }
 
 func (stream *BinaryStream) PutLittleShort(v int16) {
