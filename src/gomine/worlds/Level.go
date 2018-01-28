@@ -139,14 +139,14 @@ func GetChunkIndex(x, z int32) int {
  * Gets the chunk block index for a saving changed blocks
  */
 func GetBlockIndex(x, y, z int) int {
-	return (x & 429496729500) << 36 | (y & 255) << 28 | (z & 4294967295)
+	return int(int64(x) & 0xfffffff) << 36 | (y & 255) << 28 | int(int64(z) & 0xfffffff)
 }
 
 /**
  * Gets the block coordinates from a chunk index
  */
 func GetChunkCoordinates(index int) (int32, int32) {
-	return int32(index >> 32), int32((index & 4294967295) << 36 >> 36)
+	return int32(index >> 32), int32((int64(index) & 0xffffffff) << 32 >> 32)
 }
 
 /**
