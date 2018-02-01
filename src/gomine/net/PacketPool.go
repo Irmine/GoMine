@@ -12,7 +12,7 @@ func init() {
 	RegisterPacket(info.LoginPacket, func() interfaces.IPacket { return packets.NewLoginPacket() })
 	RegisterPacket(info.ClientHandshakePacket, func() interfaces.IPacket { return packets.NewClientHandshakePacket() })
 	RegisterPacket(info.ResourcePackClientResponsePacket, func() interfaces.IPacket { return packets.NewResourcePackClientResponsePacket() })
-	RegisterPacket(info.RequestChunkRadiusPacket, func() interfaces.IPacket { return packets.NewChunkRadiusRequestPacket() })
+	RegisterPacket(info.RequestChunkRadiusPacket, func() interfaces.IPacket { return packets.NewRequestChunkRadiusPacket() })
 	RegisterPacket(info.MovePlayerPacket, func() interfaces.IPacket { return packets.NewMovePlayerPacket() })
 	RegisterPacket(info.CommandRequestPacket, func() interfaces.IPacket { return packets.NewCommandRequestPacket() })
 	RegisterPacket(info.ResourcePackChunkRequestPacket, func() interfaces.IPacket { return packets.NewResourcePackChunkRequestPacket() })

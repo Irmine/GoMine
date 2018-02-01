@@ -13,12 +13,15 @@ type IPlayerFactory interface {
 	GetPlayerBySession(*server.Session) (IPlayer, error)
 	GetPlayerCount() uint
 	RemovePlayer(player IPlayer)
+	PlayerExistsBySession(session *server.Session) bool
+	PlayerExists(name string) bool
 }
 
 type IPlayer interface {
 	IEntity
 	IMinecraftSession
 	GetName() string
+	SetName(name string)
 	GetDisplayName() string
 	SetDisplayName(string)
 	GetPermissionGroup() IPermissionGroup
@@ -54,4 +57,5 @@ type IPlayer interface {
 	HasSpawned() bool
 	SetSpawned(bool)
 	Transfer(string, uint16)
+	SetMinecraftSession(IMinecraftSession)
 }

@@ -70,6 +70,13 @@ func (player *Player) New(server interfaces.IServer, session interfaces.IMinecra
 }
 
 /**
+ * Sets the player's minecraft session.
+ */
+func (player *Player) SetMinecraftSession(session interfaces.IMinecraftSession) {
+	player.IMinecraftSession = session
+}
+
+/**
  * Returns a new minecraft session with the given server, session and login packet.
  */
 func (player *Player) NewMinecraftSession(server interfaces.IServer, session *server.Session, packet interfaces.IPacket) interfaces.IMinecraftSession {
@@ -152,6 +159,14 @@ func (player *Player) GetServer() interfaces.IServer {
  */
 func (player *Player) GetName() string {
 	return player.playerName
+}
+
+/**
+ * Sets the player name of this player.
+ * Note: This function is internal, and should never be used by plugins.
+ */
+func (player *Player) SetName(name string) {
+	player.playerName = name
 }
 
 /**
@@ -307,7 +322,7 @@ func (player *Player) SetGeometryData(data string) {
  * Sends a chunk to the player.
  */
 func (player *Player) SendChunk(chunk interfaces.IChunk, index int)  {
-	var pk = packets.NewFullChunkPacket()
+	var pk = packets.NewFullChunkDataPacket()
 	pk.Chunk = chunk
 	player.mux.Lock()
 	player.usedChunks[index] = chunk

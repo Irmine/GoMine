@@ -6,6 +6,7 @@ import (
 	"gomine/entities/math"
 	math2 "math"
 	"sync"
+	"gomine/entities/data"
 )
 
 var RuntimeId uint64 = 0
@@ -19,7 +20,7 @@ const (
 )
 
 type Entity struct {
-	attributeMap *AttributeMap
+	attributeMap *data.AttributeMap
 	Motion *vectors.TripleVector
 	runtimeId uint64
 	closed bool
@@ -42,7 +43,7 @@ type Entity struct {
 func NewEntity(position *vectors.TripleVector, rotation *math.Rotation, motion *vectors.TripleVector, level interfaces.ILevel, dimension interfaces.IDimension) *Entity {
 	RuntimeId++
 	ent := Entity{
-		NewAttributeMap(),
+		data.NewAttributeMap(),
 		motion,
 		RuntimeId,
 		false,
@@ -77,14 +78,14 @@ func (entity *Entity) SetNameTag(nameTag string) {
 /**
  * Returns the attribute map of this entity.
  */
-func (entity *Entity) GetAttributeMap() *AttributeMap {
+func (entity *Entity) GetAttributeMap() *data.AttributeMap {
 	return entity.attributeMap
 }
 
 /**
  * Sets the attribute map of this entity.
  */
-func (entity *Entity) SetAttributeMap(attMap *AttributeMap) {
+func (entity *Entity) SetAttributeMap(attMap *data.AttributeMap) {
 	entity.attributeMap = attMap
 }
 
@@ -281,14 +282,14 @@ func (entity *Entity) Close() {
  * Returns the health points of this entity.
  */
 func (entity *Entity) GetHealth() float32 {
-	return entity.attributeMap.GetAttribute(AttributeHealth).GetValue()
+	return entity.attributeMap.GetAttribute(data.AttributeHealth).GetValue()
 }
 
 /**
  * Sets the health points of this entity.
  */
 func (entity *Entity) SetHealth(health float32) {
-	entity.attributeMap.GetAttribute(AttributeHealth).SetValue(health)
+	entity.attributeMap.GetAttribute(data.AttributeHealth).SetValue(health)
 }
 
 /**

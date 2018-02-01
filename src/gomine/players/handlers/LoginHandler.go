@@ -12,6 +12,8 @@ import (
 	"time"
 	"gomine/utils"
 	"encoding/base64"
+	"gomine/net/packets/types"
+	data2 "gomine/net/packets/data"
 )
 
 type LoginHandler struct {
@@ -50,13 +52,16 @@ func (handler LoginHandler) Handle(packet interfaces.IPacket, player interfaces.
 		}
 
 		var s = player.NewMinecraftSession(server, session, loginPacket)
-
-		var player = player.New(server, s, loginPacket.Username)
-		player.GetEncryptionHandler().Data = &utils.EncryptionData{
+		s.GetEncryptionHandler().Data = &utils.EncryptionData{
 			ClientPublicKey: pubKey,
 			ServerPrivateKey: server.GetPrivateKey(),
 			ServerToken: server.GetServerToken(),
 		}
+
+		player.SetMinecraftSession(s)
+
+		player.SetDisplayName(loginPacket.Username)
+		player.SetDisplayName(loginPacket.ClientData.ThirdPartyName)
 
 		player.SetLanguage(loginPacket.Language)
 		player.SetSkinId(loginPacket.SkinId)
@@ -89,15 +94,13 @@ func (handler LoginHandler) Handle(packet interfaces.IPacket, player interfaces.
 			player.SendPacket(resourceInfo)
 		}
 
-		server.GetPlayerFactory().AddPlayer(player, session)
-
 		return true
 	}
 
 	return false
 }
 
-func (handler LoginHandler) VerifyLoginRequest(chains []packets.Chain, server interfaces.IServer) (successful bool, authenticated bool, clientPublicKey *ecdsa.PublicKey) {
+func (handler LoginHandler) VerifyLoginRequest(chains []types.Chain, server interfaces.IServer) (successful bool, authenticated bool, clientPublicKey *ecdsa.PublicKey) {
 	var publicKey *ecdsa.PublicKey
 	var publicKeyRaw string
 	for _, chain := range chains {
@@ -131,7 +134,7 @@ func (handler LoginHandler) VerifyLoginRequest(chains []packets.Chain, server in
 			return
 		}
 
-		if publicKeyRaw == packets.MojangPublicKey {
+		if publicKeyRaw == data2.MojangPublicKey {
 			authenticated = true
 		}
 

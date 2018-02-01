@@ -54,6 +54,22 @@ func (factory *PlayerFactory) GetPlayerBySession(session *server.Session) (inter
 }
 
 /**
+ * Checks if a player with the given session exists.
+ */
+func (factory *PlayerFactory) PlayerExistsBySession(session *server.Session) bool {
+	var _, ok = factory.playersAddress[server.GetSessionIndex(session)]
+	return ok
+}
+
+/**
+ * Checks if a player with the given name exists.
+ */
+func (factory *PlayerFactory) PlayerExists(name string) bool {
+	var _, ok = factory.players[name]
+	return ok
+}
+
+/**
  * Returns all players online in a name => player map.
  */
 func (factory *PlayerFactory) GetPlayers() map[string]interfaces.IPlayer {

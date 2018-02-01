@@ -1,0 +1,25 @@
+package p200
+
+import (
+	"gomine/net/info"
+	"gomine/net/packets"
+)
+
+type TransferPacket struct {
+	*packets.Packet
+	Address string
+	Port uint16
+}
+
+func NewTransferPacket() *TransferPacket {
+	return &TransferPacket{packets.NewPacket(info.TransferPacket), "", 0}
+}
+
+func (pk *TransferPacket) Encode() {
+	pk.PutString(pk.Address)
+	pk.PutLittleShort(int16(pk.Port))
+}
+
+func (pk *TransferPacket) Decode() {
+
+}

@@ -60,6 +60,13 @@ func (session *MinecraftSession) GetProtocol() int32 {
 }
 
 /**
+ * Sets the protocol of this minecraft session.
+ */
+func (session *MinecraftSession) SetProtocol(protocol int32) {
+	session.minecraftProtocol = protocol
+}
+
+/**
  * Returns the Minecraft version the player used to join the server.
  */
 func (session *MinecraftSession) GetGameVersion() string {

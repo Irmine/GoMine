@@ -6,17 +6,19 @@ import (
 	"gomine/entities"
 	"gomine/interfaces"
 	"gomine/entities/math"
+	"gomine/entities/data"
 )
 
 type Packet struct {
 	*utils.BinaryStream
 	PacketId int
-	ExtraBytes [2]byte
+	SenderIdentifier byte
+	ReceiverIdentifier byte
 	discarded bool
 }
 
 func NewPacket(id int) *Packet {
-	return &Packet{utils.NewStream(), id, [2]byte{}, false}
+	return &Packet{utils.NewStream(), id, 0, 0, false}
 }
 
 func (pk *Packet) GetId() int {
@@ -50,22 +52,18 @@ func (pk *Packet) IsDiscarded() bool {
 func (pk *Packet) EncodeHeader() {
 	pk.ResetStream()
 	pk.PutUnsignedVarInt(uint32(pk.GetId()))
-	pk.PutByte(pk.ExtraBytes[0])
-	pk.PutByte(pk.ExtraBytes[1])
+	pk.PutByte(pk.SenderIdentifier)
+	pk.PutByte(pk.ReceiverIdentifier)
 }
 
 func (pk *Packet) DecodeHeader() {
-	pid := int(pk.GetUnsignedVarInt())
+	var pid = int(pk.GetUnsignedVarInt())
 	if pid != pk.PacketId {
 		panic("Packet IDs do not match")
 	}
 
-	pk.ExtraBytes[0] = pk.GetByte()
-	pk.ExtraBytes[1] = pk.GetByte()
-
-	if pk.ExtraBytes[0] != 0 && pk.ExtraBytes[1] != 0 {
-		panic("extra bytes are not zero")
-	}
+	pk.SenderIdentifier = pk.GetByte()
+	pk.ReceiverIdentifier = pk.GetByte()
 }
 
 func (pk *Packet) PutRuntimeId(id uint64) {
@@ -112,7 +110,7 @@ func (pk *Packet) GetRotationObject(isPlayer bool) math.Rotation {
 	return *math.NewRotation(yaw, pitch, headYaw)
 }
 
-func (pk *Packet) PutEntityAttributeMap(attr *entities.AttributeMap) {
+func (pk *Packet) PutEntityAttributeMap(attr *data.AttributeMap) {
 	attrList := attr.GetAttributes()
 	pk.PutUnsignedVarInt(uint32(len(attrList)))
 	for _, v := range attrList {
@@ -124,8 +122,8 @@ func (pk *Packet) PutEntityAttributeMap(attr *entities.AttributeMap) {
 	}
 }
 
-func (pk *Packet) GetEntityAttributeMap() *entities.AttributeMap {
-	attributes := entities.NewAttributeMap()
+func (pk *Packet) GetEntityAttributeMap() *data.AttributeMap {
+	attributes := data.NewAttributeMap()
 	c := pk.GetUnsignedVarInt()
 
 	for i := uint32(0); i < c; i++ {
@@ -135,8 +133,8 @@ func (pk *Packet) GetEntityAttributeMap() *entities.AttributeMap {
 		pk.GetLittleFloat()
 		name := pk.GetString()
 
-		if entities.AttributeExists(name) {
-			attributes.SetAttribute(entities.NewAttribute(name, value, max))
+		if data.AttributeExists(name) {
+			attributes.SetAttribute(data.NewAttribute(name, value, max))
 		}
 	}
 

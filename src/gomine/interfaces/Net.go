@@ -72,3 +72,11 @@ type IMinecraftSession interface {
 	GetGameVersion() string
 	HandlePacket(IPacket, IPlayer)
 }
+
+type IProtocol interface {
+	GetProtocolNumber() int32
+	GetPackets() map[int]func() IPacket
+	RegisterPacket(int, func() IPacket)
+	GetPacket(int) IPacket
+	IsPacketRegistered(int) bool
+}
