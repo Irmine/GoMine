@@ -35,7 +35,7 @@ type AddPlayerPacket struct {
 }
 
 func NewAddPlayerPacket() *AddPlayerPacket {
-	return &AddPlayerPacket{Packet: packets.NewPacket(info.AddPlayerPacket), Metadata: make(map[uint32][]interface{}), Motion: vectors.TripleVector{}}
+	return &AddPlayerPacket{Packet: packets.NewPacket(info.PacketIds200[info.AddPlayerPacket]), Metadata: make(map[uint32][]interface{}), Motion: vectors.TripleVector{}}
 }
 
 func (pk *AddPlayerPacket) Encode()  {

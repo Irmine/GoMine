@@ -11,7 +11,7 @@ type ServerHandshakePacket struct {
 }
 
 func NewServerHandshakePacket() *ServerHandshakePacket {
-	return &ServerHandshakePacket{packets.NewPacket(info.ServerHandshakePacket), ""}
+	return &ServerHandshakePacket{packets.NewPacket(info.PacketIds200[info.ServerHandshakePacket]), ""}
 }
 
 func (pk *ServerHandshakePacket) Encode()  {

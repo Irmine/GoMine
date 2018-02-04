@@ -22,7 +22,7 @@ type AddEntityPacket struct {
 }
 
 func NewAddEntityPacket() *AddEntityPacket {
-	return &AddEntityPacket{packets.NewPacket(info.AddEntityPacket), 0, 0, 0, vectors.TripleVector{}, vectors.TripleVector{}, math.Rotation{}, data.NewAttributeMap(), nil}
+	return &AddEntityPacket{packets.NewPacket(info.PacketIds200[info.AddEntityPacket]), 0, 0, 0, vectors.TripleVector{}, vectors.TripleVector{}, math.Rotation{}, data.NewAttributeMap(), nil}
 }
 
 func (pk *AddEntityPacket) Encode() {

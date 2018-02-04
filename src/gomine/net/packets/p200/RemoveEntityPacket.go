@@ -11,7 +11,7 @@ type RemoveEntityPacket struct {
 }
 
 func NewRemoveEntityPacket() *RemoveEntityPacket {
-	return &RemoveEntityPacket{packets.NewPacket(info.RemoveEntityPacket), 0}
+	return &RemoveEntityPacket{packets.NewPacket(info.PacketIds200[info.RemoveEntityPacket]), 0}
 }
 
 func (pk *RemoveEntityPacket) Encode() {

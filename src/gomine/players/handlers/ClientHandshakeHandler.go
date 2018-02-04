@@ -1,10 +1,10 @@
 package handlers
 
 import (
-	"gomine/net/info"
 	"gomine/interfaces"
 	"goraklib/server"
-	"gomine/net/packets"
+	"gomine/net/packets/p200"
+	"gomine/net/packets/data"
 )
 
 type ClientHandshakeHandler struct {
@@ -12,25 +12,17 @@ type ClientHandshakeHandler struct {
 }
 
 func NewClientHandshakeHandler() ClientHandshakeHandler {
-	return ClientHandshakeHandler{NewPacketHandler(info.ClientHandshakePacket)}
+	return ClientHandshakeHandler{NewPacketHandler()}
 }
 
 /**
  * Handles the client handshake, given to indicate that the client has enabled encryption.
  */
 func (handler ClientHandshakeHandler) Handle(packet interfaces.IPacket, player interfaces.IPlayer, session *server.Session, server interfaces.IServer) bool {
-	if _, ok := packet.(*packets.ClientHandshakePacket); ok {
-		playStatus := packets.NewPlayStatusPacket()
-		playStatus.Status = 0
-		player.SendPacket(playStatus)
+	if _, ok := packet.(*p200.ClientHandshakePacket); ok {
+		player.SendPlayStatus(data.StatusLoginSuccess)
 
-		resourceInfo := packets.NewResourcePackInfoPacket()
-		resourceInfo.MustAccept = server.GetConfiguration().ForceResourcePacks
-
-		resourceInfo.ResourcePacks = server.GetPackHandler().GetResourceStack().GetPacks()
-		resourceInfo.BehaviorPacks = server.GetPackHandler().GetBehaviorStack().GetPacks()
-
-		player.SendPacket(resourceInfo)
+		player.SendResourcePackInfo(server.GetConfiguration().ForceResourcePacks, server.GetPackHandler().GetResourceStack().GetPacks(), server.GetPackHandler().GetBehaviorStack().GetPacks())
 
 		return true
 	}

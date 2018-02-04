@@ -12,7 +12,7 @@ type DisconnectPacket struct {
 }
 
 func NewDisconnectPacket() *DisconnectPacket {
-	return &DisconnectPacket{packets.NewPacket(info.DisconnectPacket), true, ""}
+	return &DisconnectPacket{packets.NewPacket(info.PacketIds200[info.DisconnectPacket]), true, ""}
 }
 
 func (pk *DisconnectPacket) Encode() {

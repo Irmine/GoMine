@@ -100,7 +100,7 @@ func (entity *Entity) GetEntityData() map[uint32][]interface{} {
  * Initiates all entity data flags
  */
 func (entity *Entity) InitDataFlags() {
-	entity.EntityData[DataFlags] = append(entity.EntityData[DataFlags], uint32(Long))
+	entity.EntityData[DataFlags] = append(entity.EntityData[DataFlags], uint32(data.Long))
 	entity.EntityData[DataFlags] = append(entity.EntityData[DataFlags], int64(0))
 	entity.SetDataFlag(AffectedByGravity, true)
 }
@@ -307,7 +307,8 @@ func (entity *Entity) SpawnTo(player interfaces.IPlayer)  {
 	if !player.HasSpawned() {
 		return
 	}
-	entity.GetLevel().GetEntityHelper().SpawnEntityTo(entity, player)
+	entity.AddViewer(player)
+	player.SendAddEntity(entity)
 }
 
 /**
@@ -317,7 +318,8 @@ func (entity *Entity) DespawnFrom(player interfaces.IPlayer) {
 	if !player.HasSpawned() {
 		return
 	}
-	entity.GetLevel().GetEntityHelper().DespawnEntityFrom(entity, player)
+	entity.RemoveViewer(player)
+	player.SendRemoveEntity(entity)
 }
 
 /**

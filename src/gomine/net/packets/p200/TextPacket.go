@@ -3,18 +3,7 @@ package p200
 import (
 	"gomine/net/info"
 	"gomine/net/packets"
-)
-
-const (
-	TextRaw = iota
-	TextChat
-	TextTranslation
-	TextPopup
-	TextJukeboxPopup
-	TextTip
-	TextSystem
-	TextWhisper
-	TextAnnouncement
+	"gomine/net/packets/data"
 )
 
 type TextPacket struct {
@@ -31,7 +20,7 @@ type TextPacket struct {
 }
 
 func NewTextPacket() *TextPacket {
-	return &TextPacket{packets.NewPacket(info.TextPacket), 0, false, []string{}, "", "", 0, "", "", ""}
+	return &TextPacket{packets.NewPacket(info.PacketIds200[info.TextPacket]), 0, false, []string{}, "", "", 0, "", "", ""}
 }
 
 func (pk *TextPacket) Decode() {
@@ -39,26 +28,26 @@ func (pk *TextPacket) Decode() {
 	pk.IsTranslation = pk.GetBool()
 
 	switch pk.TextType {
-	case TextChat:
+	case data.TextChat:
 		fallthrough
-	case TextAnnouncement:
+	case data.TextAnnouncement:
 		fallthrough
-	case TextWhisper:
+	case data.TextWhisper:
 		pk.SourceName = pk.GetString()
 		pk.SourceDisplayName = pk.GetString()
 		pk.SourcePlatform = pk.GetVarInt()
 		fallthrough
-	case TextRaw:
+	case data.TextRaw:
 		fallthrough
-	case TextTip:
+	case data.TextTip:
 		fallthrough
-	case TextSystem:
+	case data.TextSystem:
 		pk.Message = pk.GetString()
-	case TextTranslation:
+	case data.TextTranslation:
 		fallthrough
-	case TextPopup:
+	case data.TextPopup:
 		fallthrough
-	case TextJukeboxPopup:
+	case data.TextJukeboxPopup:
 		pk.Message = pk.GetString()
 		var translationParameterCount = pk.GetUnsignedVarInt()
 		for i := uint32(0); i < translationParameterCount; i++ {
@@ -74,26 +63,26 @@ func (pk *TextPacket) Encode() {
 	pk.PutBool(pk.IsTranslation)
 
 	switch pk.TextType {
-	case TextChat:
+	case data.TextChat:
 		fallthrough
-	case TextWhisper:
+	case data.TextWhisper:
 		fallthrough
-	case TextAnnouncement:
+	case data.TextAnnouncement:
 		pk.PutString(pk.SourceName)
 		pk.PutString(pk.SourceDisplayName)
 		pk.PutVarInt(pk.SourcePlatform)
 		fallthrough
-	case TextRaw:
+	case data.TextRaw:
 		fallthrough
-	case TextTip:
+	case data.TextTip:
 		fallthrough
-	case TextSystem:
+	case data.TextSystem:
 		pk.PutString(pk.Message)
-	case TextTranslation:
+	case data.TextTranslation:
 		fallthrough
-	case TextPopup:
+	case data.TextPopup:
 		fallthrough
-	case TextJukeboxPopup:
+	case data.TextJukeboxPopup:
 		pk.PutString(pk.Message)
 		var count = len(pk.TranslationParameters)
 		pk.PutUnsignedVarInt(uint32(count))

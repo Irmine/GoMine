@@ -2,54 +2,50 @@ package p200
 
 import (
 	"gomine/net/info"
-	"gomine/interfaces"
 	"gomine/net/packets"
-)
-
-const (
-	ListTypeAdd = iota
-	ListTypeRemove
+	"gomine/net/packets/types"
+	"gomine/net/packets/data"
 )
 
 type PlayerListPacket struct {
 	*packets.Packet
 	ListType byte
-	Players map[string]interfaces.IPlayer
+	Entries map[string]types.PlayerListEntry
 }
 
 func NewPlayerListPacket() *PlayerListPacket {
-	return &PlayerListPacket{packets.NewPacket(info.PlayerListPacket), 0, map[string]interfaces.IPlayer{}}
+	return &PlayerListPacket{packets.NewPacket(info.PacketIds200[info.PlayerListPacket]), 0, map[string]types.PlayerListEntry{}}
 }
 
 func (pk *PlayerListPacket) Encode() {
 	pk.PutByte(pk.ListType)
-	pk.PutUnsignedVarInt(uint32(len(pk.Players)))
-	for _, entry := range pk.Players {
-		if pk.ListType == byte(ListTypeAdd) {
-			pk.PutUUID(entry.GetUUID())
-			pk.PutUniqueId(entry.GetUniqueId())
+	pk.PutUnsignedVarInt(uint32(len(pk.Entries)))
+	for _, entry := range pk.Entries {
+		if pk.ListType == byte(data.ListTypeAdd) {
+			pk.PutUUID(entry.UUID)
+			pk.PutUniqueId(entry.EntityUniqueId)
 
-			pk.PutString(entry.GetName())
-			pk.PutString(entry.GetDisplayName())
-			pk.PutVarInt(entry.GetPlatform())
-			pk.PutString(entry.GetSkinId())
+			pk.PutString(entry.Username)
+			pk.PutString(entry.DisplayName)
+			pk.PutVarInt(entry.Platform)
+			pk.PutString(entry.SkinId)
 
 			pk.PutLittleInt(1)
-			pk.PutLengthPrefixedBytes(entry.GetSkinData())
-			if len(entry.GetCapeData()) > 0{
+			pk.PutLengthPrefixedBytes(entry.SkinData)
+			if len(entry.CapeData) > 0{
 				pk.PutLittleInt(1)
-				pk.PutLengthPrefixedBytes(entry.GetCapeData())
+				pk.PutLengthPrefixedBytes(entry.CapeData)
 			} else {
 				pk.PutLittleInt(0)
 			}
 
-			pk.PutString(entry.GetGeometryName())
-			pk.PutString(entry.GetGeometryData())
+			pk.PutString(entry.GeometryName)
+			pk.PutString(entry.GeometryData)
 
-			pk.PutString(entry.GetXUID())
+			pk.PutString(entry.XUID)
 			pk.PutString("")
 		} else {
-			pk.PutUUID(entry.GetUUID())
+			pk.PutUUID(entry.UUID)
 		}
 	}
 }

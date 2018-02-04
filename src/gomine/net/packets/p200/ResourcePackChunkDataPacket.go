@@ -14,7 +14,7 @@ type ResourcePackChunkDataPacket struct {
 }
 
 func NewResourcePackChunkDataPacket() *ResourcePackChunkDataPacket {
-	return &ResourcePackChunkDataPacket{packets.NewPacket(info.ResourcePackChunkDataPacket), "", 0, 0, []byte{}}
+	return &ResourcePackChunkDataPacket{packets.NewPacket(info.PacketIds200[info.ResourcePackChunkDataPacket]), "", 0, 0, []byte{}}
 }
 
 func (pk *ResourcePackChunkDataPacket) Encode() {

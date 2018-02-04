@@ -15,7 +15,7 @@ type ResourcePackDataInfoPacket struct {
 }
 
 func NewResourcePackDataInfoPacket() *ResourcePackDataInfoPacket {
-	return &ResourcePackDataInfoPacket{packets.NewPacket(info.ResourcePackDataInfoPacket), "", 0, 0, 0, ""}
+	return &ResourcePackDataInfoPacket{packets.NewPacket(info.PacketIds200[info.ResourcePackDataInfoPacket]), "", 0, 0, 0, ""}
 }
 
 func (pk *ResourcePackDataInfoPacket) Encode() {

@@ -5,7 +5,7 @@ import (
 	"gomine/utils"
 	"gomine/interfaces"
 	"goraklib/protocol"
-	"gomine/net/packets"
+	"gomine/net/packets/types"
 )
 
 type MinecraftSession struct {
@@ -14,8 +14,11 @@ type MinecraftSession struct {
 	uuid utils.UUID
 	xuid string
 	clientId int
-	minecraftProtocol int32
+
+	protocol interfaces.IProtocol
+	protocolNumber int32
 	minecraftVersion string
+
 	language string
 
 	clientPlatform int32
@@ -27,17 +30,18 @@ type MinecraftSession struct {
 	initialized bool
 }
 
-func NewMinecraftSession(server interfaces.IServer, session *server.Session, pk *packets.LoginPacket) *MinecraftSession {
+func NewMinecraftSession(server interfaces.IServer, session *server.Session, data types.SessionData) *MinecraftSession {
 	return &MinecraftSession{
 		server,
 		session,
-		pk.ClientUUID,
-		pk.ClientXUID,
-		pk.ClientId,
-		pk.Protocol,
-		pk.ClientData.GameVersion,
-		pk.Language,
-		int32(pk.ClientData.DeviceOS),
+		data.ClientUUID,
+		data.ClientXUID,
+		data.ClientId,
+		server.GetNetworkAdapter().GetProtocolPool().GetProtocol(data.ProtocolNumber),
+		data.ProtocolNumber,
+		data.GameVersion,
+		data.Language,
+		int32(data.DeviceOS),
 		utils.NewEncryptionHandler(),
 		false,
 		false,
@@ -53,17 +57,25 @@ func (session *MinecraftSession) GetPlatform() int32 {
 }
 
 /**
- * Returns the protocol the client used to join the server.
+ * Returns the protocol number the client used to join the server.
  */
-func (session *MinecraftSession) GetProtocol() int32 {
-	return session.minecraftProtocol
+func (session *MinecraftSession) GetProtocolNumber() int32 {
+	return session.protocolNumber
+}
+
+/**
+ * Returns the protocol of the client.
+ */
+func (session *MinecraftSession) GetProtocol() interfaces.IProtocol {
+	return session.protocol
 }
 
 /**
  * Sets the protocol of this minecraft session.
  */
-func (session *MinecraftSession) SetProtocol(protocol int32) {
-	session.minecraftProtocol = protocol
+func (session *MinecraftSession) SetProtocol(protocol interfaces.IProtocol) {
+	session.protocolNumber = protocol.GetProtocolNumber()
+	session.protocol = protocol
 }
 
 /**
@@ -194,7 +206,7 @@ func (session *MinecraftSession) IsInitialized() bool {
  * Handles packets after the initial LoginPacket.
  */
 func (session *MinecraftSession) HandlePacket(packet interfaces.IPacket, player interfaces.IPlayer) {
-	priorityHandlers := GetPacketHandlers(packet.GetId())
+	priorityHandlers := session.GetProtocol().GetHandlersById(packet.GetId())
 
 	var handled = false
 	handling:

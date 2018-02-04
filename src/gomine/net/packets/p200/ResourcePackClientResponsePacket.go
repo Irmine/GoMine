@@ -5,13 +5,6 @@ import (
 	"gomine/net/packets"
 )
 
-const (
-	StatusRefused = iota + 1
-	StatusSendPacks
-	StatusHaveAllPacks
-	StatusCompleted
-)
-
 type ResourcePackClientResponsePacket struct {
 	*packets.Packet
 	Status byte
@@ -19,7 +12,7 @@ type ResourcePackClientResponsePacket struct {
 }
 
 func NewResourcePackClientResponsePacket() *ResourcePackClientResponsePacket {
-	return &ResourcePackClientResponsePacket{packets.NewPacket(info.ResourcePackClientResponsePacket), 0, []string{}}
+	return &ResourcePackClientResponsePacket{packets.NewPacket(info.PacketIds200[info.ResourcePackClientResponsePacket]), 0, []string{}}
 }
 
 func (pk *ResourcePackClientResponsePacket) Encode()  {

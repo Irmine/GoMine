@@ -12,7 +12,7 @@ type TransferPacket struct {
 }
 
 func NewTransferPacket() *TransferPacket {
-	return &TransferPacket{packets.NewPacket(info.TransferPacket), "", 0}
+	return &TransferPacket{packets.NewPacket(info.PacketIds200[info.TransferPacket]), "", 0}
 }
 
 func (pk *TransferPacket) Encode() {

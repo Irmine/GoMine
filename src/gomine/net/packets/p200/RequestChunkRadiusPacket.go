@@ -11,7 +11,7 @@ type RequestChunkRadiusPacket struct {
 }
 
 func NewRequestChunkRadiusPacket() *RequestChunkRadiusPacket {
-	return &RequestChunkRadiusPacket{packets.NewPacket(info.RequestChunkRadiusPacket), 0}
+	return &RequestChunkRadiusPacket{packets.NewPacket(info.PacketIds200[info.RequestChunkRadiusPacket]), 0}
 }
 
 func (pk *RequestChunkRadiusPacket) Encode()  {

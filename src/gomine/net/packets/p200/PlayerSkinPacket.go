@@ -21,7 +21,7 @@ type PlayerSkinPacket struct {
 }
 
 func NewPlayerSkinPacket() *PlayerSkinPacket {
-	return &PlayerSkinPacket{packets.NewPacket(info.PlayerSkinPacket), utils.UUID{}, "", "", "", []byte{}, []byte{}, "", ""}
+	return &PlayerSkinPacket{packets.NewPacket(info.PacketIds200[info.PlayerSkinPacket]), utils.UUID{}, "", "", "", []byte{}, []byte{}, "", ""}
 }
 
 func (pk *PlayerSkinPacket) Encode() {

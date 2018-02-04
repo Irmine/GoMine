@@ -102,7 +102,6 @@ type ILevel interface {
 	GetGameRule(string) IGameRule
 	AddGameRule(IGameRule)
 	GetRuntimeId() int
-	GetEntityHelper() IEntityHelper
 }
 
 type IGameRule interface {
@@ -122,11 +121,4 @@ type IDimension interface {
 	IsGenerated() bool
 	SetGenerator(IGenerator)
 	GetGenerator() IGenerator
-}
-
-type IEntityHelper interface {
-	SpawnPlayerTo(IPlayer, IPlayer)
-	SpawnEntityTo(IEntity, IPlayer)
-	DespawnEntityFrom(IEntity, IPlayer)
-	SendEntityData(IEntity, IPlayer)
 }

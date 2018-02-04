@@ -3,10 +3,9 @@ package packets
 import (
 	"gomine/utils"
 	"gomine/vectors"
-	"gomine/entities"
-	"gomine/interfaces"
 	"gomine/entities/math"
 	"gomine/entities/data"
+	"gomine/net/packets/types"
 )
 
 type Packet struct {
@@ -23,6 +22,10 @@ func NewPacket(id int) *Packet {
 
 func (pk *Packet) GetId() int {
 	return pk.PacketId
+}
+
+func (pk *Packet) SetId(id int) {
+	pk.PacketId = id
 }
 
 func (pk *Packet) Encode() {
@@ -51,17 +54,24 @@ func (pk *Packet) IsDiscarded() bool {
 
 func (pk *Packet) EncodeHeader() {
 	pk.ResetStream()
-	pk.PutUnsignedVarInt(uint32(pk.GetId()))
+	pk.EncodeId()
 	pk.PutByte(pk.SenderIdentifier)
 	pk.PutByte(pk.ReceiverIdentifier)
 }
 
-func (pk *Packet) DecodeHeader() {
+func (pk *Packet) EncodeId() {
+	pk.PutUnsignedVarInt(uint32(pk.GetId()))
+}
+
+func (pk *Packet) DecodeId() {
 	var pid = int(pk.GetUnsignedVarInt())
 	if pid != pk.PacketId {
 		panic("Packet IDs do not match")
 	}
+}
 
+func (pk *Packet) DecodeHeader() {
+	pk.DecodeId()
 	pk.SenderIdentifier = pk.GetByte()
 	pk.ReceiverIdentifier = pk.GetByte()
 }
@@ -147,23 +157,23 @@ func (pk *Packet) PutEntityData(dat map[uint32][]interface{}) {
 		pk.PutUnsignedVarInt(k)
 		pk.PutUnsignedVarInt(v[0].(uint32))
 		switch v[0] {
-		case entities.Byte:
+		case data.Byte:
 			pk.PutByte(v[1].(byte))
-		case entities.Short:
+		case data.Short:
 			pk.PutLittleShort(v[1].(int16))
-		case entities.Int:
+		case data.Int:
 			pk.PutVarInt(v[1].(int32))
-		case entities.Float:
+		case data.Float:
 			pk.PutLittleFloat(v[1].(float32))
-		case entities.String:
+		case data.String:
 			pk.PutString(v[1].(string))
-		case entities.Slot:
+		case data.Slot:
 			//todo
-		case entities.Pos:
+		case data.Pos:
 			//todo
-		case entities.Long:
+		case data.Long:
 			pk.PutVarLong(v[1].(int64))
-		case entities.TripleFloat:
+		case data.TripleFloat:
 			//todo
 		}
 	}
@@ -177,23 +187,23 @@ func (pk *Packet) GetEntityData() map[uint32][]interface{} {
 		t := pk.GetUnsignedVarInt()
 		var v interface{}
 		switch t {
-		case entities.Byte:
+		case data.Byte:
 			v = pk.GetByte()
-		case entities.Short:
+		case data.Short:
 			v = pk.GetLittleShort()
-		case entities.Int:
+		case data.Int:
 			v = pk.GetVarInt()
-		case entities.Float:
+		case data.Float:
 			v = pk.GetLittleFloat()
-		case entities.String:
+		case data.String:
 			v = pk.GetString()
-		case entities.Slot:
+		case data.Slot:
 			//todo
-		case entities.Pos:
+		case data.Pos:
 			//todo
-		case entities.Long:
+		case data.Long:
 			v = pk.GetVarLong()
-		case entities.TripleFloat:
+		case data.TripleFloat:
 			//todo
 		}
 		dat[k][0] = t
@@ -202,11 +212,11 @@ func (pk *Packet) GetEntityData() map[uint32][]interface{} {
 	return dat
 }
 
-func (pk *Packet) PutGameRules(gameRules map[string]interfaces.IGameRule) {
+func (pk *Packet) PutGameRules(gameRules map[string]types.GameRuleEntry) {
 	pk.PutUnsignedVarInt(uint32(len(gameRules)))
 	for _, gameRule := range gameRules {
-		pk.PutString(gameRule.GetName())
-		switch value := gameRule.GetValue().(type) {
+		pk.PutString(gameRule.Name)
+		switch value := gameRule.Value.(type) {
 		case bool:
 			pk.PutByte(1)
 			pk.PutBool(value)
@@ -226,24 +236,24 @@ func (pk *Packet) PutBlockPos(vector vectors.TripleVector) {
 	pk.PutVarInt(int32(vector.Z))
 }
 
-func (pk *Packet) PutPacks(packs []interfaces.IPack, info bool) {
-	if info {
-		pk.PutLittleShort(int16(len(packs)))
+func (pk *Packet) PutPackInfo(packs []types.ResourcePackInfoEntry) {
+	pk.PutLittleShort(int16(len(packs)))
 
-		for _, pack := range packs {
-			pk.PutString(pack.GetUUID())
-			pk.PutString(pack.GetVersion())
-			pk.PutLittleLong(pack.GetFileSize())
-			pk.PutString("")
-			pk.PutString("")
-		}
-	} else {
-		pk.PutUnsignedVarInt(uint32(len(packs)))
-		for _, pack := range packs {
-			pk.PutString(pack.GetUUID())
-			pk.PutString(pack.GetVersion())
-			pk.PutString("")
-		}
+	for _, pack := range packs {
+		pk.PutString(pack.UUID)
+		pk.PutString(pack.Version)
+		pk.PutLittleLong(pack.PackSize)
+		pk.PutString("")
+		pk.PutString("")
+	}
+}
+
+func (pk *Packet) PutPackStack(packs []types.ResourcePackStackEntry) {
+	pk.PutUnsignedVarInt(uint32(len(packs)))
+	for _, pack := range packs {
+		pk.PutString(pack.UUID)
+		pk.PutString(pack.Version)
+		pk.PutString("")
 	}
 }
 

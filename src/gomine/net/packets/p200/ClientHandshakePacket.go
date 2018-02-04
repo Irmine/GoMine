@@ -10,7 +10,7 @@ type ClientHandshakePacket struct {
 }
 
 func NewClientHandshakePacket() *ClientHandshakePacket {
-	return &ClientHandshakePacket{packets.NewPacket(info.ClientHandshakePacket)}
+	return &ClientHandshakePacket{packets.NewPacket(info.PacketIds200[info.ClientHandshakePacket])}
 }
 
 func (pk *ClientHandshakePacket) Encode()  {

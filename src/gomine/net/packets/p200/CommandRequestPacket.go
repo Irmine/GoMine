@@ -14,7 +14,7 @@ type CommandRequestPacket struct {
 }
 
 func NewCommandRequestPacket() *CommandRequestPacket {
-	return &CommandRequestPacket{packets.NewPacket(info.CommandRequestPacket), "", 0, "", false}
+	return &CommandRequestPacket{packets.NewPacket(info.PacketIds200[info.CommandRequestPacket]), "", 0, "", false}
 }
 
 func (pk *CommandRequestPacket) Encode() {

@@ -25,7 +25,17 @@ func NewNetworkAdapter(server interfaces.IServer) *NetworkAdapter {
 	rakServer.SetDefaultGameMode("Creative")
 	rakServer.SetMotd(server.GetMotd())
 
-	return &NetworkAdapter{server, rakServer, NewProtocolPool()}
+	var adapter = &NetworkAdapter{server, rakServer, NewProtocolPool()}
+	adapter.protocolPool.RegisterDefaults()
+
+	return adapter
+}
+
+/**
+ * Returns the protocol pool of the network adapter.
+ */
+func (adapter *NetworkAdapter) GetProtocolPool() interfaces.IProtocolPool {
+	return adapter.protocolPool
 }
 
 /**
@@ -45,7 +55,7 @@ func (adapter *NetworkAdapter) Tick() {
 		go func(session *server2.Session) {
 			var player, _ = adapter.server.GetPlayerFactory().GetPlayerBySession(session)
 			if !adapter.server.GetPlayerFactory().PlayerExistsBySession(session) {
-				player = player.New(adapter.server, &MinecraftSession{}, "")
+				player = player.New(adapter.server, &MinecraftSession{server: adapter.server}, "")
 				adapter.server.GetPlayerFactory().AddPlayer(player, session)
 			}
 
@@ -105,54 +115,4 @@ func (adapter *NetworkAdapter) SendPacket(pk interfaces.IPacket, session interfa
  */
 func (adapter *NetworkAdapter) SendBatch(batch interfaces.IMinecraftPacketBatch, session *server2.Session, priority byte) {
 	session.SendConnectedPacket(batch, protocol.ReliabilityReliableOrdered, priority)
-}
-
-/**
- * Returns if a packet with the given ID is registered.
- */
-func (adapter *NetworkAdapter) IsPacketRegistered(id int) bool {
-	return IsPacketRegistered(id)
-}
-
-/**
- * Returns a new packet with the given ID and a function that returns that packet.
- */
-func (adapter *NetworkAdapter) RegisterPacket(id int, function func() interfaces.IPacket) {
-	RegisterPacket(id, function)
-}
-
-/**
- * Returns a new packet with the given ID.
- */
-func (adapter *NetworkAdapter) GetPacket(id int) interfaces.IPacket {
-	return GetPacket(id)
-}
-
-/**
- * Registers a new packet handler to listen for packets with the given ID.
- * Returns a bool indicating success.
- */
-func (adapter *NetworkAdapter) RegisterPacketHandler(id int, handler interfaces.IPacketHandler, priority int) bool {
-	return RegisterPacketHandler(id, handler, priority)
-}
-
-/**
- * Returns all packet handlers registered on the given ID.
- */
-func (adapter *NetworkAdapter) GetPacketHandlers(id int) [][]interfaces.IPacketHandler {
-	return GetPacketHandlers(id)
-}
-
-/**
- * Deletes all packet handlers listening for packets with the given ID, on the given priority.
- */
-func (adapter *NetworkAdapter) DeregisterPacketHandlers(id int, priority int) {
-	DeregisterPacketHandlers(id, priority)
-}
-
-/**
- * Deletes a registered packet with the given ID.
- */
-func (adapter *NetworkAdapter) DeletePacket(id int) {
-	DeregisterPacket(id)
 }

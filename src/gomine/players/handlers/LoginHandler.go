@@ -1,9 +1,7 @@
 package handlers
 
 import (
-	"gomine/net/info"
 	"gomine/interfaces"
-	"gomine/net/packets"
 	"goraklib/server"
 	"crypto/x509"
 	"crypto/ecdsa"
@@ -14,6 +12,7 @@ import (
 	"encoding/base64"
 	"gomine/net/packets/types"
 	data2 "gomine/net/packets/data"
+	"gomine/net/packets/p200"
 )
 
 type LoginHandler struct {
@@ -21,7 +20,7 @@ type LoginHandler struct {
 }
 
 func NewLoginHandler() LoginHandler {
-	return LoginHandler{NewPacketHandler(info.LoginPacket)}
+	return LoginHandler{NewPacketHandler()}
 }
 
 /**
@@ -29,7 +28,7 @@ func NewLoginHandler() LoginHandler {
  */
 func (handler LoginHandler) Handle(packet interfaces.IPacket, player interfaces.IPlayer, session *server.Session, server interfaces.IServer) bool {
 
-	if loginPacket, ok := packet.(*packets.LoginPacket); ok {
+	if loginPacket, ok := packet.(*p200.LoginPacket); ok {
 		_, err := server.GetPlayerFactory().GetPlayerByName(loginPacket.Username)
 		if err == nil {
 			return false
@@ -51,7 +50,15 @@ func (handler LoginHandler) Handle(packet interfaces.IPacket, player interfaces.
 			server.GetLogger().Debug(loginPacket.Username, "has joined while not being logged into XBOX Live.")
 		}
 
-		var s = player.NewMinecraftSession(server, session, loginPacket)
+		var s = player.NewMinecraftSession(server, session, types.SessionData{
+			loginPacket.ClientUUID,
+			loginPacket.ClientXUID,
+			loginPacket.ClientId,
+			loginPacket.Protocol,
+			loginPacket.ClientData.GameVersion,
+			loginPacket.Language,
+			loginPacket.ClientData.DeviceOS,
+		})
 		s.GetEncryptionHandler().Data = &utils.EncryptionData{
 			ClientPublicKey: pubKey,
 			ServerPrivateKey: server.GetPrivateKey(),
@@ -73,25 +80,14 @@ func (handler LoginHandler) Handle(packet interfaces.IPacket, player interfaces.
 		player.SetXBOXLiveAuthenticated(authenticated)
 
 		if server.GetConfiguration().UseEncryption {
-			var handshake = packets.NewServerHandshakePacket()
 			var jwt = utils.ConstructEncryptionJwt(server.GetPrivateKey(), server.GetServerToken())
-			utils.DecodeJwt(jwt)
-			handshake.Jwt = jwt
-			player.SendPacket(handshake)
+			player.SendServerHandshake(jwt)
 
 			player.EnableEncryption()
 		} else {
-			playStatus := packets.NewPlayStatusPacket()
-			playStatus.Status = 0
-			player.SendPacket(playStatus)
+			player.SendPlayStatus(data2.StatusLoginSuccess)
 
-			resourceInfo := packets.NewResourcePackInfoPacket()
-			resourceInfo.MustAccept = server.GetConfiguration().ForceResourcePacks
-
-			resourceInfo.ResourcePacks = server.GetPackHandler().GetResourceStack().GetPacks()
-			resourceInfo.BehaviorPacks = server.GetPackHandler().GetBehaviorStack().GetPacks()
-
-			player.SendPacket(resourceInfo)
+			player.SendResourcePackInfo(server.GetConfiguration().ForceResourcePacks, server.GetPackHandler().GetResourceStack().GetPacks(), server.GetPackHandler().GetBehaviorStack().GetPacks())
 		}
 
 		return true

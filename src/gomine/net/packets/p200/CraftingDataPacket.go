@@ -10,7 +10,7 @@ type CraftingDataPacket struct {
 }
 
 func NewCraftingDataPacket() *CraftingDataPacket {
-	return &CraftingDataPacket{packets.NewPacket(info.CraftingDataPacket)}
+	return &CraftingDataPacket{packets.NewPacket(info.PacketIds200[info.CraftingDataPacket])}
 }
 
 func (pk *CraftingDataPacket) Encode() {

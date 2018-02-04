@@ -1,4 +1,4 @@
-package entities
+package data
 
 const (
 	Byte = iota

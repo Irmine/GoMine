@@ -11,7 +11,7 @@ type ChunkRadiusUpdatedPacket struct {
 }
 
 func NewChunkRadiusUpdatedPacket() *ChunkRadiusUpdatedPacket {
-	return &ChunkRadiusUpdatedPacket{packets.NewPacket(info.ChunkRadiusUpdatedPacket), 0}
+	return &ChunkRadiusUpdatedPacket{packets.NewPacket(info.PacketIds200[info.ChunkRadiusUpdatedPacket]), 0}
 }
 
 func (pk *ChunkRadiusUpdatedPacket) Encode()  {

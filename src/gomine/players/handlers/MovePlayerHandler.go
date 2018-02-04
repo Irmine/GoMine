@@ -3,8 +3,7 @@ package handlers
 import (
 	"gomine/interfaces"
 	"goraklib/server"
-	"gomine/net/info"
-	"gomine/net/packets"
+	"gomine/net/packets/p200"
 )
 
 type MovePlayerHandler struct {
@@ -12,14 +11,14 @@ type MovePlayerHandler struct {
 }
 
 func NewMovePlayerHandler() MovePlayerHandler {
-	return MovePlayerHandler{NewPacketHandler(info.MovePlayerPacket)}
+	return MovePlayerHandler{NewPacketHandler()}
 }
 
 /**
  * Handles the synchronization of player movement server sided.
  */
 func (handler MovePlayerHandler) Handle(packet interfaces.IPacket, player interfaces.IPlayer, session *server.Session, server interfaces.IServer) bool {
-	if pk, ok := packet.(*packets.MovePlayerPacket); ok {
+	if pk, ok := packet.(*p200.MovePlayerPacket); ok {
 		if !player.HasSpawned() {
 			return false
 		}

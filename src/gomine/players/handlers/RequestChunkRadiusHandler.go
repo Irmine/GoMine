@@ -1,11 +1,11 @@
 package handlers
 
 import (
-	"gomine/net/info"
 	"gomine/interfaces"
 	"goraklib/server"
-	"gomine/net/packets"
 	"gomine/utils"
+	"gomine/net/packets/p200"
+	"gomine/net/packets/data"
 )
 
 type RequestChunkRadiusHandler struct {
@@ -13,20 +13,18 @@ type RequestChunkRadiusHandler struct {
 }
 
 func NewRequestChunkRadiusHandler() RequestChunkRadiusHandler {
-	return RequestChunkRadiusHandler{NewPacketHandler(info.RequestChunkRadiusPacket)}
+	return RequestChunkRadiusHandler{NewPacketHandler()}
 }
 
 /**
  * Handles the chunk radius requests and initial spawns.
  */
 func (handler RequestChunkRadiusHandler) Handle(packet interfaces.IPacket, player interfaces.IPlayer, session *server.Session, server interfaces.IServer) bool {
-	if chunkRadiusPacket, ok := packet.(*packets.RequestChunkRadiusPacket); ok {
+	if chunkRadiusPacket, ok := packet.(*p200.RequestChunkRadiusPacket); ok {
 
 		player.SetViewDistance(chunkRadiusPacket.Radius)
 
-		var radiusUpdated = packets.NewChunkRadiusUpdatedPacket()
-		radiusUpdated.Radius = player.GetViewDistance()
-		player.SendPacket(radiusUpdated)
+		player.SendChunkRadiusUpdated(player.GetViewDistance())
 
 		var hasChunksInUse = player.HasAnyChunkInUse()
 
@@ -35,22 +33,17 @@ func (handler RequestChunkRadiusHandler) Handle(packet interfaces.IPacket, playe
 		if !hasChunksInUse {
 			player.SetSpawned(true)
 
-			var playerList = packets.NewPlayerListPacket()
-			playerList.Players = server.GetPlayerFactory().GetPlayers()
-			for name, pl := range playerList.Players {
+			var players = server.GetPlayerFactory().GetPlayers()
+			for name, pl := range players {
 				if !pl.HasSpawned() {
-					delete(playerList.Players, name)
+					delete(players, name)
 				}
 			}
-			playerList.ListType = packets.ListTypeAdd
-			player.SendPacket(playerList)
+			player.SendPlayerList(data.ListTypeAdd, players)
 
 			for _, receiver := range server.GetPlayerFactory().GetPlayers() {
 				if player != receiver {
-					list := packets.NewPlayerListPacket()
-					list.ListType = packets.ListTypeAdd
-					list.Players = map[string]interfaces.IPlayer{player.GetName(): player}
-					receiver.SendPacket(list)
+					receiver.SendPlayerList(data.ListTypeAdd, map[string]interfaces.IPlayer{player.GetName(): player})
 
 					receiver.SpawnTo(player)
 					receiver.SpawnPlayerTo(player)
@@ -61,14 +54,12 @@ func (handler RequestChunkRadiusHandler) Handle(packet interfaces.IPacket, playe
 			player.SpawnPlayerToAll()
 
 			player.UpdateAttributes()
-			player.GetLevel().GetEntityHelper().SendEntityData(player.(interfaces.IEntity), player)
+			player.SendSetEntityData(player, player.GetEntityData())
 
 			server.BroadcastMessage(utils.Yellow + player.GetName() + " has joined the server")
 		}
 
-		var playStatus = packets.NewPlayStatusPacket()
-		playStatus.Status = 3
-		player.SendPacket(playStatus)
+		player.SendPlayStatus(data.StatusSpawn)
 
 		return true
 	}

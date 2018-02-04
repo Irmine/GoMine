@@ -12,7 +12,7 @@ type SetEntityDataPacket struct {
 }
 
 func NewSetEntityDataPacket() *SetEntityDataPacket {
-	return &SetEntityDataPacket{packets.NewPacket(info.SetEntityDataPacket), 0, make(map[uint32][]interface{})}
+	return &SetEntityDataPacket{packets.NewPacket(info.PacketIds200[info.SetEntityDataPacket]), 0, make(map[uint32][]interface{})}
 }
 
 func (pk *SetEntityDataPacket) Encode() {

@@ -32,23 +32,16 @@ type LoginPacket struct {
 }
 
 func NewLoginPacket() *LoginPacket {
-	pk := &LoginPacket{packets.NewPacket(info.LoginPacket), "", 0, utils.UUID{}, 0, "", "", "", "", "", []byte{}, []byte{}, "", "", types.ClientDataKeys{}, []types.Chain{}}
+	pk := &LoginPacket{packets.NewPacket(info.PacketIds200[info.LoginPacket]), "", 0, utils.UUID{}, 0, "", "", "", "", "", []byte{}, []byte{}, "", "", types.ClientDataKeys{}, []types.Chain{}}
 	return pk
 }
 
-func (pk *LoginPacket) Encode()  {
+func (pk *LoginPacket) Encode() {
 
 }
 
-func (pk *LoginPacket) Decode()  {
+func (pk *LoginPacket) Decode() {
 	pk.Protocol = pk.GetInt()
-
-	if pk.Protocol != info.LatestProtocol {
-		if pk.Protocol > 0xffff {
-			pk.Offset -= 6
-			pk.Protocol = pk.GetInt()
-		}
-	}
 
 	var stream = utils.NewStream()
 	stream.Buffer = []byte(pk.GetString())

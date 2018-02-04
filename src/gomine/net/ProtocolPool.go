@@ -2,6 +2,7 @@ package net
 
 import (
 	"gomine/interfaces"
+	"gomine/net/proto"
 )
 
 type ProtocolPool struct {
@@ -16,6 +17,9 @@ func NewProtocolPool() *ProtocolPool {
  * Returns a protocol by its protocol number.
  */
 func (pool *ProtocolPool) GetProtocol(protocolNumber int32) interfaces.IProtocol {
+	if !pool.IsProtocolRegistered(protocolNumber) {
+		return pool.protocols[200]
+	}
 	return pool.protocols[protocolNumber]
 }
 
@@ -32,4 +36,18 @@ func (pool *ProtocolPool) RegisterProtocol(protocol interfaces.IProtocol) {
 func (pool *ProtocolPool) IsProtocolRegistered(protocolNumber int32) bool {
 	var _, ok = pool.protocols[protocolNumber]
 	return ok
+}
+
+/**
+ * Deregisters a protocol from the pool.
+ */
+func (pool *ProtocolPool) DeregisterProtocol(protocolNumber int32) {
+	delete(pool.protocols, protocolNumber)
+}
+
+/**
+ * Registers all default protocols.
+ */
+func (pool *ProtocolPool) RegisterDefaults() {
+	pool.RegisterProtocol(proto.NewProtocol200())
 }

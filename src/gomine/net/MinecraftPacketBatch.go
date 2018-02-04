@@ -52,6 +52,12 @@ func NewMinecraftPacketBatch(session interfaces.IMinecraftSession, logger interf
  * Decodes the batch and separates packets. This does not decode the packets.
  */
 func (batch *MinecraftPacketBatch) Decode() {
+	defer func() {
+		if err := recover(); err != nil {
+			batch.logger.Debug(err)
+		}
+	}()
+
 	var mcpeFlag = batch.GetByte()
 	if mcpeFlag != McpeFlag {
 		return
@@ -108,15 +114,38 @@ func (batch *MinecraftPacketBatch) fetchPackets(packetData [][]byte) {
 		}
 		packetId := int(data[0])
 
-		if !IsPacketRegistered(packetId) {
+		if batch.session.GetProtocol() == nil {
+			var protoNumber = batch.peekProtocol(data)
+			batch.session.SetProtocol(batch.session.GetServer().GetNetworkAdapter().GetProtocolPool().GetProtocol(protoNumber))
+		}
+
+		if !batch.session.GetProtocol().IsPacketRegistered(packetId) {
 			batch.logger.Debug("Unknown Minecraft packet with ID:", packetId)
 			continue
 		}
-		packet := GetPacket(packetId)
+		packet := batch.session.GetProtocol().GetPacket(packetId)
 
 		packet.SetBuffer(data)
 		batch.packets = append(batch.packets, packet)
 	}
+}
+
+/**
+ * Peeks in the packet's payload, looking for the protocol.
+ */
+func (batch *MinecraftPacketBatch) peekProtocol(packetData []byte) int32 {
+	if packetData[0] != 0x01 {
+		return 0
+	}
+	var protocolBytes = packetData[1:5]
+	var offset = 0
+	var protocol = utils.ReadInt(&protocolBytes, &offset)
+	if protocol == 0 {
+		offset = 0
+		protocolBytes = packetData[3:7]
+		protocol = utils.ReadInt(&protocolBytes, &offset)
+	}
+	return protocol
 }
 
 /**

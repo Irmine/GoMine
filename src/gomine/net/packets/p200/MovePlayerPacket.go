@@ -5,13 +5,7 @@ import (
 	"gomine/vectors"
 	"gomine/entities/math"
 	"gomine/net/packets"
-)
-
-const (
-	MoveNormal = iota
-	MoveReset
-	MoveTeleport
-	MovePitch
+	"gomine/net/packets/data"
 )
 
 type MovePlayerPacket struct {
@@ -26,7 +20,7 @@ type MovePlayerPacket struct {
 }
 
 func NewMovePlayerPacket() *MovePlayerPacket {
-	return &MovePlayerPacket{Packet: packets.NewPacket(info.MovePlayerPacket), Position: *vectors.NewTripleVector(0, 0, 0), Rotation: *math.NewRotation(0, 0, 0)}
+	return &MovePlayerPacket{Packet: packets.NewPacket(info.PacketIds200[info.MovePlayerPacket]), Position: *vectors.NewTripleVector(0, 0, 0), Rotation: *math.NewRotation(0, 0, 0)}
 }
 
 func (pk *MovePlayerPacket) Encode() {
@@ -36,7 +30,7 @@ func (pk *MovePlayerPacket) Encode() {
 	pk.PutByte(pk.Mode)
 	pk.PutBool(pk.OnGround)
 	pk.PutRuntimeId(pk.RidingRuntimeId)
-	if pk.Mode == MoveTeleport {
+	if pk.Mode == data.MoveTeleport {
 		pk.PutLittleInt(pk.ExtraInt1)
 		pk.PutLittleInt(pk.ExtraInt2)
 	}
@@ -49,7 +43,7 @@ func (pk *MovePlayerPacket) Decode() {
 	pk.Mode = pk.GetByte()
 	pk.OnGround = pk.GetBool()
 	pk.RidingRuntimeId = pk.GetRuntimeId()
-	if pk.Mode == MoveTeleport {
+	if pk.Mode == data.MoveTeleport {
 		pk.ExtraInt1 = pk.GetLittleInt()
 		pk.ExtraInt2 = pk.GetLittleInt()
 	}

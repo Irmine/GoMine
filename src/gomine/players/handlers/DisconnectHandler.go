@@ -3,9 +3,8 @@ package handlers
 import (
 	"gomine/interfaces"
 	"goraklib/server"
-	"gomine/net/info"
 	"gomine/utils"
-	"gomine/net/packets"
+	"gomine/net/packets/data"
 )
 
 type DisconnectHandler struct {
@@ -13,7 +12,7 @@ type DisconnectHandler struct {
 }
 
 func NewDisconnectHandler() DisconnectHandler {
-	return DisconnectHandler{NewPacketHandler(info.DisconnectPacket)}
+	return DisconnectHandler{NewPacketHandler()}
 }
 
 /**
@@ -31,10 +30,7 @@ func (handler DisconnectHandler) Handle(player interfaces.IPlayer, session *serv
 
 	if player.HasSpawned() {
 		for _, online := range server.GetPlayerFactory().GetPlayers() {
-			var list = packets.NewPlayerListPacket()
-			list.ListType = packets.ListTypeRemove
-			list.Players = map[string]interfaces.IPlayer{player.GetName(): player}
-			online.SendPacket(list)
+			online.SendPlayerList(data.ListTypeRemove, map[string]interfaces.IPlayer{player.GetName(): player})
 		}
 
 		player.DespawnFromAll()

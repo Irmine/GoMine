@@ -1,13 +1,12 @@
 package handlers
 
 import (
-	"gomine/net/info"
 	"gomine/interfaces"
 	"goraklib/server"
-	"gomine/net/packets"
 	"strings"
 	"gomine/commands"
 	"gomine/utils"
+	"gomine/net/packets/p200"
 )
 
 type CommandRequestHandler struct {
@@ -15,14 +14,14 @@ type CommandRequestHandler struct {
 }
 
 func NewCommandRequestHandler() CommandRequestHandler {
-	return CommandRequestHandler{NewPacketHandler(info.CommandRequestPacket)}
+	return CommandRequestHandler{NewPacketHandler()}
 }
 
 /**
  * Handles commands issues by players.
  */
 func (handler CommandRequestHandler) Handle(packet interfaces.IPacket, player interfaces.IPlayer, session *server.Session, server interfaces.IServer) bool {
-	if pk, ok := packet.(*packets.CommandRequestPacket); ok {
+	if pk, ok := packet.(*p200.CommandRequestPacket); ok {
 		pk.CommandText = pk.CommandText[1:]
 		var args = strings.Split(pk.CommandText, " ")
 

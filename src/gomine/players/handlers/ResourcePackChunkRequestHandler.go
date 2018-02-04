@@ -1,10 +1,10 @@
 package handlers
 
 import (
-	"gomine/net/info"
 	"gomine/interfaces"
 	"goraklib/server"
-	"gomine/net/packets"
+	"gomine/net/packets/p200"
+	"gomine/net/packets/data"
 )
 
 type ResourcePackChunkRequestHandler struct {
@@ -12,28 +12,21 @@ type ResourcePackChunkRequestHandler struct {
 }
 
 func NewResourcePackChunkRequestHandler() ResourcePackChunkRequestHandler {
-	return ResourcePackChunkRequestHandler{NewPacketHandler(info.ResourcePackChunkRequestPacket)}
+	return ResourcePackChunkRequestHandler{NewPacketHandler()}
 }
 
 /**
  * Handles resource pack chunk requests, returning chunks of resource pack data to the client.
  */
 func (handler ResourcePackChunkRequestHandler) Handle(packet interfaces.IPacket, player interfaces.IPlayer, session *server.Session, server interfaces.IServer) bool {
-	if request, ok := packet.(*packets.ResourcePackChunkRequestPacket); ok {
+	if request, ok := packet.(*p200.ResourcePackChunkRequestPacket); ok {
 		if !server.GetPackHandler().IsPackLoaded(request.PackUUID) {
 			// TODO: Kick the player. We can't kick yet.
 			return false
 		}
 
 		var pack = server.GetPackHandler().GetPack(request.PackUUID)
-		var packData = packets.NewResourcePackChunkDataPacket()
-		packData.PackUUID = request.PackUUID
-		packData.ChunkIndex = request.ChunkIndex
-
-		packData.ChunkData = pack.GetChunk(int(ChunkSize * request.ChunkIndex), ChunkSize)
-		packData.Progress = int64(ChunkSize * request.ChunkIndex)
-
-		player.SendPacket(packData)
+		player.SendResourcePackChunkData(request.PackUUID, request.ChunkIndex, int64(data.ResourcePackChunkSize * request.ChunkIndex), pack.GetChunk(int(data.ResourcePackChunkSize * request.ChunkIndex), data.ResourcePackChunkSize))
 
 		return true
 	}

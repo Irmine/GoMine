@@ -1,10 +1,11 @@
 package handlers
 
 import (
-	"gomine/net/info"
 	"gomine/interfaces"
 	"goraklib/server"
-	"gomine/net/packets"
+	"gomine/net/packets/p200"
+	"gomine/net/packets/data"
+	"gomine/net/packets/types"
 )
 
 type TextHandler struct {
@@ -12,29 +13,28 @@ type TextHandler struct {
 }
 
 func NewTextHandler() TextHandler {
-	return TextHandler{NewPacketHandler(info.TextPacket)}
+	return TextHandler{NewPacketHandler()}
 }
 
 /**
  * Handles chatting of players.
  */
 func (handler TextHandler) Handle(packet interfaces.IPacket, player interfaces.IPlayer, session *server.Session, server interfaces.IServer) bool {
-	if textPacket, ok := packet.(*packets.TextPacket); ok {
-		if textPacket.TextType != packets.TextChat {
+	if textPacket, ok := packet.(*p200.TextPacket); ok {
+		if textPacket.TextType != data.TextChat {
 			return false
 		}
 
 		for _, receiver := range server.GetPlayerFactory().GetPlayers() {
-			pk := packets.NewTextPacket()
-			pk.Message = textPacket.Message
-			pk.TextType = textPacket.TextType
-			pk.SourceName = textPacket.SourceName
-			pk.SourceDisplayName = player.GetDisplayName()
-			pk.SourcePlatform = textPacket.SourcePlatform
-			pk.UnknownString = ""
-			pk.XUID = player.GetXUID()
+			var text = types.Text{}
+			text.Message = textPacket.Message
+			text.TextType = data.TextChat
+			text.SourceName = textPacket.SourceName
+			text.SourceDisplayName = player.GetDisplayName()
+			text.SourcePlatform = player.GetPlatform()
+			text.SourceXUID = player.GetXUID()
 
-			receiver.SendPacket(pk)
+			receiver.SendText(text)
 		}
 
 		server.GetLogger().LogChat("<" + player.GetDisplayName() + "> " + textPacket.Message)

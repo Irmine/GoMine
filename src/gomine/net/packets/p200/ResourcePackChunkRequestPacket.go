@@ -12,7 +12,7 @@ type ResourcePackChunkRequestPacket struct {
 }
 
 func NewResourcePackChunkRequestPacket() *ResourcePackChunkRequestPacket {
-	return &ResourcePackChunkRequestPacket{packets.NewPacket(info.ResourcePackChunkRequestPacket), "", 0}
+	return &ResourcePackChunkRequestPacket{packets.NewPacket(info.PacketIds200[info.ResourcePackChunkRequestPacket]), "", 0}
 }
 
 func (pk *ResourcePackChunkRequestPacket) Encode() {

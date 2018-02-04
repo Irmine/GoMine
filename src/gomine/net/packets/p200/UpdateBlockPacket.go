@@ -14,7 +14,7 @@ type UpdateBlockPacket struct{
 }
 
 func NewUpdateBlockPacket() *UpdateBlockPacket {
-	return &UpdateBlockPacket{packets.NewPacket(info.UpdateBlockPacket), 0, 0,0, 0, 0, 0}
+	return &UpdateBlockPacket{packets.NewPacket(info.PacketIds200[info.UpdateBlockPacket]), 0, 0,0, 0, 0, 0}
 }
 
 func (pk *UpdateBlockPacket) Encode() {

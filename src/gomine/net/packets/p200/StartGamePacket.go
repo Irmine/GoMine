@@ -4,8 +4,8 @@ import (
 	"gomine/net/info"
 	"gomine/vectors"
 	"encoding/base64"
-	"gomine/interfaces"
 	"gomine/net/packets"
+	"gomine/net/packets/types"
 )
 
 type StartGamePacket struct {
@@ -40,7 +40,7 @@ type StartGamePacket struct {
 	CommandsEnabled bool
 	ForcedResourcePacks bool
 
-	GameRules map[string]interfaces.IGameRule
+	GameRules map[string]types.GameRuleEntry
 
 	BonusChest bool
 	StartMap bool
@@ -61,7 +61,7 @@ type StartGamePacket struct {
 }
 
 func NewStartGamePacket() *StartGamePacket {
-	return &StartGamePacket{Packet: packets.NewPacket(info.StartGamePacket), GameRules: make(map[string]interfaces.IGameRule)}
+	return &StartGamePacket{Packet: packets.NewPacket(info.PacketIds200[info.StartGamePacket]), GameRules: make(map[string]types.GameRuleEntry)}
 }
 
 func (pk *StartGamePacket) Encode()  {

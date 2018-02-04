@@ -13,7 +13,7 @@ type UpdateAttributesPacket struct {
 }
 
 func NewUpdateAttributesPacket() *UpdateAttributesPacket {
-	return &UpdateAttributesPacket{packets.NewPacket(info.UpdateAttributesPacket), 0, data.NewAttributeMap()}
+	return &UpdateAttributesPacket{packets.NewPacket(info.PacketIds200[info.UpdateAttributesPacket]), 0, data.NewAttributeMap()}
 }
 
 func (pk *UpdateAttributesPacket) Encode() {
