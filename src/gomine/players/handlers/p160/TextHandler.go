@@ -27,7 +27,7 @@ func (handler TextHandler) Handle(packet interfaces.IPacket, player interfaces.I
 		}
 
 		for _, receiver := range server.GetPlayerFactory().GetPlayers() {
-			receiver.SendText(types.Text{Message: textPacket.Message, SourceName: textPacket.SourceName, SourceDisplayName: textPacket.SourceName, SourceXUID: player.GetXUID(), TextType: data.TextChat})
+			receiver.SendText(types.Text{Message: textPacket.Message, SourceName: player.GetDisplayName(), SourceDisplayName: textPacket.SourceName, SourceXUID: player.GetXUID(), TextType: data.TextChat})
 		}
 
 		server.GetLogger().LogChat("<" + player.GetDisplayName() + "> " + textPacket.Message)

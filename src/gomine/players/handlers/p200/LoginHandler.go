@@ -73,7 +73,7 @@ func (handler LoginHandler) Handle(packet interfaces.IPacket, player interfaces.
 		player.SetMinecraftSession(s)
 
 		player.SetName(loginPacket.Username)
-		player.SetDisplayName(loginPacket.ClientData.ThirdPartyName)
+		player.SetDisplayName(loginPacket.Username)
 
 		player.SetLanguage(loginPacket.Language)
 		player.SetSkinId(loginPacket.SkinId)

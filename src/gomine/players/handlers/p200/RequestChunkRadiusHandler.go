@@ -57,7 +57,7 @@ func (handler RequestChunkRadiusHandler) Handle(packet interfaces.IPacket, playe
 			player.UpdateAttributes()
 			player.SendSetEntityData(player, player.GetEntityData())
 
-			server.BroadcastMessage(utils.Yellow + player.GetName() + " has joined the server")
+			server.BroadcastMessage(utils.Yellow + player.GetDisplayName() + " has joined the server")
 		}
 
 		player.SendPlayStatus(data.StatusSpawn)
