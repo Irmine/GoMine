@@ -35,6 +35,7 @@ func (handler LoginHandler) Handle(packet interfaces.IPacket, player interfaces.
 			return false
 		}
 		if !server.GetNetworkAdapter().GetProtocolPool().IsProtocolRegistered(loginPacket.Protocol) {
+			server.GetLogger().Debug(loginPacket.Username, "tried joining with unsupported protocol:", loginPacket.Protocol)
 			return false
 		}
 

@@ -50,4 +50,5 @@ func (pool *ProtocolPool) DeregisterProtocol(protocolNumber int32) {
  */
 func (pool *ProtocolPool) RegisterDefaults() {
 	pool.RegisterProtocol(proto.NewProtocol200())
+	pool.RegisterProtocol(proto.NewProtocol160())
 }

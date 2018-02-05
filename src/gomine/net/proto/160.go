@@ -16,6 +16,7 @@ type Protocol160 struct {
 
 func NewProtocol160() *Protocol160 {
 	var proto = &Protocol160{NewProtocol200()}
+	proto.protocolNumber = 160
 	proto.DeregisterPacketHandlers(info.TextPacket, 8)
 	proto.RegisterHandler(info.TextPacket, p160handler.NewTextHandler(), 8)
 	proto.RegisterPacket(info.PacketIds200[info.TextPacket], func() interfaces.IPacket { return p160.NewTextPacket() })
