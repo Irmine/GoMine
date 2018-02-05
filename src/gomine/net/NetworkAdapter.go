@@ -5,7 +5,7 @@ import (
 	server2 "goraklib/server"
 	"gomine/net/info"
 	"goraklib/protocol"
-	"gomine/players/handlers"
+	"gomine/players/handlers/p200"
 )
 
 type NetworkAdapter struct {
@@ -20,7 +20,7 @@ type NetworkAdapter struct {
 func NewNetworkAdapter(server interfaces.IServer) *NetworkAdapter {
 	var rakServer = server2.NewGoRakLibServer(server.GetName(), server.GetAddress(), server.GetPort())
 	rakServer.SetMinecraftProtocol(info.LatestProtocol)
-	rakServer.SetMinecraftVersion(info.GameVersionNetwork)
+	rakServer.SetMinecraftVersion(info.LatestGameVersionNetwork)
 	rakServer.SetMaxConnectedSessions(server.GetMaximumPlayers())
 	rakServer.SetDefaultGameMode("Creative")
 	rakServer.SetMotd(server.GetMotd())
@@ -55,8 +55,7 @@ func (adapter *NetworkAdapter) Tick() {
 		go func(session *server2.Session) {
 			var player, _ = adapter.server.GetPlayerFactory().GetPlayerBySession(session)
 			if !adapter.server.GetPlayerFactory().PlayerExistsBySession(session) {
-				player = player.New(adapter.server, &MinecraftSession{server: adapter.server}, "")
-				adapter.server.GetPlayerFactory().AddPlayer(player, session)
+				player = player.New(adapter.server, &MinecraftSession{server: adapter.server, session: session}, "")
 			}
 
 			adapter.HandlePackets(session, player)
@@ -69,7 +68,7 @@ func (adapter *NetworkAdapter) Tick() {
 
 	for _, session := range adapter.rakLibServer.GetSessionManager().GetDisconnectedSessions() {
 		player, _ := adapter.server.GetPlayerFactory().GetPlayerBySession(session)
-		handler := handlers.NewDisconnectHandler()
+		handler := p200.NewDisconnectHandler()
 		handler.Handle(player, session, adapter.server)
 	}
 }
@@ -84,7 +83,11 @@ func (adapter *NetworkAdapter) HandlePackets(session *server2.Session, player in
 		batch.Decode()
 
 		for _, packet := range batch.GetPackets() {
-			packet.DecodeHeader()
+			if player.GetProtocolNumber() < 120 {
+				packet.DecodeId()
+			} else {
+				packet.DecodeHeader()
+			}
 			packet.Decode()
 
 			player.HandlePacket(packet, player)

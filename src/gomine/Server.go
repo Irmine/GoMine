@@ -119,6 +119,9 @@ func (server *Server) IsRunning() bool {
  * Starts the server.
  */
 func (server *Server) Start() {
+	if server.isRunning {
+		return
+	}
 	server.GetLogger().Info("GoMine " + GoMineVersion + " is now starting...")
 
 	server.RegisterDefaultCommands()
@@ -151,16 +154,16 @@ func (server *Server) Shutdown() {
  * Returns the server version prefixed with 'v'.
  * EG: "v1.2.6.2"
  */
-func (server *Server) GetVersion() string {
-	return info.GameVersion
+func (server *Server) GetMinecraftVersion() string {
+	return info.LatestGameVersion
 }
 
 /**
  * Returns the server version used for networking.
  * This version string is not prefixed with a 'v'.
  */
-func (server *Server) GetNetworkVersion() string {
-	return info.GameVersionNetwork
+func (server *Server) GetMinecraftNetworkVersion() string {
+	return info.LatestGameVersionNetwork
 }
 
 /**
@@ -453,7 +456,7 @@ func (server *Server) GenerateQueryResult(shortData bool) []byte {
 		PluginNames: plugs,
 		PlayerNames: ps,
 		GameMode: "SMP",
-		Version: server.GetVersion(),
+		Version: server.GetMinecraftVersion(),
 		ServerEngine: server.GetEngineName(),
 		WorldName: server.GetDefaultLevel().GetName(),
 		OnlinePlayers: int(server.GetPlayerFactory().GetPlayerCount()),

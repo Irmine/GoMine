@@ -1,4 +1,4 @@
-package handlers
+package p200
 
 import (
 	"gomine/interfaces"
@@ -7,14 +7,15 @@ import (
 	"gomine/entities/math"
 	"gomine/net/packets/p200"
 	"gomine/net/packets/data"
+	"gomine/players/handlers"
 )
 
 type ResourcePackClientResponseHandler struct {
-	*PacketHandler
+	*handlers.PacketHandler
 }
 
 func NewResourcePackClientResponseHandler() ResourcePackClientResponseHandler {
-	return ResourcePackClientResponseHandler{NewPacketHandler()}
+	return ResourcePackClientResponseHandler{handlers.NewPacketHandler()}
 }
 
 /**

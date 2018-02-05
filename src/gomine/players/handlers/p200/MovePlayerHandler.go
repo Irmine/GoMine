@@ -1,17 +1,18 @@
-package handlers
+package p200
 
 import (
 	"gomine/interfaces"
 	"goraklib/server"
 	"gomine/net/packets/p200"
+	"gomine/players/handlers"
 )
 
 type MovePlayerHandler struct {
-	*PacketHandler
+	*handlers.PacketHandler
 }
 
 func NewMovePlayerHandler() MovePlayerHandler {
-	return MovePlayerHandler{NewPacketHandler()}
+	return MovePlayerHandler{handlers.NewPacketHandler()}
 }
 
 /**

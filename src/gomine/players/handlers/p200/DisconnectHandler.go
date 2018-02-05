@@ -1,18 +1,19 @@
-package handlers
+package p200
 
 import (
 	"gomine/interfaces"
 	"goraklib/server"
 	"gomine/utils"
 	"gomine/net/packets/data"
+	"gomine/players/handlers"
 )
 
 type DisconnectHandler struct {
-	*PacketHandler
+	*handlers.PacketHandler
 }
 
 func NewDisconnectHandler() DisconnectHandler {
-	return DisconnectHandler{NewPacketHandler()}
+	return DisconnectHandler{handlers.NewPacketHandler()}
 }
 
 /**

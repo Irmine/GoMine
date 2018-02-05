@@ -1,4 +1,4 @@
-package handlers
+package p200
 
 import (
 	"gomine/interfaces"
@@ -7,14 +7,15 @@ import (
 	"gomine/commands"
 	"gomine/utils"
 	"gomine/net/packets/p200"
+	"gomine/players/handlers"
 )
 
 type CommandRequestHandler struct {
-	*PacketHandler
+	*handlers.PacketHandler
 }
 
 func NewCommandRequestHandler() CommandRequestHandler {
-	return CommandRequestHandler{NewPacketHandler()}
+	return CommandRequestHandler{handlers.NewPacketHandler()}
 }
 
 /**

@@ -1,4 +1,4 @@
-package handlers
+package p200
 
 import (
 	"gomine/interfaces"
@@ -13,14 +13,15 @@ import (
 	"gomine/net/packets/types"
 	data2 "gomine/net/packets/data"
 	"gomine/net/packets/p200"
+	"gomine/players/handlers"
 )
 
 type LoginHandler struct {
-	*PacketHandler
+	*handlers.PacketHandler
 }
 
 func NewLoginHandler() LoginHandler {
-	return LoginHandler{NewPacketHandler()}
+	return LoginHandler{handlers.NewPacketHandler()}
 }
 
 /**
@@ -31,6 +32,9 @@ func (handler LoginHandler) Handle(packet interfaces.IPacket, player interfaces.
 	if loginPacket, ok := packet.(*p200.LoginPacket); ok {
 		_, err := server.GetPlayerFactory().GetPlayerByName(loginPacket.Username)
 		if err == nil {
+			return false
+		}
+		if !server.GetNetworkAdapter().GetProtocolPool().IsProtocolRegistered(loginPacket.Protocol) {
 			return false
 		}
 
@@ -67,7 +71,7 @@ func (handler LoginHandler) Handle(packet interfaces.IPacket, player interfaces.
 
 		player.SetMinecraftSession(s)
 
-		player.SetDisplayName(loginPacket.Username)
+		player.SetName(loginPacket.Username)
 		player.SetDisplayName(loginPacket.ClientData.ThirdPartyName)
 
 		player.SetLanguage(loginPacket.Language)
@@ -89,6 +93,7 @@ func (handler LoginHandler) Handle(packet interfaces.IPacket, player interfaces.
 
 			player.SendResourcePackInfo(server.GetConfiguration().ForceResourcePacks, server.GetPackHandler().GetResourceStack().GetPacks(), server.GetPackHandler().GetBehaviorStack().GetPacks())
 		}
+		server.GetPlayerFactory().AddPlayer(player, session)
 
 		return true
 	}

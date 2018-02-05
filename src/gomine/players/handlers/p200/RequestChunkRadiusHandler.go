@@ -1,4 +1,4 @@
-package handlers
+package p200
 
 import (
 	"gomine/interfaces"
@@ -6,14 +6,15 @@ import (
 	"gomine/utils"
 	"gomine/net/packets/p200"
 	"gomine/net/packets/data"
+	"gomine/players/handlers"
 )
 
 type RequestChunkRadiusHandler struct {
-	*PacketHandler
+	*handlers.PacketHandler
 }
 
 func NewRequestChunkRadiusHandler() RequestChunkRadiusHandler {
-	return RequestChunkRadiusHandler{NewPacketHandler()}
+	return RequestChunkRadiusHandler{handlers.NewPacketHandler()}
 }
 
 /**

@@ -1,18 +1,19 @@
-package handlers
+package p200
 
 import (
 	"gomine/interfaces"
 	"goraklib/server"
 	"gomine/net/packets/p200"
 	"gomine/net/packets/data"
+	"gomine/players/handlers"
 )
 
 type ResourcePackChunkRequestHandler struct {
-	*PacketHandler
+	*handlers.PacketHandler
 }
 
 func NewResourcePackChunkRequestHandler() ResourcePackChunkRequestHandler {
-	return ResourcePackChunkRequestHandler{NewPacketHandler()}
+	return ResourcePackChunkRequestHandler{handlers.NewPacketHandler()}
 }
 
 /**

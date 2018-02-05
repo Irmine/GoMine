@@ -52,7 +52,7 @@ func NewEntity(position *vectors.TripleVector, rotation *math.Rotation, motion *
 		dimension,
 		rotation,
 		"",
-		map[uint64]interfaces.IPlayer{},
+		make(map[uint64]interfaces.IPlayer),
 		sync.Mutex{},
 		make(map[uint32][]interface{}),
 	}
@@ -305,6 +305,9 @@ func (entity *Entity) Kill() {
  */
 func (entity *Entity) SpawnTo(player interfaces.IPlayer)  {
 	if !player.HasSpawned() {
+		return
+	}
+	if entity.GetRuntimeId() == player.GetRuntimeId() {
 		return
 	}
 	entity.AddViewer(player)

@@ -4,7 +4,6 @@ import (
 	"goraklib/server"
 	"gomine/utils"
 	"gomine/net/info"
-	"gomine/net/packets/p200"
 	"gomine/entities/data"
 	"gomine/vectors"
 	"gomine/entities/math"
@@ -110,26 +109,26 @@ type IProtocol interface {
 	GetIdList() info.PacketIdList
 	GetHandlersById(int) [][]IPacketHandler
 
-	GetAddEntity(IEntity) *p200.AddEntityPacket
-	GetAddPlayer(IPlayer) *p200.AddPlayerPacket
-	GetChunkRadiusUpdated(int32) *p200.ChunkRadiusUpdatedPacket
-	GetCraftingData() *p200.CraftingDataPacket
-	GetDisconnect(string, bool) *p200.DisconnectPacket
-	GetFullChunkData(IChunk) *p200.FullChunkDataPacket
-	GetMovePlayer(uint64, vectors.TripleVector, math.Rotation, byte, bool, uint64) *p200.MovePlayerPacket
-	GetPlayerList(byte, map[string]IPlayer) *p200.PlayerListPacket
-	GetPlayStatus(int32) *p200.PlayStatusPacket
-	GetRemoveEntity(int64) *p200.RemoveEntityPacket
-	GetResourcePackChunkData(string, int32, int64, []byte) *p200.ResourcePackChunkDataPacket
-	GetResourcePackDataInfo(IPack) *p200.ResourcePackDataInfoPacket
-	GetResourcePackInfo(bool, []IPack, []IPack) *p200.ResourcePackInfoPacket
-	GetResourcePackStack(bool, []IPack, []IPack) *p200.ResourcePackStackPacket
-	GetServerHandshake(string) *p200.ServerHandshakePacket
-	GetSetEntityData(IEntity, map[uint32][]interface{}) *p200.SetEntityDataPacket
-	GetStartGame(IPlayer) *p200.StartGamePacket
-	GetText(types.Text) *p200.TextPacket
-	GetTransfer(string, uint16) *p200.TransferPacket
-	GetUpdateAttributes(IEntity, *data.AttributeMap) *p200.UpdateAttributesPacket
+	GetAddEntity(IEntity) IPacket
+	GetAddPlayer(IPlayer) IPacket
+	GetChunkRadiusUpdated(int32) IPacket
+	GetCraftingData() IPacket
+	GetDisconnect(string, bool) IPacket
+	GetFullChunkData(IChunk) IPacket
+	GetMovePlayer(uint64, vectors.TripleVector, math.Rotation, byte, bool, uint64) IPacket
+	GetPlayerList(byte, map[string]IPlayer) IPacket
+	GetPlayStatus(int32) IPacket
+	GetRemoveEntity(int64) IPacket
+	GetResourcePackChunkData(string, int32, int64, []byte) IPacket
+	GetResourcePackDataInfo(IPack) IPacket
+	GetResourcePackInfo(bool, []IPack, []IPack) IPacket
+	GetResourcePackStack(bool, []IPack, []IPack) IPacket
+	GetServerHandshake(string) IPacket
+	GetSetEntityData(IEntity, map[uint32][]interface{}) IPacket
+	GetStartGame(IPlayer) IPacket
+	GetText(types.Text) IPacket
+	GetTransfer(string, uint16) IPacket
+	GetUpdateAttributes(IEntity, *data.AttributeMap) IPacket
 }
 
 type IProtocolPool interface {

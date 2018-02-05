@@ -1,18 +1,19 @@
-package handlers
+package p200
 
 import (
 	"gomine/interfaces"
 	"goraklib/server"
 	"gomine/net/packets/p200"
 	"gomine/net/packets/data"
+	"gomine/players/handlers"
 )
 
 type ClientHandshakeHandler struct {
-	*PacketHandler
+	*handlers.PacketHandler
 }
 
 func NewClientHandshakeHandler() ClientHandshakeHandler {
-	return ClientHandshakeHandler{NewPacketHandler()}
+	return ClientHandshakeHandler{handlers.NewPacketHandler()}
 }
 
 /**

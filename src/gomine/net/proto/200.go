@@ -6,7 +6,7 @@ import (
 	"gomine/net/packets/p200"
 	"gomine/vectors"
 	"gomine/entities/math"
-	"gomine/players/handlers"
+	p200handlers "gomine/players/handlers/p200"
 	math2 "math"
 	"gomine/net/packets/data"
 	"gomine/permissions"
@@ -37,17 +37,17 @@ func NewProtocol200() *Protocol200 {
 }
 
 func (protocol *Protocol200) initHandlers() {
-	protocol.RegisterHandler(info.LoginPacket, handlers.NewLoginHandler(), 8)
-	protocol.RegisterHandler(info.ClientHandshakePacket, handlers.NewClientHandshakeHandler(), 8)
-	protocol.RegisterHandler(info.RequestChunkRadiusPacket, handlers.NewRequestChunkRadiusHandler(), 8)
-	protocol.RegisterHandler(info.ResourcePackClientResponsePacket, handlers.NewResourcePackClientResponseHandler(), 8)
-	protocol.RegisterHandler(info.MovePlayerPacket, handlers.NewMovePlayerHandler(), 8)
-	protocol.RegisterHandler(info.CommandRequestPacket, handlers.NewCommandRequestHandler(), 8)
-	protocol.RegisterHandler(info.ResourcePackChunkRequestPacket, handlers.NewResourcePackChunkRequestHandler(), 8)
-	protocol.RegisterHandler(info.TextPacket, handlers.NewTextHandler(), 8)
+	protocol.RegisterHandler(info.LoginPacket, p200handlers.NewLoginHandler(), 8)
+	protocol.RegisterHandler(info.ClientHandshakePacket, p200handlers.NewClientHandshakeHandler(), 8)
+	protocol.RegisterHandler(info.RequestChunkRadiusPacket, p200handlers.NewRequestChunkRadiusHandler(), 8)
+	protocol.RegisterHandler(info.ResourcePackClientResponsePacket, p200handlers.NewResourcePackClientResponseHandler(), 8)
+	protocol.RegisterHandler(info.MovePlayerPacket, p200handlers.NewMovePlayerHandler(), 8)
+	protocol.RegisterHandler(info.CommandRequestPacket, p200handlers.NewCommandRequestHandler(), 8)
+	protocol.RegisterHandler(info.ResourcePackChunkRequestPacket, p200handlers.NewResourcePackChunkRequestHandler(), 8)
+	protocol.RegisterHandler(info.TextPacket, p200handlers.NewTextHandler(), 8)
 }
 
-func (protocol *Protocol200) GetAddEntity(entity interfaces.IEntity) *p200.AddEntityPacket {
+func (protocol *Protocol200) GetAddEntity(entity interfaces.IEntity) interfaces.IPacket {
 	var pk = p200.NewAddEntityPacket()
 	pk.UniqueId = entity.GetUniqueId()
 	pk.RuntimeId = entity.GetRuntimeId()
@@ -61,7 +61,7 @@ func (protocol *Protocol200) GetAddEntity(entity interfaces.IEntity) *p200.AddEn
 	return pk
 }
 
-func (protocol *Protocol200) GetAddPlayer(player interfaces.IPlayer) *p200.AddPlayerPacket {
+func (protocol *Protocol200) GetAddPlayer(player interfaces.IPlayer) interfaces.IPacket {
 	var pk = p200.NewAddPlayerPacket()
 	pk.UUID = player.GetUUID()
 	pk.DisplayName = player.GetDisplayName()
@@ -75,20 +75,20 @@ func (protocol *Protocol200) GetAddPlayer(player interfaces.IPlayer) *p200.AddPl
 	return pk
 }
 
-func (protocol *Protocol200) GetChunkRadiusUpdated(radius int32) *p200.ChunkRadiusUpdatedPacket {
+func (protocol *Protocol200) GetChunkRadiusUpdated(radius int32) interfaces.IPacket {
 	var pk = p200.NewChunkRadiusUpdatedPacket()
 	pk.Radius = radius
 
 	return pk
 }
 
-func (protocol *Protocol200) GetCraftingData() *p200.CraftingDataPacket {
+func (protocol *Protocol200) GetCraftingData() interfaces.IPacket {
 	var pk = p200.NewCraftingDataPacket()
 
 	return pk
 }
 
-func (protocol *Protocol200) GetDisconnect(message string, hideDisconnectScreen bool) *p200.DisconnectPacket {
+func (protocol *Protocol200) GetDisconnect(message string, hideDisconnectScreen bool) interfaces.IPacket {
 	var pk = p200.NewDisconnectPacket()
 	pk.HideDisconnectionScreen = hideDisconnectScreen
 	pk.Message = message
@@ -96,7 +96,7 @@ func (protocol *Protocol200) GetDisconnect(message string, hideDisconnectScreen 
 	return pk
 }
 
-func (protocol *Protocol200) GetFullChunkData(chunk interfaces.IChunk) *p200.FullChunkDataPacket {
+func (protocol *Protocol200) GetFullChunkData(chunk interfaces.IChunk) interfaces.IPacket {
 	var pk = p200.NewFullChunkDataPacket()
 	pk.ChunkX = chunk.GetX()
 	pk.ChunkZ = chunk.GetZ()
@@ -105,7 +105,7 @@ func (protocol *Protocol200) GetFullChunkData(chunk interfaces.IChunk) *p200.Ful
 	return pk
 }
 
-func (protocol *Protocol200) GetMovePlayer(runtimeId uint64, position vectors.TripleVector, rotation math.Rotation, mode byte, onGround bool, ridingRuntimeId uint64) *p200.MovePlayerPacket {
+func (protocol *Protocol200) GetMovePlayer(runtimeId uint64, position vectors.TripleVector, rotation math.Rotation, mode byte, onGround bool, ridingRuntimeId uint64) interfaces.IPacket {
 	var pk = p200.NewMovePlayerPacket()
 	pk.RuntimeId = runtimeId
 	pk.Position = position
@@ -117,7 +117,7 @@ func (protocol *Protocol200) GetMovePlayer(runtimeId uint64, position vectors.Tr
 	return pk
 }
 
-func (protocol *Protocol200) GetPlayerList(listType byte, players map[string]interfaces.IPlayer) *p200.PlayerListPacket {
+func (protocol *Protocol200) GetPlayerList(listType byte, players map[string]interfaces.IPlayer) interfaces.IPacket {
 	var pk = p200.NewPlayerListPacket()
 	pk.ListType = listType
 	var entries = map[string]types.PlayerListEntry{}
@@ -141,21 +141,21 @@ func (protocol *Protocol200) GetPlayerList(listType byte, players map[string]int
 	return pk
 }
 
-func (protocol *Protocol200) GetPlayStatus(status int32) *p200.PlayStatusPacket {
+func (protocol *Protocol200) GetPlayStatus(status int32) interfaces.IPacket {
 	var pk = p200.NewPlayStatusPacket()
 	pk.Status = status
 
 	return pk
 }
 
-func (protocol *Protocol200) GetRemoveEntity(uniqueId int64) *p200.RemoveEntityPacket {
+func (protocol *Protocol200) GetRemoveEntity(uniqueId int64) interfaces.IPacket {
 	var pk = p200.NewRemoveEntityPacket()
 	pk.EntityUniqueId = uniqueId
 
 	return pk
 }
 
-func (protocol *Protocol200) GetResourcePackChunkData(packUUID string, chunkIndex int32, progress int64, data []byte) *p200.ResourcePackChunkDataPacket {
+func (protocol *Protocol200) GetResourcePackChunkData(packUUID string, chunkIndex int32, progress int64, data []byte) interfaces.IPacket {
 	var pk = p200.NewResourcePackChunkDataPacket()
 	pk.PackUUID = packUUID
 	pk.ChunkIndex = chunkIndex
@@ -165,7 +165,7 @@ func (protocol *Protocol200) GetResourcePackChunkData(packUUID string, chunkInde
 	return pk
 }
 
-func (protocol *Protocol200) GetResourcePackDataInfo(pack interfaces.IPack) *p200.ResourcePackDataInfoPacket {
+func (protocol *Protocol200) GetResourcePackDataInfo(pack interfaces.IPack) interfaces.IPacket {
 	var pk = p200.NewResourcePackDataInfoPacket()
 	pk.PackUUID = pack.GetUUID()
 	pk.MaxChunkSize = data.ResourcePackChunkSize
@@ -176,7 +176,7 @@ func (protocol *Protocol200) GetResourcePackDataInfo(pack interfaces.IPack) *p20
 	return pk
 }
 
-func (protocol *Protocol200) GetResourcePackInfo(mustAccept bool, resourcePacks []interfaces.IPack, behaviorPacks []interfaces.IPack) *p200.ResourcePackInfoPacket {
+func (protocol *Protocol200) GetResourcePackInfo(mustAccept bool, resourcePacks []interfaces.IPack, behaviorPacks []interfaces.IPack) interfaces.IPacket {
 	var pk = p200.NewResourcePackInfoPacket()
 	pk.MustAccept = mustAccept
 
@@ -203,7 +203,7 @@ func (protocol *Protocol200) GetResourcePackInfo(mustAccept bool, resourcePacks 
 	return pk
 }
 
-func (protocol *Protocol200) GetResourcePackStack(mustAccept bool, resourcePacks []interfaces.IPack, behaviorPacks []interfaces.IPack) *p200.ResourcePackStackPacket {
+func (protocol *Protocol200) GetResourcePackStack(mustAccept bool, resourcePacks []interfaces.IPack, behaviorPacks []interfaces.IPack) interfaces.IPacket {
 	var pk = p200.NewResourcePackStackPacket()
 	pk.MustAccept = mustAccept
 	var resourceEntries []types.ResourcePackStackEntry
@@ -227,14 +227,14 @@ func (protocol *Protocol200) GetResourcePackStack(mustAccept bool, resourcePacks
 	return pk
 }
 
-func (protocol *Protocol200) GetServerHandshake(encryptionJwt string) *p200.ServerHandshakePacket {
+func (protocol *Protocol200) GetServerHandshake(encryptionJwt string) interfaces.IPacket {
 	var pk = p200.NewServerHandshakePacket()
 	pk.Jwt = encryptionJwt
 
 	return pk
 }
 
-func (protocol *Protocol200) GetSetEntityData(entity interfaces.IEntity, data map[uint32][]interface{}) *p200.SetEntityDataPacket {
+func (protocol *Protocol200) GetSetEntityData(entity interfaces.IEntity, data map[uint32][]interface{}) interfaces.IPacket {
 	var pk = p200.NewSetEntityDataPacket()
 	pk.RuntimeId = entity.GetRuntimeId()
 	pk.EntityData = data
@@ -242,7 +242,7 @@ func (protocol *Protocol200) GetSetEntityData(entity interfaces.IEntity, data ma
 	return pk
 }
 
-func (protocol *Protocol200) GetStartGame(player interfaces.IPlayer) *p200.StartGamePacket {
+func (protocol *Protocol200) GetStartGame(player interfaces.IPlayer) interfaces.IPacket {
 	var pk = p200.NewStartGamePacket()
 	pk.Generator = 1
 	pk.LevelSeed = 312402
@@ -273,7 +273,7 @@ func (protocol *Protocol200) GetStartGame(player interfaces.IPlayer) *p200.Start
 	return pk
 }
 
-func (protocol *Protocol200) GetText(text types.Text) *p200.TextPacket {
+func (protocol *Protocol200) GetText(text types.Text) interfaces.IPacket {
 	var pk = p200.NewTextPacket()
 	pk.TextType = text.TextType
 	pk.IsTranslation = text.IsTranslation
@@ -287,7 +287,7 @@ func (protocol *Protocol200) GetText(text types.Text) *p200.TextPacket {
 	return pk
 }
 
-func (protocol *Protocol200) GetTransfer(address string, port uint16) *p200.TransferPacket {
+func (protocol *Protocol200) GetTransfer(address string, port uint16) interfaces.IPacket {
 	var pk = p200.NewTransferPacket()
 	pk.Address = address
 	pk.Port = port
@@ -295,7 +295,7 @@ func (protocol *Protocol200) GetTransfer(address string, port uint16) *p200.Tran
 	return pk
 }
 
-func (protocol *Protocol200) GetUpdateAttributes(entity interfaces.IEntity, attributeMap *data2.AttributeMap) *p200.UpdateAttributesPacket {
+func (protocol *Protocol200) GetUpdateAttributes(entity interfaces.IEntity, attributeMap *data2.AttributeMap) interfaces.IPacket {
 	var pk = p200.NewUpdateAttributesPacket()
 	pk.RuntimeId = entity.GetRuntimeId()
 	pk.Attributes = attributeMap
