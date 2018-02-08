@@ -3,6 +3,7 @@ package interfaces
 import (
 	"gomine/vectors"
 	"gomine/entities/math"
+	"gomine/entities/data"
 )
 
 type IEntity interface {
@@ -35,4 +36,5 @@ type IEntity interface {
 	GetUniqueId() int64
 	GetEntityId() uint32
 	GetEntityData() map[uint32][]interface{}
+	GetAttributeMap() *data.AttributeMap
 }

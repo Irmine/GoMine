@@ -5,12 +5,13 @@ import (
 	server2 "goraklib/server"
 	"gomine/net/info"
 	"goraklib/protocol"
-	"gomine/players/handlers"
+	"gomine/players/handlers/p200"
 )
 
 type NetworkAdapter struct {
 	server interfaces.IServer
 	rakLibServer *server2.GoRakLibServer
+	protocolPool *ProtocolPool
 }
 
 /**
@@ -19,12 +20,22 @@ type NetworkAdapter struct {
 func NewNetworkAdapter(server interfaces.IServer) *NetworkAdapter {
 	var rakServer = server2.NewGoRakLibServer(server.GetName(), server.GetAddress(), server.GetPort())
 	rakServer.SetMinecraftProtocol(info.LatestProtocol)
-	rakServer.SetMinecraftVersion(info.GameVersionNetwork)
+	rakServer.SetMinecraftVersion(info.LatestGameVersionNetwork)
 	rakServer.SetMaxConnectedSessions(server.GetMaximumPlayers())
 	rakServer.SetDefaultGameMode("Creative")
 	rakServer.SetMotd(server.GetMotd())
 
-	return &NetworkAdapter{server, rakServer}
+	var adapter = &NetworkAdapter{server, rakServer, NewProtocolPool()}
+	adapter.protocolPool.RegisterDefaults()
+
+	return adapter
+}
+
+/**
+ * Returns the protocol pool of the network adapter.
+ */
+func (adapter *NetworkAdapter) GetProtocolPool() interfaces.IProtocolPool {
+	return adapter.protocolPool
 }
 
 /**
@@ -42,39 +53,12 @@ func (adapter *NetworkAdapter) Tick() {
 
 	for _, session := range adapter.rakLibServer.GetSessionManager().GetSessions() {
 		go func(session *server2.Session) {
-			for _, encapsulatedPacket := range session.GetReadyEncapsulatedPackets() {
-
-				player, _ := adapter.server.GetPlayerFactory().GetPlayerBySession(session)
-
-				batch := NewMinecraftPacketBatch(player, adapter.server.GetLogger())
-				batch.Buffer = encapsulatedPacket.Buffer
-				batch.Decode()
-
-				for _, packet := range batch.GetPackets() {
-					packet.DecodeHeader()
-					packet.Decode()
-
-					priorityHandlers := GetPacketHandlers(packet.GetId())
-
-					var handled = false
-					for _, h := range priorityHandlers {
-						for _, handler := range h {
-							if packet.IsDiscarded() {
-								return
-							}
-
-							ret := handler.Handle(packet, player, session, adapter.server)
-							if !handled {
-								handled = ret
-							}
-						}
-					}
-
-					if !handled {
-						adapter.server.GetLogger().Debug("Unhandled Minecraft packet with ID:", packet.GetId())
-					}
-				}
+			var player, _ = adapter.server.GetPlayerFactory().GetPlayerBySession(session)
+			if !adapter.server.GetPlayerFactory().PlayerExistsBySession(session) {
+				player = player.New(adapter.server, &MinecraftSession{server: adapter.server, session: session}, "")
 			}
+
+			adapter.HandlePackets(session, player)
 		}(session)
 	}
 
@@ -84,8 +68,30 @@ func (adapter *NetworkAdapter) Tick() {
 
 	for _, session := range adapter.rakLibServer.GetSessionManager().GetDisconnectedSessions() {
 		player, _ := adapter.server.GetPlayerFactory().GetPlayerBySession(session)
-		handler := handlers.NewDisconnectHandler()
+		handler := p200.NewDisconnectHandler()
 		handler.Handle(player, session, adapter.server)
+	}
+}
+
+/**
+ * Handles all packets of the given session + player.
+ */
+func (adapter *NetworkAdapter) HandlePackets(session *server2.Session, player interfaces.IPlayer) {
+	for _, encapsulatedPacket := range session.GetReadyEncapsulatedPackets() {
+		batch := NewMinecraftPacketBatch(player, adapter.server.GetLogger())
+		batch.Buffer = encapsulatedPacket.Buffer
+		batch.Decode()
+
+		for _, packet := range batch.GetPackets() {
+			if player.GetProtocolNumber() < 120 {
+				packet.DecodeId()
+			} else {
+				packet.DecodeHeader()
+			}
+			packet.Decode()
+
+			player.HandlePacket(packet, player)
+		}
 	}
 }
 
@@ -112,54 +118,4 @@ func (adapter *NetworkAdapter) SendPacket(pk interfaces.IPacket, session interfa
  */
 func (adapter *NetworkAdapter) SendBatch(batch interfaces.IMinecraftPacketBatch, session *server2.Session, priority byte) {
 	session.SendConnectedPacket(batch, protocol.ReliabilityReliableOrdered, priority)
-}
-
-/**
- * Returns if a packet with the given ID is registered.
- */
-func (adapter *NetworkAdapter) IsPacketRegistered(id int) bool {
-	return IsPacketRegistered(id)
-}
-
-/**
- * Returns a new packet with the given ID and a function that returns that packet.
- */
-func (adapter *NetworkAdapter) RegisterPacket(id int, function func() interfaces.IPacket) {
-	RegisterPacket(id, function)
-}
-
-/**
- * Returns a new packet with the given ID.
- */
-func (adapter *NetworkAdapter) GetPacket(id int) interfaces.IPacket {
-	return GetPacket(id)
-}
-
-/**
- * Registers a new packet handler to listen for packets with the given ID.
- * Returns a bool indicating success.
- */
-func (adapter *NetworkAdapter) RegisterPacketHandler(id int, handler interfaces.IPacketHandler, priority int) bool {
-	return RegisterPacketHandler(id, handler, priority)
-}
-
-/**
- * Returns all packet handlers registered on the given ID.
- */
-func (adapter *NetworkAdapter) GetPacketHandlers(id int) [][]interfaces.IPacketHandler {
-	return GetPacketHandlers(id)
-}
-
-/**
- * Deletes all packet handlers listening for packets with the given ID, on the given priority.
- */
-func (adapter *NetworkAdapter) DeregisterPacketHandlers(id int, priority int) {
-	DeregisterPacketHandlers(id, priority)
-}
-
-/**
- * Deletes a registered packet with the given ID.
- */
-func (adapter *NetworkAdapter) DeletePacket(id int) {
-	DeregisterPacket(id)
 }

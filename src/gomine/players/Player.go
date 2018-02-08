@@ -2,7 +2,6 @@ package players
 
 import (
 	"gomine/interfaces"
-	"gomine/net/packets"
 	"gomine/entities"
 	"gomine/vectors"
 	"gomine/entities/math"
@@ -10,6 +9,8 @@ import (
 	"sync"
 	"gomine/net"
 	"goraklib/server"
+	"gomine/net/packets/types"
+	"gomine/net/packets/data"
 )
 
 type Player struct {
@@ -70,11 +71,17 @@ func (player *Player) New(server interfaces.IServer, session interfaces.IMinecra
 }
 
 /**
+ * Sets the player's minecraft session.
+ */
+func (player *Player) SetMinecraftSession(session interfaces.IMinecraftSession) {
+	player.IMinecraftSession = session
+}
+
+/**
  * Returns a new minecraft session with the given server, session and login packet.
  */
-func (player *Player) NewMinecraftSession(server interfaces.IServer, session *server.Session, packet interfaces.IPacket) interfaces.IMinecraftSession {
-	var loginPacket = packet.(*packets.LoginPacket)
-	return net.NewMinecraftSession(server, session, loginPacket.Protocol, loginPacket.ClientData.GameVersion, loginPacket.ClientUUID, loginPacket.ClientXUID, loginPacket.ClientId)
+func (player *Player) NewMinecraftSession(server interfaces.IServer, session *server.Session, data types.SessionData) interfaces.IMinecraftSession {
+	return net.NewMinecraftSession(server, session, data)
 }
 
 /**
@@ -112,7 +119,7 @@ func (player *Player) SpawnPlayerTo(player2 interfaces.IPlayer) {
 	if !player2.HasSpawned() {
 		return
 	}
-	player.GetLevel().GetEntityHelper().SpawnPlayerTo(player, player2)
+	player.SendAddPlayer(player2)
 }
 
 /**
@@ -153,6 +160,14 @@ func (player *Player) GetServer() interfaces.IServer {
  */
 func (player *Player) GetName() string {
 	return player.playerName
+}
+
+/**
+ * Sets the player name of this player.
+ * Note: This function is internal, and should never be used by plugins.
+ */
+func (player *Player) SetName(name string) {
+	player.playerName = name
 }
 
 /**
@@ -223,15 +238,9 @@ func (player *Player) RemovePermission(permission string) bool {
 /**
  * Teleport player to a new position
  */
-func (player *Player) Teleport(v *vectors.TripleVector, rot *math.Rotation)  {
-	pk := packets.NewMovePlayerPacket()
-	pk.Position = *v
-	pk.Rotation = *rot
-	pk.OnGround = player.onGround
-	pk.RuntimeId = player.GetRuntimeId()
-	player.SendPacket(pk)
-
-	player.Position = v
+func (player *Player) Teleport(v *vectors.TripleVector, rot *math.Rotation) {
+	player.SetPosition(v)
+	player.SendMovePlayer(player, *v, *rot, data.MoveTeleport, player.onGround, 0)
 }
 
 /**
@@ -308,12 +317,10 @@ func (player *Player) SetGeometryData(data string) {
  * Sends a chunk to the player.
  */
 func (player *Player) SendChunk(chunk interfaces.IChunk, index int)  {
-	var pk = packets.NewFullChunkPacket()
-	pk.Chunk = chunk
+	player.SendFullChunkData(chunk)
 	player.mux.Lock()
 	player.usedChunks[index] = chunk
 	player.mux.Unlock()
-	player.SendPacket(pk)
 }
 
 /**
@@ -375,10 +382,7 @@ func (player *Player) Tick() {
  * Updates all entity attributes
  */
 func (player *Player) UpdateAttributes() {
-	pk := packets.NewUpdateAttributesPacket()
-	pk.EntityId = player.GetRuntimeId()
-	pk.Attributes = player.GetAttributeMap()
-	player.SendPacket(pk)
+	player.SendUpdateAttributes(player, player.GetAttributeMap())
 }
 
 
@@ -392,9 +396,9 @@ func (player *Player) SendEntityData()  {
  * Sends a message to this player.
  */
 func (player *Player) SendMessage(message string) {
-	var pk = packets.NewTextPacket()
-	pk.Message = message
-	player.SendPacket(pk)
+	var text = types.Text{}
+	text.Message = message
+	player.SendText(text)
 }
 
 /**
@@ -409,16 +413,6 @@ func (player *Player) HasSpawned() bool {
  */
 func (player *Player) SetSpawned(value bool) {
 	player.spawned = value
-}
-
-/**
- * Transfers the player to another server.
- */
-func (player *Player) Transfer(address string, port uint16) {
-	var packet = packets.NewTransferPacket()
-	packet.Address = address
-	packet.Port = port
-	player.SendPacket(packet)
 }
 
 /**

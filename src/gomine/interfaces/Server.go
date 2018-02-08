@@ -28,8 +28,8 @@ type IServer interface {
 	Tick(int64)
 	GetPermissionManager() IPermissionManager
 	GetEngineName() string
-	GetVersion() string
-	GetNetworkVersion() string
+	GetMinecraftVersion() string
+	GetMinecraftNetworkVersion() string
 	GetNetworkAdapter() INetworkAdapter
 	GetPlayerFactory() IPlayerFactory
 	GetPackHandler() IPackHandler

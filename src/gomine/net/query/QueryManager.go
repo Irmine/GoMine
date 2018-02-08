@@ -21,6 +21,9 @@ func NewQueryManager(server interfaces.IServer) QueryManager {
 	return QueryManager{server, b}
 }
 
+/**
+ * Handles an incoming query.
+ */
 func (manager *QueryManager) HandleQuery(query *Query) {
 	switch query.Header {
 	case QueryChallenge:

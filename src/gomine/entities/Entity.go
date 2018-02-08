@@ -6,6 +6,7 @@ import (
 	"gomine/entities/math"
 	math2 "math"
 	"sync"
+	"gomine/entities/data"
 )
 
 var RuntimeId uint64 = 0
@@ -19,7 +20,7 @@ const (
 )
 
 type Entity struct {
-	attributeMap *AttributeMap
+	attributeMap *data.AttributeMap
 	Motion *vectors.TripleVector
 	runtimeId uint64
 	closed bool
@@ -42,7 +43,7 @@ type Entity struct {
 func NewEntity(position *vectors.TripleVector, rotation *math.Rotation, motion *vectors.TripleVector, level interfaces.ILevel, dimension interfaces.IDimension) *Entity {
 	RuntimeId++
 	ent := Entity{
-		NewAttributeMap(),
+		data.NewAttributeMap(),
 		motion,
 		RuntimeId,
 		false,
@@ -51,7 +52,7 @@ func NewEntity(position *vectors.TripleVector, rotation *math.Rotation, motion *
 		dimension,
 		rotation,
 		"",
-		map[uint64]interfaces.IPlayer{},
+		make(map[uint64]interfaces.IPlayer),
 		sync.Mutex{},
 		make(map[uint32][]interface{}),
 	}
@@ -77,14 +78,14 @@ func (entity *Entity) SetNameTag(nameTag string) {
 /**
  * Returns the attribute map of this entity.
  */
-func (entity *Entity) GetAttributeMap() *AttributeMap {
+func (entity *Entity) GetAttributeMap() *data.AttributeMap {
 	return entity.attributeMap
 }
 
 /**
  * Sets the attribute map of this entity.
  */
-func (entity *Entity) SetAttributeMap(attMap *AttributeMap) {
+func (entity *Entity) SetAttributeMap(attMap *data.AttributeMap) {
 	entity.attributeMap = attMap
 }
 
@@ -99,7 +100,7 @@ func (entity *Entity) GetEntityData() map[uint32][]interface{} {
  * Initiates all entity data flags
  */
 func (entity *Entity) InitDataFlags() {
-	entity.EntityData[DataFlags] = append(entity.EntityData[DataFlags], uint32(Long))
+	entity.EntityData[DataFlags] = append(entity.EntityData[DataFlags], uint32(data.Long))
 	entity.EntityData[DataFlags] = append(entity.EntityData[DataFlags], int64(0))
 	entity.SetDataFlag(AffectedByGravity, true)
 }
@@ -281,14 +282,14 @@ func (entity *Entity) Close() {
  * Returns the health points of this entity.
  */
 func (entity *Entity) GetHealth() float32 {
-	return entity.attributeMap.GetAttribute(AttributeHealth).GetValue()
+	return entity.attributeMap.GetAttribute(data.AttributeHealth).GetValue()
 }
 
 /**
  * Sets the health points of this entity.
  */
 func (entity *Entity) SetHealth(health float32) {
-	entity.attributeMap.GetAttribute(AttributeHealth).SetValue(health)
+	entity.attributeMap.GetAttribute(data.AttributeHealth).SetValue(health)
 }
 
 /**
@@ -306,7 +307,11 @@ func (entity *Entity) SpawnTo(player interfaces.IPlayer)  {
 	if !player.HasSpawned() {
 		return
 	}
-	entity.GetLevel().GetEntityHelper().SpawnEntityTo(entity, player)
+	if entity.GetRuntimeId() == player.GetRuntimeId() {
+		return
+	}
+	entity.AddViewer(player)
+	player.SendAddEntity(entity)
 }
 
 /**
@@ -316,7 +321,8 @@ func (entity *Entity) DespawnFrom(player interfaces.IPlayer) {
 	if !player.HasSpawned() {
 		return
 	}
-	entity.GetLevel().GetEntityHelper().DespawnEntityFrom(entity, player)
+	entity.RemoveViewer(player)
+	player.SendRemoveEntity(entity)
 }
 
 /**

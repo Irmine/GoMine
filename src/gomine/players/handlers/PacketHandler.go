@@ -5,22 +5,14 @@ package handlers
  * Handlers can be registered on unhandled packets in order to handle them from a plugin.
  */
 type PacketHandler struct {
-	id int
 	priority int
 }
 
 /**
  * Returns a new packet handler with the given ID.
  */
-func NewPacketHandler(id int) *PacketHandler {
-	return &PacketHandler{id, 0}
-}
-
-/**
-* Returns the ID the handler listens on.
-*/
-func (handler *PacketHandler) GetId() int {
-	return handler.id
+func NewPacketHandler() *PacketHandler {
+	return &PacketHandler{0}
 }
 
 /**

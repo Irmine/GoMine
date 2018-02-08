@@ -4,6 +4,7 @@ import (
 	"goraklib/server"
 	"gomine/entities/math"
 	"gomine/vectors"
+	"gomine/net/packets/types"
 )
 
 type IPlayerFactory interface {
@@ -13,12 +14,15 @@ type IPlayerFactory interface {
 	GetPlayerBySession(*server.Session) (IPlayer, error)
 	GetPlayerCount() uint
 	RemovePlayer(player IPlayer)
+	PlayerExistsBySession(session *server.Session) bool
+	PlayerExists(name string) bool
 }
 
 type IPlayer interface {
 	IEntity
 	IMinecraftSession
 	GetName() string
+	SetName(name string)
 	GetDisplayName() string
 	SetDisplayName(string)
 	GetPermissionGroup() IPermissionGroup
@@ -39,9 +43,9 @@ type IPlayer interface {
 	GetGeometryData() string
 	SetGeometryData(string)
 	SendChunk(IChunk, int)
-	NewMinecraftSession(server IServer, session *server.Session, loginPacket IPacket) IMinecraftSession
+	NewMinecraftSession(IServer, *server.Session, types.SessionData) IMinecraftSession
 	New(IServer, IMinecraftSession, string) IPlayer
-	SyncMove(x, y, z, pitch, yaw, headYaw float32, onGround bool)
+	SyncMove(float32, float32, float32, float32, float32, float32, bool)
 	SendMessage(string)
 	PlaceInWorld(*vectors.TripleVector, *math.Rotation, ILevel, IDimension)
 	HasChunkInUse(int) bool
@@ -53,5 +57,5 @@ type IPlayer interface {
 	UpdateAttributes()
 	HasSpawned() bool
 	SetSpawned(bool)
-	Transfer(string, uint16)
+	SetMinecraftSession(IMinecraftSession)
 }

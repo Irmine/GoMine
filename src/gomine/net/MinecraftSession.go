@@ -5,6 +5,7 @@ import (
 	"gomine/utils"
 	"gomine/interfaces"
 	"goraklib/protocol"
+	"gomine/net/packets/types"
 )
 
 type MinecraftSession struct {
@@ -13,9 +14,14 @@ type MinecraftSession struct {
 	uuid utils.UUID
 	xuid string
 	clientId int
-	minecraftProtocol int32
+
+	protocol interfaces.IProtocol
+	protocolNumber int32
 	minecraftVersion string
+
 	language string
+
+	clientPlatform int32
 	
 	encryptionHandler *utils.EncryptionHandler
 	usesEncryption bool
@@ -24,21 +30,59 @@ type MinecraftSession struct {
 	initialized bool
 }
 
-func NewMinecraftSession(server interfaces.IServer, session *server.Session, protocol int32, version string, uuid utils.UUID, xuid string, clientId int) *MinecraftSession {
+func NewMinecraftSession(server interfaces.IServer, session *server.Session, data types.SessionData) *MinecraftSession {
 	return &MinecraftSession{
 		server,
 		session,
-		uuid,
-		xuid,
-		clientId,
-		protocol,
-		version,
-		"en_US",
+		data.ClientUUID,
+		data.ClientXUID,
+		data.ClientId,
+		server.GetNetworkAdapter().GetProtocolPool().GetProtocol(data.ProtocolNumber),
+		data.ProtocolNumber,
+		data.GameVersion,
+		data.Language,
+		int32(data.DeviceOS),
 		utils.NewEncryptionHandler(),
 		false,
 		false,
 		true,
 	}
+}
+
+/**
+ * Returns the platform the client uses to player the game.
+ */
+func (session *MinecraftSession) GetPlatform() int32 {
+	return session.clientPlatform
+}
+
+/**
+ * Returns the protocol number the client used to join the server.
+ */
+func (session *MinecraftSession) GetProtocolNumber() int32 {
+	return session.protocolNumber
+}
+
+/**
+ * Returns the protocol of the client.
+ */
+func (session *MinecraftSession) GetProtocol() interfaces.IProtocol {
+	return session.protocol
+}
+
+/**
+ * Sets the protocol of this minecraft session.
+ */
+func (session *MinecraftSession) SetProtocol(protocol interfaces.IProtocol) {
+	session.protocolNumber = protocol.GetProtocolNumber()
+	session.protocol = protocol
+}
+
+/**
+ * Returns the Minecraft version the player used to join the server.
+ */
+func (session *MinecraftSession) GetGameVersion() string {
+	return session.minecraftVersion
 }
 
 /**
@@ -156,4 +200,29 @@ func (session *MinecraftSession) SendBatch(batch interfaces.IMinecraftPacketBatc
  */
 func (session *MinecraftSession) IsInitialized() bool {
 	return session.initialized
+}
+
+/**
+ * Handles packets after the initial LoginPacket.
+ */
+func (session *MinecraftSession) HandlePacket(packet interfaces.IPacket, player interfaces.IPlayer) {
+	priorityHandlers := session.GetProtocol().GetHandlersById(packet.GetId())
+
+	var handled = false
+	handling:
+		for _, h := range priorityHandlers {
+			for _, handler := range h {
+				if packet.IsDiscarded() {
+					break handling
+				}
+
+				ret := handler.Handle(packet, player, session.session, session.server)
+				if !handled {
+					handled = ret
+				}
+			}
+		}
+	if !handled {
+		session.server.GetLogger().Debug("Unhandled Minecraft packet with ID:", packet.GetId())
+	}
 }
