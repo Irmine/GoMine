@@ -203,7 +203,7 @@ func (session *MinecraftSession) IsInitialized() bool {
 }
 
 /**
- * Handles packets after the initial LoginPacket.
+ * Handles packets of this session.
  */
 func (session *MinecraftSession) HandlePacket(packet interfaces.IPacket, player interfaces.IPlayer) {
 	priorityHandlers := session.GetProtocol().GetHandlersById(packet.GetId())
