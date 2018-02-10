@@ -182,6 +182,9 @@ func (session *MinecraftSession) SetXBOXLiveAuthenticated(value bool) {
  * Sends a packet to this session.
  */
 func (session *MinecraftSession) SendPacket(packet interfaces.IPacket) {
+	if session.session == nil {
+		return
+	}
 	var b = NewMinecraftPacketBatch(session, session.server.GetLogger())
 	b.AddPacket(packet)
 
@@ -192,6 +195,9 @@ func (session *MinecraftSession) SendPacket(packet interfaces.IPacket) {
  * Sends a batch to this session.
  */
 func (session *MinecraftSession) SendBatch(batch interfaces.IMinecraftPacketBatch) {
+	if session.session == nil {
+		return
+	}
 	session.session.SendConnectedPacket(batch, protocol.ReliabilityReliableOrdered, server.PriorityMedium)
 }
 

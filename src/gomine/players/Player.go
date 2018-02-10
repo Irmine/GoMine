@@ -47,6 +47,7 @@ type Player struct {
  */
 func NewPlayer(server interfaces.IServer, name string) *Player {
 	var player = &Player{}
+	player.IMinecraftSession = &net.MinecraftSession{}
 
 	player.playerName = name
 	player.displayName = name
