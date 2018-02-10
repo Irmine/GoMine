@@ -164,7 +164,7 @@ func (player *Player) GetName() string {
 
 /**
  * Sets the player name of this player.
- * Note: This function is internal, and should never be used by plugins.
+ * Note: This function is internal, and should not be used by plugins.
  */
 func (player *Player) SetName(name string) {
 	player.playerName = name

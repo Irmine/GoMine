@@ -80,6 +80,8 @@ func (pack *Pack) Load() error {
 		err := json.Unmarshal(bytes, manifest)
 		pack.manifest = manifest
 
+		reader.Close()
+
 		return err
 	}
 	return errors.New("No manifest.json or pack_manifest.json could be found in zip: " + pack.packPath)
