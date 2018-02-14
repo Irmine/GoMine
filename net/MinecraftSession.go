@@ -1,30 +1,30 @@
 package net
 
 import (
-	"goraklib/server"
-	"gomine/utils"
-	"gomine/interfaces"
-	"goraklib/protocol"
-	"gomine/net/packets/types"
+	"github.com/irmine/gomine/interfaces"
+	"github.com/irmine/gomine/net/packets/types"
+	"github.com/irmine/gomine/utils"
+	"github.com/irmine/goraklib/protocol"
+	"github.com/irmine/goraklib/server"
 )
 
 type MinecraftSession struct {
-	server interfaces.IServer
-	session *server.Session
-	uuid utils.UUID
-	xuid string
+	server   interfaces.IServer
+	session  *server.Session
+	uuid     utils.UUID
+	xuid     string
 	clientId int
 
-	protocol interfaces.IProtocol
-	protocolNumber int32
+	protocol         interfaces.IProtocol
+	protocolNumber   int32
 	minecraftVersion string
 
 	language string
 
 	clientPlatform int32
-	
-	encryptionHandler *utils.EncryptionHandler
-	usesEncryption bool
+
+	encryptionHandler     *utils.EncryptionHandler
+	usesEncryption        bool
 	xboxLiveAuthenticated bool
 
 	initialized bool
@@ -215,19 +215,19 @@ func (session *MinecraftSession) HandlePacket(packet interfaces.IPacket, player 
 	priorityHandlers := session.GetProtocol().GetHandlersById(packet.GetId())
 
 	var handled = false
-	handling:
-		for _, h := range priorityHandlers {
-			for _, handler := range h {
-				if packet.IsDiscarded() {
-					break handling
-				}
+handling:
+	for _, h := range priorityHandlers {
+		for _, handler := range h {
+			if packet.IsDiscarded() {
+				break handling
+			}
 
-				ret := handler.Handle(packet, player, session.session, session.server)
-				if !handled {
-					handled = ret
-				}
+			ret := handler.Handle(packet, player, session.session, session.server)
+			if !handled {
+				handled = ret
 			}
 		}
+	}
 	if !handled {
 		session.server.GetLogger().Debug("Unhandled Minecraft packet with ID:", packet.GetId())
 	}

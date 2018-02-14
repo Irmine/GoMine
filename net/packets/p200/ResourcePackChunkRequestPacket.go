@@ -1,13 +1,13 @@
 package p200
 
 import (
-	"gomine/net/info"
-	"gomine/net/packets"
+	"github.com/irmine/gomine/net/info"
+	"github.com/irmine/gomine/net/packets"
 )
 
 type ResourcePackChunkRequestPacket struct {
 	*packets.Packet
-	PackUUID string
+	PackUUID   string
 	ChunkIndex int32
 }
 

@@ -133,9 +133,9 @@ func (cube *Cube) GetVectorsWithin(density float32) []TripleVector {
  * Checks whether the given vector is within this cube or not.
  */
 func (cube *Cube) IsInside(vector TripleVector) bool {
-	return  vector.X <= cube.MaxX && vector.X >= cube.MinX &&
-			vector.Y <= cube.MaxY && vector.Y >= cube.MinY &&
-			vector.Z <= cube.MaxZ && vector.Z >= cube.MinZ
+	return vector.X <= cube.MaxX && vector.X >= cube.MinX &&
+		vector.Y <= cube.MaxY && vector.Y >= cube.MinY &&
+		vector.Z <= cube.MaxZ && vector.Z >= cube.MinZ
 }
 
 /**

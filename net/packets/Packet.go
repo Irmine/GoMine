@@ -1,19 +1,19 @@
 package packets
 
 import (
-	"gomine/utils"
-	"gomine/vectors"
-	"gomine/entities/math"
-	"gomine/entities/data"
-	"gomine/net/packets/types"
+	"github.com/irmine/gomine/entities/data"
+	"github.com/irmine/gomine/entities/math"
+	"github.com/irmine/gomine/net/packets/types"
+	"github.com/irmine/gomine/utils"
+	"github.com/irmine/gomine/vectors"
 )
 
 type Packet struct {
 	*utils.BinaryStream
-	PacketId int
-	SenderIdentifier byte
+	PacketId           int
+	SenderIdentifier   byte
 	ReceiverIdentifier byte
-	discarded bool
+	discarded          bool
 }
 
 func NewPacket(id int) *Packet {

@@ -1,10 +1,11 @@
 package defaults
 
 import (
-	"gomine/commands"
-	"gomine/interfaces"
-	"gomine/utils"
 	"strconv"
+
+	"github.com/irmine/gomine/commands"
+	"github.com/irmine/gomine/interfaces"
+	"github.com/irmine/gomine/utils"
 )
 
 type ListCommand struct {

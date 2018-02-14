@@ -1,7 +1,7 @@
 package defaults
 
 import (
-	"gomine/interfaces"
+	"github.com/irmine/gomine/interfaces"
 )
 
 type Flat struct {

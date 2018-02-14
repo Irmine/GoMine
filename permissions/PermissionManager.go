@@ -1,16 +1,17 @@
 package permissions
 
 import (
-	"gomine/interfaces"
 	"errors"
+
+	"github.com/irmine/gomine/interfaces"
 )
 
 type PermissionManager struct {
 	server interfaces.IServer
 
 	defaultGroup interfaces.IPermissionGroup
-	permissions map[string]interfaces.IPermission
-	groups map[string]interfaces.IPermissionGroup
+	permissions  map[string]interfaces.IPermission
+	groups       map[string]interfaces.IPermissionGroup
 }
 
 /**

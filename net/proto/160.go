@@ -1,13 +1,13 @@
 package proto
 
 import (
-	"gomine/net/info"
-	"gomine/interfaces"
-	"gomine/net/packets/p160"
-	"gomine/net/packets/types"
-	"gomine/permissions"
-	"gomine/vectors"
-	p160handler "gomine/players/handlers/p160"
+	"github.com/irmine/gomine/interfaces"
+	"github.com/irmine/gomine/net/info"
+	"github.com/irmine/gomine/net/packets/p160"
+	"github.com/irmine/gomine/net/packets/types"
+	"github.com/irmine/gomine/permissions"
+	p160handler "github.com/irmine/gomine/players/handlers/p160"
+	"github.com/irmine/gomine/vectors"
 )
 
 type Protocol160 struct {
@@ -85,17 +85,17 @@ func (protocol *Protocol160) GetPlayerList(listType byte, players map[string]int
 	var entries = map[string]types.PlayerListEntry{}
 	for name, player := range players {
 		entries[name] = types.PlayerListEntry{
-			UUID: player.GetUUID(),
-			XUID: player.GetXUID(),
+			UUID:           player.GetUUID(),
+			XUID:           player.GetXUID(),
 			EntityUniqueId: player.GetUniqueId(),
-			Username: player.GetName(),
-			DisplayName: player.GetDisplayName(),
-			Platform: player.GetPlatform(),
-			SkinId: player.GetSkinId(),
-			SkinData: player.GetSkinData(),
-			CapeData: player.GetCapeData(),
-			GeometryName: player.GetGeometryName(),
-			GeometryData: player.GetGeometryData(),
+			Username:       player.GetName(),
+			DisplayName:    player.GetDisplayName(),
+			Platform:       player.GetPlatform(),
+			SkinId:         player.GetSkinId(),
+			SkinData:       player.GetSkinData(),
+			CapeData:       player.GetCapeData(),
+			GeometryName:   player.GetGeometryName(),
+			GeometryData:   player.GetGeometryData(),
 		}
 	}
 	pk.Entries = entries

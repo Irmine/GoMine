@@ -1,14 +1,14 @@
 package p200
 
 import (
-	"gomine/net/info"
-	"gomine/entities/data"
-	"gomine/net/packets"
+	"github.com/irmine/gomine/entities/data"
+	"github.com/irmine/gomine/net/info"
+	"github.com/irmine/gomine/net/packets"
 )
 
 type UpdateAttributesPacket struct {
 	*packets.Packet
-	RuntimeId uint64
+	RuntimeId  uint64
 	Attributes *data.AttributeMap
 }
 

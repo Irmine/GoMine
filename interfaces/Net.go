@@ -1,13 +1,13 @@
 package interfaces
 
 import (
-	"goraklib/server"
-	"gomine/utils"
-	"gomine/net/info"
-	"gomine/entities/data"
-	"gomine/vectors"
-	"gomine/entities/math"
-	"gomine/net/packets/types"
+	"github.com/irmine/gomine/entities/data"
+	"github.com/irmine/gomine/entities/math"
+	"github.com/irmine/gomine/net/info"
+	"github.com/irmine/gomine/net/packets/types"
+	"github.com/irmine/gomine/utils"
+	"github.com/irmine/gomine/vectors"
+	"github.com/irmine/goraklib/server"
 )
 
 type IPacketHandler interface {

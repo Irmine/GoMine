@@ -1,11 +1,11 @@
 package p200
 
 import (
-	"gomine/interfaces"
-	"goraklib/server"
-	"gomine/net/packets/p200"
-	"gomine/net/packets/data"
-	"gomine/players/handlers"
+	"github.com/irmine/gomine/interfaces"
+	"github.com/irmine/gomine/net/packets/data"
+	"github.com/irmine/gomine/net/packets/p200"
+	"github.com/irmine/gomine/players/handlers"
+	"github.com/irmine/goraklib/server"
 )
 
 type ResourcePackChunkRequestHandler struct {
@@ -27,7 +27,7 @@ func (handler ResourcePackChunkRequestHandler) Handle(packet interfaces.IPacket,
 		}
 
 		var pack = server.GetPackHandler().GetPack(request.PackUUID)
-		player.SendResourcePackChunkData(request.PackUUID, request.ChunkIndex, int64(data.ResourcePackChunkSize * request.ChunkIndex), pack.GetChunk(int(data.ResourcePackChunkSize * request.ChunkIndex), data.ResourcePackChunkSize))
+		player.SendResourcePackChunkData(request.PackUUID, request.ChunkIndex, int64(data.ResourcePackChunkSize*request.ChunkIndex), pack.GetChunk(int(data.ResourcePackChunkSize*request.ChunkIndex), data.ResourcePackChunkSize))
 
 		return true
 	}

@@ -1,16 +1,16 @@
 package p200
 
 import (
-	"gomine/vectors"
-	"gomine/net/info"
-	"gomine/entities/math"
-	"gomine/entities/data"
-	"gomine/net/packets"
+	"github.com/irmine/gomine/entities/data"
+	"github.com/irmine/gomine/entities/math"
+	"github.com/irmine/gomine/net/info"
+	"github.com/irmine/gomine/net/packets"
+	"github.com/irmine/gomine/vectors"
 )
 
 type AddEntityPacket struct {
 	*packets.Packet
-	UniqueId int64
+	UniqueId   int64
 	RuntimeId  uint64
 	EntityType uint32
 	Position   vectors.TripleVector

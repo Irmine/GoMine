@@ -1,13 +1,14 @@
 package commands
 
 import (
-	"gomine/interfaces"
 	"errors"
+
+	"github.com/irmine/gomine/interfaces"
 )
 
 type CommandHolder struct {
 	commands map[string]interfaces.ICommand
-	aliases map[string]interfaces.ICommand
+	aliases  map[string]interfaces.ICommand
 }
 
 /**
@@ -39,7 +40,7 @@ func (holder *CommandHolder) UnRegisterCommand(commandName string) bool {
 	}
 	var command, _ = holder.GetCommand(commandName)
 
-	for _, alias := range command.GetAliases()  {
+	for _, alias := range command.GetAliases() {
 		holder.unRegisterAlias(alias)
 	}
 	delete(holder.commands, commandName)
@@ -86,7 +87,7 @@ func (holder *CommandHolder) GetCommandByName(commandName string) (interfaces.IC
  */
 func (holder *CommandHolder) RegisterCommand(command interfaces.ICommand) {
 	holder.commands[command.GetName()] = command
-	for _, alias := range command.GetAliases()  {
+	for _, alias := range command.GetAliases() {
 		holder.registerAlias(alias, command)
 	}
 }

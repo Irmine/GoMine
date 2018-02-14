@@ -1,16 +1,16 @@
 package p160
 
 import (
-	"gomine/net/info"
-	"gomine/net/packets"
-	"gomine/net/packets/types"
-	"gomine/net/packets/data"
+	"github.com/irmine/gomine/net/info"
+	"github.com/irmine/gomine/net/packets"
+	"github.com/irmine/gomine/net/packets/data"
+	"github.com/irmine/gomine/net/packets/types"
 )
 
 type PlayerListPacket struct {
 	*packets.Packet
 	ListType byte
-	Entries map[string]types.PlayerListEntry
+	Entries  map[string]types.PlayerListEntry
 }
 
 func NewPlayerListPacket() *PlayerListPacket {

@@ -3,7 +3,8 @@ package packs
 import (
 	"errors"
 	"strconv"
-	"gomine/utils"
+
+	"github.com/irmine/gomine/utils"
 )
 
 type BehaviorPack struct {

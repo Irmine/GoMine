@@ -1,13 +1,13 @@
 package plugins
 
-import "gomine/interfaces"
+import "github.com/irmine/gomine/interfaces"
 
 type Manifest struct {
-	Name string
-	Description string
-	Version string
-	APIVersion string
-	Author string
+	Name         string
+	Description  string
+	Version      string
+	APIVersion   string
+	Author       string
 	Organisation string
 }
 

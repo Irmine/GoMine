@@ -1,16 +1,16 @@
 package p200
 
 import (
-	"gomine/net/info"
-	"gomine/net/packets"
+	"github.com/irmine/gomine/net/info"
+	"github.com/irmine/gomine/net/packets"
 )
 
 type CommandRequestPacket struct {
 	*packets.Packet
 	CommandText string
-	Type uint32
-	RequestId string
-	Internal bool
+	Type        uint32
+	RequestId   string
+	Internal    bool
 }
 
 func NewCommandRequestPacket() *CommandRequestPacket {

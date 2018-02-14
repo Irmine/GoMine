@@ -1,9 +1,9 @@
 package entities
 
 import (
-	"gomine/vectors"
-	"gomine/interfaces"
-	"gomine/entities/math"
+	"github.com/irmine/gomine/entities/math"
+	"github.com/irmine/gomine/interfaces"
+	"github.com/irmine/gomine/vectors"
 )
 
 type LivingEntity struct {

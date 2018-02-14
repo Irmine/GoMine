@@ -1,22 +1,22 @@
 package p200
 
 import (
-	"gomine/net/info"
-	"gomine/net/packets"
-	"gomine/net/packets/data"
+	"github.com/irmine/gomine/net/info"
+	"github.com/irmine/gomine/net/packets"
+	"github.com/irmine/gomine/net/packets/data"
 )
 
 type TextPacket struct {
 	*packets.Packet
-	TextType byte
-	IsTranslation bool
+	TextType              byte
+	IsTranslation         bool
 	TranslationParameters []string
-	SourceName string
-	SourceDisplayName string
-	SourcePlatform int32
-	Message string
-	XUID string
-	UnknownString string
+	SourceName            string
+	SourceDisplayName     string
+	SourcePlatform        int32
+	Message               string
+	XUID                  string
+	UnknownString         string
 }
 
 func NewTextPacket() *TextPacket {

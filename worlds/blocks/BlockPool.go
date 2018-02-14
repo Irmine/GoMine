@@ -1,7 +1,7 @@
 package blocks
 
 import (
-	"gomine/interfaces"
+	"github.com/irmine/gomine/interfaces"
 )
 
 var blocks = map[int]func(byte) interfaces.IBlock{}

@@ -1,8 +1,9 @@
 package arguments
 
 import (
-	"gomine/interfaces"
 	"strings"
+
+	"github.com/irmine/gomine/interfaces"
 )
 
 type StringEnum struct {

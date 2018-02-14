@@ -1,9 +1,10 @@
 package packs
 
 import (
-	"gomine/interfaces"
 	"io/ioutil"
 	"path/filepath"
+
+	"github.com/irmine/gomine/interfaces"
 )
 
 type PackHandler struct {

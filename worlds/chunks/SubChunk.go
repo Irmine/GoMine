@@ -1,10 +1,10 @@
 package chunks
 
 type SubChunk struct {
-	BlockIds []byte
-	BlockData []byte
+	BlockIds   []byte
+	BlockData  []byte
 	BlockLight []byte
-	SkyLight []byte
+	SkyLight   []byte
 }
 
 func NewSubChunk() *SubChunk {

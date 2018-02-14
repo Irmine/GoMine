@@ -1,14 +1,14 @@
 package p200
 
 import (
-	"gomine/net/info"
-	"gomine/net/packets"
+	"github.com/irmine/gomine/net/info"
+	"github.com/irmine/gomine/net/packets"
 )
 
 type TransferPacket struct {
 	*packets.Packet
 	Address string
-	Port uint16
+	Port    uint16
 }
 
 func NewTransferPacket() *TransferPacket {

@@ -1,12 +1,12 @@
 package p200
 
 import (
-	"gomine/interfaces"
-	"goraklib/server"
-	"gomine/utils"
-	"gomine/net/packets/p200"
-	"gomine/net/packets/data"
-	"gomine/players/handlers"
+	"github.com/irmine/gomine/interfaces"
+	"github.com/irmine/gomine/net/packets/data"
+	"github.com/irmine/gomine/net/packets/p200"
+	"github.com/irmine/gomine/players/handlers"
+	"github.com/irmine/gomine/utils"
+	"github.com/irmine/goraklib/server"
 )
 
 type RequestChunkRadiusHandler struct {

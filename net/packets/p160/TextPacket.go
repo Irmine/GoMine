@@ -1,19 +1,19 @@
 package p160
 
 import (
-	"gomine/net/info"
-	"gomine/net/packets"
-	"gomine/net/packets/data"
+	"github.com/irmine/gomine/net/info"
+	"github.com/irmine/gomine/net/packets"
+	"github.com/irmine/gomine/net/packets/data"
 )
 
 type TextPacket struct {
 	*packets.Packet
-	TextType byte
-	IsTranslation bool
+	TextType              byte
+	IsTranslation         bool
 	TranslationParameters []string
-	SourceName string
-	Message string
-	XUID string
+	SourceName            string
+	Message               string
+	XUID                  string
 }
 
 func NewTextPacket() *TextPacket {

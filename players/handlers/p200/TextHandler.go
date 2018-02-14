@@ -1,12 +1,12 @@
 package p200
 
 import (
-	"gomine/interfaces"
-	"goraklib/server"
-	"gomine/net/packets/p200"
-	"gomine/net/packets/data"
-	"gomine/net/packets/types"
-	"gomine/players/handlers"
+	"github.com/irmine/gomine/interfaces"
+	"github.com/irmine/gomine/net/packets/data"
+	"github.com/irmine/gomine/net/packets/p200"
+	"github.com/irmine/gomine/net/packets/types"
+	"github.com/irmine/gomine/players/handlers"
+	"github.com/irmine/goraklib/server"
 )
 
 type TextHandler struct {

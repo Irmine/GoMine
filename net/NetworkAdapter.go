@@ -1,15 +1,15 @@
 package net
 
 import (
-	"gomine/interfaces"
-	server2 "goraklib/server"
-	"gomine/net/info"
-	"goraklib/protocol"
-	"gomine/players/handlers/p200"
+	"github.com/irmine/gomine/interfaces"
+	"github.com/irmine/gomine/net/info"
+	"github.com/irmine/gomine/players/handlers/p200"
+	"github.com/irmine/goraklib/protocol"
+	server2 "github.com/irmine/goraklib/server"
 )
 
 type NetworkAdapter struct {
-	server interfaces.IServer
+	server       interfaces.IServer
 	rakLibServer *server2.GoRakLibServer
 	protocolPool *ProtocolPool
 }

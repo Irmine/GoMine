@@ -1,22 +1,22 @@
 package utils
 
 import (
+	"crypto/aes"
+	"crypto/cipher"
 	"crypto/ecdsa"
 	"crypto/sha256"
-	"crypto/cipher"
-	"crypto/aes"
 )
 
 type EncryptionData struct {
-	ClientPublicKey *ecdsa.PublicKey
-	ServerPrivateKey *ecdsa.PrivateKey
-	ServerToken []byte
-	SharedSecret []byte
+	ClientPublicKey       *ecdsa.PublicKey
+	ServerPrivateKey      *ecdsa.PrivateKey
+	ServerToken           []byte
+	SharedSecret          []byte
 	DecryptSecretKeyBytes [32]byte
 	EncryptSecretKeyBytes [32]byte
 
-	DecryptIV []byte
-	EncryptIV []byte
+	DecryptIV     []byte
+	EncryptIV     []byte
 	DecryptCipher cipher.Block
 	EncryptCipher cipher.Block
 

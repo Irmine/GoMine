@@ -6,7 +6,7 @@ type Stone struct {
 
 const (
 	StoneBlastResistance = 30
-	StoneHardness = 1.5
+	StoneHardness        = 1.5
 )
 
 func NewStone(data byte) *Stone {

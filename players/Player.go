@@ -1,16 +1,17 @@
 package players
 
 import (
-	"gomine/interfaces"
-	"gomine/entities"
-	"gomine/vectors"
-	"gomine/entities/math"
 	math2 "math"
 	"sync"
-	"gomine/net"
-	"goraklib/server"
-	"gomine/net/packets/types"
-	"gomine/net/packets/data"
+
+	"github.com/irmine/gomine/entities"
+	"github.com/irmine/gomine/entities/math"
+	"github.com/irmine/gomine/interfaces"
+	"github.com/irmine/gomine/net"
+	"github.com/irmine/gomine/net/packets/data"
+	"github.com/irmine/gomine/net/packets/types"
+	"github.com/irmine/gomine/vectors"
+	"github.com/irmine/goraklib/server"
 )
 
 type Player struct {
@@ -22,15 +23,15 @@ type Player struct {
 
 	spawned bool
 
-	permissions map[string]interfaces.IPermission
+	permissions     map[string]interfaces.IPermission
 	permissionGroup interfaces.IPermissionGroup
 
-	onGround bool
+	onGround     bool
 	viewDistance int32
 
-	skinId string
-	skinData []byte
-	capeData []byte
+	skinId       string
+	skinData     []byte
+	capeData     []byte
 	geometryName string
 	geometryData string
 
@@ -38,7 +39,7 @@ type Player struct {
 
 	server interfaces.IServer
 
-	mux sync.Mutex
+	mux        sync.Mutex
 	usedChunks map[int]interfaces.IChunk
 }
 
@@ -317,7 +318,7 @@ func (player *Player) SetGeometryData(data string) {
 /**
  * Sends a chunk to the player.
  */
-func (player *Player) SendChunk(chunk interfaces.IChunk, index int)  {
+func (player *Player) SendChunk(chunk interfaces.IChunk, index int) {
 	player.SendFullChunkData(chunk)
 	player.mux.Lock()
 	player.usedChunks[index] = chunk
@@ -344,7 +345,7 @@ func (player *Player) SyncMove(x, y, z, pitch, yaw, headYaw float32, onGround bo
 		xDist := chunkX - chunk.GetX()
 		zDist := chunkZ - chunk.GetZ()
 
-		if xDist * xDist + zDist * zDist > rs {
+		if xDist*xDist+zDist*zDist > rs {
 			chunk.RemoveViewer(player)
 			delete(player.usedChunks, index)
 
@@ -386,11 +387,10 @@ func (player *Player) UpdateAttributes() {
 	player.SendUpdateAttributes(player, player.GetAttributeMap())
 }
 
-
 /**
  * Sends entity data
  */
-func (player *Player) SendEntityData()  {
+func (player *Player) SendEntityData() {
 }
 
 /**

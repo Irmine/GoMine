@@ -1,11 +1,11 @@
 package net
 
 import (
-	"gomine/interfaces"
-	"gomine/vectors"
-	"gomine/entities/math"
-	"gomine/net/packets/types"
-	"gomine/entities/data"
+	"github.com/irmine/gomine/entities/data"
+	"github.com/irmine/gomine/entities/math"
+	"github.com/irmine/gomine/interfaces"
+	"github.com/irmine/gomine/net/packets/types"
+	"github.com/irmine/gomine/vectors"
 )
 
 func (session *MinecraftSession) SendAddEntity(entity interfaces.IEntity) {

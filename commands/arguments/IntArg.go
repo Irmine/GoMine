@@ -2,7 +2,8 @@ package arguments
 
 import (
 	"strconv"
-	"gomine/interfaces"
+
+	"github.com/irmine/gomine/interfaces"
 )
 
 type IntArg struct {

@@ -1,8 +1,8 @@
 package p200
 
 import (
-	"gomine/net/info"
-	"gomine/net/packets"
+	"github.com/irmine/gomine/net/info"
+	"github.com/irmine/gomine/net/packets"
 )
 
 type ChunkRadiusUpdatedPacket struct {
@@ -14,10 +14,10 @@ func NewChunkRadiusUpdatedPacket() *ChunkRadiusUpdatedPacket {
 	return &ChunkRadiusUpdatedPacket{packets.NewPacket(info.PacketIds200[info.ChunkRadiusUpdatedPacket]), 0}
 }
 
-func (pk *ChunkRadiusUpdatedPacket) Encode()  {
+func (pk *ChunkRadiusUpdatedPacket) Encode() {
 	pk.PutVarInt(pk.Radius)
 }
 
-func (pk *ChunkRadiusUpdatedPacket) Decode()  {
+func (pk *ChunkRadiusUpdatedPacket) Decode() {
 
 }

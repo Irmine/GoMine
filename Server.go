@@ -1,47 +1,49 @@
 package gomine
 
 import (
-	"errors"
-	"os"
-	"gomine/utils"
-	"gomine/resources"
-	"gomine/worlds"
-	"gomine/interfaces"
-	"gomine/commands"
-	"gomine/commands/defaults"
-	"gomine/net"
-	"gomine/net/info"
-	"gomine/permissions"
-	"gomine/players"
-	"gomine/packs"
-	"gomine/plugins"
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
-	"gomine/net/query"
-	"goraklib/server"
+	"errors"
+	"os"
+
+	"github.com/irmine/goraklib/server"
+
+	"github.com/irmine/gomine/commands"
+	"github.com/irmine/gomine/commands/defaults"
+	"github.com/irmine/gomine/interfaces"
+	"github.com/irmine/gomine/net"
+	"github.com/irmine/gomine/net/info"
+	"github.com/irmine/gomine/net/query"
+	"github.com/irmine/gomine/packs"
+	"github.com/irmine/gomine/permissions"
+	"github.com/irmine/gomine/players"
+	"github.com/irmine/gomine/plugins"
+	"github.com/irmine/gomine/resources"
+	"github.com/irmine/gomine/utils"
+	"github.com/irmine/gomine/worlds"
 )
 
 var levelId = 0
 
 const (
-	GoMineName = "GoMine"
+	GoMineName    = "GoMine"
 	GoMineVersion = "0.0.1"
 )
 
 type Server struct {
 	isRunning  bool
-	tick int64
+	tick       int64
 	privateKey *ecdsa.PrivateKey
-	token []byte
+	token      []byte
 
-	serverPath string
-	logger     interfaces.ILogger
-	config 	   *resources.GoMineConfig
+	serverPath    string
+	logger        interfaces.ILogger
+	config        *resources.GoMineConfig
 	consoleReader *ConsoleReader
 	commandHolder interfaces.ICommandHolder
 
-	packHandler *packs.PackHandler
+	packHandler       *packs.PackHandler
 	permissionManager *permissions.PermissionManager
 
 	levels map[int]interfaces.ILevel
@@ -202,7 +204,7 @@ func (server *Server) LoadLevels() {
  * Returns whether a level is loaded or not.
  */
 func (server *Server) IsLevelLoaded(levelName string) bool {
-	for _, level := range server.levels  {
+	for _, level := range server.levels {
 		if level.GetName() == levelName {
 			return true
 		}
@@ -442,7 +444,7 @@ func (server *Server) GetServerToken() []byte {
 func (server *Server) GenerateQueryResult(shortData bool) []byte {
 	var plugs []string
 	for _, plug := range server.pluginManager.GetPlugins() {
-		plugs = append(plugs, plug.GetName() + " v" + plug.GetVersion())
+		plugs = append(plugs, plug.GetName()+" v"+plug.GetVersion())
 	}
 
 	var ps []string
@@ -451,19 +453,19 @@ func (server *Server) GenerateQueryResult(shortData bool) []byte {
 	}
 
 	var result = query.QueryResult{
-		MOTD: server.GetMotd(),
-		ListPlugins: server.config.AllowPluginQuery,
-		PluginNames: plugs,
-		PlayerNames: ps,
-		GameMode: "SMP",
-		Version: server.GetMinecraftVersion(),
-		ServerEngine: server.GetEngineName(),
-		WorldName: server.GetDefaultLevel().GetName(),
-		OnlinePlayers: int(server.GetPlayerFactory().GetPlayerCount()),
+		MOTD:           server.GetMotd(),
+		ListPlugins:    server.config.AllowPluginQuery,
+		PluginNames:    plugs,
+		PlayerNames:    ps,
+		GameMode:       "SMP",
+		Version:        server.GetMinecraftVersion(),
+		ServerEngine:   server.GetEngineName(),
+		WorldName:      server.GetDefaultLevel().GetName(),
+		OnlinePlayers:  int(server.GetPlayerFactory().GetPlayerCount()),
 		MaximumPlayers: int(server.config.MaximumPlayers),
-		Whitelist: "off",
-		Port: server.config.ServerPort,
-		Address: server.config.ServerIp,
+		Whitelist:      "off",
+		Port:           server.config.ServerPort,
+		Address:        server.config.ServerIp,
 	}
 
 	if shortData {

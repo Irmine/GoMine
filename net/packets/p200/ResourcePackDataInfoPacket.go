@@ -1,17 +1,17 @@
 package p200
 
 import (
-	"gomine/net/info"
-	"gomine/net/packets"
+	"github.com/irmine/gomine/net/info"
+	"github.com/irmine/gomine/net/packets"
 )
 
 type ResourcePackDataInfoPacket struct {
 	*packets.Packet
-	PackUUID string
-	MaxChunkSize int32
-	ChunkCount int32
+	PackUUID           string
+	MaxChunkSize       int32
+	ChunkCount         int32
 	CompressedPackSize int64
-	Sha256 string
+	Sha256             string
 }
 
 func NewResourcePackDataInfoPacket() *ResourcePackDataInfoPacket {

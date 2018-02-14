@@ -1,14 +1,14 @@
 package p200
 
 import (
-	"gomine/net/info"
-	"gomine/net/packets"
-	"gomine/net/packets/types"
+	"github.com/irmine/gomine/net/info"
+	"github.com/irmine/gomine/net/packets"
+	"github.com/irmine/gomine/net/packets/types"
 )
 
 type ResourcePackStackPacket struct {
 	*packets.Packet
-	MustAccept bool
+	MustAccept    bool
 	BehaviorPacks []types.ResourcePackStackEntry
 	ResourcePacks []types.ResourcePackStackEntry
 }

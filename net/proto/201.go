@@ -1,11 +1,11 @@
 package proto
 
 import (
-	"gomine/interfaces"
-	"gomine/net/packets/p201"
-	"gomine/permissions"
-	"gomine/vectors"
-	"gomine/net/packets/types"
+	"github.com/irmine/gomine/interfaces"
+	"github.com/irmine/gomine/net/packets/p201"
+	"github.com/irmine/gomine/net/packets/types"
+	"github.com/irmine/gomine/permissions"
+	"github.com/irmine/gomine/vectors"
 )
 
 type Protocol201 struct {

@@ -1,15 +1,16 @@
 package packs
 
 import (
-	"os"
-	"io/ioutil"
-	"crypto/sha256"
 	"archive/zip"
+	"crypto/sha256"
 	"encoding/json"
 	"errors"
+	"io/ioutil"
+	"os"
 	"strconv"
 	"strings"
-	"gomine/utils"
+
+	"github.com/irmine/gomine/utils"
 )
 
 const (
@@ -20,32 +21,32 @@ const (
 type Pack struct {
 	packPath string
 	manifest *PackManifest
-	content []byte
-	size int64
-	sha256 []byte
+	content  []byte
+	size     int64
+	sha256   []byte
 	packType string
 }
 
 type PackManifest struct {
 	Header struct {
-		Description		string		`json:"description"`
-		Name			string		`json:"name"`
-		UUID			string		`json:"uuid"`
-		Version			[]float64	`json:"version"`
-		VersionString	string
-	}								`json:"header"`
+		Description   string    `json:"description"`
+		Name          string    `json:"name"`
+		UUID          string    `json:"uuid"`
+		Version       []float64 `json:"version"`
+		VersionString string
+	} `json:"header"`
 	Modules []struct {
-		Description		string		`json:"description"`
-		Type			string		`json:"type"`
-		UUID			string		`json:"uuid"`
-		Version			[]float64	`json:"version"`
-	}								`json:"modules"`
+		Description string    `json:"description"`
+		Type        string    `json:"type"`
+		UUID        string    `json:"uuid"`
+		Version     []float64 `json:"version"`
+	} `json:"modules"`
 	Dependencies []struct {
-		Description		string		`json:"description"`
-		Type			string		`json:"type"`
-		UUID 			string		`json:"uuid"`
-		Version			[]float64	`json:"version"`
-	}								`json:"dependencies"`
+		Description string    `json:"description"`
+		Type        string    `json:"type"`
+		UUID        string    `json:"uuid"`
+		Version     []float64 `json:"version"`
+	} `json:"dependencies"`
 }
 
 func NewPack(path string, packType string) *Pack {
@@ -202,8 +203,8 @@ func (pack *Pack) GetChunk(offset int, length int) []byte {
 	if offset > len(pack.content) || offset < 0 || length < 1 {
 		return []byte{}
 	}
-	if offset + length > len(pack.content) {
+	if offset+length > len(pack.content) {
 		length = int(pack.size) - offset
 	}
-	return pack.content[offset:offset + length]
+	return pack.content[offset : offset+length]
 }

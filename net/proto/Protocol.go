@@ -1,15 +1,15 @@
 package proto
 
 import (
-	"gomine/interfaces"
-	"gomine/net/info"
+	"github.com/irmine/gomine/interfaces"
+	"github.com/irmine/gomine/net/info"
 )
 
 type Protocol struct {
 	protocolNumber int32
-	idList info.PacketIdList
-	packets map[int]func() interfaces.IPacket
-	handlers map[int][][]interfaces.IPacketHandler
+	idList         info.PacketIdList
+	packets        map[int]func() interfaces.IPacket
+	handlers       map[int][][]interfaces.IPacketHandler
 }
 
 /**

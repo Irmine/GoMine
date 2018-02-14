@@ -1,8 +1,8 @@
 package utils
 
 import (
-	"os"
 	"fmt"
+	"os"
 	"strings"
 	"time"
 )
@@ -12,20 +12,20 @@ const (
 	Info     = "info"
 	Notice   = "notice"
 	Alert    = "alert"
-	Error	 = "error"
+	Error    = "error"
 	Warning  = "warning"
 	Critical = "critical"
 	Chat     = "chat"
 )
 
 type Logger struct {
-	prefix string
-	path   string
-	file   *os.File
+	prefix    string
+	path      string
+	file      *os.File
 	debugMode bool
 
 	terminalQueue []string
-	fileQueue []string
+	fileQueue     []string
 
 	terminated bool
 }
@@ -35,7 +35,7 @@ type Logger struct {
  */
 func NewLogger(prefix string, outputDir string, debugMode bool) *Logger {
 	var path = outputDir + "gomine.log"
-	var file, fileError = os.OpenFile(path, os.O_APPEND | os.O_CREATE | os.O_WRONLY, 0644)
+	var file, fileError = os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 
 	if fileError != nil {
 		panic(fileError)
@@ -80,7 +80,7 @@ func (logger *Logger) ProcessQueue(force bool) {
 			logger.fileQueue = logger.fileQueue[1:]
 		}
 
-	 	logger.write(message)
+		logger.write(message)
 	}
 }
 
@@ -140,14 +140,14 @@ func (logger *Logger) Alert(messages ...interface{}) {
  * Logs a warning message.
  */
 func (logger *Logger) Warning(messages ...interface{}) {
-	logger.Log(Warning, BrightRed + Bold, messages)
+	logger.Log(Warning, BrightRed+Bold, messages)
 }
 
 /**
  * Logs a critical warning message.
  */
 func (logger *Logger) Critical(messages ...interface{}) {
-	logger.Log(Critical, BrightRed + Underlined + Bold, messages)
+	logger.Log(Critical, BrightRed+Underlined+Bold, messages)
 }
 
 /**

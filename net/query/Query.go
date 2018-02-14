@@ -1,14 +1,15 @@
 package query
 
 import (
-	"goraklib/server"
-	"gomine/utils"
 	"strconv"
 	"strings"
+
+	"github.com/irmine/gomine/utils"
+	"github.com/irmine/goraklib/server"
 )
 
 const (
-	QueryChallenge = 0x09
+	QueryChallenge  = 0x09
 	QueryStatistics = 0x00
 )
 
@@ -17,16 +18,16 @@ var QueryHeader = []byte{0xfe, 0xfd}
 type Query struct {
 	*utils.BinaryStream
 	Address string
-	Port uint16
+	Port    uint16
 
-	Header byte
+	Header  byte
 	QueryId int32
-	Token []byte
+	Token   []byte
 
 	Statistics []byte
 
 	IsShort bool
-	Data []byte
+	Data    []byte
 }
 
 func NewQueryFromRaw(packet server.RawPacket) *Query {

@@ -1,14 +1,14 @@
 package worlds
 
 import (
-	"gomine/interfaces"
+	"github.com/irmine/gomine/interfaces"
 )
 
 type Level struct {
-	server interfaces.IServer
-	name string
-	id int
-	dimensions map[string]interfaces.IDimension
+	server           interfaces.IServer
+	name             string
+	id               int
+	dimensions       map[string]interfaces.IDimension
 	defaultDimension interfaces.IDimension
 
 	gameRules map[string]interfaces.IGameRule
@@ -132,7 +132,7 @@ func GetChunkIndex(x, z int32) int {
  * Gets the chunk block index for a saving changed blocks
  */
 func GetBlockIndex(x, y, z int) int {
-	return int(int64(x) & 0xfffffff) << 36 | (y & 255) << 28 | int(int64(z) & 0xfffffff)
+	return int(int64(x)&0xfffffff)<<36 | (y&255)<<28 | int(int64(z)&0xfffffff)
 }
 
 /**
@@ -147,7 +147,7 @@ func GetChunkCoordinates(index int) (int32, int32) {
  * Internal. Not to be used by plugins.
  */
 func (level *Level) TickLevel() {
-	for _, dimension := range level.dimensions  {
+	for _, dimension := range level.dimensions {
 		dimension.TickDimension()
 	}
 }

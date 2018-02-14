@@ -1,13 +1,13 @@
 package data
 
 const (
-	AttributeHealth = "minecraft:health"
+	AttributeHealth        = "minecraft:health"
 	AttributeMovementSpeed = "minecraft:movement"
-	AttributeAttackDamage = "minecraft:attack_damage"
+	AttributeAttackDamage  = "minecraft:attack_damage"
 
 	AttributeAbsorption = "minecraft:absorption"
 
-	AttributeHunger = "minecraft:hunger"
+	AttributeHunger     = "minecraft:hunger"
 	AttributeSaturation = "minecraft:saturation"
 	AttributeExhaustion = "minecraft:exhaustion"
 
@@ -16,7 +16,7 @@ const (
 	AttributeFollowRange = "minecraft:follow_range"
 
 	AttributeExperienceLevel = "minecraft:player.level"
-	AttributeExperience = "minecraft:player.experience"
+	AttributeExperience      = "minecraft:player.experience"
 
 	AttributeJumpStrength = "minecraft:horse.jump_strength"
 )

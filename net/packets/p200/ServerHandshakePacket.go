@@ -1,8 +1,8 @@
 package p200
 
 import (
-	"gomine/net/info"
-	"gomine/net/packets"
+	"github.com/irmine/gomine/net/info"
+	"github.com/irmine/gomine/net/packets"
 )
 
 type ServerHandshakePacket struct {
@@ -14,10 +14,10 @@ func NewServerHandshakePacket() *ServerHandshakePacket {
 	return &ServerHandshakePacket{packets.NewPacket(info.PacketIds200[info.ServerHandshakePacket]), ""}
 }
 
-func (pk *ServerHandshakePacket) Encode()  {
+func (pk *ServerHandshakePacket) Encode() {
 	pk.PutString(pk.Jwt)
 }
 
-func (pk *ServerHandshakePacket) Decode()  {
+func (pk *ServerHandshakePacket) Decode() {
 
 }

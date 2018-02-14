@@ -3,29 +3,29 @@ package worlds
 import "reflect"
 
 const (
-	GameRuleCommandBlockOutput = "commandblockoutput"
-	GameRuleDoDaylightCycle = "dodaylightcycle"
-	GameRuleDoEntityDrops = "doentitydrops"
-	GameRuleDoFireTick = "dofiretick"
-	GameRuleDoMobLoot = "domobloot"
-	GameRuleDoMobSpawning = "domobspawning"
-	GameRuleDoTileDrops = "dotiledrops"
-	GameRuleDoWeatherCycle = "doweathercycle"
-	GameRuleDrowningDamage = "drowningdamage"
-	GameRuleFallDamage = "falldamage"
-	GameRuleFireDamage = "firedamage"
-	GameRuleKeepInventory = "keepinventory"
-	GameRuleMobGriefing = "mobgriefing"
+	GameRuleCommandBlockOutput  = "commandblockoutput"
+	GameRuleDoDaylightCycle     = "dodaylightcycle"
+	GameRuleDoEntityDrops       = "doentitydrops"
+	GameRuleDoFireTick          = "dofiretick"
+	GameRuleDoMobLoot           = "domobloot"
+	GameRuleDoMobSpawning       = "domobspawning"
+	GameRuleDoTileDrops         = "dotiledrops"
+	GameRuleDoWeatherCycle      = "doweathercycle"
+	GameRuleDrowningDamage      = "drowningdamage"
+	GameRuleFallDamage          = "falldamage"
+	GameRuleFireDamage          = "firedamage"
+	GameRuleKeepInventory       = "keepinventory"
+	GameRuleMobGriefing         = "mobgriefing"
 	GameRuleNaturalRegeneration = "naturalregeneration"
-	GameRulePvp = "pvp"
+	GameRulePvp                 = "pvp"
 	GameRuleSendCommandFeedback = "sendcommandfeedback"
-	GameRuleShowCoordinates = "showcoordinates"
-	GameRuleRandomTickSpeed = "randomtickspeed"
-	GameRuleTntExplodes = "tntexplodes"
+	GameRuleShowCoordinates     = "showcoordinates"
+	GameRuleRandomTickSpeed     = "randomtickspeed"
+	GameRuleTntExplodes         = "tntexplodes"
 )
 
 type GameRule struct {
-	name string
+	name  string
 	value interface{}
 }
 

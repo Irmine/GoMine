@@ -1,10 +1,10 @@
 package chunks
 
 type EmptySubChunk struct {
-	Blocks []byte
+	Blocks     []byte
 	BlockLight []byte
-	SkyLight []byte
-	Metadata []byte
+	SkyLight   []byte
+	Metadata   []byte
 }
 
 func NewEmptySubChunk() *EmptySubChunk {

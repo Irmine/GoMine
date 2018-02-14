@@ -1,14 +1,14 @@
 package p200
 
 import (
-	"gomine/net/info"
-	"gomine/net/packets"
+	"github.com/irmine/gomine/net/info"
+	"github.com/irmine/gomine/net/packets"
 )
 
 type FullChunkDataPacket struct {
 	*packets.Packet
-	ChunkX int32
-	ChunkZ int32
+	ChunkX    int32
+	ChunkZ    int32
 	ChunkData []byte
 }
 

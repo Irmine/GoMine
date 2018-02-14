@@ -1,8 +1,8 @@
 package defaults
 
 import (
-	"gomine/commands"
-	"gomine/interfaces"
+	"github.com/irmine/gomine/commands"
+	"github.com/irmine/gomine/interfaces"
 )
 
 type StopCommand struct {

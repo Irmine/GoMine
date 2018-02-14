@@ -1,8 +1,8 @@
 package generation
 
 import (
-	"gomine/interfaces"
-	"gomine/worlds/generation/defaults"
+	"github.com/irmine/gomine/interfaces"
+	"github.com/irmine/gomine/worlds/generation/defaults"
 )
 
 var list = map[string]interfaces.IGenerator{}
@@ -26,13 +26,13 @@ func GeneratorNameExists(generator string) bool {
 	return ok
 }
 
-func DeRegisterGenerator(generator interfaces.IGenerator)  {
+func DeRegisterGenerator(generator interfaces.IGenerator) {
 	if GeneratorExists(generator) {
 		delete(list, generator.GetName())
 	}
 }
 
-func DeRegisterGeneratorByName(generator string)  {
+func DeRegisterGeneratorByName(generator string) {
 	if GeneratorNameExists(generator) {
 		delete(list, generator)
 	}

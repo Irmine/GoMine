@@ -1,10 +1,11 @@
 package defaults
 
 import (
-	"gomine/commands"
-	"gomine/interfaces"
-	"gomine/commands/arguments"
 	"strconv"
+
+	"github.com/irmine/gomine/commands"
+	"github.com/irmine/gomine/commands/arguments"
+	"github.com/irmine/gomine/interfaces"
 )
 
 type TestCommand struct {

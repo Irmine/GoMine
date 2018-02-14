@@ -1,34 +1,34 @@
 package p200
 
 import (
-	"gomine/utils"
-	"gomine/vectors"
-	"gomine/entities/math"
-	"gomine/net/info"
-	"gomine/net/packets"
+	"github.com/irmine/gomine/entities/math"
+	"github.com/irmine/gomine/net/info"
+	"github.com/irmine/gomine/net/packets"
+	"github.com/irmine/gomine/utils"
+	"github.com/irmine/gomine/vectors"
 )
 
 type AddPlayerPacket struct {
 	*packets.Packet
-	UUID utils.UUID
-	Username string
-	DisplayName string
-	Platform int32
+	UUID          utils.UUID
+	Username      string
+	DisplayName   string
+	Platform      int32
 	UnknownString string
 
-	EntityUniqueId int64
+	EntityUniqueId  int64
 	EntityRuntimeId uint64
-	Position vectors.TripleVector
-	Motion vectors.TripleVector
-	Rotation math.Rotation
+	Position        vectors.TripleVector
+	Motion          vectors.TripleVector
+	Rotation        math.Rotation
 	// HandItem TODO: Items.
 	Metadata map[uint32][]interface{}
 
-	Flags uint32
+	Flags             uint32
 	CommandPermission uint32
-	Flags2 uint32
-	PlayerPermission uint32
-	CustomFlags uint32
+	Flags2            uint32
+	PlayerPermission  uint32
+	CustomFlags       uint32
 
 	Long1 int64
 	// EntityLinks TODO
@@ -38,7 +38,7 @@ func NewAddPlayerPacket() *AddPlayerPacket {
 	return &AddPlayerPacket{Packet: packets.NewPacket(info.PacketIds200[info.AddPlayerPacket]), Metadata: make(map[uint32][]interface{}), Motion: vectors.TripleVector{}}
 }
 
-func (pk *AddPlayerPacket) Encode()  {
+func (pk *AddPlayerPacket) Encode() {
 	pk.PutUUID(pk.UUID)
 	pk.PutString(pk.Username)
 	pk.PutString(pk.DisplayName)
@@ -66,6 +66,6 @@ func (pk *AddPlayerPacket) Encode()  {
 	pk.PutUnsignedVarInt(0) // TODO
 }
 
-func (pk *AddPlayerPacket) Decode()  {
+func (pk *AddPlayerPacket) Decode() {
 
 }

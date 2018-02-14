@@ -1,8 +1,9 @@
 package defaults
 
 import (
-	"gomine/interfaces"
 	"math"
+
+	"github.com/irmine/gomine/interfaces"
 )
 
 type Whack struct {
@@ -30,13 +31,13 @@ func (f Whack) GenerateChunk(chunk interfaces.IChunk) {
 		x := int(math.Cos(float64(i) * 16))
 		z := int(math.Sin(float64(i) * 16))
 		y = 0
-		chunk.SetBlockId(i + x, y + i, i + z, 7)
+		chunk.SetBlockId(i+x, y+i, i+z, 7)
 		y++
-		chunk.SetBlockId(i + x, y + i, i + z, 3)
+		chunk.SetBlockId(i+x, y+i, i+z, 3)
 		y++
-		chunk.SetBlockId(i + x, y + i, i + z, 3)
+		chunk.SetBlockId(i+x, y+i, i+z, 3)
 		y++
-		chunk.SetBlockId(i + x, y + i, i + z, 2)
+		chunk.SetBlockId(i+x, y+i, i+z, 2)
 
 		chunk.SetHeight(y)
 

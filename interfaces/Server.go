@@ -1,9 +1,10 @@
 package interfaces
 
 import (
-	"gomine/resources"
 	"crypto/ecdsa"
-	"goraklib/server"
+
+	"github.com/irmine/gomine/resources"
+	"github.com/irmine/goraklib/server"
 )
 
 type IServer interface {

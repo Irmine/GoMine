@@ -1,6 +1,6 @@
 package types
 
 type GameRuleEntry struct {
-	Name string
+	Name  string
 	Value interface{}
 }

@@ -1,21 +1,21 @@
 package p200
 
 import (
-	"gomine/net/info"
-	"gomine/vectors"
-	"gomine/entities/math"
-	"gomine/net/packets"
-	"gomine/net/packets/data"
+	"github.com/irmine/gomine/entities/math"
+	"github.com/irmine/gomine/net/info"
+	"github.com/irmine/gomine/net/packets"
+	"github.com/irmine/gomine/net/packets/data"
+	"github.com/irmine/gomine/vectors"
 )
 
 type MovePlayerPacket struct {
 	*packets.Packet
-	RuntimeId uint64
-	Position vectors.TripleVector
-	Rotation math.Rotation
-	Mode byte
-	OnGround bool
-	RidingRuntimeId uint64
+	RuntimeId            uint64
+	Position             vectors.TripleVector
+	Rotation             math.Rotation
+	Mode                 byte
+	OnGround             bool
+	RidingRuntimeId      uint64
 	ExtraInt1, ExtraInt2 int32
 }
 

@@ -1,13 +1,13 @@
 package p200
 
 import (
-	"gomine/interfaces"
-	"goraklib/server"
-	"gomine/vectors"
-	"gomine/entities/math"
-	"gomine/net/packets/p200"
-	"gomine/net/packets/data"
-	"gomine/players/handlers"
+	"github.com/irmine/gomine/entities/math"
+	"github.com/irmine/gomine/interfaces"
+	"github.com/irmine/gomine/net/packets/data"
+	"github.com/irmine/gomine/net/packets/p200"
+	"github.com/irmine/gomine/players/handlers"
+	"github.com/irmine/gomine/vectors"
+	"github.com/irmine/goraklib/server"
 )
 
 type ResourcePackClientResponseHandler struct {

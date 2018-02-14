@@ -1,27 +1,27 @@
 package blocks
 
 import (
-	"gomine/worlds"
-	"gomine/vectors"
-	"gomine/worlds/locations"
+	"github.com/irmine/gomine/vectors"
+	"github.com/irmine/gomine/worlds"
+	"github.com/irmine/gomine/worlds/locations"
 )
 
 type Block struct {
 	*locations.Position
-	id int
+	id   int
 	data byte
 	name string
 
 	hasCollisionBox bool
-	CollisionBox *vectors.CubesBox
-	BoundingBox *vectors.CubesBox
+	CollisionBox    *vectors.CubesBox
+	BoundingBox     *vectors.CubesBox
 
-	hardness float32
+	hardness        float32
 	blastResistance int
 
 	lightEmissionLevel byte
-	diffusesLight bool
-	lightFilterLevel byte
+	diffusesLight      bool
+	lightFilterLevel   byte
 }
 
 /**

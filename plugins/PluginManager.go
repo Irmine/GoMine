@@ -1,26 +1,27 @@
 package plugins
 
 import (
-	"gomine/interfaces"
+	"errors"
 	"io/ioutil"
+	"os"
+	"os/exec"
 	"path/filepath"
 	"plugin"
-	"errors"
 	"strings"
-	"os/exec"
-	"os"
-	"gomine/utils"
+
+	"github.com/irmine/gomine/interfaces"
+	"github.com/irmine/gomine/utils"
 )
 
 const (
 	ApiVersion = "0.0.1"
 
-	OutdatedPlugin = "plugin.Open: plugin was built with a different version of package"
+	OutdatedPlugin     = "plugin.Open: plugin was built with a different version of package"
 	NoPluginsSupported = "plugin: not implemented"
 )
 
 type PluginManager struct {
-	server interfaces.IServer
+	server  interfaces.IServer
 	plugins map[string]IPlugin
 }
 

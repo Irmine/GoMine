@@ -1,6 +1,6 @@
 package packs
 
-import "gomine/interfaces"
+import "github.com/irmine/gomine/interfaces"
 
 type PackStack struct {
 	packs []interfaces.IPack

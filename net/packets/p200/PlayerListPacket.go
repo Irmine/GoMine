@@ -1,16 +1,16 @@
 package p200
 
 import (
-	"gomine/net/info"
-	"gomine/net/packets"
-	"gomine/net/packets/types"
-	"gomine/net/packets/data"
+	"github.com/irmine/gomine/net/info"
+	"github.com/irmine/gomine/net/packets"
+	"github.com/irmine/gomine/net/packets/data"
+	"github.com/irmine/gomine/net/packets/types"
 )
 
 type PlayerListPacket struct {
 	*packets.Packet
 	ListType byte
-	Entries map[string]types.PlayerListEntry
+	Entries  map[string]types.PlayerListEntry
 }
 
 func NewPlayerListPacket() *PlayerListPacket {
@@ -32,7 +32,7 @@ func (pk *PlayerListPacket) Encode() {
 
 			pk.PutLittleInt(1)
 			pk.PutLengthPrefixedBytes(entry.SkinData)
-			if len(entry.CapeData) > 0{
+			if len(entry.CapeData) > 0 {
 				pk.PutLittleInt(1)
 				pk.PutLengthPrefixedBytes(entry.CapeData)
 			} else {

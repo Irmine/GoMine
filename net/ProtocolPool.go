@@ -1,8 +1,8 @@
 package net
 
 import (
-	"gomine/interfaces"
-	"gomine/net/proto"
+	"github.com/irmine/gomine/interfaces"
+	"github.com/irmine/gomine/net/proto"
 )
 
 type ProtocolPool struct {

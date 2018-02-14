@@ -3,9 +3,9 @@ package tiles
 var TId uint64 = 0
 
 type Tile struct {
-	Name string
+	Name   string
 	closed bool
-	tId uint64
+	tId    uint64
 }
 
 func NewTile(Name string) Tile {

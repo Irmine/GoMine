@@ -1,34 +1,35 @@
 package p200
 
 import (
-	"encoding/json"
-	"gomine/utils"
-	"gomine/net/info"
 	"encoding/base64"
+	"encoding/json"
 	"strings"
-	"gomine/net/packets"
-	"gomine/net/packets/types"
+
+	"github.com/irmine/gomine/net/info"
+	"github.com/irmine/gomine/net/packets"
+	"github.com/irmine/gomine/net/packets/types"
+	"github.com/irmine/gomine/utils"
 )
 
 type LoginPacket struct {
 	*packets.Packet
-	Username string
-	Protocol int32
-	ClientUUID utils.UUID
-	ClientId int
-	ClientXUID string
+	Username          string
+	Protocol          int32
+	ClientUUID        utils.UUID
+	ClientId          int
+	ClientXUID        string
 	IdentityPublicKey string
-	ServerAddress string
-	Language string
+	ServerAddress     string
+	Language          string
 
-	SkinId string
-	SkinData []byte
-	CapeData []byte
+	SkinId       string
+	SkinData     []byte
+	CapeData     []byte
 	GeometryName string
 	GeometryData string
 
 	ClientData types.ClientDataKeys
-	Chains []types.Chain
+	Chains     []types.Chain
 }
 
 func NewLoginPacket() *LoginPacket {

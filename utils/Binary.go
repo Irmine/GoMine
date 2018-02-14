@@ -5,12 +5,12 @@ import (
 )
 
 func Read(buffer *[]byte, offset *int, length int) []byte {
-	var b = (*buffer)[*offset:*offset + length]
+	var b = (*buffer)[*offset : *offset+length]
 	*offset += length
 	return b
 }
 
-func Write(buffer *[]byte, v byte){
+func Write(buffer *[]byte, v byte) {
 	*buffer = append(*buffer, v)
 }
 
@@ -31,7 +31,7 @@ func WriteByte(buffer *[]byte, byte byte) {
 	Write(buffer, byte)
 }
 
-func ReadByte(buffer *[]byte, offset *int) (byte) {
+func ReadByte(buffer *[]byte, offset *int) byte {
 	out := Read(buffer, offset, 1)
 	return byte(out[0])
 }
@@ -55,7 +55,7 @@ func WriteShort(buffer *[]byte, signed int16) {
 
 func ReadShort(buffer *[]byte, offset *int) int16 {
 	b := Read(buffer, offset, 2)
-	return int16(uint16(b[1]) | uint16(b[0]) << 8)
+	return int16(uint16(b[1]) | uint16(b[0])<<8)
 }
 
 func WriteUnsignedShort(buffer *[]byte, v uint16) {
@@ -67,7 +67,7 @@ func WriteUnsignedShort(buffer *[]byte, v uint16) {
 
 func ReadUnsignedShort(buffer *[]byte, offset *int) uint16 {
 	b := Read(buffer, offset, 2)
-	return uint16(b[1]) | uint16(b[0]) << 8
+	return uint16(b[1]) | uint16(b[0])<<8
 }
 
 func WriteInt(buffer *[]byte, int int32) {
@@ -82,7 +82,7 @@ func WriteInt(buffer *[]byte, int int32) {
 
 func ReadInt(buffer *[]byte, offset *int) int32 {
 	b := Read(buffer, offset, 4)
-	return int32(uint32(b[3]) | uint32(b[2]) << 8 | uint32(b[1]) << 16 | uint32(b[0]) << 24)
+	return int32(uint32(b[3]) | uint32(b[2])<<8 | uint32(b[1])<<16 | uint32(b[0])<<24)
 }
 
 func WriteLong(buffer *[]byte, long int64) {
@@ -101,8 +101,8 @@ func WriteLong(buffer *[]byte, long int64) {
 
 func ReadLong(buffer *[]byte, offset *int) int64 {
 	b := Read(buffer, offset, 8)
-	return int64(uint64(b[7]) | uint64(b[6]) << 8 | uint64(b[5]) << 16 | uint64(b[4]) << 24 |
-		uint64(b[3]) << 32 | uint64(b[2]) << 40 | uint64(b[1]) << 48 | uint64(b[0]) << 56)
+	return int64(uint64(b[7]) | uint64(b[6])<<8 | uint64(b[5])<<16 | uint64(b[4])<<24 |
+		uint64(b[3])<<32 | uint64(b[2])<<40 | uint64(b[1])<<48 | uint64(b[0])<<56)
 }
 
 func WriteUnsignedLong(buffer *[]byte, v uint64) {
@@ -120,8 +120,8 @@ func WriteUnsignedLong(buffer *[]byte, v uint64) {
 
 func ReadUnsignedLong(buffer *[]byte, offset *int) uint64 {
 	b := Read(buffer, offset, 8)
-	return uint64(b[7]) | uint64(b[6]) << 8 | uint64(b[5]) << 16 | uint64(b[4]) << 24 |
-		uint64(b[3]) << 32 | uint64(b[2]) << 40 | uint64(b[1]) << 48 | uint64(b[0]) << 56
+	return uint64(b[7]) | uint64(b[6])<<8 | uint64(b[5])<<16 | uint64(b[4])<<24 |
+		uint64(b[3])<<32 | uint64(b[2])<<40 | uint64(b[1])<<48 | uint64(b[0])<<56
 }
 
 func WriteFloat(buffer *[]byte, float float32) {
@@ -137,7 +137,7 @@ func WriteFloat(buffer *[]byte, float float32) {
 func ReadFloat(buffer *[]byte, offset *int) float32 {
 	b := Read(buffer, offset, 4)
 
-	var out = uint32(b[3]) | uint32(b[2]) << 8 | uint32(b[1]) << 16 | uint32(b[0]) << 24
+	var out = uint32(b[3]) | uint32(b[2])<<8 | uint32(b[1])<<16 | uint32(b[0])<<24
 	return math.Float32frombits(out)
 }
 
@@ -157,8 +157,8 @@ func WriteDouble(buffer *[]byte, double float64) {
 
 func ReadDouble(buffer *[]byte, offset *int) float64 {
 	b := Read(buffer, offset, 8)
-	var out = uint64(b[7]) | uint64(b[6]) << 8 | uint64(b[5]) << 16 | uint64(b[4]) << 24 |
-		uint64(b[3]) << 32 | uint64(b[2]) << 40 | uint64(b[1]) << 48 | uint64(b[0]) << 56
+	var out = uint64(b[7]) | uint64(b[6])<<8 | uint64(b[5])<<16 | uint64(b[4])<<24 |
+		uint64(b[3])<<32 | uint64(b[2])<<40 | uint64(b[1])<<48 | uint64(b[0])<<56
 	return math.Float64frombits(out)
 }
 
@@ -172,7 +172,7 @@ func WriteLittleShort(buffer *[]byte, signed int16) {
 
 func ReadLittleShort(buffer *[]byte, offset *int) int16 {
 	b := Read(buffer, offset, 2)
-	return int16(uint16(b[0]) | uint16(b[1]) << 8)
+	return int16(uint16(b[0]) | uint16(b[1])<<8)
 }
 
 func WriteLittleUnsignedShort(buffer *[]byte, v uint16) {
@@ -184,7 +184,7 @@ func WriteLittleUnsignedShort(buffer *[]byte, v uint16) {
 
 func ReadLittleUnsignedShort(buffer *[]byte, offset *int) uint16 {
 	b := Read(buffer, offset, 2)
-	return uint16(b[0]) | uint16(b[1]) << 8
+	return uint16(b[0]) | uint16(b[1])<<8
 }
 
 func WriteLittleInt(buffer *[]byte, int int32) {
@@ -199,7 +199,7 @@ func WriteLittleInt(buffer *[]byte, int int32) {
 
 func ReadLittleInt(buffer *[]byte, offset *int) int32 {
 	b := Read(buffer, offset, 4)
-	return int32(uint32(b[0]) | uint32(b[1]) << 8 | uint32(b[2]) << 16 | uint32(b[3]) << 24)
+	return int32(uint32(b[0]) | uint32(b[1])<<8 | uint32(b[2])<<16 | uint32(b[3])<<24)
 }
 
 func WriteLittleLong(buffer *[]byte, long int64) {
@@ -218,8 +218,8 @@ func WriteLittleLong(buffer *[]byte, long int64) {
 
 func ReadLittleLong(buffer *[]byte, offset *int) int64 {
 	b := Read(buffer, offset, 8)
-	return int64(uint64(b[0]) | uint64(b[1]) << 8 | uint64(b[2]) << 16 | uint64(b[3]) << 24 |
-		uint64(b[4]) << 32 | uint64(b[5]) << 40 | uint64(b[6]) << 48 | uint64(b[7]) << 56)
+	return int64(uint64(b[0]) | uint64(b[1])<<8 | uint64(b[2])<<16 | uint64(b[3])<<24 |
+		uint64(b[4])<<32 | uint64(b[5])<<40 | uint64(b[6])<<48 | uint64(b[7])<<56)
 }
 
 func WriteLittleUnsignedLong(buffer *[]byte, v uint64) {
@@ -237,8 +237,8 @@ func WriteLittleUnsignedLong(buffer *[]byte, v uint64) {
 
 func ReadLittleUnsignedLong(buffer *[]byte, offset *int) uint64 {
 	b := Read(buffer, offset, 8)
-	return uint64(b[0]) | uint64(b[1]) << 8 | uint64(b[2]) << 16 | uint64(b[3]) << 24 |
-		uint64(b[4]) << 32 | uint64(b[5]) << 40 | uint64(b[6]) << 48 | uint64(b[7]) << 56
+	return uint64(b[0]) | uint64(b[1])<<8 | uint64(b[2])<<16 | uint64(b[3])<<24 |
+		uint64(b[4])<<32 | uint64(b[5])<<40 | uint64(b[6])<<48 | uint64(b[7])<<56
 }
 
 func WriteLittleFloat(buffer *[]byte, float float32) {
@@ -254,7 +254,7 @@ func WriteLittleFloat(buffer *[]byte, float float32) {
 func ReadLittleFloat(buffer *[]byte, offset *int) float32 {
 	b := Read(buffer, offset, 4)
 
-	var out = uint32(b[0]) | uint32(b[1]) << 8 | uint32(b[2]) << 16 | uint32(b[3]) << 24
+	var out = uint32(b[0]) | uint32(b[1])<<8 | uint32(b[2])<<16 | uint32(b[3])<<24
 	return math.Float32frombits(out)
 }
 
@@ -274,8 +274,8 @@ func WriteLittleDouble(buffer *[]byte, double float64) {
 
 func ReadLittleDouble(buffer *[]byte, offset *int) float64 {
 	b := Read(buffer, offset, 8)
-	var out = uint64(b[0]) | uint64(b[1]) << 8 | uint64(b[2]) << 16 | uint64(b[3]) << 24 |
-		uint64(b[4]) << 32 | uint64(b[5]) << 40 | uint64(b[6]) << 48 | uint64(b[7]) << 56
+	var out = uint64(b[0]) | uint64(b[1])<<8 | uint64(b[2])<<16 | uint64(b[3])<<24 |
+		uint64(b[4])<<32 | uint64(b[5])<<40 | uint64(b[6])<<48 | uint64(b[7])<<56
 	return math.Float64frombits(out)
 }
 
@@ -288,9 +288,9 @@ func ReadBigTriad(buffer *[]byte, offset *int) uint32 {
 }
 
 func WriteLittleTriad(buffer *[]byte, uint uint32) {
-	Write(buffer, byte(uint & 0xFF))
-	Write(buffer, byte(uint >> 8) & 0xFF)
-	Write(buffer, byte(uint >> 16) & 0xFF)
+	Write(buffer, byte(uint&0xFF))
+	Write(buffer, byte(uint>>8)&0xFF)
+	Write(buffer, byte(uint>>16)&0xFF)
 }
 
 func ReadLittleTriad(buffer *[]byte, offset *int) uint32 {
@@ -300,9 +300,9 @@ func ReadLittleTriad(buffer *[]byte, offset *int) uint32 {
 }
 
 func WriteBigTriad(buffer *[]byte, uint uint32) {
-	Write(buffer, byte(uint >> 16) & 0xFF)
-	Write(buffer, byte(uint >> 8) & 0xFF)
-	Write(buffer, byte(uint & 0xFF))
+	Write(buffer, byte(uint>>16)&0xFF)
+	Write(buffer, byte(uint>>8)&0xFF)
+	Write(buffer, byte(uint&0xFF))
 }
 
 func WriteVarInt(buffer *[]byte, int int32) {
@@ -311,9 +311,9 @@ func WriteVarInt(buffer *[]byte, int int32) {
 
 	for u := 0; u < 5; u++ {
 		if (int >> 7) != 0 {
-			Write(buffer, byte(int | 0x80))
+			Write(buffer, byte(int|0x80))
 		} else {
-			Write(buffer, byte(int & 0x7f))
+			Write(buffer, byte(int&0x7f))
 			break
 		}
 		int >>= 7
@@ -341,9 +341,9 @@ func WriteVarLong(buffer *[]byte, int int64) {
 
 	for u := 0; u < 10; u++ {
 		if (int >> 7) != 0 {
-			Write(buffer, byte(int | 0x80))
+			Write(buffer, byte(int|0x80))
 		} else {
-			Write(buffer, byte(int & 0x7f))
+			Write(buffer, byte(int&0x7f))
 			break
 		}
 		int >>= 7
@@ -368,9 +368,9 @@ func ReadVarLong(buffer *[]byte, offset *int) int64 {
 func WriteUnsignedVarInt(buffer *[]byte, int uint32) {
 	for u := 0; u < 5; u++ {
 		if (int >> 7) != 0 {
-			Write(buffer, byte(int | 0x80))
+			Write(buffer, byte(int|0x80))
 		} else {
-			Write(buffer, byte(int & 0x7f))
+			Write(buffer, byte(int&0x7f))
 			break
 		}
 		int >>= 7
@@ -394,9 +394,9 @@ func ReadUnsignedVarInt(buffer *[]byte, offset *int) uint32 {
 func WriteUnsignedVarLong(buffer *[]byte, int uint64) {
 	for u := 0; u < 10; u++ {
 		if (int >> 7) != 0 {
-			Write(buffer, byte(int | 0x80))
+			Write(buffer, byte(int|0x80))
 		} else {
-			Write(buffer, byte(int & 0x7f))
+			Write(buffer, byte(int&0x7f))
 			break
 		}
 		int >>= 7

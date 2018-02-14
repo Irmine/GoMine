@@ -1,11 +1,11 @@
 package defaults
 
 import (
-	"gomine/interfaces"
+	"github.com/irmine/gomine/interfaces"
 )
 
 type Generator struct {
-	name  string
+	name string
 }
 
 func NewGenerator(name string) *Generator {

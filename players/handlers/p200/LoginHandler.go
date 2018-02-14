@@ -1,19 +1,20 @@
 package p200
 
 import (
-	"gomine/interfaces"
-	"goraklib/server"
-	"crypto/x509"
 	"crypto/ecdsa"
-	"math/big"
 	"crypto/sha512"
-	"time"
-	"gomine/utils"
+	"crypto/x509"
 	"encoding/base64"
-	"gomine/net/packets/types"
-	data2 "gomine/net/packets/data"
-	"gomine/net/packets/p200"
-	"gomine/players/handlers"
+	"math/big"
+	"time"
+
+	"github.com/irmine/gomine/interfaces"
+	data2 "github.com/irmine/gomine/net/packets/data"
+	"github.com/irmine/gomine/net/packets/p200"
+	"github.com/irmine/gomine/net/packets/types"
+	"github.com/irmine/gomine/players/handlers"
+	"github.com/irmine/gomine/utils"
+	"github.com/irmine/goraklib/server"
 )
 
 type LoginHandler struct {
@@ -65,9 +66,9 @@ func (handler LoginHandler) Handle(packet interfaces.IPacket, player interfaces.
 			loginPacket.ClientData.DeviceOS,
 		})
 		s.GetEncryptionHandler().Data = &utils.EncryptionData{
-			ClientPublicKey: pubKey,
+			ClientPublicKey:  pubKey,
 			ServerPrivateKey: server.GetPrivateKey(),
-			ServerToken: server.GetServerToken(),
+			ServerToken:      server.GetServerToken(),
 		}
 
 		player.SetMinecraftSession(s)
@@ -129,8 +130,8 @@ func (handler LoginHandler) VerifyLoginRequest(chains []types.Chain, server inte
 		hash.Write(data)
 
 		publicKey = key.(*ecdsa.PublicKey)
-		r := new(big.Int).SetBytes(sig[:len(sig) / 2])
-		s := new(big.Int).SetBytes(sig[len(sig) / 2:])
+		r := new(big.Int).SetBytes(sig[:len(sig)/2])
+		s := new(big.Int).SetBytes(sig[len(sig)/2:])
 
 		if !ecdsa.Verify(publicKey, hash.Sum(nil), r, s) {
 			return

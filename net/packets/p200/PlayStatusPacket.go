@@ -1,8 +1,8 @@
 package p200
 
 import (
-	"gomine/net/info"
-	"gomine/net/packets"
+	"github.com/irmine/gomine/net/info"
+	"github.com/irmine/gomine/net/packets"
 )
 
 type PlayStatusPacket struct {
@@ -14,10 +14,10 @@ func NewPlayStatusPacket() *PlayStatusPacket {
 	return &PlayStatusPacket{packets.NewPacket(info.PacketIds200[info.PlayStatusPacket]), 0}
 }
 
-func (pk *PlayStatusPacket) Encode()  {
+func (pk *PlayStatusPacket) Encode() {
 	pk.PutInt(pk.Status)
 }
 
-func (pk *PlayStatusPacket) Decode()  {
+func (pk *PlayStatusPacket) Decode() {
 	pk.Status = pk.GetInt()
 }

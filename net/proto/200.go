@@ -1,17 +1,18 @@
 package proto
 
 import (
-	"gomine/interfaces"
-	"gomine/net/info"
-	"gomine/net/packets/p200"
-	"gomine/vectors"
-	"gomine/entities/math"
-	p200handlers "gomine/players/handlers/p200"
 	math2 "math"
-	"gomine/net/packets/data"
-	"gomine/permissions"
-	data2 "gomine/entities/data"
-	"gomine/net/packets/types"
+
+	data2 "github.com/irmine/gomine/entities/data"
+	"github.com/irmine/gomine/entities/math"
+	"github.com/irmine/gomine/interfaces"
+	"github.com/irmine/gomine/net/info"
+	"github.com/irmine/gomine/net/packets/data"
+	"github.com/irmine/gomine/net/packets/p200"
+	"github.com/irmine/gomine/net/packets/types"
+	"github.com/irmine/gomine/permissions"
+	p200handlers "github.com/irmine/gomine/players/handlers/p200"
+	"github.com/irmine/gomine/vectors"
 )
 
 type Protocol200 struct {
@@ -20,16 +21,16 @@ type Protocol200 struct {
 
 func NewProtocol200() *Protocol200 {
 	var ids = info.PacketIds200
-	var proto = &Protocol200{NewProtocol(200, info.PacketIds200, map[int]func() interfaces.IPacket {
-		ids[info.LoginPacket]:				 		func() interfaces.IPacket { return p200.NewLoginPacket() },
-		ids[info.ClientHandshakePacket]:			func() interfaces.IPacket { return p200.NewClientHandshakePacket() },
-		ids[info.ResourcePackClientResponsePacket]:	func() interfaces.IPacket { return p200.NewResourcePackClientResponsePacket() },
-		ids[info.RequestChunkRadiusPacket]:			func() interfaces.IPacket { return p200.NewRequestChunkRadiusPacket() },
-		ids[info.MovePlayerPacket]:					func() interfaces.IPacket { return p200.NewMovePlayerPacket() },
-		ids[info.CommandRequestPacket]:				func() interfaces.IPacket { return p200.NewCommandRequestPacket() },
-		ids[info.ResourcePackChunkRequestPacket]:	func() interfaces.IPacket { return p200.NewResourcePackChunkRequestPacket() },
-		ids[info.TextPacket]:						func() interfaces.IPacket { return p200.NewTextPacket() },
-		ids[info.PlayerListPacket]:					func() interfaces.IPacket { return p200.NewPlayerListPacket() },
+	var proto = &Protocol200{NewProtocol(200, info.PacketIds200, map[int]func() interfaces.IPacket{
+		ids[info.LoginPacket]:                      func() interfaces.IPacket { return p200.NewLoginPacket() },
+		ids[info.ClientHandshakePacket]:            func() interfaces.IPacket { return p200.NewClientHandshakePacket() },
+		ids[info.ResourcePackClientResponsePacket]: func() interfaces.IPacket { return p200.NewResourcePackClientResponsePacket() },
+		ids[info.RequestChunkRadiusPacket]:         func() interfaces.IPacket { return p200.NewRequestChunkRadiusPacket() },
+		ids[info.MovePlayerPacket]:                 func() interfaces.IPacket { return p200.NewMovePlayerPacket() },
+		ids[info.CommandRequestPacket]:             func() interfaces.IPacket { return p200.NewCommandRequestPacket() },
+		ids[info.ResourcePackChunkRequestPacket]:   func() interfaces.IPacket { return p200.NewResourcePackChunkRequestPacket() },
+		ids[info.TextPacket]:                       func() interfaces.IPacket { return p200.NewTextPacket() },
+		ids[info.PlayerListPacket]:                 func() interfaces.IPacket { return p200.NewPlayerListPacket() },
 	}, map[int][][]interfaces.IPacketHandler{})}
 	proto.initHandlers()
 
@@ -71,7 +72,7 @@ func (protocol *Protocol200) GetAddPlayer(player interfaces.IPlayer) interfaces.
 	pk.Position = *player.GetPosition()
 	pk.Rotation = *player.GetRotation()
 	pk.Platform = player.GetPlatform()
-	
+
 	return pk
 }
 
@@ -123,17 +124,17 @@ func (protocol *Protocol200) GetPlayerList(listType byte, players map[string]int
 	var entries = map[string]types.PlayerListEntry{}
 	for name, player := range players {
 		entries[name] = types.PlayerListEntry{
-			UUID: player.GetUUID(),
-			XUID: player.GetXUID(),
+			UUID:           player.GetUUID(),
+			XUID:           player.GetXUID(),
 			EntityUniqueId: player.GetUniqueId(),
-			Username: player.GetName(),
-			DisplayName: player.GetDisplayName(),
-			Platform: player.GetPlatform(),
-			SkinId: player.GetSkinId(),
-			SkinData: player.GetSkinData(),
-			CapeData: player.GetCapeData(),
-			GeometryName: player.GetGeometryName(),
-			GeometryData: player.GetGeometryData(),
+			Username:       player.GetName(),
+			DisplayName:    player.GetDisplayName(),
+			Platform:       player.GetPlatform(),
+			SkinId:         player.GetSkinId(),
+			SkinData:       player.GetSkinData(),
+			CapeData:       player.GetCapeData(),
+			GeometryName:   player.GetGeometryName(),
+			GeometryData:   player.GetGeometryData(),
 		}
 	}
 	pk.Entries = entries
@@ -184,15 +185,15 @@ func (protocol *Protocol200) GetResourcePackInfo(mustAccept bool, resourcePacks 
 	var behaviorEntries []types.ResourcePackInfoEntry
 	for _, pack := range resourcePacks {
 		resourceEntries = append(resourceEntries, types.ResourcePackInfoEntry{
-			UUID: pack.GetUUID(),
-			Version: pack.GetVersion(),
+			UUID:     pack.GetUUID(),
+			Version:  pack.GetVersion(),
 			PackSize: pack.GetFileSize(),
 		})
 	}
 	for _, pack := range behaviorPacks {
 		behaviorEntries = append(behaviorEntries, types.ResourcePackInfoEntry{
-			UUID: pack.GetUUID(),
-			Version: pack.GetVersion(),
+			UUID:     pack.GetUUID(),
+			Version:  pack.GetVersion(),
 			PackSize: pack.GetFileSize(),
 		})
 	}
@@ -210,13 +211,13 @@ func (protocol *Protocol200) GetResourcePackStack(mustAccept bool, resourcePacks
 	var behaviorEntries []types.ResourcePackStackEntry
 	for _, pack := range resourcePacks {
 		resourceEntries = append(resourceEntries, types.ResourcePackStackEntry{
-			UUID: pack.GetUUID(),
+			UUID:    pack.GetUUID(),
 			Version: pack.GetVersion(),
 		})
 	}
 	for _, pack := range behaviorPacks {
 		behaviorEntries = append(behaviorEntries, types.ResourcePackStackEntry{
-			UUID: pack.GetUUID(),
+			UUID:    pack.GetUUID(),
 			Version: pack.GetVersion(),
 		})
 	}

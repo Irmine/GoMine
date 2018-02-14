@@ -1,19 +1,19 @@
 package utils
 
 import (
-	"fmt"
-	"strings"
+	"crypto/ecdsa"
+	"crypto/rand"
+	"crypto/sha512"
+	"crypto/x509"
 	"encoding/base64"
 	"encoding/json"
-	"crypto/ecdsa"
-	"crypto/sha512"
-	"crypto/rand"
-	"crypto/x509"
+	"fmt"
+	"strings"
 )
 
 type EncryptionHeader struct {
 	Algorithm string `json:"alg"`
-	X5u string `json:"x5u"`
+	X5u       string `json:"x5u"`
 }
 
 type EncryptionPayload struct {

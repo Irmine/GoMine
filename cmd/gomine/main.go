@@ -1,13 +1,14 @@
 package main
 
 import (
+	"flag"
 	"fmt"
-	"gomine"
-	"time"
-	"runtime"
 	"os"
 	"path/filepath"
-	"flag"
+	"runtime"
+	"time"
+
+	"github.com/irmine/gomine"
 )
 
 /**
@@ -50,7 +51,7 @@ func main() {
 		currentTick++
 	}
 
-	server.GetLogger().Terminate() // Terminate the logger to stop writing asynchronously.
+	server.GetLogger().Terminate()        // Terminate the logger to stop writing asynchronously.
 	server.GetLogger().ProcessQueue(true) // Process the logger queue one last time forced and synchronously to make sure everything gets written.
 	server.GetLogger().Sync()
 }
@@ -96,8 +97,8 @@ func parseFlags() {
  * Sets up all directories needed for GoMine.
  */
 func setUpDirectories(path string) {
-	os.Mkdir(path + "extensions", os.ModeDir)
-	os.Mkdir(path + "extensions/plugins", os.ModeDir)
-	os.Mkdir(path + "extensions/behavior_packs", os.ModeDir)
-	os.Mkdir(path + "extensions/resource_packs", os.ModeDir)
+	os.Mkdir(path+"extensions", os.ModeDir)
+	os.Mkdir(path+"extensions/plugins", os.ModeDir)
+	os.Mkdir(path+"extensions/behavior_packs", os.ModeDir)
+	os.Mkdir(path+"extensions/resource_packs", os.ModeDir)
 }

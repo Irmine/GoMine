@@ -1,8 +1,8 @@
 package interfaces
 
-import "gomine/vectors"
+import "github.com/irmine/gomine/vectors"
 
-type IBlock interface{
+type IBlock interface {
 	GetId() int
 	GetData() byte
 	SetVariant(byte)
@@ -70,7 +70,7 @@ type IChunk interface {
 	RemoveViewer(IPlayer)
 }
 
-type ISubChunk interface{
+type ISubChunk interface {
 	IsAllAir() bool
 	GetIdIndex(int, int, int) int
 	GetDataIndex(int, int, int) int

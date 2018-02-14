@@ -1,20 +1,20 @@
 package p200
 
 import (
-	"gomine/net/info"
-	"gomine/vectors"
-	"gomine/net/packets"
+	"github.com/irmine/gomine/net/info"
+	"github.com/irmine/gomine/net/packets"
+	"github.com/irmine/gomine/vectors"
 )
 
-type UpdateBlockPacket struct{
+type UpdateBlockPacket struct {
 	*packets.Packet
-	X, Z int32
-	Y uint32
+	X, Z                          int32
+	Y                             uint32
 	BlockId, BlockMetadata, Flags uint32
 }
 
 func NewUpdateBlockPacket() *UpdateBlockPacket {
-	return &UpdateBlockPacket{packets.NewPacket(info.PacketIds200[info.UpdateBlockPacket]), 0, 0,0, 0, 0, 0}
+	return &UpdateBlockPacket{packets.NewPacket(info.PacketIds200[info.UpdateBlockPacket]), 0, 0, 0, 0, 0, 0}
 }
 
 func (pk *UpdateBlockPacket) Encode() {

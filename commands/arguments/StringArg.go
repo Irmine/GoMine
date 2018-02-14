@@ -1,7 +1,7 @@
 package arguments
 
 import (
-	"gomine/interfaces"
+	"github.com/irmine/gomine/interfaces"
 )
 
 type StringArg struct {

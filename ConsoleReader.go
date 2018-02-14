@@ -3,13 +3,14 @@ package gomine
 import (
 	"bufio"
 	"os"
-	"gomine/interfaces"
 	"strings"
-	"gomine/commands"
+
+	"github.com/irmine/gomine/commands"
+	"github.com/irmine/gomine/interfaces"
 )
 
 type ConsoleReader struct {
-	reader *bufio.Reader
+	reader  *bufio.Reader
 	reading bool
 }
 

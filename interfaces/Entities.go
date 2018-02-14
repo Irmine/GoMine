@@ -1,9 +1,9 @@
 package interfaces
 
 import (
-	"gomine/vectors"
-	"gomine/entities/math"
-	"gomine/entities/data"
+	"github.com/irmine/gomine/entities/data"
+	"github.com/irmine/gomine/entities/math"
+	"github.com/irmine/gomine/vectors"
 )
 
 type IEntity interface {

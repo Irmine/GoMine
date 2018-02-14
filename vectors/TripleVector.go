@@ -33,7 +33,7 @@ func (vector *TripleVector) AsTripleVector() *TripleVector {
 /**
  * Sets the coordinates of this vector
  */
-func (vector *TripleVector) SetVector(vector2 *TripleVector)  {
+func (vector *TripleVector) SetVector(vector2 *TripleVector) {
 	vector.X = vector2.X
 	vector.Y = vector2.Y
 	vector.Z = vector2.Z
@@ -174,7 +174,7 @@ func (vector *TripleVector) Walk(vector2 TripleVector, interval float32) []*Trip
 
 	var distanceRelative = distance / interval
 	for i := float32(1); i < distanceRelative; i++ {
-		vectors = append(vectors, vector.Add(xRelative * i, yRelative * i, zRelative * i))
+		vectors = append(vectors, vector.Add(xRelative*i, yRelative*i, zRelative*i))
 	}
 
 	return vectors

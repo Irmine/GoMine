@@ -1,10 +1,11 @@
 package query
 
 import (
-	"gomine/utils"
+	"reflect"
 	"strconv"
 	"strings"
-	"reflect"
+
+	"github.com/irmine/gomine/utils"
 )
 
 const (
@@ -27,31 +28,31 @@ var writeIndexes = []string{
 	"hostport",
 }
 var readIndexes = map[string]string{
-	"hostname": "MOTD",
-	"gametype": "GameMode",
-	"version": "Version",
+	"hostname":      "MOTD",
+	"gametype":      "GameMode",
+	"version":       "Version",
 	"server_engine": "ServerEngine",
-	"plugins": "PluginNames",
-	"map": "WorldName",
-	"numplayers": "OnlinePlayers",
-	"maxplayers": "MaximumPlayers",
-	"whitelist": "Whitelist",
+	"plugins":       "PluginNames",
+	"map":           "WorldName",
+	"numplayers":    "OnlinePlayers",
+	"maxplayers":    "MaximumPlayers",
+	"whitelist":     "Whitelist",
 }
 
 type QueryResult struct {
-	MOTD string
-	ListPlugins bool
-	PluginNames []string
-	PlayerNames []string
-	GameMode string
-	Version string
-	ServerEngine string
-	WorldName string
-	OnlinePlayers int
+	MOTD           string
+	ListPlugins    bool
+	PluginNames    []string
+	PlayerNames    []string
+	GameMode       string
+	Version        string
+	ServerEngine   string
+	WorldName      string
+	OnlinePlayers  int
 	MaximumPlayers int
-	Whitelist string
-	Port uint16
-	Address string
+	Whitelist      string
+	Port           uint16
+	Address        string
 }
 
 func (result QueryResult) GetLong() []byte {
@@ -65,19 +66,19 @@ func (result QueryResult) GetLong() []byte {
 	}
 
 	var queryData = map[string][]byte{
-		"splitnum": {0x80},
-		"hostname": []byte(result.MOTD),
-		"gametype": []byte(result.GameMode),
-		"game_id": []byte(GameId),
-		"version": []byte(result.Version),
+		"splitnum":      {0x80},
+		"hostname":      []byte(result.MOTD),
+		"gametype":      []byte(result.GameMode),
+		"game_id":       []byte(GameId),
+		"version":       []byte(result.Version),
 		"server_engine": []byte(result.ServerEngine),
-		"plugins": []byte(plugs),
-		"map": []byte(result.WorldName),
-		"numplayers": []byte(strconv.Itoa(result.OnlinePlayers)),
-		"maxplayers": []byte(strconv.Itoa(result.MaximumPlayers)),
-		"whitelist": []byte(result.Whitelist),
-		"hostip": []byte(result.Address),
-		"hostport": []byte(strconv.Itoa(int(result.Port))),
+		"plugins":       []byte(plugs),
+		"map":           []byte(result.WorldName),
+		"numplayers":    []byte(strconv.Itoa(result.OnlinePlayers)),
+		"maxplayers":    []byte(strconv.Itoa(result.MaximumPlayers)),
+		"whitelist":     []byte(result.Whitelist),
+		"hostip":        []byte(result.Address),
+		"hostport":      []byte(strconv.Itoa(int(result.Port))),
 	}
 
 	var stream = utils.NewStream()
@@ -119,7 +120,7 @@ func (result QueryResult) ParseLong(data []byte) QueryResult {
 		}
 		var val interface{}
 
-		stringVal := arr[i + 1]
+		stringVal := arr[i+1]
 
 		if key == "PluginNames" {
 			stringVal = strings.Split(stringVal, ":")[1]

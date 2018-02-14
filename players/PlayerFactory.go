@@ -1,14 +1,15 @@
 package players
 
 import (
-	"gomine/interfaces"
 	"errors"
-	"goraklib/server"
+
+	"github.com/irmine/gomine/interfaces"
+	"github.com/irmine/goraklib/server"
 )
 
 type PlayerFactory struct {
-	server interfaces.IServer
-	players map[string]interfaces.IPlayer
+	server         interfaces.IServer
+	players        map[string]interfaces.IPlayer
 	playersAddress map[string]interfaces.IPlayer
 }
 

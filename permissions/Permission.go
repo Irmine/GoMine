@@ -1,13 +1,13 @@
 package permissions
 
 import (
-	"gomine/interfaces"
+	"github.com/irmine/gomine/interfaces"
 )
 
 type Permission struct {
-	name string
+	name         string
 	defaultLevel int
-	children map[string]interfaces.IPermission
+	children     map[string]interfaces.IPermission
 }
 
 /**

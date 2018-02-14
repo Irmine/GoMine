@@ -1,14 +1,15 @@
 package net
 
 import (
-	"gomine/utils"
 	"bytes"
 	"compress/zlib"
-	"io/ioutil"
-	"gomine/interfaces"
 	"crypto/cipher"
-	"errors"
 	"encoding/hex"
+	"errors"
+	"io/ioutil"
+
+	"github.com/irmine/gomine/interfaces"
+	"github.com/irmine/gomine/utils"
 )
 
 const McpeFlag = 0xFE
@@ -20,9 +21,9 @@ type MinecraftPacketBatch struct {
 
 	packets []interfaces.IPacket
 
-	session interfaces.IMinecraftSession
+	session         interfaces.IMinecraftSession
 	needsEncryption bool
-	logger interfaces.ILogger
+	logger          interfaces.ILogger
 }
 
 /**
@@ -157,10 +158,10 @@ func (batch *MinecraftPacketBatch) encrypt(d []byte) []byte {
 
 	for i := range d {
 		var cfb = cipher.NewCFBEncrypter(data.EncryptCipher, data.EncryptIV)
-		cfb.XORKeyStream(d[i:i + 1], d[i:i + 1])
+		cfb.XORKeyStream(d[i:i+1], d[i:i+1])
 		data.EncryptIV = append(data.EncryptIV[1:], d[i])
 	}
-	
+
 	return d
 }
 
@@ -171,7 +172,7 @@ func (batch *MinecraftPacketBatch) decrypt() {
 	var data = batch.session.GetEncryptionHandler().Data
 	for i, b := range batch.raw {
 		var cfb = cipher.NewCFBDecrypter(data.DecryptCipher, data.DecryptIV)
-		cfb.XORKeyStream(batch.raw[i:i + 1], batch.raw[i:i + 1])
+		cfb.XORKeyStream(batch.raw[i:i+1], batch.raw[i:i+1])
 		data.DecryptIV = append(data.DecryptIV[1:], b)
 	}
 }

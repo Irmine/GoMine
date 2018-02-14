@@ -1,25 +1,26 @@
 package worlds
 
 import (
-	"gomine/interfaces"
-	"gomine/worlds/generation"
-	"gomine/worlds/chunks"
 	"sync"
+
+	"github.com/irmine/gomine/interfaces"
+	"github.com/irmine/gomine/worlds/chunks"
+	"github.com/irmine/gomine/worlds/generation"
 )
 
 const (
 	OverworldId = 0
 	NetherId    = 1
-	EndId	    = 2
+	EndId       = 2
 )
 
 type Dimension struct {
-	name 		string
+	name        string
 	dimensionId int
 	level       interfaces.ILevel
 	isGenerated bool
 
-	chunks 		map[int]interfaces.IChunk
+	chunks        map[int]interfaces.IChunk
 	updatedBlocks map[int][]interfaces.IBlock
 
 	generator interfaces.IGenerator
@@ -32,10 +33,10 @@ type Dimension struct {
  */
 func NewDimension(name string, dimensionId int, level *Level, generator string, chunks map[int]interfaces.IChunk) *Dimension {
 	var dimension = &Dimension{
-		name:  name,
-		dimensionId: dimensionId,
-		level: level,
-		chunks: chunks,
+		name:          name,
+		dimensionId:   dimensionId,
+		level:         level,
+		chunks:        chunks,
 		updatedBlocks: make(map[int][]interfaces.IBlock),
 	}
 
@@ -139,14 +140,14 @@ func (dimension *Dimension) GetGenerator() interfaces.IGenerator {
  * Sends all chunks required around the player.
  */
 func (dimension *Dimension) RequestChunks(player interfaces.IPlayer, distance int32) {
-	xD, zD := int32(player.GetPosition().X) >> 4, int32(player.GetPosition().Z) >> 4
+	xD, zD := int32(player.GetPosition().X)>>4, int32(player.GetPosition().Z)>>4
 
-	for x := -distance + xD; x <= distance + xD; x++ {
-		for z := -distance + zD; z <= distance + zD; z++ {
+	for x := -distance + xD; x <= distance+xD; x++ {
+		for z := -distance + zD; z <= distance+zD; z++ {
 
 			var xRel = x - xD
 			var zRel = z - zD
-			if xRel * xRel + zRel * zRel <= distance * distance {
+			if xRel*xRel+zRel*zRel <= distance*distance {
 				index := GetChunkIndex(x, z)
 
 				if player.HasChunkInUse(index) {
@@ -175,7 +176,7 @@ func (dimension Dimension) UnloadUnusedChunks() {
 /**
  * this function updates every block that gets changed.
  */
-func (dimension *Dimension) UpdateBlocks()  {
+func (dimension *Dimension) UpdateBlocks() {
 	/*var players2 []interfaces.IPlayer
 	batch := net.NewMinecraftPacketBatch()
 

@@ -5,8 +5,8 @@ package permissions
  * These are the groups that GoMine will by default support.
  */
 const (
-	LevelVisitor = 0
-	LevelMember = 1
+	LevelVisitor  = 0
+	LevelMember   = 1
 	LevelOperator = 2
-	LevelCustom = 3
+	LevelCustom   = 3
 )

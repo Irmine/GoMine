@@ -1,21 +1,21 @@
 package p200
 
 import (
-	"gomine/utils"
-	"gomine/net/info"
-	"gomine/net/packets"
+	"github.com/irmine/gomine/net/info"
+	"github.com/irmine/gomine/net/packets"
+	"github.com/irmine/gomine/utils"
 )
 
 type PlayerSkinPacket struct {
 	*packets.Packet
 
-	UUID utils.UUID
-	SkinId string
+	UUID        utils.UUID
+	SkinId      string
 	NewSkinName string
 	OldSkinName string
 
-	SkinData []byte
-	CapeData []byte
+	SkinData     []byte
+	CapeData     []byte
 	GeometryName string
 	GeometryData string
 }

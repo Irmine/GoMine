@@ -1,12 +1,13 @@
 package entities
 
 import (
-	"gomine/vectors"
-	"gomine/interfaces"
-	"gomine/entities/math"
 	math2 "math"
 	"sync"
-	"gomine/entities/data"
+
+	"github.com/irmine/gomine/entities/data"
+	"github.com/irmine/gomine/entities/math"
+	"github.com/irmine/gomine/interfaces"
+	"github.com/irmine/gomine/vectors"
 )
 
 var RuntimeId uint64 = 0
@@ -21,15 +22,15 @@ const (
 
 type Entity struct {
 	attributeMap *data.AttributeMap
-	Motion *vectors.TripleVector
-	runtimeId uint64
-	closed bool
+	Motion       *vectors.TripleVector
+	runtimeId    uint64
+	closed       bool
 
 	Position *vectors.TripleVector
 
-	Level interfaces.ILevel
+	Level     interfaces.ILevel
 	Dimension interfaces.IDimension
-	Rotation *math.Rotation
+	Rotation  *math.Rotation
 
 	NameTag string
 
@@ -108,7 +109,7 @@ func (entity *Entity) InitDataFlags() {
 /**
  * Sets entity data flag
  */
-func (entity *Entity) SetDataFlag(flagId int, value bool)  {
+func (entity *Entity) SetDataFlag(flagId int, value bool) {
 	v := entity.EntityData[DataFlags][1].(int64)
 	if value != entity.GetDataFlag(flagId) {
 		v ^= int64(1 << uint(flagId))
@@ -193,7 +194,7 @@ func (entity *Entity) GetLevel() interfaces.ILevel {
 /**
  * Sets the level of this entity
  */
-func (entity *Entity) SetLevel(v interfaces.ILevel)  {
+func (entity *Entity) SetLevel(v interfaces.ILevel) {
 	entity.Level = v
 }
 
@@ -207,7 +208,7 @@ func (entity *Entity) GetDimension() interfaces.IDimension {
 /**
  * Sets the level of this entity
  */
-func (entity *Entity) SetDimension(v interfaces.IDimension)  {
+func (entity *Entity) SetDimension(v interfaces.IDimension) {
 	entity.Dimension = v
 }
 
@@ -221,7 +222,7 @@ func (entity *Entity) GetRotation() *math.Rotation {
 /**
  * Sets the rotation of this entity
  */
-func (entity *Entity) SetRotation(v *math.Rotation)  {
+func (entity *Entity) SetRotation(v *math.Rotation) {
 	entity.Rotation = v
 }
 
@@ -235,7 +236,7 @@ func (entity *Entity) GetMotion() *vectors.TripleVector {
 /**
  * sets the motion of this entity
  */
-func (entity *Entity) SetMotion(v *vectors.TripleVector)  {
+func (entity *Entity) SetMotion(v *vectors.TripleVector) {
 	entity.Motion = v
 }
 
@@ -303,7 +304,7 @@ func (entity *Entity) Kill() {
 /**
  * Spawns this entity to the given player.
  */
-func (entity *Entity) SpawnTo(player interfaces.IPlayer)  {
+func (entity *Entity) SpawnTo(player interfaces.IPlayer) {
 	if !player.HasSpawned() {
 		return
 	}
@@ -337,7 +338,7 @@ func (entity *Entity) DespawnFromAll() {
 /**
  * Spawns this entity to all players.
  */
-func (entity *Entity) SpawnToAll()  {
+func (entity *Entity) SpawnToAll() {
 	for _, p := range entity.GetChunk().GetViewers() {
 		if p.GetRuntimeId() != entity.GetRuntimeId() {
 			if _, ok := entity.SpawnedTo[p.GetRuntimeId()]; !ok {
@@ -350,7 +351,7 @@ func (entity *Entity) SpawnToAll()  {
 /**
  * Ticks the entity.
  */
-func (entity *Entity) Tick()  {
+func (entity *Entity) Tick() {
 	for runtimeId, player := range entity.GetViewers() {
 		if player.IsClosed() {
 			delete(entity.SpawnedTo, runtimeId)

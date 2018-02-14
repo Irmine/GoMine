@@ -1,10 +1,10 @@
 package interfaces
 
 import (
-	"goraklib/server"
-	"gomine/entities/math"
-	"gomine/vectors"
-	"gomine/net/packets/types"
+	"github.com/irmine/gomine/entities/math"
+	"github.com/irmine/gomine/net/packets/types"
+	"github.com/irmine/gomine/vectors"
+	"github.com/irmine/goraklib/server"
 )
 
 type IPlayerFactory interface {

@@ -3,10 +3,10 @@ package arguments
 import "strconv"
 
 type Argument struct {
-	name string
-	optional bool
+	name      string
+	optional  bool
 	inputArgs int
-	output interface{}
+	output    interface{}
 }
 
 /**

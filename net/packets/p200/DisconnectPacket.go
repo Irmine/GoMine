@@ -1,14 +1,14 @@
 package p200
 
 import (
-	"gomine/net/info"
-	"gomine/net/packets"
+	"github.com/irmine/gomine/net/info"
+	"github.com/irmine/gomine/net/packets"
 )
 
 type DisconnectPacket struct {
 	*packets.Packet
 	HideDisconnectionScreen bool
-	Message string
+	Message                 string
 }
 
 func NewDisconnectPacket() *DisconnectPacket {

@@ -2,23 +2,24 @@ package chunks
 
 import (
 	"errors"
-	"gomine/interfaces"
-	"gomine/tiles"
-	"gomine/utils"
 	"sync"
+
+	"github.com/irmine/gomine/interfaces"
+	"github.com/irmine/gomine/tiles"
+	"github.com/irmine/gomine/utils"
 )
 
 type Chunk struct {
-	height int
-	x, z int32
-	subChunks map[int]interfaces.ISubChunk
-	LightPopulated bool
+	height           int
+	x, z             int32
+	subChunks        map[int]interfaces.ISubChunk
+	LightPopulated   bool
 	TerrainPopulated bool
-	tiles map[uint64]tiles.Tile
-	entities map[uint64]interfaces.IEntity
-	biomes map[int]int
-	heightMap [257]int16
-	viewers sync.Map
+	tiles            map[uint64]tiles.Tile
+	entities         map[uint64]interfaces.IEntity
+	biomes           map[int]int
+	heightMap        [257]int16
+	viewers          sync.Map
 }
 
 func NewChunk(x, z int32) *Chunk {
@@ -200,14 +201,14 @@ func (chunk *Chunk) GetHeightMapIndex(x, z int) int {
 /**
  * Sets the block ID on a position in this chunk.
  */
-func (chunk *Chunk) SetBlockId(x, y, z int, blockId byte)  {
+func (chunk *Chunk) SetBlockId(x, y, z int, blockId byte) {
 	v, err := chunk.GetSubChunk(y >> 4)
 	if err == nil {
-		v.SetBlockId(x, y & 15, z, blockId)
+		v.SetBlockId(x, y&15, z, blockId)
 	} else {
 		sub := NewSubChunk()
-		sub.SetBlockId(x, y & 15, z, blockId)
-		chunk.SetSubChunk(y >> 4, sub)
+		sub.SetBlockId(x, y&15, z, blockId)
+		chunk.SetSubChunk(y>>4, sub)
 	}
 }
 
@@ -217,7 +218,7 @@ func (chunk *Chunk) SetBlockId(x, y, z int, blockId byte)  {
 func (chunk *Chunk) GetBlockId(x, y, z int) byte {
 	v, err := chunk.GetSubChunk(y >> 4)
 	if err == nil {
-		return v.GetBlockId(x, y & 15, z)
+		return v.GetBlockId(x, y&15, z)
 	}
 	return 0
 }
@@ -225,10 +226,10 @@ func (chunk *Chunk) GetBlockId(x, y, z int) byte {
 /**
  * Sets the block data on a position in this chunk.
  */
-func (chunk *Chunk) SetBlockData(x, y, z int, data byte)  {
+func (chunk *Chunk) SetBlockData(x, y, z int, data byte) {
 	v, err := chunk.GetSubChunk(y >> 4)
 	if err == nil {
-		v.SetBlockData(x, y & 15, z, data)
+		v.SetBlockData(x, y&15, z, data)
 	}
 }
 
@@ -238,7 +239,7 @@ func (chunk *Chunk) SetBlockData(x, y, z int, data byte)  {
 func (chunk *Chunk) GetBlockData(x, y, z int) byte {
 	v, err := chunk.GetSubChunk(y >> 4)
 	if err == nil {
-		return v.GetBlockData(x, y & 15, z)
+		return v.GetBlockData(x, y&15, z)
 	}
 	return 0
 }
@@ -246,10 +247,10 @@ func (chunk *Chunk) GetBlockData(x, y, z int) byte {
 /**
  * Sets the block light on a position in this chunk.
  */
-func (chunk *Chunk) SetBlockLight(x, y, z int, level byte)  {
+func (chunk *Chunk) SetBlockLight(x, y, z int, level byte) {
 	v, err := chunk.GetSubChunk(y >> 4)
 	if err == nil {
-		v.SetBlockLight(x, y & 15, z, level)
+		v.SetBlockLight(x, y&15, z, level)
 	}
 }
 
@@ -259,7 +260,7 @@ func (chunk *Chunk) SetBlockLight(x, y, z int, level byte)  {
 func (chunk *Chunk) GetBlockLight(x, y, z int) byte {
 	v, err := chunk.GetSubChunk(y >> 4)
 	if err == nil {
-		return v.GetBlockLight(x, y & 15, z)
+		return v.GetBlockLight(x, y&15, z)
 	}
 	return 0
 }
@@ -267,10 +268,10 @@ func (chunk *Chunk) GetBlockLight(x, y, z int) byte {
 /**
  * Sets the sky light on a position in this chunk.
  */
-func (chunk *Chunk) SetSkyLight(x, y, z int, level byte)  {
+func (chunk *Chunk) SetSkyLight(x, y, z int, level byte) {
 	v, err := chunk.GetSubChunk(y >> 4)
 	if err == nil {
-		v.SetSkyLight(x, y & 15, z, level)
+		v.SetSkyLight(x, y&15, z, level)
 	}
 }
 
@@ -280,7 +281,7 @@ func (chunk *Chunk) SetSkyLight(x, y, z int, level byte)  {
 func (chunk *Chunk) GetSkyLight(x, y, z int) byte {
 	v, err := chunk.GetSubChunk(y >> 4)
 	if err == nil {
-		return v.GetSkyLight(x, y & 15, z)
+		return v.GetSkyLight(x, y&15, z)
 	}
 	return 0
 }
@@ -344,7 +345,7 @@ func (chunk *Chunk) RecalculateHeightMap() {
 				break
 			}
 
-			chunk.SetHeightMap(x, z, chunk.GetHighestBlock(x, z) + 1)
+			chunk.SetHeightMap(x, z, chunk.GetHighestBlock(x, z)+1)
 		}
 	}
 }
@@ -355,7 +356,7 @@ func (chunk *Chunk) RecalculateHeightMap() {
 func (chunk *Chunk) GetHighestSubChunk() interfaces.ISubChunk {
 	var highest interfaces.ISubChunk = NewEmptySubChunk()
 	for y := 15; y >= 0; y-- {
-		if _, ok := chunk.subChunks[y];! ok {
+		if _, ok := chunk.subChunks[y]; !ok {
 			continue
 		}
 		if chunk.subChunks[y].IsAllAir() {
@@ -378,7 +379,7 @@ func (chunk *Chunk) GetHighestBlockId(x, z int) byte {
  * Returns highest block meta data at certain x, z coordinates in this chunk
  */
 func (chunk *Chunk) GetHighestBlockData(x, z int) byte {
-	 return chunk.GetHighestSubChunk().GetHighestBlockData(x, z)
+	return chunk.GetHighestSubChunk().GetHighestBlockData(x, z)
 }
 
 /**

@@ -1,20 +1,21 @@
 package commands
 
 import (
-	"gomine/interfaces"
 	"reflect"
-	"strings"
 	"strconv"
-	"gomine/utils"
+	"strings"
+
+	"github.com/irmine/gomine/interfaces"
+	"github.com/irmine/gomine/utils"
 )
 
 type Command struct {
-	name string
-	description string
-	permission string
-	aliases []string
-	arguments []interfaces.ICommandArgument
-	usage string
+	name             string
+	description      string
+	permission       string
+	aliases          []string
+	arguments        []interfaces.ICommandArgument
+	usage            string
 	permissionExempt bool
 }
 
@@ -163,19 +164,19 @@ func (command *Command) Parse(sender interfaces.ICommandSender, commandArgs []st
 		var output []string
 
 		for i < argument.GetInputAmount() {
-			if len(commandArgs) < stringIndex + i + 1 {
+			if len(commandArgs) < stringIndex+i+1 {
 				if !argument.IsOptional() {
 					sender.SendMessage(command.GetUsage())
 					return nil, false
 				}
 			} else {
-				commandArgs[stringIndex + i] = strings.TrimSpace(commandArgs[stringIndex + i])
+				commandArgs[stringIndex+i] = strings.TrimSpace(commandArgs[stringIndex+i])
 
-				if !argument.IsValidValue(commandArgs[stringIndex + i], server) {
+				if !argument.IsValidValue(commandArgs[stringIndex+i], server) {
 					sender.SendMessage(command.GetUsage())
 					return nil, false
 				}
-				output = append(output, commandArgs[stringIndex + i])
+				output = append(output, commandArgs[stringIndex+i])
 			}
 			i++
 		}

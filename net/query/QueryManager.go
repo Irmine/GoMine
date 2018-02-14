@@ -1,18 +1,19 @@
 package query
 
 import (
-	"gomine/interfaces"
-	"goraklib/server"
+	"fmt"
 	"math/rand"
-	"time"
 	"net"
 	"strconv"
-	"fmt"
+	"time"
+
+	"github.com/irmine/gomine/interfaces"
+	"github.com/irmine/goraklib/server"
 )
 
 type QueryManager struct {
 	server interfaces.IServer
-	token []byte
+	token  []byte
 }
 
 func NewQueryManager(server interfaces.IServer) QueryManager {
@@ -78,7 +79,7 @@ func QueryServer(address string, port uint16, timeout time.Duration) (QueryResul
 		address = realAddresses[0].String()
 	}
 
-	var connection, err2 = net.Dial("udp", address + ":" + strconv.Itoa(int(port)))
+	var connection, err2 = net.Dial("udp", address+":"+strconv.Itoa(int(port)))
 	connection.SetReadDeadline(time.Now().Add(timeout))
 
 	if err2 != nil {

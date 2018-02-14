@@ -2,14 +2,14 @@ package utils
 
 import (
 	"encoding/hex"
-	"strings"
 	"math/rand"
+	"strings"
 	"time"
 )
 
 type UUID struct {
-	parts [4]int32
-	version  int
+	parts   [4]int32
+	version int
 }
 
 var validDigits = "abcdefghijklmnopqrstuvwxyz0123456789"
@@ -81,7 +81,7 @@ func UUIDFromString(str string) UUID {
 	if !IsValidUUID(str) {
 		return UUID{}
 	}
-	
+
 	var bytes, _ = hex.DecodeString(strings.Replace(str, "-", "", -1))
 	var offset = 0
 	return UUIDFromBinary(&bytes, &offset)
