@@ -1,6 +1,0 @@
-[submodule "src/libraries/yaml"]
-	path = src/libraries/yaml
-	url = https://github.com/go-yaml/yaml
-[submodule "src/goraklib"]
-	path = src/goraklib
-	url = https://github.com/Irmine/GoRakLib
