@@ -5,6 +5,7 @@ import (
 	"github.com/irmine/gomine/net/packets/types"
 	"github.com/irmine/gomine/vectors"
 	"github.com/irmine/goraklib/server"
+	"github.com/irmine/gomine/permissions"
 )
 
 type IPlayerFactory interface {
@@ -25,10 +26,10 @@ type IPlayer interface {
 	SetName(name string)
 	GetDisplayName() string
 	SetDisplayName(string)
-	GetPermissionGroup() IPermissionGroup
-	SetPermissionGroup(IPermissionGroup)
+	GetPermissionGroup() *permissions.Group
+	SetPermissionGroup(*permissions.Group)
 	HasPermission(string) bool
-	AddPermission(IPermission) bool
+	AddPermission(*permissions.Permission) bool
 	RemovePermission(string) bool
 	SetViewDistance(int32)
 	GetViewDistance() int32

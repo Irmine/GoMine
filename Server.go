@@ -42,7 +42,7 @@ type Server struct {
 	consoleReader     *ConsoleReader
 	commandHolder     interfaces.ICommandHolder
 	packManager       *packs.Manager
-	permissionManager *permissions.PermissionManager
+	permissionManager *permissions.Manager
 	levels            map[int]interfaces.ILevel
 	playerFactory     *players.PlayerFactory
 	networkAdapter    *net.NetworkAdapter
@@ -68,7 +68,7 @@ func NewServer(serverPath string) *Server {
 	server.packManager = packs.NewManager(serverPath)
 
 	server.playerFactory = players.NewPlayerFactory(server)
-	server.permissionManager = permissions.NewPermissionManager(server)
+	server.permissionManager = permissions.NewManager()
 
 	server.pluginManager = plugins.NewPluginManager(server)
 
@@ -358,7 +358,7 @@ func (server *Server) GetMotd() string {
 /**
  * Returns the permission manager of the server.
  */
-func (server *Server) GetPermissionManager() interfaces.IPermissionManager {
+func (server *Server) GetPermissionManager() *permissions.Manager {
 	return server.permissionManager
 }
 

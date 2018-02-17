@@ -12,6 +12,7 @@ import (
 	"github.com/irmine/gomine/net/packets/types"
 	"github.com/irmine/gomine/vectors"
 	"github.com/irmine/goraklib/server"
+	"github.com/irmine/gomine/permissions"
 )
 
 type Player struct {
@@ -23,8 +24,8 @@ type Player struct {
 
 	spawned bool
 
-	permissions     map[string]interfaces.IPermission
-	permissionGroup interfaces.IPermissionGroup
+	permissions     map[string]*permissions.Permission
+	permissionGroup *permissions.Group
 
 	onGround     bool
 	viewDistance int32
@@ -55,7 +56,7 @@ func NewPlayer(server interfaces.IServer, name string) *Player {
 
 	player.usedChunks = make(map[int]interfaces.IChunk)
 
-	player.permissions = make(map[string]interfaces.IPermission)
+	player.permissions = make(map[string]*permissions.Permission)
 	player.permissionGroup = server.GetPermissionManager().GetDefaultGroup()
 
 	player.server = server
@@ -189,14 +190,14 @@ func (player *Player) SetDisplayName(name string) {
 /**
  * Returns the permission group this player is in.
  */
-func (player *Player) GetPermissionGroup() interfaces.IPermissionGroup {
+func (player *Player) GetPermissionGroup() *permissions.Group {
 	return player.permissionGroup
 }
 
 /**
  * Sets the permission group of this player.
  */
-func (player *Player) SetPermissionGroup(group interfaces.IPermissionGroup) {
+func (player *Player) SetPermissionGroup(group *permissions.Group) {
 	player.permissionGroup = group
 }
 
@@ -215,7 +216,7 @@ func (player *Player) HasPermission(permission string) bool {
  * Adds a permission to the player.
  * Returns true if a permission with the same name was overwritten.
  */
-func (player *Player) AddPermission(permission interfaces.IPermission) bool {
+func (player *Player) AddPermission(permission *permissions.Permission) bool {
 	var hasPermission = player.HasPermission(permission.GetName())
 
 	player.permissions[permission.GetName()] = permission

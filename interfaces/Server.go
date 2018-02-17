@@ -6,6 +6,7 @@ import (
 	"github.com/irmine/gomine/resources"
 	"github.com/irmine/goraklib/server"
 	"github.com/irmine/gomine/packs"
+	"github.com/irmine/gomine/permissions"
 )
 
 type IServer interface {
@@ -28,7 +29,7 @@ type IServer interface {
 	GetMaximumPlayers() uint
 	GetMotd() string
 	Tick(int64)
-	GetPermissionManager() IPermissionManager
+	GetPermissionManager() *permissions.Manager
 	GetEngineName() string
 	GetMinecraftVersion() string
 	GetMinecraftNetworkVersion() string
