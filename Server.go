@@ -32,29 +32,22 @@ const (
 )
 
 type Server struct {
-	isRunning  bool
-	tick       int64
-	privateKey *ecdsa.PrivateKey
-	token      []byte
-
-	serverPath    string
-	logger        interfaces.ILogger
-	config        *resources.GoMineConfig
-	consoleReader *ConsoleReader
-	commandHolder interfaces.ICommandHolder
-
-	packHandler       *packs.PackHandler
+	isRunning         bool
+	tick              int64
+	privateKey        *ecdsa.PrivateKey
+	token             []byte
+	serverPath        string
+	logger            interfaces.ILogger
+	config            *resources.GoMineConfig
+	consoleReader     *ConsoleReader
+	commandHolder     interfaces.ICommandHolder
+	packManager       *packs.Manager
 	permissionManager *permissions.PermissionManager
-
-	levels map[int]interfaces.ILevel
-
-	playerFactory *players.PlayerFactory
-
-	networkAdapter *net.NetworkAdapter
-
-	pluginManager *plugins.PluginManager
-
-	queryManager query.QueryManager
+	levels            map[int]interfaces.ILevel
+	playerFactory     *players.PlayerFactory
+	networkAdapter    *net.NetworkAdapter
+	pluginManager     *plugins.PluginManager
+	queryManager      query.QueryManager
 }
 
 /**
@@ -72,7 +65,7 @@ func NewServer(serverPath string) *Server {
 	server.commandHolder = commands.NewCommandHolder()
 	server.networkAdapter = net.NewNetworkAdapter(server)
 
-	server.packHandler = packs.NewPackHandler(server)
+	server.packManager = packs.NewManager(serverPath)
 
 	server.playerFactory = players.NewPlayerFactory(server)
 	server.permissionManager = permissions.NewPermissionManager(server)
@@ -130,8 +123,8 @@ func (server *Server) Start() {
 
 	server.LoadLevels()
 
-	server.packHandler.LoadResourcePacks() // Behavior packs may depend on resource packs, so always load resource packs first.
-	server.packHandler.LoadBehaviorPacks()
+	server.packManager.LoadResourcePacks() // Behavior packs may depend on resource packs, so always load resource packs first.
+	server.packManager.LoadBehaviorPacks()
 
 	server.pluginManager.LoadPlugins()
 
@@ -386,8 +379,8 @@ func (server *Server) GetCurrentTick() int64 {
 /**
  * Returns the resource and behavior pack handler.
  */
-func (server *Server) GetPackHandler() interfaces.IPackHandler {
-	return server.packHandler
+func (server *Server) GetPackManager() *packs.Manager {
+	return server.packManager
 }
 
 /**

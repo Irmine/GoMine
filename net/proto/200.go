@@ -13,6 +13,7 @@ import (
 	"github.com/irmine/gomine/permissions"
 	p200handlers "github.com/irmine/gomine/players/handlers/p200"
 	"github.com/irmine/gomine/vectors"
+	"github.com/irmine/gomine/packs"
 )
 
 type Protocol200 struct {
@@ -166,7 +167,7 @@ func (protocol *Protocol200) GetResourcePackChunkData(packUUID string, chunkInde
 	return pk
 }
 
-func (protocol *Protocol200) GetResourcePackDataInfo(pack interfaces.IPack) interfaces.IPacket {
+func (protocol *Protocol200) GetResourcePackDataInfo(pack packs.Pack) interfaces.IPacket {
 	var pk = p200.NewResourcePackDataInfoPacket()
 	pk.PackUUID = pack.GetUUID()
 	pk.MaxChunkSize = data.ResourcePackChunkSize
@@ -177,7 +178,7 @@ func (protocol *Protocol200) GetResourcePackDataInfo(pack interfaces.IPack) inte
 	return pk
 }
 
-func (protocol *Protocol200) GetResourcePackInfo(mustAccept bool, resourcePacks []interfaces.IPack, behaviorPacks []interfaces.IPack) interfaces.IPacket {
+func (protocol *Protocol200) GetResourcePackInfo(mustAccept bool, resourcePacks []packs.Pack, behaviorPacks []packs.Pack) interfaces.IPacket {
 	var pk = p200.NewResourcePackInfoPacket()
 	pk.MustAccept = mustAccept
 
@@ -204,7 +205,7 @@ func (protocol *Protocol200) GetResourcePackInfo(mustAccept bool, resourcePacks 
 	return pk
 }
 
-func (protocol *Protocol200) GetResourcePackStack(mustAccept bool, resourcePacks []interfaces.IPack, behaviorPacks []interfaces.IPack) interfaces.IPacket {
+func (protocol *Protocol200) GetResourcePackStack(mustAccept bool, resourcePacks []packs.Pack, behaviorPacks []packs.Pack) interfaces.IPacket {
 	var pk = p200.NewResourcePackStackPacket()
 	pk.MustAccept = mustAccept
 	var resourceEntries []types.ResourcePackStackEntry

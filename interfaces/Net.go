@@ -8,6 +8,7 @@ import (
 	"github.com/irmine/gomine/utils"
 	"github.com/irmine/gomine/vectors"
 	"github.com/irmine/goraklib/server"
+	"github.com/irmine/gomine/packs"
 )
 
 type IPacketHandler interface {
@@ -86,9 +87,9 @@ type IMinecraftSession interface {
 	SendPlayStatus(int32)
 	SendRemoveEntity(IEntity)
 	SendResourcePackChunkData(string, int32, int64, []byte)
-	SendResourcePackDataInfo(IPack)
-	SendResourcePackInfo(bool, []IPack, []IPack)
-	SendResourcePackStack(bool, []IPack, []IPack)
+	SendResourcePackDataInfo(packs.Pack)
+	SendResourcePackInfo(bool, []packs.Pack, []packs.Pack)
+	SendResourcePackStack(bool, []packs.Pack, []packs.Pack)
 	SendServerHandshake(string)
 	SendSetEntityData(IEntity, map[uint32][]interface{})
 	SendStartGame(IPlayer)
@@ -120,9 +121,9 @@ type IProtocol interface {
 	GetPlayStatus(int32) IPacket
 	GetRemoveEntity(int64) IPacket
 	GetResourcePackChunkData(string, int32, int64, []byte) IPacket
-	GetResourcePackDataInfo(IPack) IPacket
-	GetResourcePackInfo(bool, []IPack, []IPack) IPacket
-	GetResourcePackStack(bool, []IPack, []IPack) IPacket
+	GetResourcePackDataInfo(packs.Pack) IPacket
+	GetResourcePackInfo(bool, []packs.Pack, []packs.Pack) IPacket
+	GetResourcePackStack(bool, []packs.Pack, []packs.Pack) IPacket
 	GetServerHandshake(string) IPacket
 	GetSetEntityData(IEntity, map[uint32][]interface{}) IPacket
 	GetStartGame(IPlayer) IPacket

@@ -30,17 +30,17 @@ func (handler ResourcePackClientResponseHandler) Handle(packet interfaces.IPacke
 
 		case data.StatusSendPacks:
 			for _, packUUID := range response.PackUUIDs {
-				if !server.GetPackHandler().IsPackLoaded(packUUID) {
+				if !server.GetPackManager().IsPackLoaded(packUUID) {
 					// TODO: Kick the player. We can't kick yet.
 					return false
 				}
-				var pack = server.GetPackHandler().GetPack(packUUID)
+				var pack = server.GetPackManager().GetPack(packUUID)
 
 				player.SendResourcePackDataInfo(pack)
 			}
 
 		case data.StatusHaveAllPacks:
-			player.SendResourcePackStack(server.GetConfiguration().ForceResourcePacks, server.GetPackHandler().GetResourceStack().GetPacks(), server.GetPackHandler().GetBehaviorStack().GetPacks())
+			player.SendResourcePackStack(server.GetConfiguration().ForceResourcePacks, server.GetPackManager().GetResourceStack().GetPacks(), server.GetPackManager().GetBehaviorStack().GetPacks())
 
 		case data.StatusCompleted:
 			player.PlaceInWorld(vectors.NewTripleVector(0, 20, 0), math.NewRotation(0, 0, 0), server.GetDefaultLevel(), server.GetDefaultLevel().GetDefaultDimension())

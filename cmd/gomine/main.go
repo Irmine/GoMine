@@ -2,10 +2,8 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"os"
 	"path/filepath"
-	"runtime"
 	"time"
 
 	"github.com/irmine/gomine"

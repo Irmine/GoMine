@@ -93,7 +93,7 @@ func (handler LoginHandler) Handle(packet interfaces.IPacket, player interfaces.
 		} else {
 			player.SendPlayStatus(data2.StatusLoginSuccess)
 
-			player.SendResourcePackInfo(server.GetConfiguration().ForceResourcePacks, server.GetPackHandler().GetResourceStack().GetPacks(), server.GetPackHandler().GetBehaviorStack().GetPacks())
+			player.SendResourcePackInfo(server.GetConfiguration().ForceResourcePacks, server.GetPackManager().GetResourceStack().GetPacks(), server.GetPackManager().GetBehaviorStack().GetPacks())
 		}
 		server.GetPlayerFactory().AddPlayer(player, session)
 

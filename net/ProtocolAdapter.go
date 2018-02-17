@@ -6,6 +6,7 @@ import (
 	"github.com/irmine/gomine/interfaces"
 	"github.com/irmine/gomine/net/packets/types"
 	"github.com/irmine/gomine/vectors"
+	"github.com/irmine/gomine/packs"
 )
 
 func (session *MinecraftSession) SendAddEntity(entity interfaces.IEntity) {
@@ -52,15 +53,15 @@ func (session *MinecraftSession) SendResourcePackChunkData(packUUID string, chun
 	session.SendPacket(session.protocol.GetResourcePackChunkData(packUUID, chunkIndex, progress, data))
 }
 
-func (session *MinecraftSession) SendResourcePackDataInfo(pack interfaces.IPack) {
+func (session *MinecraftSession) SendResourcePackDataInfo(pack packs.Pack) {
 	session.SendPacket(session.protocol.GetResourcePackDataInfo(pack))
 }
 
-func (session *MinecraftSession) SendResourcePackInfo(mustAccept bool, resourcePacks []interfaces.IPack, behaviorPacks []interfaces.IPack) {
+func (session *MinecraftSession) SendResourcePackInfo(mustAccept bool, resourcePacks []packs.Pack, behaviorPacks []packs.Pack) {
 	session.SendPacket(session.protocol.GetResourcePackInfo(mustAccept, resourcePacks, behaviorPacks))
 }
 
-func (session *MinecraftSession) SendResourcePackStack(mustAccept bool, resourcePacks []interfaces.IPack, behaviorPacks []interfaces.IPack) {
+func (session *MinecraftSession) SendResourcePackStack(mustAccept bool, resourcePacks []packs.Pack, behaviorPacks []packs.Pack) {
 	session.SendPacket(session.protocol.GetResourcePackStack(mustAccept, resourcePacks, behaviorPacks))
 }
 

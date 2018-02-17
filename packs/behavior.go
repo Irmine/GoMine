@@ -3,36 +3,27 @@ package packs
 import (
 	"errors"
 	"strconv"
-
-	"github.com/irmine/gomine/utils"
 )
 
+// BehaviorPack is a pack used to modify the behavior of entities.
 type BehaviorPack struct {
-	*Pack
+	*Base
 }
 
-/**
- * Returns a new behaviour pack to the given path.
- */
+// NewBehaviorPack returns a new behavior pack at the given path.
 func NewBehaviorPack(path string) *BehaviorPack {
-	return &BehaviorPack{NewPack(path, Behavior)}
+	return &BehaviorPack{newBase(path, Behavior)}
 }
 
-/**
- * Validates all dependencies of this pack.
- */
-func (pack *BehaviorPack) ValidateDependencies(handler *PackHandler) error {
+// ValidateDependencies validates all dependencies of the behavior pack, and returns an error if any.
+func (pack *BehaviorPack) ValidateDependencies(manager *Manager) error {
 	var dependencies = pack.manifest.Dependencies
 	for index, dependency := range dependencies {
 		if dependency.Description == "" {
 			return errors.New("Dependency " + strconv.Itoa(index) + " in pack at " + pack.packPath + " is missing a description.")
 		}
 
-		if !utils.IsValidUUID(dependency.UUID) {
-			return errors.New("Dependency " + strconv.Itoa(index) + " in pack at " + pack.packPath + " is missing a valid UUID.")
-		}
-
-		if !handler.IsResourcePackLoaded(dependency.UUID) {
+		if !manager.IsResourcePackLoaded(dependency.UUID) {
 			return errors.New("Dependency with UUID: " + dependency.UUID + " is not loaded.")
 		}
 
@@ -40,7 +31,7 @@ func (pack *BehaviorPack) ValidateDependencies(handler *PackHandler) error {
 			return errors.New("Dependency " + strconv.Itoa(index) + " in pack at " + pack.packPath + " is missing a valid version.")
 		}
 
-		if dependency.Type != Resource {
+		if dependency.Type != string(Resource) {
 			return errors.New("Dependency " + strconv.Itoa(index) + " in pack at " + pack.packPath + " is missing the correct type. Expected: 'resources', got: '" + dependency.Type + "'")
 		}
 	}

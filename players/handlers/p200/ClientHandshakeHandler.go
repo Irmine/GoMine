@@ -23,7 +23,7 @@ func (handler ClientHandshakeHandler) Handle(packet interfaces.IPacket, player i
 	if _, ok := packet.(*p200.ClientHandshakePacket); ok {
 		player.SendPlayStatus(data.StatusLoginSuccess)
 
-		player.SendResourcePackInfo(server.GetConfiguration().ForceResourcePacks, server.GetPackHandler().GetResourceStack().GetPacks(), server.GetPackHandler().GetBehaviorStack().GetPacks())
+		player.SendResourcePackInfo(server.GetConfiguration().ForceResourcePacks, server.GetPackManager().GetResourceStack().GetPacks(), server.GetPackManager().GetBehaviorStack().GetPacks())
 
 		return true
 	}

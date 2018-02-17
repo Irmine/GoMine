@@ -5,6 +5,7 @@ import (
 
 	"github.com/irmine/gomine/resources"
 	"github.com/irmine/goraklib/server"
+	"github.com/irmine/gomine/packs"
 )
 
 type IServer interface {
@@ -33,7 +34,7 @@ type IServer interface {
 	GetMinecraftNetworkVersion() string
 	GetNetworkAdapter() INetworkAdapter
 	GetPlayerFactory() IPlayerFactory
-	GetPackHandler() IPackHandler
+	GetPackManager() *packs.Manager
 	GetDefaultLevel() ILevel
 	GetLevelById(int) (ILevel, error)
 	GetLevelByName(string) (ILevel, error)
