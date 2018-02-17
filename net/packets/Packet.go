@@ -6,10 +6,11 @@ import (
 	"github.com/irmine/gomine/net/packets/types"
 	"github.com/irmine/gomine/utils"
 	"github.com/irmine/gomine/vectors"
+	"github.com/irmine/binutils"
 )
 
 type Packet struct {
-	*utils.BinaryStream
+	*binutils.Stream
 	PacketId           int
 	SenderIdentifier   byte
 	ReceiverIdentifier byte
@@ -17,7 +18,7 @@ type Packet struct {
 }
 
 func NewPacket(id int) *Packet {
-	return &Packet{utils.NewStream(), id, 0, 0, false}
+	return &Packet{binutils.NewStream(), id, 0, 0, false}
 }
 
 func (pk *Packet) GetId() int {

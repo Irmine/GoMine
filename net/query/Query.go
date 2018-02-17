@@ -4,8 +4,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/irmine/gomine/utils"
 	"github.com/irmine/goraklib/server"
+	"github.com/irmine/binutils"
 )
 
 const (
@@ -16,7 +16,7 @@ const (
 var QueryHeader = []byte{0xfe, 0xfd}
 
 type Query struct {
-	*utils.BinaryStream
+	*binutils.Stream
 	Address string
 	Port    uint16
 
@@ -31,13 +31,13 @@ type Query struct {
 }
 
 func NewQueryFromRaw(packet server.RawPacket) *Query {
-	var stream = utils.NewStream()
+	var stream = binutils.NewStream()
 	stream.Buffer = packet.Buffer
 	return &Query{stream, packet.Address, packet.Port, 0, 0, []byte{}, []byte{}, false, []byte{}}
 }
 
 func NewQuery(address string, port uint16) *Query {
-	return &Query{utils.NewStream(), address, port, 0, 0, []byte{}, []byte{}, false, []byte{}}
+	return &Query{binutils.NewStream(), address, port, 0, 0, []byte{}, []byte{}, false, []byte{}}
 }
 
 func (query *Query) DecodeServer() {
@@ -62,7 +62,7 @@ func (query *Query) EncodeServer() {
 	case QueryChallenge:
 		var token = query.Token
 		var offset = 0
-		var tokenString = strconv.Itoa(int(utils.ReadInt(&token, &offset)))
+		var tokenString = strconv.Itoa(int(binutils.ReadInt(&token, &offset)))
 
 		var padding = 12 - len(tokenString)
 
@@ -96,7 +96,7 @@ func (query *Query) DecodeClient() {
 		var buf []byte
 		var i, _ = strconv.ParseInt(strings.TrimRight(string(query.Get(-1)), "\x00"), 0, 32)
 
-		utils.WriteInt(&buf, int32(i))
+		binutils.WriteInt(&buf, int32(i))
 		query.Token = buf
 	case QueryStatistics:
 		query.Data = query.Get(-1)

@@ -9,13 +9,13 @@ import (
 	"io/ioutil"
 
 	"github.com/irmine/gomine/interfaces"
-	"github.com/irmine/gomine/utils"
+	"github.com/irmine/binutils"
 )
 
 const McpeFlag = 0xFE
 
 type MinecraftPacketBatch struct {
-	*utils.BinaryStream
+	*binutils.Stream
 
 	raw []byte
 
@@ -31,7 +31,7 @@ type MinecraftPacketBatch struct {
  */
 func NewMinecraftPacketBatch(session interfaces.IMinecraftSession, logger interfaces.ILogger) *MinecraftPacketBatch {
 	var batch = &MinecraftPacketBatch{}
-	batch.BinaryStream = utils.NewStream()
+	batch.Stream = binutils.NewStream()
 	batch.session = session
 
 	if session == nil {
@@ -93,7 +93,7 @@ func (batch *MinecraftPacketBatch) Encode() {
 	batch.ResetStream()
 	batch.PutByte(McpeFlag)
 
-	var stream = utils.NewStream()
+	var stream = binutils.NewStream()
 	batch.putPackets(stream)
 
 	var zlibData = batch.compress(stream)
@@ -140,11 +140,11 @@ func (batch *MinecraftPacketBatch) peekProtocol(packetData []byte) int32 {
 	}
 	var protocolBytes = packetData[1:5]
 	var offset = 0
-	var protocol = utils.ReadInt(&protocolBytes, &offset)
+	var protocol = binutils.ReadInt(&protocolBytes, &offset)
 	if protocol == 0 {
 		offset = 0
 		protocolBytes = packetData[3:7]
-		protocol = utils.ReadInt(&protocolBytes, &offset)
+		protocol = binutils.ReadInt(&protocolBytes, &offset)
 	}
 	return protocol
 }
@@ -180,7 +180,7 @@ func (batch *MinecraftPacketBatch) decrypt() {
 /**
  * Puts all packets of the batch inside of the stream.
  */
-func (batch *MinecraftPacketBatch) putPackets(stream *utils.BinaryStream) {
+func (batch *MinecraftPacketBatch) putPackets(stream *binutils.Stream) {
 	for _, packet := range batch.GetPackets() {
 		packet.EncodeHeader()
 		packet.Encode()
@@ -191,7 +191,7 @@ func (batch *MinecraftPacketBatch) putPackets(stream *utils.BinaryStream) {
 /**
  * Zlib compresses the data in the stream and returns it.
  */
-func (batch *MinecraftPacketBatch) compress(stream *utils.BinaryStream) []byte {
+func (batch *MinecraftPacketBatch) compress(stream *binutils.Stream) []byte {
 	var buff = bytes.Buffer{}
 	var writer = zlib.NewWriter(&buff)
 	writer.Write(stream.Buffer)

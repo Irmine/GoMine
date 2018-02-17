@@ -5,6 +5,7 @@ import (
 	"math/rand"
 	"strings"
 	"time"
+	"github.com/irmine/binutils"
 )
 
 type UUID struct {
@@ -91,13 +92,13 @@ func UUIDFromBinary(buffer *[]byte, offset *int) UUID {
 	if len(*buffer) < 16 {
 		panic("UUID is not 16 bytes long")
 	}
-	return NewUUID([4]int32{ReadInt(buffer, offset), ReadInt(buffer, offset), ReadInt(buffer, offset), ReadInt(buffer, offset)})
+	return NewUUID([4]int32{binutils.ReadInt(buffer, offset), binutils.ReadInt(buffer, offset), binutils.ReadInt(buffer, offset), binutils.ReadInt(buffer, offset)})
 }
 
 func (uuid UUID) ToBinary() []byte {
 	var buffer []byte
 	for i := 0; i < 4; i++ {
-		WriteInt(&buffer, uuid.parts[i])
+		binutils.WriteInt(&buffer, uuid.parts[i])
 	}
 	return buffer
 }

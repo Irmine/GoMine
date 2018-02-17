@@ -5,6 +5,7 @@ import (
 	"crypto/cipher"
 	"crypto/ecdsa"
 	"crypto/sha256"
+	"github.com/irmine/binutils"
 )
 
 type EncryptionData struct {
@@ -52,7 +53,7 @@ func (handler *EncryptionHandler) ComputeSendChecksum(d []byte) []byte {
 	var buffer []byte
 	var secret = handler.Data.EncryptSecretKeyBytes[:]
 
-	WriteLittleLong(&buffer, handler.Data.SendCounter)
+	binutils.WriteLittleLong(&buffer, handler.Data.SendCounter)
 	handler.Data.SendCounter++
 
 	var hash = sha256.New()

@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/irmine/gomine/utils"
+	"github.com/irmine/binutils"
 )
 
 const (
@@ -81,7 +81,7 @@ func (result QueryResult) GetLong() []byte {
 		"hostport":      []byte(strconv.Itoa(int(result.Port))),
 	}
 
-	var stream = utils.NewStream()
+	var stream = binutils.NewStream()
 
 	// Query data should not have to be ordered, because all values are already prefixed with their keys.
 	// Many implementations do not work with unordered data however, so therefore still order it.
@@ -159,7 +159,7 @@ func (result QueryResult) GetShort() []byte {
 	var strs = []string{result.MOTD, result.GameMode, result.WorldName, strconv.Itoa(result.OnlinePlayers), strconv.Itoa(result.MaximumPlayers)}
 	var str = strings.Join(strs, " ")
 
-	var stream = utils.NewStream()
+	var stream = binutils.NewStream()
 	stream.Buffer = []byte(str)
 	stream.PutByte(0)
 	stream.PutLittleShort(int16(result.Port))

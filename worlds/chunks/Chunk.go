@@ -6,7 +6,7 @@ import (
 
 	"github.com/irmine/gomine/interfaces"
 	"github.com/irmine/gomine/tiles"
-	"github.com/irmine/gomine/utils"
+	"github.com/irmine/binutils"
 )
 
 type Chunk struct {
@@ -416,7 +416,7 @@ func (chunk *Chunk) PruneEmptySubChunks() {
  * Converts the chunk to binary preparing it to send to the client.
  */
 func (chunk *Chunk) ToBinary() []byte {
-	var stream = utils.NewStream()
+	var stream = binutils.NewStream()
 	var subChunkCount = chunk.GetFilledSubChunks()
 
 	stream.PutByte(subChunkCount)

@@ -11,7 +11,7 @@ import (
 	"github.com/irmine/gomine"
 )
 
-/**
+/*
  * Command line flags:
  * -stop-immediately : Stops the server immediately after starting and ticking once.
  */

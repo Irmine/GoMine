@@ -9,6 +9,7 @@ import (
 	"github.com/irmine/gomine/net/packets"
 	"github.com/irmine/gomine/net/packets/types"
 	"github.com/irmine/gomine/utils"
+	"github.com/irmine/binutils"
 )
 
 type LoginPacket struct {
@@ -44,7 +45,7 @@ func (pk *LoginPacket) Encode() {
 func (pk *LoginPacket) Decode() {
 	pk.Protocol = pk.GetInt()
 
-	var stream = utils.NewStream()
+	var stream = binutils.NewStream()
 	stream.Buffer = []byte(pk.GetString())
 
 	var length = int(stream.GetLittleInt())
