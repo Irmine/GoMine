@@ -23,9 +23,6 @@ var currentTick int64 = 0
 
 func main() {
 	var startTime = time.Now()
-	if !checkRequirements() {
-		return
-	}
 
 	parseFlags()
 
@@ -67,19 +64,6 @@ func scanServerPath() string {
 	var serverPath = filepath.Dir(executable) + "/"
 
 	return serverPath
-}
-
-/**
- * Checks if the Go installation meets the requirements of GoMine.
- */
-func checkRequirements() bool {
-	var version = runtime.Version()
-	if version != "go1.9.2" {
-		fmt.Println("Please install the Go 1.9.2 release.")
-		return false
-	}
-
-	return true
 }
 
 /**
