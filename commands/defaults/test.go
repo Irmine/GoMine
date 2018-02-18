@@ -15,9 +15,9 @@ func NewTest() *commands.Command {
 	})
 	test.ExemptFromPermissionCheck(true)
 
-	test.AppendArgument(arguments.NewFloatArg("test", false))
+	test.AppendArgument(arguments.NewFloat("test", false))
 
-	var stringArg = arguments.NewStringArg("anotherTest", true)
+	var stringArg = arguments.NewString("anotherTest", true)
 	stringArg.SetInputAmount(2)
 	test.AppendArgument(stringArg)
 

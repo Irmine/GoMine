@@ -5,8 +5,8 @@ import (
 	"strings"
 )
 
-// NewFloatArg returns a new Float argument with the given name and optional value.
-func NewFloatArg(name string, optional bool) *Argument {
+// NewFloat returns a new Float argument with the given name and optional value.
+func NewFloat(name string, optional bool) *Argument {
 	return &Argument{name, optional, 1, float64(0), func(value string) bool {
 		return IsFloat(value)
 	}, func(value string) interface{} {
@@ -15,8 +15,8 @@ func NewFloatArg(name string, optional bool) *Argument {
 	}, false}
 }
 
-// NewIntArg returns a new Int argument with the given name and optional value.
-func NewIntArg(name string, optional bool) *Argument {
+// NewInt returns a new Int argument with the given name and optional value.
+func NewInt(name string, optional bool) *Argument {
 	return &Argument{name, optional, 1, 0, func(value string) bool {
 		return IsInt(value)
 	}, func(value string) interface{} {
@@ -25,8 +25,8 @@ func NewIntArg(name string, optional bool) *Argument {
 	}, false}
 }
 
-// NewStringArg returns a new String argument with the given name and optional value.
-func NewStringArg(name string, optional bool) *Argument {
+// NewString returns a new String argument with the given name and optional value.
+func NewString(name string, optional bool) *Argument {
 	var arg = &Argument{name, optional, 1, "", func(value string) bool {
 		return true
 	}, func(value string) interface{} {
