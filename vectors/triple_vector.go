@@ -11,7 +11,7 @@ type TripleVector struct {
 }
 
 const (
-	Down = iota
+	Down  = iota
 	Up
 	North
 	South
@@ -23,152 +23,132 @@ func NewTripleVector(x, y, z float32) *TripleVector {
 	return &TripleVector{x, y, z}
 }
 
-/**
- * Converts any struct that has an embedded TripleVector to a new TripleVector.
- */
+// Converts any struct that has an embedded TripleVector to a new TripleVector.
+
 func (vector *TripleVector) AsTripleVector() *TripleVector {
 	return NewTripleVector(vector.X, vector.Y, vector.Z)
 }
 
-/**
- * Sets the coordinates of this vector
- */
+// Sets the coordinates of this vector
+
 func (vector *TripleVector) SetVector(vector2 *TripleVector) {
 	vector.X = vector2.X
 	vector.Y = vector2.Y
 	vector.Z = vector2.Z
 }
 
-/**
- * Returns the X value of this TripleVector.
- */
+// Returns the X value of this TripleVector.
+
 func (vector *TripleVector) GetX() float32 {
 	return vector.X
 }
 
-/**
- * Sets the X value of this TripleVector.
- */
+// Sets the X value of this TripleVector.
+
 func (vector *TripleVector) SetX(value float32) {
 	vector.X = value
 }
 
-/**
- * Returns the Y value of this TripleVector.
- */
+// Returns the Y value of this TripleVector.
+
 func (vector *TripleVector) GetY() float32 {
 	return vector.Y
 }
 
-/**
- * Sets the Y value of this TripleVector.
- */
+// Sets the Y value of this TripleVector.
+
 func (vector *TripleVector) SetY(value float32) {
 	vector.Y = value
 }
 
-/**
- * Returns the Z value of this TripleVector.
- */
+// Returns the Z value of this TripleVector.
+
 func (vector *TripleVector) GetZ() float32 {
 	return vector.Z
 }
 
-/**
- * Sets the Z value of this TripleVector.
- */
+// Sets the Z value of this TripleVector.
+
 func (vector *TripleVector) SetZ(value float32) {
 	vector.Z = value
 }
 
-/**
- * Sets the X, Y and Z value of this TripleVector.
- */
+// Sets the X, Y and Z value of this TripleVector.
+
 func (vector *TripleVector) SetComponents(x, y, z float32) {
 	vector.X = x
 	vector.Y = y
 	vector.Z = z
 }
 
-/**
- * Returns a slice containing the X, Y and Z values of this TripleVector.
- */
+// Returns a slice containing the X, Y and Z values of this TripleVector.
+
 func (vector *TripleVector) GetComponents() []float32 {
 	return []float32{vector.X, vector.Y, vector.Z}
 }
 
-/**
- * Adds the given vector to the current vector and creates a new TripleVector.
- */
+// Adds the given vector to the current vector and creates a new TripleVector.
+
 func (vector *TripleVector) AddVector(vector2 TripleVector) *TripleVector {
 	return &TripleVector{vector.X + vector2.X, vector.Y + vector2.Y, vector.Z + vector2.Z}
 }
 
-/**
- * Adds the given XYZ values to the current vector and creates a new TripleVector.
- */
+// Adds the given XYZ values to the current vector and creates a new TripleVector.
+
 func (vector *TripleVector) Add(x float32, y float32, z float32) *TripleVector {
 	return &TripleVector{vector.X + x, vector.Y + y, vector.Z + z}
 }
 
-/**
- * Subtracts the given vector from the current vector and creates a new TripleVector.
- */
+// Subtracts the given vector from the current vector and creates a new TripleVector.
+
 func (vector *TripleVector) SubtractVector(vector2 TripleVector) *TripleVector {
 	return vector.Add(-vector2.X, -vector2.Y, -vector2.Z)
 }
 
-/**
- * Subtracts the given XYZ values from the current vector and creates a new TripleVector.
- */
+// Subtracts the given XYZ values from the current vector and creates a new TripleVector.
+
 func (vector *TripleVector) Subtract(x float32, y float32, z float32) *TripleVector {
 	return vector.Add(-x, -y, -z)
 }
 
-/**
- * Returns a new TripleVector with the current values made absolute.
- */
+// Returns a new TripleVector with the current values made absolute.
+
 func (vector *TripleVector) Abs() *TripleVector {
 	return &TripleVector{float32(math.Abs(float64(vector.X))), float32(math.Abs(float64(vector.Y))), float32(math.Abs(float64(vector.Z)))}
 }
 
-/**
- * Multiplies all vectors by the given amount and returns a new TripleVector.
- */
+// Multiplies all vectors by the given amount and returns a new TripleVector.
+
 func (vector *TripleVector) Multiply(value float32) *TripleVector {
 	return &TripleVector{vector.X * value, vector.Y * value, vector.Z * value}
 }
 
-/**
- * Divides all vectors by the given amount and returns a new TripleVector.
- */
+// Divides all vectors by the given amount and returns a new TripleVector.
+
 func (vector *TripleVector) Divide(value float32) *TripleVector {
 	return &TripleVector{vector.X / value, vector.Y / value, vector.Z / value}
 }
 
-/**
- * Returns the square distance between this TripleVector and the given TripleVector.
- */
+// Returns the square distance between this TripleVector and the given TripleVector.
+
 func (vector *TripleVector) SquareDistance(vector2 TripleVector) float32 {
 	return ((vector.X - vector2.X) * (vector.X - vector2.X)) + ((vector.Y - vector2.Y) * (vector.Y - vector2.Y)) + ((vector.Z - vector2.Z) * (vector.Z - vector2.Z))
 }
 
-/**
- * Returns the distance between this TripleVector and the given TripleVector.
- */
+// Returns the distance between this TripleVector and the given TripleVector.
+
 func (vector *TripleVector) Distance(vector2 TripleVector) float32 {
 	return float32(math.Sqrt(float64(vector.SquareDistance(vector2))))
 }
 
-/**
- * Walks between two TripleVectors and returns TripleVectors with the given interval.
- */
+// Walks between two TripleVectors and returns TripleVectors with the given interval.
+
 func (vector *TripleVector) Walk(vector2 TripleVector, interval float32) []*TripleVector {
 	var distance = vector.Distance(vector2)
 
-	var xRelative = (vector2.X - vector.X) / distance * interval
-	var yRelative = (vector2.Y - vector.Y) / distance * interval
-	var zRelative = (vector2.Z - vector.Z) / distance * interval
+	var xRelative = (vector2.X - vector.X) / distance // interval
+	var yRelative = (vector2.Y - vector.Y) / distance // interval
+	var zRelative = (vector2.Z - vector.Z) / distance // interval
 
 	var vectors []*TripleVector
 
@@ -180,9 +160,8 @@ func (vector *TripleVector) Walk(vector2 TripleVector, interval float32) []*Trip
 	return vectors
 }
 
-/**
- * Returns a TripleVector slice with all adjacent vectors.
- */
+// Returns a TripleVector slice with all adjacent vectors.
+
 func (vector *TripleVector) GetAdjacentVectors() []*TripleVector {
 	return []*TripleVector{
 		{vector.X + 1, vector.Y, vector.Z},
@@ -194,9 +173,8 @@ func (vector *TripleVector) GetAdjacentVectors() []*TripleVector {
 	}
 }
 
-/**
- * Steps the given amount to the given direction and changes the x/y/z.
- */
+// Steps the given amount to the given direction and changes the x/y/z.
+
 func (vector *TripleVector) Step(direction int, steps float32) {
 	switch direction {
 	case Down:
@@ -214,9 +192,8 @@ func (vector *TripleVector) Step(direction int, steps float32) {
 	}
 }
 
-/**
- * Gets the adjacent vector to the given direction and returns a new TripleVector.
- */
+// Gets the adjacent vector to the given direction and returns a new TripleVector.
+
 func (vector *TripleVector) GetAdjacent(direction int, steps float32) *TripleVector {
 	switch direction {
 	case Down:

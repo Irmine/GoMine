@@ -30,9 +30,7 @@ type Logger struct {
 	terminated bool
 }
 
-/**
- * Returns a new logger with the given prefix and output file.
- */
+// NewLogger returns a new logger with the given prefix and output file.
 func NewLogger(prefix string, outputDir string, debugMode bool) *Logger {
 	var path = outputDir + "gomine.log"
 	var file, fileError = os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
@@ -55,9 +53,7 @@ func NewLogger(prefix string, outputDir string, debugMode bool) *Logger {
 	return logger
 }
 
-/**
- * Continuously processes the queue of log messages.
- */
+// ProcessQueue continuously processes the queue of log messages.
 func (logger *Logger) ProcessQueue(force bool) {
 	for _, message := range logger.terminalQueue {
 		if logger.terminated && !force {
@@ -84,9 +80,7 @@ func (logger *Logger) ProcessQueue(force bool) {
 	}
 }
 
-/**
- * Logs the given message with the given log level and color.
- */
+// Log logs the given message with the given log level and color.
 func (logger *Logger) Log(logLevel string, color string, messages ...interface{}) {
 	var params []string
 	for range messages {
@@ -108,65 +102,47 @@ func (logger *Logger) Log(logLevel string, color string, messages ...interface{}
 	logger.terminalQueue = append(logger.terminalQueue, ConvertMcpeColorsToAnsi(line))
 }
 
-/**
- * Logs a notice message.
- */
+// Notice logs a notice message.
 func (logger *Logger) Notice(messages ...interface{}) {
 	logger.Log(Notice, Yellow, messages)
 }
 
-/**
- * Logs a debug message.
- */
+// Debug logs a debug message.
 func (logger *Logger) Debug(messages ...interface{}) {
 	logger.Log(Debug, Orange, messages)
 }
 
-/**
- * Logs an info message.
- */
+// Info logs an info message.
 func (logger *Logger) Info(messages ...interface{}) {
 	logger.Log(Info, BrightCyan, messages)
 }
 
-/**
- * Logs an alert.
- */
+// Alert logs an alert.
 func (logger *Logger) Alert(messages ...interface{}) {
 	logger.Log(Alert, BrightRed, messages)
 }
 
-/**
- * Logs a warning message.
- */
+// Warning logs a warning message.
 func (logger *Logger) Warning(messages ...interface{}) {
 	logger.Log(Warning, BrightRed+Bold, messages)
 }
 
-/**
- * Logs a critical warning message.
- */
+// Critical logs a critical warning message.
 func (logger *Logger) Critical(messages ...interface{}) {
 	logger.Log(Critical, BrightRed+Underlined+Bold, messages)
 }
 
-/**
- * Logs an error message.
- */
+// Error logs an error message.
 func (logger *Logger) Error(messages ...interface{}) {
 	logger.Log(Error, Red, messages)
 }
 
-/**
- * Logs a chat message to the logger.
- */
+// LogChat logs a chat message to the logger.
 func (logger *Logger) LogChat(messages ...interface{}) {
 	logger.Log(Chat, BrightCyan, messages)
 }
 
-/**
- * Logs an actual error, or nothing if the error is nil.
- */
+// LogError logs an actual error, or nothing if the error is nil.
 func (logger *Logger) LogError(err error) {
 	if err == nil {
 		return
@@ -174,23 +150,17 @@ func (logger *Logger) LogError(err error) {
 	logger.Error(err.Error())
 }
 
-/**
- * Writes the given line to the log and appends a new line.
- */
+// write writes the given line to the log and appends a new line.
 func (logger *Logger) write(line string) {
 	logger.file.WriteString(StripAllColors(line))
 }
 
-/**
- * Synchronizes the file.
- */
+// Sync synchronizes the file.
 func (logger *Logger) Sync() {
 	logger.file.Sync()
 }
 
-/**
- * Terminates the logger and stops processing the queue.
- */
+// Terminate terminates the logger and stops processing the queue.
 func (logger *Logger) Terminate() {
 	logger.terminated = true
 }

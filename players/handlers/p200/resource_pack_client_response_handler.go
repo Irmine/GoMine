@@ -18,9 +18,7 @@ func NewResourcePackClientResponseHandler() ResourcePackClientResponseHandler {
 	return ResourcePackClientResponseHandler{handlers.NewPacketHandler()}
 }
 
-/**
- * Handles the resource pack client response.
- */
+// Handle handles the resource pack client response.
 func (handler ResourcePackClientResponseHandler) Handle(packet interfaces.IPacket, player interfaces.IPlayer, session *server.Session, server interfaces.IServer) bool {
 	if response, ok := packet.(*p200.ResourcePackClientResponsePacket); ok {
 		switch response.Status {

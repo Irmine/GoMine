@@ -49,138 +49,100 @@ func NewMinecraftSession(server interfaces.IServer, session *server.Session, dat
 	}
 }
 
-/**
- * Returns the platform the client uses to player the game.
- */
+// GetPlatform returns the platform the client uses to player the game.
 func (session *MinecraftSession) GetPlatform() int32 {
 	return session.clientPlatform
 }
 
-/**
- * Returns the protocol number the client used to join the server.
- */
+// GetProtocolNumber returns the protocol number the client used to join the server.
 func (session *MinecraftSession) GetProtocolNumber() int32 {
 	return session.protocolNumber
 }
 
-/**
- * Returns the protocol of the client.
- */
+// GetProtocol returns the protocol of the client.
 func (session *MinecraftSession) GetProtocol() interfaces.IProtocol {
 	return session.protocol
 }
 
-/**
- * Sets the protocol of this minecraft session.
- */
+// SetProtocol sets the protocol of this minecraft session.
 func (session *MinecraftSession) SetProtocol(protocol interfaces.IProtocol) {
 	session.protocolNumber = protocol.GetProtocolNumber()
 	session.protocol = protocol
 }
 
-/**
- * Returns the Minecraft version the player used to join the server.
- */
+// GetGameVersion returns the Minecraft version the player used to join the server.
 func (session *MinecraftSession) GetGameVersion() string {
 	return session.minecraftVersion
 }
 
-/**
- * Returns the main GoMine server.
- */
+// GetServer returns the main GoMine server.
 func (session *MinecraftSession) GetServer() interfaces.IServer {
 	return session.server
 }
 
-/**
- * Returns the GoRakLib session of this session.
- */
+// GetSession returns the GoRakLib session of this session.
 func (session *MinecraftSession) GetSession() *server.Session {
 	return session.session
 }
 
-/**
- * Returns the ping of the session in milliseconds.
- */
+// GetPing returns the ping of the session in milliseconds.
 func (session *MinecraftSession) GetPing() uint64 {
 	return session.session.GetPing()
 }
 
-/**
- * Returns the UUID of this player.
- */
+// GetUUID returns the UUID of this session.
 func (session *MinecraftSession) GetUUID() utils.UUID {
 	return session.uuid
 }
 
-/**
- * Returns the XUID of this session.
- */
+// GetXUID returns the XUID of this session.
 func (session *MinecraftSession) GetXUID() string {
 	return session.xuid
 }
 
-/**
- * Sets the language (locale) of this session.
- */
+// SetLanguage sets the language (locale) of this session.
 func (session *MinecraftSession) SetLanguage(language string) {
 	session.language = language
 }
 
-/**
- * Returns the language (locale) of this session.
- */
+// GetLanguage returns the language (locale) of this session.
 func (session *MinecraftSession) GetLanguage() string {
 	return session.language
 }
 
-/**
- * Returns the client ID of this session.
- */
+// GetClientId returns the client ID of this session.
 func (session *MinecraftSession) GetClientId() int {
 	return session.clientId
 }
 
-/**
- * Returns the handler used for encryption.
- */
+// GetEncryptionHandler returns the handler used for encryption.
 func (session *MinecraftSession) GetEncryptionHandler() *utils.EncryptionHandler {
 	return session.encryptionHandler
 }
 
-/**
- * Checks if the session uses encryption or not.
- */
+// UsesEncryption checks if the session uses encryption or not.
 func (session *MinecraftSession) UsesEncryption() bool {
 	return session.usesEncryption
 }
 
-/**
- * Enables encryption for this session and computes secret key bytes.
- */
+// EnableEncryption enables encryption for this session and computes secret key bytes.
 func (session *MinecraftSession) EnableEncryption() {
 	session.usesEncryption = true
 	session.encryptionHandler.Data.ComputeSharedSecret()
 	session.encryptionHandler.Data.ComputeSecretKeyBytes()
 }
 
-/**
- * Checks if the session logged in while being logged into XBOX Live.
- */
+// IsXBOXLiveAuthenticated checks if the session logged in while being logged into XBOX Live.
 func (session *MinecraftSession) IsXBOXLiveAuthenticated() bool {
 	return session.xboxLiveAuthenticated
 }
 
-/**
- * Sets the session XBOX Live authenticated.
- */
+// SetXBOXLiveAuthenticated sets the session XBOX Live authenticated.
 func (session *MinecraftSession) SetXBOXLiveAuthenticated(value bool) {
 	session.xboxLiveAuthenticated = value
 }
 
-/**
- * Sends a packet to this session.
- */
+// SendPacket sends a packet to this session.
 func (session *MinecraftSession) SendPacket(packet interfaces.IPacket) {
 	if session.session == nil {
 		return
@@ -191,9 +153,7 @@ func (session *MinecraftSession) SendPacket(packet interfaces.IPacket) {
 	session.SendBatch(b)
 }
 
-/**
- * Sends a batch to this session.
- */
+// SendBatch sends a batch to this session.
 func (session *MinecraftSession) SendBatch(batch interfaces.IMinecraftPacketBatch) {
 	if session.session == nil {
 		return
@@ -201,16 +161,12 @@ func (session *MinecraftSession) SendBatch(batch interfaces.IMinecraftPacketBatc
 	session.session.SendConnectedPacket(batch, protocol.ReliabilityReliableOrdered, server.PriorityMedium)
 }
 
-/**
- * Checks if the session is initialized.
- */
+// IsInitialized checks if the session is initialized.
 func (session *MinecraftSession) IsInitialized() bool {
 	return session.initialized
 }
 
-/**
- * Handles packets of this session.
- */
+// HandlePacket handles packets of this session.
 func (session *MinecraftSession) HandlePacket(packet interfaces.IPacket, player interfaces.IPlayer) {
 	priorityHandlers := session.GetProtocol().GetHandlersById(packet.GetId())
 

@@ -84,9 +84,7 @@ const (
 	Reset = Pre + "r"
 )
 
-/**
- * Converts all MCPE Color codes to ANSI for display in the terminal.
- */
+// ConvertMcpeColorsToAnsi converts all MCPE Color codes to ANSI for display in the terminal.
 func ConvertMcpeColorsToAnsi(text string) string {
 	for toConvert, convertValue := range colorConvert {
 		text = strings.Replace(text, toConvert, convertValue, -1)
@@ -94,9 +92,7 @@ func ConvertMcpeColorsToAnsi(text string) string {
 	return text
 }
 
-/**
- * Converts all ANSI Color codes to MCPE for display in-game.
- */
+// ConvertAnsiColorsToMcpe converts all ANSI Color codes to MCPE for display in-game.
 func ConvertAnsiColorsToMcpe(text string) string {
 	for convertValue, toConvert := range colorConvert {
 		text = strings.Replace(text, toConvert, convertValue, -1)
@@ -104,9 +100,7 @@ func ConvertAnsiColorsToMcpe(text string) string {
 	return text
 }
 
-/**
- * Strips all MCPE colors from the given string.
- */
+// StripMcpeColors strips all MCPE colors from the given string.
 func StripMcpeColors(text string) string {
 	for toConvert := range colorConvert {
 		text = strings.Replace(text, toConvert, "", -1)
@@ -114,9 +108,7 @@ func StripMcpeColors(text string) string {
 	return text
 }
 
-/**
- * Strips all colors (both ANSI and MCPE) from the given string.
- */
+// StripAllColors strips all colors (both ANSI and MCPE) from the given string.
 func StripAllColors(text string) string {
 	for mcpeColor, ansiColor := range colorConvert {
 		text = strings.Replace(text, mcpeColor, "", -1)

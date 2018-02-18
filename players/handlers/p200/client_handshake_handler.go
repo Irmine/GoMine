@@ -16,9 +16,7 @@ func NewClientHandshakeHandler() ClientHandshakeHandler {
 	return ClientHandshakeHandler{handlers.NewPacketHandler()}
 }
 
-/**
- * Handles the client handshake, given to indicate that the client has enabled encryption.
- */
+// Handle handles the client handshake, given to indicate that the client has enabled encryption.
 func (handler ClientHandshakeHandler) Handle(packet interfaces.IPacket, player interfaces.IPlayer, session *server.Session, server interfaces.IServer) bool {
 	if _, ok := packet.(*p200.ClientHandshakePacket); ok {
 		player.SendPlayStatus(data.StatusLoginSuccess)

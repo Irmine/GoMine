@@ -16,9 +16,7 @@ func NewResourcePackChunkRequestHandler() ResourcePackChunkRequestHandler {
 	return ResourcePackChunkRequestHandler{handlers.NewPacketHandler()}
 }
 
-/**
- * Handles resource pack chunk requests, returning chunks of resource pack data to the client.
- */
+// Handle handles resource pack chunk requests, returning chunks of resource pack data to the client.
 func (handler ResourcePackChunkRequestHandler) Handle(packet interfaces.IPacket, player interfaces.IPlayer, session *server.Session, server interfaces.IServer) bool {
 	if request, ok := packet.(*p200.ResourcePackChunkRequestPacket); ok {
 		if !server.GetPackManager().IsPackLoaded(request.PackUUID) {

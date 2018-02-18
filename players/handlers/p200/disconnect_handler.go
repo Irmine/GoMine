@@ -8,6 +8,7 @@ import (
 	"github.com/irmine/goraklib/server"
 )
 
+// The disconnect handler is a special case. It does not follow the rules of the other handlers, and has no own packet.
 type DisconnectHandler struct {
 	*handlers.PacketHandler
 }
@@ -16,9 +17,7 @@ func NewDisconnectHandler() DisconnectHandler {
 	return DisconnectHandler{handlers.NewPacketHandler()}
 }
 
-/**
- * The disconnect handler is a special case. It does not follow the rules of the other handlers, and has no own packet.
- */
+// Handle handles player disconnects.
 func (handler DisconnectHandler) Handle(player interfaces.IPlayer, session *server.Session, server interfaces.IServer) {
 	if player == nil {
 		return

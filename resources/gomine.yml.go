@@ -4,7 +4,7 @@ import (
 	"io/ioutil"
 	"os"
 
-	yaml "gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v2"
 )
 
 type GoMineConfig struct {
@@ -31,18 +31,14 @@ type GoMineConfig struct {
 	AllowPluginQuery bool `yaml:"Allow Plugin Query"`
 }
 
-/**
- * Returns a new configuration struct.
- * Creates the file if it does not yet exist.
- */
+// NewGoMineConfig returns a new configuration struct.
+// Creates the file if it does not yet exist.
 func NewGoMineConfig(serverPath string) *GoMineConfig {
 	initializeConfig(serverPath)
 	return getGoMineConfig(serverPath)
 }
 
-/**
- * Initializes the configuration file if it does not yet exist.
- */
+// initializeConfig initializes the configuration file if it does not yet exist.
 func initializeConfig(serverPath string) {
 	var path = serverPath + "gomine.yml"
 	var _, err = os.Stat(path)
@@ -77,9 +73,7 @@ func initializeConfig(serverPath string) {
 	}
 }
 
-/**
- * Parses the configuration file into a struct.
- */
+// getGoMineConfig parses the configuration file into a struct.
 func getGoMineConfig(serverPath string) *GoMineConfig {
 	var yamlFile, _ = ioutil.ReadFile(serverPath + "gomine.yml")
 

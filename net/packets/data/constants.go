@@ -5,39 +5,39 @@ const (
 )
 
 const (
-	StatusLoginSuccess = iota
-	StatusLoginFailedClient
-	StatusLoginFailedServer
-	StatusSpawn
-	StatusLoginFailedInvalidTenant
-	StatusLoginFailedVanillaEdu
-	StatusLoginFailedEduVanilla
+	StatusLoginSuccess             = iota
+	StatusLoginFailedClient        
+	StatusLoginFailedServer        
+	StatusSpawn                    
+	StatusLoginFailedInvalidTenant 
+	StatusLoginFailedVanillaEdu    
+	StatusLoginFailedEduVanilla    
 )
 
 const (
-	MoveNormal = iota
-	MoveReset
-	MoveTeleport
-	MovePitch
+	MoveNormal   = iota
+	MoveReset    
+	MoveTeleport 
+	MovePitch    
 )
 
 const (
-	StatusRefused = iota + 1
-	StatusSendPacks
-	StatusHaveAllPacks
-	StatusCompleted
+	StatusRefused      = iota + 1
+	StatusSendPacks    
+	StatusHaveAllPacks 
+	StatusCompleted    
 )
 
 const (
-	TextRaw = iota
-	TextChat
-	TextTranslation
-	TextPopup
-	TextJukeboxPopup
-	TextTip
-	TextSystem
-	TextWhisper
-	TextAnnouncement
+	TextRaw          = iota
+	TextChat         
+	TextTranslation  
+	TextPopup        
+	TextJukeboxPopup 
+	TextTip          
+	TextSystem       
+	TextWhisper      
+	TextAnnouncement 
 )
 
 const (
@@ -45,6 +45,6 @@ const (
 )
 
 const (
-	ListTypeAdd = iota
-	ListTypeRemove
+	ListTypeAdd    = iota
+	ListTypeRemove 
 )

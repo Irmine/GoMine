@@ -11,20 +11,20 @@ import (
 	"github.com/irmine/goraklib/server"
 )
 
+// QueryManager handles the sequence of incoming queries.
 type QueryManager struct {
 	server interfaces.IServer
 	token  []byte
 }
 
+// NewQueryManager returns a new query manager with the given server.
 func NewQueryManager(server interfaces.IServer) QueryManager {
 	var b = make([]byte, 4)
 	rand.Read(b)
 	return QueryManager{server, b}
 }
 
-/**
- * Handles an incoming query.
- */
+// HandleQuery handles an incoming query.
 func (manager *QueryManager) HandleQuery(query *Query) {
 	switch query.Header {
 	case QueryChallenge:
@@ -49,9 +49,7 @@ func (manager *QueryManager) HandleQuery(query *Query) {
 	}
 }
 
-/**
- * Sends a query to the address and port set in it.
- */
+// sendQuery sends a query to the address and port set in it.
 func (manager *QueryManager) sendQuery(query *Query) {
 	query.EncodeServer()
 	var raw = server.NewRawPacket()
@@ -61,13 +59,11 @@ func (manager *QueryManager) sendQuery(query *Query) {
 	manager.server.GetNetworkAdapter().GetRakLibServer().SendRaw(raw)
 }
 
-/**
- * Queries a server with the given address and port.
- * The call times out after the given timeout duration if no response is given.
- *
- * NOTE: This function is time consuming and should be used one a different goroutine where adequate.
- */
-func QueryServer(address string, port uint16, timeout time.Duration) (QueryResult, error) {
+// QueryServer queries a server with the given address and port.
+// The call times out after the given timeout duration if no response is given.
+//
+// NOTE: This function is time consuming and should be used one a different goroutine where adequate.
+func Send(address string, port uint16, timeout time.Duration) (QueryResult, error) {
 	defer func() {
 		if err := recover(); err != nil {
 			fmt.Println(err)

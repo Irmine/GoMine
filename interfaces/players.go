@@ -47,7 +47,7 @@ type IPlayer interface {
 	NewMinecraftSession(IServer, *server.Session, types.SessionData) IMinecraftSession
 	New(IServer, IMinecraftSession, string) IPlayer
 	SyncMove(float32, float32, float32, float32, float32, float32, bool)
-	SendMessage(string)
+	SendMessage(...interface{})
 	PlaceInWorld(*vectors.TripleVector, *math.Rotation, ILevel, IDimension)
 	HasChunkInUse(int) bool
 	HasAnyChunkInUse() bool

@@ -1,7 +1,7 @@
 package entities
 
 const (
-	Chicken = iota + 10
+	Chicken       = iota + 10
 	Pig
 	Sheep
 	Wolf
@@ -24,7 +24,7 @@ const (
 )
 
 const (
-	Zombie = iota + 32
+	Zombie            = iota + 32
 	Creeper
 	Skeleton
 	Spider
@@ -53,7 +53,7 @@ const (
 )
 
 const (
-	ArmorStand = iota + 61
+	ArmorStand       = iota + 61
 	TripodCamera
 	Player
 	Item
@@ -68,7 +68,7 @@ const (
 )
 
 const (
-	ShulkerBullet = iota + 76
+	ShulkerBullet        = iota + 76
 	FishingHook
 	ChalkBoard
 	DragonFireball

@@ -21,6 +21,7 @@ const (
 	AttributeJumpStrength = "minecraft:horse.jump_strength"
 )
 
+// Attribute is a struct containing data of an entity property.
 type Attribute struct {
 	name         string
 	minValue     float32
@@ -29,58 +30,42 @@ type Attribute struct {
 	defaultValue float32
 }
 
-/**
- * Returns a new Attribute with the given name.
- */
+// NewAttribute returns a new Attribute with the given name.
 func NewAttribute(name string, value, maxValue float32) *Attribute {
 	return &Attribute{name, 0, maxValue, value, value}
 }
 
-/**
- * Returns the name of the attribute.
- */
+// GetName returns the name of the attribute.
 func (attribute *Attribute) GetName() string {
 	return attribute.name
 }
 
-/**
- * Returns the minimum value of this attribute.
- */
+// GetMinValue returns the minimum value of this attribute.
 func (attribute *Attribute) GetMinValue() float32 {
 	return attribute.minValue
 }
 
-/**
- * Returns the maximum value of this attribute.
- */
+// GetMaxValue returns the maximum value of this attribute.
 func (attribute *Attribute) GetMaxValue() float32 {
 	return attribute.maxValue
 }
 
-/**
- * Returns the current value of this attribute.
- */
+// GetValue returns the current value of this attribute.
 func (attribute *Attribute) GetValue() float32 {
 	return attribute.value
 }
 
-/**
- * Sets the current value of this attribute.
- */
+// SetValue sets the current value of this attribute.
 func (attribute *Attribute) SetValue(value float32) {
 	attribute.value = value
 }
 
-/**
- * Returns the default value of this attribute.
- */
+// GetDefaultValue returns the default value of this attribute.
 func (attribute *Attribute) GetDefaultValue() float32 {
 	return attribute.defaultValue
 }
 
-/**
- * Sets the default value of this attribute.
- */
+// SetDefaultValue sets the default value of this attribute.
 func (attribute *Attribute) SetDefaultValue(value float32) {
 	attribute.defaultValue = value
 }

@@ -26,9 +26,7 @@ type MinecraftPacketBatch struct {
 	logger          interfaces.ILogger
 }
 
-/**
- * Returns a new Minecraft Packet Batch used to decode/encode batches from Encapsulated Packets.
- */
+// NewMinecraftPacketBatch returns a new Minecraft Packet Batch used to decode/encode batches from Encapsulated Packets.
 func NewMinecraftPacketBatch(session interfaces.IMinecraftSession, logger interfaces.ILogger) *MinecraftPacketBatch {
 	var batch = &MinecraftPacketBatch{}
 	batch.Stream = binutils.NewStream()
@@ -49,9 +47,7 @@ func NewMinecraftPacketBatch(session interfaces.IMinecraftSession, logger interf
 	return batch
 }
 
-/**
- * Decodes the batch and separates packets. This does not decode the packets.
- */
+// Decode decodes the batch and separates packets. This does not decode the packets.
 func (batch *MinecraftPacketBatch) Decode() {
 	defer func() {
 		if err := recover(); err != nil {
@@ -86,9 +82,7 @@ func (batch *MinecraftPacketBatch) Decode() {
 	batch.fetchPackets(packetData)
 }
 
-/**
- * Encodes all packets in the batch and zlib encodes them.
- */
+// Encode encodes all packets in the batch and zlib encodes them.
 func (batch *MinecraftPacketBatch) Encode() {
 	batch.ResetStream()
 	batch.PutByte(McpeFlag)
@@ -105,9 +99,7 @@ func (batch *MinecraftPacketBatch) Encode() {
 	batch.PutBytes(data)
 }
 
-/**
- * Fetches all packets from the raw packet buffers.
- */
+// fetchPackets fetches all packets from the raw packet buffers.
 func (batch *MinecraftPacketBatch) fetchPackets(packetData [][]byte) {
 	for _, data := range packetData {
 		if len(data) == 0 {
@@ -131,9 +123,7 @@ func (batch *MinecraftPacketBatch) fetchPackets(packetData [][]byte) {
 	}
 }
 
-/**
- * Peeks in the packet's payload, looking for the protocol.
- */
+// peekProtocol peeks in the packet's payload, looking for the protocol.
 func (batch *MinecraftPacketBatch) peekProtocol(packetData []byte) int32 {
 	if packetData[0] != 0x01 {
 		return 0
@@ -149,9 +139,7 @@ func (batch *MinecraftPacketBatch) peekProtocol(packetData []byte) int32 {
 	return protocol
 }
 
-/**
- * Encrypts the data passed to the function.
- */
+// encrypt encrypts the data passed to the function.
 func (batch *MinecraftPacketBatch) encrypt(d []byte) []byte {
 	var data = batch.session.GetEncryptionHandler().Data
 	d = append(d, batch.session.GetEncryptionHandler().ComputeSendChecksum(d)...)
@@ -165,9 +153,7 @@ func (batch *MinecraftPacketBatch) encrypt(d []byte) []byte {
 	return d
 }
 
-/**
- * Decrypts the buffer of the packet.
- */
+// decrypt decrypts the buffer of the packet.
 func (batch *MinecraftPacketBatch) decrypt() {
 	var data = batch.session.GetEncryptionHandler().Data
 	for i, b := range batch.raw {
@@ -177,9 +163,7 @@ func (batch *MinecraftPacketBatch) decrypt() {
 	}
 }
 
-/**
- * Puts all packets of the batch inside of the stream.
- */
+// putPackets puts all packets of the batch inside of the stream.
 func (batch *MinecraftPacketBatch) putPackets(stream *binutils.Stream) {
 	for _, packet := range batch.GetPackets() {
 		packet.EncodeHeader()
@@ -188,9 +172,7 @@ func (batch *MinecraftPacketBatch) putPackets(stream *binutils.Stream) {
 	}
 }
 
-/**
- * Zlib compresses the data in the stream and returns it.
- */
+// compress zlib compresses the data in the stream and returns it.
 func (batch *MinecraftPacketBatch) compress(stream *binutils.Stream) []byte {
 	var buff = bytes.Buffer{}
 	var writer = zlib.NewWriter(&buff)
@@ -200,9 +182,7 @@ func (batch *MinecraftPacketBatch) compress(stream *binutils.Stream) []byte {
 	return buff.Bytes()
 }
 
-/**
- * Decompresses the zlib compressed buffer.
- */
+// decompress decompresses the zlib compressed buffer.
 func (batch *MinecraftPacketBatch) decompress() error {
 	var reader = bytes.NewReader(batch.raw)
 	zlibReader, err := zlib.NewReader(reader)
@@ -222,17 +202,13 @@ func (batch *MinecraftPacketBatch) decompress() error {
 	return err
 }
 
-/**
- * Adds a packet to the batch when encoding.
- */
+// AddPacket adds a packet to the batch when encoding.
 func (batch *MinecraftPacketBatch) AddPacket(packet interfaces.IPacket) {
 	batch.packets = append(batch.packets, packet)
 }
 
-/**
- * Returns all packets inside of the batch.
- * This only returns correctly when done after decoding, or before encoding.
- */
+// GetPackets returns all packets inside of the batch.
+// This only returns correctly when done after decoding, or before encoding.
 func (batch *MinecraftPacketBatch) GetPackets() []interfaces.IPacket {
 	return batch.packets
 }

@@ -50,10 +50,7 @@ type Server struct {
 	queryManager      query.QueryManager
 }
 
-/**
- * Creates a new server.
- * Will report an error if a server is already existent.
- */
+// NewServer returns a new server with the given server path.
 func NewServer(serverPath string) *Server {
 	var s = &Server{}
 
@@ -93,9 +90,7 @@ func NewServer(serverPath string) *Server {
 	return s
 }
 
-/**
- * Registers all default commands.
- */
+// RegisterDefaultCommands registers all default commands of the server.
 func (server *Server) RegisterDefaultCommands() {
 	server.commandHolder.RegisterCommand(defaults.NewStop(server))
 	server.commandHolder.RegisterCommand(defaults.NewList(server))
@@ -103,16 +98,12 @@ func (server *Server) RegisterDefaultCommands() {
 	server.commandHolder.RegisterCommand(defaults.NewPing())
 }
 
-/**
- * Returns whether the server is running or not.
- */
+// IsRunning checks if the server is running.
 func (server *Server) IsRunning() bool {
 	return server.isRunning
 }
 
-/**
- * Starts the server.
- */
+// Start starts the server and loads levels, plugins, resource packs etc.
 func (server *Server) Start() {
 	if server.isRunning {
 		return
@@ -131,9 +122,7 @@ func (server *Server) Start() {
 	server.isRunning = true
 }
 
-/**
- * Shuts down the server if it is running.
- */
+// Shutdown shuts down the server, saving and disabling everything.
 func (server *Server) Shutdown() {
 	if !server.isRunning {
 		return
@@ -145,46 +134,35 @@ func (server *Server) Shutdown() {
 	server.GetLogger().Notice("Server stopped.")
 }
 
-/**
- * Returns the server version prefixed with 'v'.
- * EG: "v1.2.6.2"
- */
+// GetMinecraftVersion returns the latest Minecraft game version.
+// It is prefixed with a 'v', for example: "v1.2.10.1"
 func (server *Server) GetMinecraftVersion() string {
 	return info.LatestGameVersion
 }
 
-/**
- * Returns the server version used for networking.
- * This version string is not prefixed with a 'v'.
- */
+// GetMinecraftNetworkVersion returns the latest Minecraft network version.
+// For example: "1.2.10.1"
 func (server *Server) GetMinecraftNetworkVersion() string {
 	return info.LatestGameVersionNetwork
 }
 
-/**
- * Returns the path the src folder is located in.
- */
+// GetServerPath returns the server path the server is installed in.
 func (server *Server) GetServerPath() string {
 	return server.serverPath
 }
 
-/**
- * Returns the server logger. Logs with a [GoMine] prefix.
- */
+// GetLogger returns the server's logger.
+// It is prefixed by a [GoMine] prefix.
 func (server *Server) GetLogger() interfaces.ILogger {
 	return server.logger
 }
 
-/**
- * Returns the configuration of GoMine.
- */
+// GetConfiguration returns the configuration file of GoMine.
 func (server *Server) GetConfiguration() *resources.GoMineConfig {
 	return server.config
 }
 
-/**
- * Returns all loaded levels in the server.
- */
+// GetLoadedLevels returns all loaded levels of the server.
 func (server *Server) GetLoadedLevels() map[int]interfaces.ILevel {
 	return server.levels
 }
@@ -193,9 +171,7 @@ func (server *Server) LoadLevels() {
 	server.LoadLevel(server.config.DefaultLevel)
 }
 
-/**
- * Returns whether a level is loaded or not.
- */
+// IsLevelLoaded returns whether a level is loaded or not.
 func (server *Server) IsLevelLoaded(levelName string) bool {
 	for _, level := range server.levels {
 		if level.GetName() == levelName {
@@ -205,9 +181,7 @@ func (server *Server) IsLevelLoaded(levelName string) bool {
 	return false
 }
 
-/**
- * Returns whether a level is generated or not. (Includes loaded levels)
- */
+// IsLevelGenerated returns whether a level is generated or not. (Includes loaded levels)
 func (server *Server) IsLevelGenerated(levelName string) bool {
 	if server.IsLevelLoaded(levelName) {
 		return true
@@ -220,9 +194,7 @@ func (server *Server) IsLevelGenerated(levelName string) bool {
 	return true
 }
 
-/**
- * Loads a generated world. Returns true if the level was loaded successfully.
- */
+// LoadLevel loads a generated level. Returns true if the level was loaded successfully.
 func (server *Server) LoadLevel(levelName string) bool {
 	if !server.IsLevelGenerated(levelName) {
 		// server.GenerateLevel(level) We need file writing for this. TODO.
@@ -235,9 +207,7 @@ func (server *Server) LoadLevel(levelName string) bool {
 	return true
 }
 
-/**
- * Returns the default level and loads/generates it if needed.
- */
+// GetDefaultLevel returns the default level and loads/generates it if needed.
 func (server *Server) GetDefaultLevel() interfaces.ILevel {
 	if !server.IsLevelLoaded(server.config.DefaultLevel) {
 		server.LoadLevel(server.config.DefaultLevel)
@@ -246,9 +216,7 @@ func (server *Server) GetDefaultLevel() interfaces.ILevel {
 	return level
 }
 
-/**
- * Returns a level by its ID. Returns an error if a level with the ID is not loaded.
- */
+// GetLevelById returns a level by its ID. Returns an error if a level with the ID is not loaded.
 func (server *Server) GetLevelById(id int) (interfaces.ILevel, error) {
 	var level interfaces.ILevel
 	if level, ok := server.levels[id]; ok {
@@ -257,9 +225,7 @@ func (server *Server) GetLevelById(id int) (interfaces.ILevel, error) {
 	return level, errors.New("level with given ID is not loaded")
 }
 
-/**
- * Returns a level by its name. Returns an error if the level is not loaded.
- */
+// GetLevelByName returns a level by its name. Returns an error if the level is not loaded.
 func (server *Server) GetLevelByName(name string) (interfaces.ILevel, error) {
 	var level interfaces.ILevel
 	if !server.IsLevelGenerated(name) {
@@ -276,123 +242,89 @@ func (server *Server) GetLevelByName(name string) (interfaces.ILevel, error) {
 	return level, nil
 }
 
-/**
- * Returns the console command reader.
- */
+// GetConsoleReader returns the console command reader.
 func (server *Server) GetConsoleReader() *ConsoleReader {
 	return server.consoleReader
 }
 
-/**
- * Returns the command holder.
- */
+// GetCommandHolder returns the command holder.
 func (server *Server) GetCommandHolder() interfaces.ICommandHolder {
 	return server.commandHolder
 }
 
-/**
- * Returns if the server has a given permission.
- * Always returns true to satisfy the ICommandSender interface.
- */
+// HasPermission returns if the server has a given permission.
+// Always returns true to satisfy the ICommandSender interface.
 func (server *Server) HasPermission(string) bool {
 	return true
 }
 
-/**
- * Sends a message to the server to satisfy the ICommandSender interface.
- */
-func (server *Server) SendMessage(message string) {
+// SendMessage sends a message to the server to satisfy the ICommandSender interface.
+func (server *Server) SendMessage(message ...interface{}) {
 	server.GetLogger().Notice(message)
 }
 
-/**
- * Returns the GoMine Name.
- */
+// GetEngineName returns 'GoMine'.
 func (server *Server) GetEngineName() string {
 	return GoMineName
 }
 
-/**
- * Returns the name of the server specified in the configuration.
- */
+// GetName returns the LAN name of the server specified in the configuration.
 func (server *Server) GetName() string {
 	return server.config.ServerName
 }
 
-/**
- * Returns the port of the server specified in the configuration.
- */
+// GetPort returns the port of the server specified in the configuration.
 func (server *Server) GetPort() uint16 {
 	return server.config.ServerPort
 }
 
-/**
- * Returns the IP address specified in the configuration.
- */
+// GetAddress returns the IP address specified in the configuration.
 func (server *Server) GetAddress() string {
 	return server.config.ServerIp
 }
 
-/**
- * Returns the maximum amount of players on the server.
- */
+// GetMaximumPlayers returns the maximum amount of players on the server.
 func (server *Server) GetMaximumPlayers() uint {
 	return server.config.MaximumPlayers
 }
 
-/**
- * Returns the NetworkAdapter of the server.
- * This is used for network features.
- */
+// GetNetworkAdapter returns the NetworkAdapter of the server.
 func (server *Server) GetNetworkAdapter() interfaces.INetworkAdapter {
 	return server.networkAdapter
 }
 
-/**
- * Returns the Message Of The Day of the server.
- */
+// Returns the Message Of The Day of the server.
+
 func (server *Server) GetMotd() string {
 	return server.config.ServerMotd
 }
 
-/**
- * Returns the permission manager of the server.
- */
+// GetPermissionManager returns the permission manager of the server.
 func (server *Server) GetPermissionManager() *permissions.Manager {
 	return server.permissionManager
 }
 
-/**
- * Returns the player factory of the server.
- */
+// GetPlayerFactory returns the player factory of the server.
 func (server *Server) GetPlayerFactory() interfaces.IPlayerFactory {
 	return server.playerFactory
 }
 
-/**
- * Returns the current tick the server is on.
- */
+// GetCurrentTick returns the current tick the server is on.
 func (server *Server) GetCurrentTick() int64 {
 	return server.tick
 }
 
-/**
- * Returns the resource and behavior pack handler.
- */
+// GetPackManager returns the resource and behavior pack manager.
 func (server *Server) GetPackManager() *packs.Manager {
 	return server.packManager
 }
 
-/**
- * Returns the plugin manager of the server.
- */
+// GetPluginManager returns the plugin manager of the server.
 func (server *Server) GetPluginManager() *plugins.PluginManager {
 	return server.pluginManager
 }
 
-/**
- * Broadcasts a message to all receivers.
- */
+// BroadcastMessageTo broadcasts a message to all receivers.
 func (server *Server) BroadcastMessageTo(message string, receivers []interfaces.IPlayer) {
 	for _, player := range receivers {
 		player.SendMessage(message)
@@ -400,9 +332,7 @@ func (server *Server) BroadcastMessageTo(message string, receivers []interfaces.
 	server.logger.LogChat(message)
 }
 
-/**
- * Broadcasts a message to all players and the console in the server.
- */
+// Broadcast broadcasts a message to all players and the console in the server.
 func (server *Server) BroadcastMessage(message string) {
 	for _, player := range server.GetPlayerFactory().GetPlayers() {
 		player.SendMessage(message)
@@ -410,30 +340,22 @@ func (server *Server) BroadcastMessage(message string) {
 	server.logger.LogChat(message)
 }
 
-/**
- * Returns the ECDSA private key of the server.
- */
+// GetPrivateKey returns the ECDSA private key of the server.
 func (server *Server) GetPrivateKey() *ecdsa.PrivateKey {
 	return server.privateKey
 }
 
-/**
- * Returns the ECDSA public key of the private key of the server.
- */
+// GetPublicKey returns the ECDSA public key of the private key of the server.
 func (server *Server) GetPublicKey() *ecdsa.PublicKey {
 	return &server.privateKey.PublicKey
 }
 
-/**
- * Returns the server token byte sequence.
- */
+// GetServerToken returns the server token byte sequence.
 func (server *Server) GetServerToken() []byte {
 	return server.token
 }
 
-/**
- * Returns the query data of the server in a byte array.
- */
+// GenerateQueryResult returns the query data of the server in a byte array.
 func (server *Server) GenerateQueryResult(shortData bool) []byte {
 	var plugs []string
 	for _, plug := range server.pluginManager.GetPlugins() {
@@ -467,9 +389,7 @@ func (server *Server) GenerateQueryResult(shortData bool) []byte {
 	return result.GetLong()
 }
 
-/**
- * Handles a raw packet, for instance a query packet.
- */
+// HandleRaw handles a raw packet, for instance a query packet.
 func (server *Server) HandleRaw(packet server.RawPacket) {
 	if string(packet.Buffer[0:2]) == string(query.QueryHeader) {
 		if !server.config.AllowQuery {
@@ -483,10 +403,8 @@ func (server *Server) HandleRaw(packet server.RawPacket) {
 	}
 }
 
-/**
- * Internal. Not to be used by plugins.
- * Ticks the entire server. (Levels, scheduler, GoRakLib server etc.)
- */
+// Tick ticks the entire server. (Levels, scheduler, GoRakLib server etc.)
+// Internal. Not to be used by plugins.
 func (server *Server) Tick(currentTick int64) {
 	server.tick = currentTick
 	if !server.isRunning {

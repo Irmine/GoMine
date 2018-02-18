@@ -19,101 +19,75 @@ type Command struct {
 	permissionExempt bool
 }
 
-/**
- * Returns a new base command.
- */
+// NewCommand returns a new base command.
+// The permission used in the command should be registered in order to get correct output.
 func NewCommand(name string, description string, permission string, aliases []string) *Command {
 	return &Command{name: name, permission: permission, aliases: aliases, description: description}
 }
 
-/**
- * Returns the usage of this command.
- */
+// GetUsage returns the usage of this command.
+// The usage will get parsed if it had not yet been.
 func (command *Command) GetUsage() string {
 	command.parseUsage()
 	return command.usage
 }
 
-/**
- * Sets the command exempted from permission checking, allowing anybody to use it.
- */
+// ExemptFromPermissionCheck sets the command exempted from permission checking, allowing anybody to use it.
 func (command *Command) ExemptFromPermissionCheck(value bool) {
 	command.permissionExempt = value
 }
 
-/**
- * Returns if the user of this command is checked for the adequate permission.
- */
+// IsPermissionChecked checks if the user of this command is checked for the adequate permission.
 func (command *Command) IsPermissionChecked() bool {
 	return !command.permissionExempt
 }
 
-/**
- * Returns the command name.
- */
+// GetName returns the command name.
 func (command *Command) GetName() string {
 	return command.name
 }
 
-/**
- * Returns the command description.
- */
+// GetDescription returns the command description.
 func (command *Command) GetDescription() string {
 	return command.description
 }
 
-/**
- * Sets the description of the command.
- */
+// SetDescription sets the description of the command.
 func (command *Command) SetDescription(description string) {
 	command.description = description
 }
 
-/**
- * Sets the permission of the command.
- */
+// SetPermission sets the permission of the command.
 func (command *Command) SetPermission(permission string) {
 	command.permission = permission
 }
 
-/**
- * Returns the command permission string.
- */
+// GetPermission returns the command permission string.
 func (command *Command) GetPermission() string {
 	return command.permission
 }
 
-/**
- * Returns the aliases of this command.
- */
+// GetAliases returns the aliases of this command.
 func (command *Command) GetAliases() []string {
 	return command.aliases
 }
 
-/**
- * Returns a slice with all arguments.
- */
+// GetArguments returns a slice with all arguments.
 func (command *Command) GetArguments() []interfaces.ICommandArgument {
 	return command.arguments
 }
 
-/**
- * Sets the command arguments.
- */
+// SetArguments sets the command arguments.
 func (command *Command) SetArguments(arguments []interfaces.ICommandArgument) {
 	command.arguments = arguments
 }
 
-/**
- * Adds one argument to the command.
- */
+// AppendArgument adds one argument to the command.
 func (command *Command) AppendArgument(argument interfaces.ICommandArgument) {
 	command.arguments = append(command.arguments, argument)
 }
 
-/**
- * Parses the usage into a readable and clear one.
- */
+// parseUsage parses the usage into a readable and clear one.
 func (command *Command) parseUsage() {
 	if command.usage == "" {
 		var usage = utils.Yellow + "Usage: /" + command.GetName() + " "
@@ -142,9 +116,7 @@ func (command *Command) parseUsage() {
 	}
 }
 
-/**
- * Checks and parses the values of a command.
- */
+// Parse checks and parses the values of a command.
 func (command *Command) Parse(sender interfaces.ICommandSender, commandArgs []string, server interfaces.IServer) ([]interfaces.ICommandArgument, bool) {
 	if command.IsPermissionChecked() && !sender.HasPermission(command.GetPermission()) {
 		sender.SendMessage("You do not have permission to execute this command.")
@@ -200,9 +172,7 @@ func (command *Command) Parse(sender interfaces.ICommandSender, commandArgs []st
 	return command.GetArguments(), true
 }
 
-/**
- * Parses the arguments into a proper input and executes the command.
- */
+// ParseIntoInputAndExecute arses the arguments into a proper input and executes the command.
 func ParseIntoInputAndExecute(sender interfaces.ICommandSender, commandStruct interface{}, arguments []interfaces.ICommandArgument) {
 	var method = reflect.ValueOf(commandStruct).MethodByName("Execute")
 	var input = make([]reflect.Value, method.Type().NumIn())

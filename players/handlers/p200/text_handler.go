@@ -17,9 +17,7 @@ func NewTextHandler() TextHandler {
 	return TextHandler{handlers.NewPacketHandler()}
 }
 
-/**
- * Handles chatting of players.
- */
+// Handle handles chatting of players.
 func (handler TextHandler) Handle(packet interfaces.IPacket, player interfaces.IPlayer, session *server.Session, server interfaces.IServer) bool {
 	if textPacket, ok := packet.(*p200.TextPacket); ok {
 		if textPacket.TextType != data.TextChat {

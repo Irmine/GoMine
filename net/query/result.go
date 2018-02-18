@@ -39,6 +39,8 @@ var readIndexes = map[string]string{
 	"whitelist":     "Whitelist",
 }
 
+// QueryResult is a struct containing all information received by querying a server.
+// QueryResults should be constructed in order to send too.
 type QueryResult struct {
 	MOTD           string
 	ListPlugins    bool
@@ -55,6 +57,7 @@ type QueryResult struct {
 	Address        string
 }
 
+// GetLong returns the long encoded query result.
 func (result QueryResult) GetLong() []byte {
 	var plugs = result.ServerEngine
 	if result.ListPlugins {
@@ -106,6 +109,7 @@ func (result QueryResult) GetLong() []byte {
 	return stream.Buffer
 }
 
+// ParseLong parses an encoded long query result.
 func (result QueryResult) ParseLong(data []byte) QueryResult {
 	var r = &QueryResult{}
 	var str = string(data)
@@ -155,6 +159,7 @@ func (result QueryResult) ParseLong(data []byte) QueryResult {
 	return *r
 }
 
+// GetShort returns the short encoded query result.
 func (result QueryResult) GetShort() []byte {
 	var strs = []string{result.MOTD, result.GameMode, result.WorldName, strconv.Itoa(result.OnlinePlayers), strconv.Itoa(result.MaximumPlayers)}
 	var str = strings.Join(strs, " ")

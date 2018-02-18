@@ -29,23 +29,17 @@ func NewPluginManager(server interfaces.IServer) *PluginManager {
 	return &PluginManager{server, make(map[string]IPlugin)}
 }
 
-/**
- * Returns all plugins currently loaded on the server.
- */
+// GetPlugins returns all plugins currently loaded on the server.
 func (manager *PluginManager) GetPlugins() map[string]IPlugin {
 	return manager.plugins
 }
 
-/**
- * Returns the main server.
- */
+// GetServer returns the main server.
 func (manager *PluginManager) GetServer() interfaces.IServer {
 	return manager.server
 }
 
-/**
- * Returns a plugin with the given name, or nil if none could be found.
- */
+// GetPlugin returns a plugin with the given name, or nil if none could be found.
 func (manager *PluginManager) GetPlugin(name string) IPlugin {
 	if !manager.IsPluginLoaded(name) {
 		return nil
@@ -53,17 +47,13 @@ func (manager *PluginManager) GetPlugin(name string) IPlugin {
 	return manager.plugins[name]
 }
 
-/**
- * Checks if a plugin with the given name is loaded.
- */
+// IsPluginLoaded checks if a plugin with the given name is loaded.
 func (manager *PluginManager) IsPluginLoaded(name string) bool {
 	var _, exists = manager.plugins[name]
 	return exists
 }
 
-/**
- * Loads all plugins in the 'extensions/plugins' folder.
- */
+// LoadPlugins loads all plugins in the 'extensions/plugins' folder.
 func (manager *PluginManager) LoadPlugins() {
 	var path = manager.server.GetServerPath() + "extensions/plugins/"
 	var files, _ = ioutil.ReadDir(path)
@@ -91,9 +81,7 @@ func (manager *PluginManager) LoadPlugins() {
 	}
 }
 
-/**
- * Compiles a plugin.go at the given path during runtime, and opens it. This action is extremely time consuming.
- */
+// CompilePlugin compiles a plugin.go at the given path during runtime, and opens it. This action is extremely time consuming.
 func (manager *PluginManager) CompilePlugin(filePath string) (*plugin.Plugin, error) {
 	var compiledPath = strings.Replace(strings.Replace(filePath, ".go", "", 1), "\\", "/", -1)
 	compiledPath += "~" + utils.GenerateRandomUUID() + ".so"
@@ -111,9 +99,7 @@ func (manager *PluginManager) CompilePlugin(filePath string) (*plugin.Plugin, er
 	return plug, err
 }
 
-/**
- * Recompiles a plugin.so at the given path, provided the main source file is at the same location suffixed with .go.
- */
+// RecompilePlugin recompiles a plugin.so at the given path, provided the main source file is at the same location suffixed with .go.
 func (manager *PluginManager) RecompilePlugin(filePath string) (*plugin.Plugin, error) {
 	var decompiledPath = strings.Replace(strings.Replace(filePath, ".so", ".go", 1), "\\", "/", -1)
 	if strings.Contains(filePath, "~") {
@@ -125,9 +111,7 @@ func (manager *PluginManager) RecompilePlugin(filePath string) (*plugin.Plugin, 
 	return manager.CompilePlugin(decompiledPath)
 }
 
-/**
- * Loads a plugin at the given file path and returns an error if applicable.
- */
+// LoadPlugin loads a plugin at the given file path and returns an error if applicable.
 func (manager *PluginManager) LoadPlugin(filePath string) error {
 	var plug, err = plugin.Open(filePath)
 
@@ -178,9 +162,7 @@ func (manager *PluginManager) LoadPlugin(filePath string) error {
 	return nil
 }
 
-/**
- * Validates the plugin manifest and checks for duplicated plugins.
- */
+// ValidateManifest validates the plugin manifest and checks for duplicated plugins.
 func (manager *PluginManager) ValidateManifest(manifest IManifest, path string) error {
 	if manifest.GetName() == "" {
 		return errors.New("Plugin manifest at " + path + " is missing a name.")

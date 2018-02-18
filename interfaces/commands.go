@@ -22,7 +22,7 @@ type ICommandArgument interface {
 
 type ICommandHolder interface {
 	IsCommandRegistered(string) bool
-	UnRegisterCommand(string) bool
+	DeregisterCommand(string) bool
 	GetCommand(string) (ICommand, error)
 	GetCommandByAlias(string) (ICommand, error)
 	GetCommandByName(string) (ICommand, error)
@@ -32,5 +32,5 @@ type ICommandHolder interface {
 
 type ICommandSender interface {
 	HasPermission(string) bool
-	SendMessage(string)
+	SendMessage(...interface{})
 }

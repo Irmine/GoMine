@@ -28,9 +28,8 @@ type Dimension struct {
 	mux sync.Mutex
 }
 
-/**
- * Returns a new dimension with the given dimension ID.
- */
+// Returns a new dimension with the given dimension ID.
+
 func NewDimension(name string, dimensionId int, level *Level, generator string, chunks map[int]interfaces.IChunk) *Dimension {
 	var dimension = &Dimension{
 		name:          name,
@@ -49,30 +48,26 @@ func NewDimension(name string, dimensionId int, level *Level, generator string, 
 	return dimension
 }
 
-/**
- * Returns the dimension ID of this dimension.
- */
+// Returns the dimension ID of this dimension.
+
 func (dimension *Dimension) GetDimensionId() int {
 	return dimension.dimensionId
 }
 
-/**
- * Returns the name of this dimension.
- */
+// Returns the name of this dimension.
+
 func (dimension *Dimension) GetName() string {
 	return dimension.name
 }
 
-/**
- * Returns the level this dimension is in.
- */
+// Returns the level this dimension is in.
+
 func (dimension *Dimension) GetLevel() interfaces.ILevel {
 	return dimension.level
 }
 
-/**
- * Returns if chunk is loaded
- */
+// Returns if chunk is loaded
+
 func (dimension *Dimension) IsChunkLoaded(x, z int32) bool {
 	dimension.mux.Lock()
 	var _, ok = dimension.chunks[GetChunkIndex(x, z)]
@@ -80,9 +75,8 @@ func (dimension *Dimension) IsChunkLoaded(x, z int32) bool {
 	return ok
 }
 
-/**
- * Sets this chunk unloaded
- */
+// Sets this chunk unloaded
+
 func (dimension *Dimension) SetChunkUnloaded(x, z int32) {
 	if !dimension.IsChunkLoaded(x, z) {
 		dimension.mux.Lock()
@@ -91,18 +85,16 @@ func (dimension *Dimension) SetChunkUnloaded(x, z int32) {
 	}
 }
 
-/**
- * Sets a new chunk in the dimension at the x/z coordinates.
- */
+// Sets a new chunk in the dimension at the x/z coordinates.
+
 func (dimension *Dimension) SetChunk(x, z int32, chunk interfaces.IChunk) {
 	dimension.mux.Lock()
 	dimension.chunks[GetChunkIndex(x, z)] = chunk
 	dimension.mux.Unlock()
 }
 
-/**
- * Gets the chunk in the dimension at the x/z coordinates.
- */
+// Gets the chunk in the dimension at the x/z coordinates.
+
 func (dimension *Dimension) GetChunk(x, z int32) interfaces.IChunk {
 	dimension.mux.Lock()
 	if v, ok := dimension.chunks[GetChunkIndex(x, z)]; ok {
@@ -115,30 +107,26 @@ func (dimension *Dimension) GetChunk(x, z int32) interfaces.IChunk {
 	return chunk
 }
 
-/**
- * Returns if the dimension is generated or not.
- */
+// Returns if the dimension is generated or not.
+
 func (dimension *Dimension) IsGenerated() bool {
 	return dimension.isGenerated
 }
 
-/**
- * Sets the generator of this dimension.
- */
+// Sets the generator of this dimension.
+
 func (dimension *Dimension) SetGenerator(generator interfaces.IGenerator) {
 	dimension.generator = generator
 }
 
-/**
- * Returns the generator of this level.
- */
+// Returns the generator of this level.
+
 func (dimension *Dimension) GetGenerator() interfaces.IGenerator {
 	return dimension.generator
 }
 
-/**
- * Sends all chunks required around the player.
- */
+// Sends all chunks required around the player.
+
 func (dimension *Dimension) RequestChunks(player interfaces.IPlayer, distance int32) {
 	xD, zD := int32(player.GetPosition().X)>>4, int32(player.GetPosition().Z)>>4
 
@@ -166,16 +154,14 @@ func (dimension *Dimension) RequestChunks(player interfaces.IPlayer, distance in
 	}
 }
 
-/**
- * Unloads all unused chunks
- */
+// Unloads all unused chunks
+
 func (dimension Dimension) UnloadUnusedChunks() {
 
 }
 
-/**
- * this function updates every block that gets changed.
- */
+// this function updates every block that gets changed.
+
 func (dimension *Dimension) UpdateBlocks() {
 	/*var players2 []interfaces.IPlayer
 	batch := net.NewMinecraftPacketBatch()
@@ -203,9 +189,8 @@ func (dimension *Dimension) UpdateBlocks() {
 	}*/
 }
 
-/**
- * Unloads all unused chunks of the dimension.
- */
+// Unloads all unused chunks of the dimension.
+
 func (dimension *Dimension) UpdateChunks() {
 	dimension.UnloadUnusedChunks()
 }

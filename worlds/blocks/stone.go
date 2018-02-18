@@ -17,9 +17,8 @@ func NewStone(data byte) *Stone {
 	return stone
 }
 
-/**
- * Returns the name of stone adapting to its meta.
- */
+// Returns the name of stone adapting to its meta.
+
 func (stone *Stone) GetName() string {
 	switch stone.GetData() {
 	case 1:

@@ -11,44 +11,38 @@ func NewSubChunk() *SubChunk {
 	return &SubChunk{make([]byte, 4096), make([]byte, 2048), make([]byte, 2048), make([]byte, 2048)}
 }
 
-/**
- * Checks if this SubChunk is completely empty.
- */
+// Checks if this SubChunk is completely empty.
+
 func (subChunk *SubChunk) IsAllAir() bool {
 	return string(subChunk.BlockIds) == string(make([]byte, 4096))
 }
 
-/**
- * Returns the index of the given xyz values for IDs in the SubChunk.
- */
+// Returns the index of the given xyz values for IDs in the SubChunk.
+
 func (subChunk *SubChunk) GetIdIndex(x, y, z int) int {
 	return (x << 8) | (z << 4) | y
 }
 
-/**
- * Returns the index of the given xyz values for data in the SubChunk.
- */
+// Returns the index of the given xyz values for data in the SubChunk.
+
 func (subChunk *SubChunk) GetDataIndex(x, y, z int) int {
 	return (x << 7) + (z << 3) + (y >> 1)
 }
 
-/**
- * Returns the block ID in the SubChunk at the given position.
- */
+// Returns the block ID in the SubChunk at the given position.
+
 func (subChunk *SubChunk) GetBlockId(x, y, z int) byte {
 	return subChunk.BlockIds[subChunk.GetIdIndex(x, y, z)]
 }
 
-/**
- * Sets the block ID in the SubChunk at the given position.
- */
+// Sets the block ID in the SubChunk at the given position.
+
 func (subChunk *SubChunk) SetBlockId(x, y, z int, id byte) {
 	subChunk.BlockIds[subChunk.GetIdIndex(x, y, z)] = id
 }
 
-/**
- * Returns the block light in the SubChunk at the given position.
- */
+// Returns the block light in the SubChunk at the given position.
+
 func (subChunk *SubChunk) GetBlockLight(x, y, z int) byte {
 	var data = subChunk.BlockLight[subChunk.GetDataIndex(x, y, z)]
 	if (y & 0x01) == 0 {
@@ -57,9 +51,8 @@ func (subChunk *SubChunk) GetBlockLight(x, y, z int) byte {
 	return data >> 4
 }
 
-/**
- * Sets the block light in the SubChunk at the given position.
- */
+// Sets the block light in the SubChunk at the given position.
+
 func (subChunk *SubChunk) SetBlockLight(x, y, z int, data byte) {
 	var i = subChunk.GetDataIndex(x, y, z)
 	var d = subChunk.BlockLight[i]
@@ -70,9 +63,8 @@ func (subChunk *SubChunk) SetBlockLight(x, y, z int, data byte) {
 	subChunk.BlockLight[i] = ((data & 0x0f) << 4) | (d & 0x0f)
 }
 
-/**
- * Returns the sky light in the SubChunk at the given position.
- */
+// Returns the sky light in the SubChunk at the given position.
+
 func (subChunk *SubChunk) GetSkyLight(x, y, z int) byte {
 	var data = subChunk.SkyLight[subChunk.GetDataIndex(x, y, z)]
 	if (y & 0x01) == 0 {
@@ -81,9 +73,8 @@ func (subChunk *SubChunk) GetSkyLight(x, y, z int) byte {
 	return data >> 4
 }
 
-/**
- * Sets the sky light in the SubChunk at the given position.
- */
+// Sets the sky light in the SubChunk at the given position.
+
 func (subChunk *SubChunk) SetSkyLight(x, y, z int, data byte) {
 	var i = subChunk.GetDataIndex(x, y, z)
 	var d = subChunk.SkyLight[i]
@@ -94,9 +85,8 @@ func (subChunk *SubChunk) SetSkyLight(x, y, z int, data byte) {
 	subChunk.SkyLight[i] = ((data & 0x0f) << 4) | (d & 0x0f)
 }
 
-/**
- * Returns the block data of a block in the SubChunk on the given position.
- */
+// Returns the block data of a block in the SubChunk on the given position.
+
 func (subChunk *SubChunk) GetBlockData(x, y, z int) byte {
 	var data = subChunk.BlockData[subChunk.GetDataIndex(x, y, z)]
 	if (y & 0x01) == 0 {
@@ -105,9 +95,8 @@ func (subChunk *SubChunk) GetBlockData(x, y, z int) byte {
 	return data >> 4
 }
 
-/**
- * Sets the block data of a block in the SubChunk on the given position.
- */
+// Sets the block data of a block in the SubChunk on the given position.
+
 func (subChunk *SubChunk) SetBlockData(x, y, z int, data byte) {
 	var i = subChunk.GetDataIndex(x, y, z)
 	var d = subChunk.BlockData[i]
@@ -118,9 +107,8 @@ func (subChunk *SubChunk) SetBlockData(x, y, z int, data byte) {
 	subChunk.BlockData[i] = ((data & 0x0f) << 4) | (d & 0x0f)
 }
 
-/**
- * Returns highest block id at certain x, z coordinates in this subchunk
- */
+// Returns highest block id at certain x, z coordinates in this subchunk
+
 func (subChunk *SubChunk) GetHighestBlockId(x, z int) byte {
 	var id byte
 
@@ -134,9 +122,8 @@ func (subChunk *SubChunk) GetHighestBlockId(x, z int) byte {
 	return 0
 }
 
-/**
- * Returns block meta data at certain x, z coordinates in this subchunk
- */
+// Returns block meta data at certain x, z coordinates in this subchunk
+
 func (subChunk *SubChunk) GetHighestBlockData(x, z int) byte {
 	for y := 15; y >= 0; y-- {
 		return subChunk.GetBlockData(x, y, z)
@@ -145,9 +132,8 @@ func (subChunk *SubChunk) GetHighestBlockData(x, z int) byte {
 	return 0
 }
 
-/**
- * Returns highest light filtering at certain x, z coordinates in this subchunk
- */
+// Returns highest light filtering at certain x, z coordinates in this subchunk
+
 func (subChunk *SubChunk) GetHighestBlock(x, z int) int {
 	for y := 15; y >= 0; y-- {
 		if subChunk.GetBlockId(x, y, z) != 0 {
@@ -158,9 +144,8 @@ func (subChunk *SubChunk) GetHighestBlock(x, z int) int {
 	return 0
 }
 
-/**
- * Converts the sub chunk into binary.
- */
+// Converts the sub chunk into binary.
+
 func (subChunk *SubChunk) ToBinary() []byte {
 	var bytes = []byte{00}
 	bytes = append(bytes, subChunk.BlockIds...)

@@ -15,9 +15,7 @@ func NewMovePlayerHandler() MovePlayerHandler {
 	return MovePlayerHandler{handlers.NewPacketHandler()}
 }
 
-/**
- * Handles the synchronization of player movement server sided.
- */
+// Handle handles the synchronization of player movement server sided.
 func (handler MovePlayerHandler) Handle(packet interfaces.IPacket, player interfaces.IPlayer, session *server.Session, server interfaces.IServer) bool {
 	if pk, ok := packet.(*p200.MovePlayerPacket); ok {
 		if !player.HasSpawned() {

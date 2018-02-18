@@ -13,8 +13,10 @@ const (
 	QueryStatistics = 0x00
 )
 
+// QueryHeader is the header of each query.
 var QueryHeader = []byte{0xfe, 0xfd}
 
+// Query is used to encode/decode queries.
 type Query struct {
 	*binutils.Stream
 	Address string
@@ -30,16 +32,19 @@ type Query struct {
 	Data    []byte
 }
 
+// NewQueryFromRaw returns a query from a raw packet.
 func NewQueryFromRaw(packet server.RawPacket) *Query {
 	var stream = binutils.NewStream()
 	stream.Buffer = packet.Buffer
 	return &Query{stream, packet.Address, packet.Port, 0, 0, []byte{}, []byte{}, false, []byte{}}
 }
 
+// NewQuery returns a new query with an address and port.
 func NewQuery(address string, port uint16) *Query {
 	return &Query{binutils.NewStream(), address, port, 0, 0, []byte{}, []byte{}, false, []byte{}}
 }
 
+// DecodeServer decodes the query sent by the client.
 func (query *Query) DecodeServer() {
 	query.Offset = 2
 	query.Header = query.GetByte()
@@ -54,6 +59,7 @@ func (query *Query) DecodeServer() {
 	}
 }
 
+// EncodeServer encodes the query to send to the client.
 func (query *Query) EncodeServer() {
 	query.PutByte(query.Header)
 	query.PutInt(query.QueryId)
@@ -76,6 +82,7 @@ func (query *Query) EncodeServer() {
 	}
 }
 
+// EncodeClient encodes a query to send to the server.
 func (query *Query) EncodeClient() {
 	query.PutBytes(QueryHeader)
 	query.PutByte(query.Header)
@@ -87,6 +94,7 @@ func (query *Query) EncodeClient() {
 	}
 }
 
+// DecodeClient decodes a query sent by the server.
 func (query *Query) DecodeClient() {
 	query.Header = query.GetByte()
 	query.QueryId = query.GetInt()

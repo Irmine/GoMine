@@ -4,6 +4,7 @@ import (
 	"math"
 )
 
+// AttributeMap is a struct containing an unlimited amount of attributes.
 type AttributeMap struct {
 	attributes map[string]*Attribute
 }
@@ -23,35 +24,28 @@ var defaultAttributes = map[string]*Attribute{
 	AttributeJumpStrength:        NewAttribute(AttributeJumpStrength, 0.7, 2),
 }
 
-/**
- * Returns if attribute exists
- */
-func AttributeExists(name string) bool {
-	_, ok := defaultAttributes[name]
-	return ok
-}
-
+// NewAttributeMap returns a new attribute map with default attributes.
 func NewAttributeMap() *AttributeMap {
 	return &AttributeMap{defaultAttributes}
 }
 
-/**
- * Returns all attributes in a name => attribute map.
- */
+// Exists checks if an attribute with the given name exists.
+func (attMap *AttributeMap) Exists(name string) bool {
+	var _, ok = attMap.attributes[name]
+	return ok
+}
+
+// GetAttributes returns all attributes in a name => attribute map.
 func (attMap *AttributeMap) GetAttributes() map[string]*Attribute {
 	return attMap.attributes
 }
 
-/**
- * Sets an attribute in this attribute map.
- */
+// SetAttribute sets an attribute in this attribute map.
 func (attMap *AttributeMap) SetAttribute(attribute *Attribute) {
 	attMap.attributes[attribute.GetName()] = attribute
 }
 
-/**
- * Returns an attribute with the given name.
- */
+// GetAttribute returns an attribute with the given name.
 func (attMap *AttributeMap) GetAttribute(name string) *Attribute {
 	return attMap.attributes[name]
 }

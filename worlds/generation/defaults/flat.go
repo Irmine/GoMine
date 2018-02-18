@@ -12,9 +12,8 @@ func NewFlatGenerator() Flat {
 	return Flat{NewGenerator("Flat")}
 }
 
-/**
- * Generates and populates new chunk.
- */
+// Generates and populates new chunk.
+
 func (f Flat) GetNewChunk(chunk interfaces.IChunk) interfaces.IChunk {
 	f.GenerateChunk(chunk)
 	f.PopulateChunk(chunk)

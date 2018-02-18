@@ -14,9 +14,7 @@ type ConsoleReader struct {
 	reading bool
 }
 
-/**
- * Returns a new Console Reader.
- */
+// NewConsoleReader returns a new Console Reader.
 func NewConsoleReader(server interfaces.IServer) *ConsoleReader {
 	var reader = &ConsoleReader{bufio.NewReader(os.Stdin), false}
 	reader.StartReading()
@@ -32,31 +30,23 @@ func NewConsoleReader(server interfaces.IServer) *ConsoleReader {
 	return reader
 }
 
-/**
- * Makes the console reader start reading.
- */
+// StartReading makes the console reader start reading.
 func (reader *ConsoleReader) StartReading() {
 	reader.reading = true
 }
 
-/**
- * Makes the console reader stop reading.
- */
+// StopReading makes the console reader stop reading.
 func (reader *ConsoleReader) StopReading() {
 	reader.reading = false
 }
 
-/**
- * Checks if the console reader is currently reading.
- */
+// IsReading checks if the console reader is currently reading.
 func (reader *ConsoleReader) IsReading() bool {
 	return reader.reading
 }
 
-/**
- * Reads any commands if entered.
- * Reading lines is blocking, and other goroutines should always be used.
- */
+// ReadLine reads any commands if entered.
+// Reading lines is blocking, and other goroutines should always be used.
 func (reader *ConsoleReader) ReadLine(server interfaces.IServer) string {
 	var command, _ = reader.reader.ReadString('\n')
 	command = strings.Trim(command, "\n")
@@ -68,9 +58,7 @@ func (reader *ConsoleReader) ReadLine(server interfaces.IServer) string {
 	return command
 }
 
-/**
- * Attempts to execute the command entered in the console.
- */
+// attemptReadCommand attempts to execute the command entered in the console.
 func (reader *ConsoleReader) attemptReadCommand(commandText string, server interfaces.IServer) bool {
 	var args = strings.Split(commandText, " ")
 

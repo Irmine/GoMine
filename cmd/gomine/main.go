@@ -1,18 +1,15 @@
 package main
 
 import (
-	"flag"
+	"time"
 	"os"
 	"path/filepath"
-	"time"
-
+	"flag"
 	"github.com/irmine/gomine"
 )
 
-/*
- * Command line flags:
- * -stop-immediately : Stops the server immediately after starting and ticking once.
- */
+// Command line flags:
+// -stop-immediately : Stops the server immediately after starting and ticking once.
 
 var stopInstantly = false
 
@@ -24,7 +21,7 @@ func main() {
 
 	parseFlags()
 
-	var serverPath = scanServerPath()
+	var serverPath = getServerPath()
 	setUpDirectories(serverPath)
 
 	var server = gomine.NewServer(serverPath)
@@ -51,10 +48,8 @@ func main() {
 	server.GetLogger().Sync()
 }
 
-/**
- * Scans and returns the server path.
- */
-func scanServerPath() string {
+// getServerPath returns the server path.
+func getServerPath() string {
 	var executable, err = os.Executable()
 	if err != nil {
 		panic(err)
@@ -64,9 +59,7 @@ func scanServerPath() string {
 	return serverPath
 }
 
-/**
- * Parses all command line flags.
- */
+// parseFlags parses all command line flags.
 func parseFlags() {
 	var instantStop = flag.Bool("stop-immediately", false, "instant stop")
 
@@ -75,9 +68,7 @@ func parseFlags() {
 	stopInstantly = *instantStop
 }
 
-/**
- * Sets up all directories needed for GoMine.
- */
+// setUpDirectories sets up all directories needed for GoMine.
 func setUpDirectories(path string) {
 	os.Mkdir(path+"extensions", os.ModeDir)
 	os.Mkdir(path+"extensions/plugins", os.ModeDir)

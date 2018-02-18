@@ -17,9 +17,7 @@ func NewRequestChunkRadiusHandler() RequestChunkRadiusHandler {
 	return RequestChunkRadiusHandler{handlers.NewPacketHandler()}
 }
 
-/**
- * Handles the chunk radius requests and initial spawns.
- */
+// Handle handles the chunk radius requests and initial spawn.
 func (handler RequestChunkRadiusHandler) Handle(packet interfaces.IPacket, player interfaces.IPlayer, session *server.Session, server interfaces.IServer) bool {
 	if chunkRadiusPacket, ok := packet.(*p200.RequestChunkRadiusPacket); ok {
 

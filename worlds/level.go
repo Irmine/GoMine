@@ -14,9 +14,8 @@ type Level struct {
 	gameRules map[string]interfaces.IGameRule
 }
 
-/**
- * Returns a new Level with the given level name.
- */
+// Returns a new Level with the given level name.
+
 func NewLevel(levelName string, levelId int, server interfaces.IServer, chunks map[int]interfaces.IChunk) *Level {
 	var level = &Level{server: server, name: levelName, id: levelId, dimensions: make(map[string]interfaces.IDimension), gameRules: make(map[string]interfaces.IGameRule)}
 
@@ -27,92 +26,80 @@ func NewLevel(levelName string, levelId int, server interfaces.IServer, chunks m
 	return level
 }
 
-/**
- * Returns a GameRule with the given name.
- */
+// Returns a GameRule with the given name.
+
 func (level *Level) GetGameRule(gameRule string) interfaces.IGameRule {
 	return level.gameRules[gameRule]
 }
 
-/**
- * Returns a name => GameRule map of all GameRules.
- */
+// Returns a name => GameRule map of all GameRules.
+
 func (level *Level) GetGameRules() map[string]interfaces.IGameRule {
 	return level.gameRules
 }
 
-/**
- * Adds a GameRule to this level.
- */
+// Adds a GameRule to this level.
+
 func (level *Level) AddGameRule(rule interfaces.IGameRule) {
 	level.gameRules[rule.GetName()] = rule
 }
 
-/**
- * Returns the server.
- */
+// Returns the server.
+
 func (level *Level) GetServer() interfaces.IServer {
 	return level.server
 }
 
-/**
- * Returns the name of this level.
- */
+// Returns the name of this level.
+
 func (level *Level) GetName() string {
 	return level.name
 }
 
-/**
- * Returns the ID of this level.
- */
+// Returns the ID of this level.
+
 func (level *Level) GetRuntimeId() int {
 	return level.id
 }
 
-/**
- * Returns a map containing the dimensions of this level.
- * Dimension Name : Dimension
- */
+// Returns a map containing the dimensions of this level.
+// Dimension Name : Dimension
+
 func (level *Level) GetDimensions() map[string]interfaces.IDimension {
 	return level.dimensions
 }
 
-/**
- * Returns whether a dimension with the given name exists on this level.
- */
+// Returns whether a dimension with the given name exists on this level.
+
 func (level *Level) DimensionExists(name string) bool {
 	var _, exists = level.dimensions[name]
 	return exists
 }
 
-/**
- * Adds a new dimension with the given name and dimension ID.
- * Returns false if the dimension already exists, true otherwise.
- */
+// Adds a new dimension with the given name and dimension ID.
+// Returns false if the dimension already exists, true otherwise.
+
 func (level *Level) AddDimension(dimension interfaces.IDimension) {
 	level.dimensions[dimension.GetName()] = dimension
 }
 
-/**
- * Sets the default dimension of this level.
- */
+// Sets the default dimension of this level.
+
 func (level *Level) SetDefaultDimension(dimension interfaces.IDimension) {
 	level.AddDimension(dimension)
 
 	level.defaultDimension = dimension
 }
 
-/**
- * Returns the default dimension of this level.
- */
+// Returns the default dimension of this level.
+
 func (level *Level) GetDefaultDimension() interfaces.IDimension {
 	return level.defaultDimension
 }
 
-/**
- * Removes a dimension from this level.
- * Returns false if the dimension doesn't exist, true if it was removes successfully.
- */
+// Removes a dimension from this level.
+// Returns false if the dimension doesn't exist, true if it was removes successfully.
+
 func (level *Level) RemoveDimension(name string) bool {
 	if !level.DimensionExists(name) {
 		return false
@@ -121,40 +108,35 @@ func (level *Level) RemoveDimension(name string) bool {
 	return true
 }
 
-/**
- * Gets the chunk index for a certain position in a chunk
- */
+// Gets the chunk index for a certain position in a chunk
+
 func GetChunkIndex(x, z int32) int {
 	return int(((int64(x) & 0xffffffff) << 32) | (int64(z) & 0xffffffff))
 }
 
-/**
- * Gets the chunk block index for a saving changed blocks
- */
+// Gets the chunk block index for a saving changed blocks
+
 func GetBlockIndex(x, y, z int) int {
 	return int(int64(x)&0xfffffff)<<36 | (y&255)<<28 | int(int64(z)&0xfffffff)
 }
 
-/**
- * Gets the block coordinates from a chunk index
- */
+// Gets the block coordinates from a chunk index
+
 func GetChunkCoordinates(index int) (int32, int32) {
 	return int32(index >> 32), int32((int64(index) & 0xffffffff) << 32 >> 32)
 }
 
-/**
- * Ticks the whole level. (All dimensions)
- * Internal. Not to be used by plugins.
- */
+// Ticks the whole level. (All dimensions)
+// Internal. Not to be used by plugins.
+
 func (level *Level) TickLevel() {
 	for _, dimension := range level.dimensions {
 		dimension.TickDimension()
 	}
 }
 
-/**
- * Initializes all game rules of the level.
- */
+// Initializes all game rules of the level.
+
 func (level *Level) initializeGameRules() {
 	level.AddGameRule(NewGameRule(GameRuleCommandBlockOutput, true))
 	level.AddGameRule(NewGameRule(GameRuleDoDaylightCycle, true))

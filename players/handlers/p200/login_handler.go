@@ -25,9 +25,7 @@ func NewLoginHandler() LoginHandler {
 	return LoginHandler{handlers.NewPacketHandler()}
 }
 
-/**
- * Handles the main login process.
- */
+// Handle handles the login process.
 func (handler LoginHandler) Handle(packet interfaces.IPacket, player interfaces.IPlayer, session *server.Session, server interfaces.IServer) bool {
 
 	if loginPacket, ok := packet.(*p200.LoginPacket); ok {

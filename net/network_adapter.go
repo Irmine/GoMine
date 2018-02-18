@@ -14,9 +14,7 @@ type NetworkAdapter struct {
 	protocolPool *ProtocolPool
 }
 
-/**
- * Returns a new Network adapter to adapt to the RakNet server.
- */
+// NewNetworkAdapter returns a new Network adapter to adapt to the RakNet server.
 func NewNetworkAdapter(server interfaces.IServer) *NetworkAdapter {
 	var rakServer = server2.NewGoRakLibServer(server.GetName(), server.GetAddress(), server.GetPort())
 	rakServer.SetMinecraftProtocol(info.LatestProtocol)
@@ -31,23 +29,17 @@ func NewNetworkAdapter(server interfaces.IServer) *NetworkAdapter {
 	return adapter
 }
 
-/**
- * Returns the protocol pool of the network adapter.
- */
+// GetProtocolPool returns the protocol pool of the network adapter.
 func (adapter *NetworkAdapter) GetProtocolPool() interfaces.IProtocolPool {
 	return adapter.protocolPool
 }
 
-/**
- * Returns the GoRakLib server.
- */
+// GetRakLibServer returns the GoRakLib server.
 func (adapter *NetworkAdapter) GetRakLibServer() *server2.GoRakLibServer {
 	return adapter.rakLibServer
 }
 
-/**
- * Ticks the adapter, ticking the GoRakLib server and processing packets.
- */
+// Tick ticks the adapter, ticking the GoRakLib server and processing packets.
 func (adapter *NetworkAdapter) Tick() {
 	go adapter.rakLibServer.Tick()
 
@@ -73,9 +65,7 @@ func (adapter *NetworkAdapter) Tick() {
 	}
 }
 
-/**
- * Handles all packets of the given session + player.
- */
+// HandlePackets handles all packets of the given session + player.
 func (adapter *NetworkAdapter) HandlePackets(session *server2.Session, player interfaces.IPlayer) {
 	for _, encapsulatedPacket := range session.GetReadyEncapsulatedPackets() {
 		batch := NewMinecraftPacketBatch(player, adapter.server.GetLogger())
@@ -95,17 +85,13 @@ func (adapter *NetworkAdapter) HandlePackets(session *server2.Session, player in
 	}
 }
 
-/**
- * Returns a GoRakLib session by an address and port.
- */
+// GetSession returns a GoRakLib session by an address and port.
 func (adapter *NetworkAdapter) GetSession(address string, port uint16) *server2.Session {
 	var session, _ = adapter.rakLibServer.GetSessionManager().GetSession(address, port)
 	return session
 }
 
-/**
- * Sends a packet to the given Minecraft session with the given priority.
- */
+// SendPacket sends a packet to the given Minecraft session with the given priority.
 func (adapter *NetworkAdapter) SendPacket(pk interfaces.IPacket, session interfaces.IMinecraftSession, priority byte) {
 	var b = NewMinecraftPacketBatch(session, adapter.server.GetLogger())
 	b.AddPacket(pk)
@@ -113,9 +99,7 @@ func (adapter *NetworkAdapter) SendPacket(pk interfaces.IPacket, session interfa
 	adapter.SendBatch(b, session.GetSession(), priority)
 }
 
-/**
- * Sends a Minecraft packet batch to the given GoRakLib session with the given priority.
- */
+// SendBatch sends a Minecraft packet batch to the given GoRakLib session with the given priority.
 func (adapter *NetworkAdapter) SendBatch(batch interfaces.IMinecraftPacketBatch, session *server2.Session, priority byte) {
 	session.SendConnectedPacket(batch, protocol.ReliabilityReliableOrdered, priority)
 }

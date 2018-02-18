@@ -14,9 +14,8 @@ func NewWhackGenerator() Whack {
 	return Whack{NewGenerator("Whack")}
 }
 
-/**
- * Generates and populates new chunk.
- */
+// Generates and populates new chunk.
+
 func (f Whack) GetNewChunk(chunk interfaces.IChunk) interfaces.IChunk {
 	f.GenerateChunk(chunk)
 	f.PopulateChunk(chunk)

@@ -144,7 +144,7 @@ func (pk *Packet) GetEntityAttributeMap() *data.AttributeMap {
 		pk.GetLittleFloat()
 		name := pk.GetString()
 
-		if data.AttributeExists(name) {
+		if attributes.Exists(name) {
 			attributes.SetAttribute(data.NewAttribute(name, value, max))
 		}
 	}

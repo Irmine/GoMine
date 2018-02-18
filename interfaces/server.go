@@ -22,7 +22,7 @@ type IServer interface {
 	IsLevelGenerated(string) bool
 	LoadLevel(string) bool
 	HasPermission(string) bool
-	SendMessage(string)
+	SendMessage(...interface{})
 	GetName() string
 	GetAddress() string
 	GetPort() uint16
