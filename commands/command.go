@@ -5,24 +5,29 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/irmine/gomine/interfaces"
 	"github.com/irmine/gomine/utils"
+	"github.com/irmine/gomine/commands/arguments"
 )
 
 type Command struct {
-	name             string
-	description      string
-	permission       string
-	aliases          []string
-	arguments        []interfaces.ICommandArgument
-	usage            string
-	permissionExempt bool
+	name              string
+	description       string
+	permission        string
+	aliases           []string
+	arguments         []*arguments.Argument
+	argumentTypes     []string
+	usage             string
+	permissionExempt  bool
+	executionFunction interface{}
 }
 
-// NewCommand returns a new base command.
+// NewCommand returns a new command with the given command function.
 // The permission used in the command should be registered in order to get correct output.
-func NewCommand(name string, description string, permission string, aliases []string) *Command {
-	return &Command{name: name, permission: permission, aliases: aliases, description: description}
+func NewCommand(name string, description string, permission string, aliases []string, function interface{}) *Command {
+	if reflect.TypeOf(function).Kind() != reflect.Func {
+		function = func() {}
+	}
+	return &Command{name: name, permission: permission, aliases: aliases, description: description, executionFunction: function}
 }
 
 // GetUsage returns the usage of this command.
@@ -73,17 +78,19 @@ func (command *Command) GetAliases() []string {
 }
 
 // GetArguments returns a slice with all arguments.
-func (command *Command) GetArguments() []interfaces.ICommandArgument {
+func (command *Command) GetArguments() []*arguments.Argument {
 	return command.arguments
 }
 
 // SetArguments sets the command arguments.
-func (command *Command) SetArguments(arguments []interfaces.ICommandArgument) {
+func (command *Command) SetArguments(arguments []*arguments.Argument) {
 	command.arguments = arguments
 }
 
 // AppendArgument adds one argument to the command.
-func (command *Command) AppendArgument(argument interfaces.ICommandArgument) {
+func (command *Command) AppendArgument(argument *arguments.Argument) {
+	command.argumentTypes = append(command.argumentTypes, reflect.TypeOf(argument.GetOutput()).Name())
+
 	command.arguments = append(command.arguments, argument)
 }
 
@@ -91,17 +98,15 @@ func (command *Command) AppendArgument(argument interfaces.ICommandArgument) {
 func (command *Command) parseUsage() {
 	if command.usage == "" {
 		var usage = utils.Yellow + "Usage: /" + command.GetName() + " "
-		for _, argument := range command.GetArguments() {
+		for index, argument := range command.GetArguments() {
 			if argument.IsOptional() {
 				usage += "["
 			} else {
 				usage += "<"
 			}
-			var argName = strings.ToLower(reflect.TypeOf(argument).Elem().Name())
-			var argType = strings.Replace(strings.Replace(argName, "enum", "", -1), "arg", "", -1)
 
-			usage += argument.GetName() + ": " + argType
-			if argument.GetInputAmount() > 1 && argType != "string" {
+			usage += argument.GetName() + ": " + command.argumentTypes[index]
+			if argument.GetInputAmount() > 1 && command.argumentTypes[index] != "string" {
 				usage += "(" + strconv.Itoa(argument.GetInputAmount()) + ")"
 			}
 
@@ -116,11 +121,19 @@ func (command *Command) parseUsage() {
 	}
 }
 
+// Execute executes the command with the given sender and command arguments.
+func (command *Command) Execute(sender Sender, commandArgs []string) {
+	if _, ok := command.parse(sender, commandArgs); !ok {
+		return
+	}
+	command.parseArgsAndExecute(sender)
+}
+
 // Parse checks and parses the values of a command.
-func (command *Command) Parse(sender interfaces.ICommandSender, commandArgs []string, server interfaces.IServer) ([]interfaces.ICommandArgument, bool) {
+func (command *Command) parse(sender Sender, commandArgs []string) ([]*arguments.Argument, bool) {
 	if command.IsPermissionChecked() && !sender.HasPermission(command.GetPermission()) {
 		sender.SendMessage("You do not have permission to execute this command.")
-		return []interfaces.ICommandArgument{}, false
+		return []*arguments.Argument{}, false
 	}
 
 	var stringIndex = 0
@@ -131,7 +144,7 @@ func (command *Command) Parse(sender interfaces.ICommandSender, commandArgs []st
 		sender.SendMessage(command.GetUsage())
 		return nil, false
 	}
-	for _, argument := range command.GetArguments() {
+	for _, argument := range command.arguments {
 		var i = 0
 		var output []string
 
@@ -144,7 +157,7 @@ func (command *Command) Parse(sender interfaces.ICommandSender, commandArgs []st
 			} else {
 				commandArgs[stringIndex+i] = strings.TrimSpace(commandArgs[stringIndex+i])
 
-				if !argument.IsValidValue(commandArgs[stringIndex+i], server) {
+				if !argument.IsValidValue(commandArgs[stringIndex+i]) {
 					sender.SendMessage(command.GetUsage())
 					return nil, false
 				}
@@ -156,7 +169,7 @@ func (command *Command) Parse(sender interfaces.ICommandSender, commandArgs []st
 		var processedOutput []interface{}
 
 		for _, value := range output {
-			processedOutput = append(processedOutput, argument.ConvertValue(value, server))
+			processedOutput = append(processedOutput, argument.ConvertValue(value))
 		}
 
 		if argument.ShouldMerge() {
@@ -172,20 +185,21 @@ func (command *Command) Parse(sender interfaces.ICommandSender, commandArgs []st
 	return command.GetArguments(), true
 }
 
-// ParseIntoInputAndExecute arses the arguments into a proper input and executes the command.
-func ParseIntoInputAndExecute(sender interfaces.ICommandSender, commandStruct interface{}, arguments []interfaces.ICommandArgument) {
-	var method = reflect.ValueOf(commandStruct).MethodByName("Execute")
+// ParseArgsAndExecute parses the arguments into an output able to be typed against.
+// After parsing, the command gets called.
+func (command *Command) parseArgsAndExecute(sender Sender) {
+	var method = reflect.ValueOf(command.executionFunction)
 	var input = make([]reflect.Value, method.Type().NumIn())
 
 	var argOffset = 0
 	for i := 0; i < method.Type().NumIn(); i++ {
 
-		if method.Type().In(i).String() == "interfaces.ICommandSender" {
+		if method.Type().In(i).String() == "commands.Sender" {
 			input[i] = reflect.ValueOf(sender)
 			continue
 		}
 
-		input[i] = reflect.ValueOf(arguments[argOffset].GetOutput())
+		input[i] = reflect.ValueOf(command.arguments[argOffset].GetOutput())
 		argOffset++
 	}
 

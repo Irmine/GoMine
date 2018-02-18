@@ -5,7 +5,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/irmine/gomine/commands"
 	"github.com/irmine/gomine/interfaces"
 )
 
@@ -61,20 +60,26 @@ func (reader *ConsoleReader) ReadLine(server interfaces.IServer) string {
 // attemptReadCommand attempts to execute the command entered in the console.
 func (reader *ConsoleReader) attemptReadCommand(commandText string, server interfaces.IServer) bool {
 	var args = strings.Split(commandText, " ")
+	var commandName = args[0]
+	var i = 1
+	for !server.GetCommandManager().IsCommandRegistered(commandName) {
+		commandName += " " + args[i]
+		if i == len(args)-1 {
+			break
+		}
+		i++
+	}
 
-	var commandName = strings.TrimSpace(args[0])
-	var holder = server.GetCommandHolder()
+	var manager = server.GetCommandManager()
 
-	if !holder.IsCommandRegistered(commandName) {
+	if !manager.IsCommandRegistered(commandName) {
 		server.GetLogger().Error("Command could not be found.")
 		return false
 	}
+	args = args[i:]
 
-	var command, _ = holder.GetCommand(commandName)
-	var parsedInput, valid = command.Parse(server, args[1:], server)
+	var command, _ = manager.GetCommand(commandName)
+	command.Execute(server, args)
 
-	if valid {
-		commands.ParseIntoInputAndExecute(server, command, parsedInput)
-	}
 	return true
 }

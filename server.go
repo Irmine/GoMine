@@ -40,7 +40,7 @@ type Server struct {
 	logger            interfaces.ILogger
 	config            *resources.GoMineConfig
 	consoleReader     *ConsoleReader
-	commandHolder     interfaces.ICommandHolder
+	commandHolder     *commands.Manager
 	packManager       *packs.Manager
 	permissionManager *permissions.Manager
 	levels            map[int]interfaces.ILevel
@@ -59,7 +59,7 @@ func NewServer(serverPath string) *Server {
 	s.logger = utils.NewLogger(GoMineName, serverPath, s.GetConfiguration().DebugMode)
 	s.levels = make(map[int]interfaces.ILevel)
 	s.consoleReader = NewConsoleReader(s)
-	s.commandHolder = commands.NewCommandHolder()
+	s.commandHolder = commands.NewManager()
 	s.networkAdapter = net.NewNetworkAdapter(s)
 
 	s.packManager = packs.NewManager(serverPath)
@@ -94,7 +94,7 @@ func NewServer(serverPath string) *Server {
 func (server *Server) RegisterDefaultCommands() {
 	server.commandHolder.RegisterCommand(defaults.NewStop(server))
 	server.commandHolder.RegisterCommand(defaults.NewList(server))
-	server.commandHolder.RegisterCommand(defaults.NewTest(server))
+	server.commandHolder.RegisterCommand(defaults.NewTest())
 	server.commandHolder.RegisterCommand(defaults.NewPing())
 }
 
@@ -247,8 +247,8 @@ func (server *Server) GetConsoleReader() *ConsoleReader {
 	return server.consoleReader
 }
 
-// GetCommandHolder returns the command holder.
-func (server *Server) GetCommandHolder() interfaces.ICommandHolder {
+// GetCommandHolder returns the command manager.
+func (server *Server) GetCommandManager() *commands.Manager {
 	return server.commandHolder
 }
 

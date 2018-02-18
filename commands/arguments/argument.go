@@ -3,10 +3,13 @@ package arguments
 import "strconv"
 
 type Argument struct {
-	name      string
-	optional  bool
-	inputArgs int
-	output    interface{}
+	name               string
+	optional           bool
+	inputArgs          int
+	output             interface{}
+	validationFunction func(argument string) bool
+	conversionFunction func(argument string) interface{}
+	shouldMerge        bool
 }
 
 // GetName returns the name of the argument.
@@ -49,19 +52,29 @@ func (argument *Argument) GetOutput() interface{} {
 	return argument.output
 }
 
+// ShouldMerge returns whether this argument should merge all its values or not.
+func (argument *Argument) ShouldMerge() bool {
+	return argument.shouldMerge
+}
+
+// IsValidValue checks if the given value is valid for the argument.
+func (argument *Argument) IsValidValue(value string) bool {
+	return argument.validationFunction(value)
+}
+
+// ConvertValues returns the converted value of the value.
+func (argument *Argument) ConvertValue(value string) interface{} {
+	return argument.conversionFunction(value)
+}
+
 // IsInt checks if the input string is able to be parsed as an integer.
-func (argument *Argument) IsInt(value string) bool {
+func IsInt(value string) bool {
 	var _, err = strconv.Atoi(value)
 	return err == nil
 }
 
 // IsFloat checks if the input string is able to be parsed as an integer.
-func (argument *Argument) IsFloat(value string) bool {
+func IsFloat(value string) bool {
 	var _, err = strconv.ParseFloat(value, 64)
 	return err == nil
-}
-
-// ShouldMerge returns whether this argument should merge all its values or not.
-func (argument *Argument) ShouldMerge() bool {
-	return false
 }
