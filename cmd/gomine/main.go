@@ -8,11 +8,6 @@ import (
 	"github.com/irmine/gomine"
 )
 
-// Command line flags:
-// -stop-immediately : Stops the server immediately after starting and ticking once.
-
-var stopInstantly = false
-
 var ticker = time.NewTicker(time.Second / 20)
 var currentTick int64 = 0
 
@@ -34,9 +29,6 @@ func main() {
 	for range ticker.C {
 		server.Tick(currentTick)
 
-		if stopInstantly {
-			server.Shutdown()
-		}
 		if !server.IsRunning() {
 			break
 		}
@@ -61,11 +53,7 @@ func getServerPath() string {
 
 // parseFlags parses all command line flags.
 func parseFlags() {
-	var instantStop = flag.Bool("stop-immediately", false, "instant stop")
-
 	flag.Parse()
-
-	stopInstantly = *instantStop
 }
 
 // setUpDirectories sets up all directories needed for GoMine.
