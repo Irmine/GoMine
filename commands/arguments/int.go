@@ -28,6 +28,6 @@ func (argument *IntArg) IsValidValue(value string, server interfaces.IServer) bo
  * Converts the given value to a valid Int.
  */
 func (argument *IntArg) ConvertValue(value string, server interfaces.IServer) interface{} {
-	var int, _ = strconv.ParseInt(value, 10, 64)
-	return int
+	var i, _ = strconv.ParseInt(value, 10, 64)
+	return i
 }

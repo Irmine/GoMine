@@ -55,42 +55,42 @@ type Server struct {
  * Will report an error if a server is already existent.
  */
 func NewServer(serverPath string) *Server {
-	var server = &Server{}
+	var s = &Server{}
 
-	server.serverPath = serverPath
-	server.config = resources.NewGoMineConfig(serverPath)
-	server.logger = utils.NewLogger(GoMineName, serverPath, server.GetConfiguration().DebugMode)
-	server.levels = make(map[int]interfaces.ILevel)
-	server.consoleReader = NewConsoleReader(server)
-	server.commandHolder = commands.NewCommandHolder()
-	server.networkAdapter = net.NewNetworkAdapter(server)
+	s.serverPath = serverPath
+	s.config = resources.NewGoMineConfig(serverPath)
+	s.logger = utils.NewLogger(GoMineName, serverPath, s.GetConfiguration().DebugMode)
+	s.levels = make(map[int]interfaces.ILevel)
+	s.consoleReader = NewConsoleReader(s)
+	s.commandHolder = commands.NewCommandHolder()
+	s.networkAdapter = net.NewNetworkAdapter(s)
 
-	server.packManager = packs.NewManager(serverPath)
+	s.packManager = packs.NewManager(serverPath)
 
-	server.playerFactory = players.NewPlayerFactory(server)
-	server.permissionManager = permissions.NewManager()
+	s.playerFactory = players.NewPlayerFactory(s)
+	s.permissionManager = permissions.NewManager()
 
-	server.pluginManager = plugins.NewPluginManager(server)
+	s.pluginManager = plugins.NewPluginManager(s)
 
-	server.queryManager = query.NewQueryManager(server)
+	s.queryManager = query.NewQueryManager(s)
 
-	if server.config.UseEncryption {
+	if s.config.UseEncryption {
 		var curve = elliptic.P384()
 
 		var err error
-		server.privateKey, err = ecdsa.GenerateKey(curve, rand.Reader)
-		server.logger.LogError(err)
+		s.privateKey, err = ecdsa.GenerateKey(curve, rand.Reader)
+		s.logger.LogError(err)
 
-		if !curve.IsOnCurve(server.privateKey.X, server.privateKey.Y) {
-			server.logger.Error("Invalid private key generated")
+		if !curve.IsOnCurve(s.privateKey.X, s.privateKey.Y) {
+			s.logger.Error("Invalid private key generated")
 		}
 
 		var token = make([]byte, 128)
 		rand.Read(token)
-		server.token = token
+		s.token = token
 	}
 
-	return server
+	return s
 }
 
 /**
