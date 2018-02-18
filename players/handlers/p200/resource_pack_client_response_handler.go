@@ -6,8 +6,8 @@ import (
 	"github.com/irmine/gomine/net/packets/data"
 	"github.com/irmine/gomine/net/packets/p200"
 	"github.com/irmine/gomine/players/handlers"
-	"github.com/irmine/gomine/vectors"
 	"github.com/irmine/goraklib/server"
+	"github.com/golang/geo/r3"
 )
 
 type ResourcePackClientResponseHandler struct {
@@ -41,7 +41,7 @@ func (handler ResourcePackClientResponseHandler) Handle(packet interfaces.IPacke
 			player.SendResourcePackStack(server.GetConfiguration().ForceResourcePacks, server.GetPackManager().GetResourceStack().GetPacks(), server.GetPackManager().GetBehaviorStack().GetPacks())
 
 		case data.StatusCompleted:
-			player.PlaceInWorld(vectors.NewTripleVector(0, 20, 0), math.NewRotation(0, 0, 0), server.GetDefaultLevel(), server.GetDefaultLevel().GetDefaultDimension())
+			player.PlaceInWorld(r3.Vector{0, 40, 0}, math.NewRotation(0, 0, 0), server.GetDefaultLevel(), server.GetDefaultLevel().GetDefaultDimension())
 			player.SetFinalized()
 
 			player.SendStartGame(player)

@@ -5,13 +5,13 @@ import (
 	"github.com/irmine/gomine/net/info"
 	"github.com/irmine/gomine/net/packets"
 	"github.com/irmine/gomine/net/packets/data"
-	"github.com/irmine/gomine/vectors"
+	"github.com/golang/geo/r3"
 )
 
 type MovePlayerPacket struct {
 	*packets.Packet
 	RuntimeId            uint64
-	Position             vectors.TripleVector
+	Position             r3.Vector
 	Rotation             math.Rotation
 	Mode                 byte
 	OnGround             bool
@@ -20,12 +20,12 @@ type MovePlayerPacket struct {
 }
 
 func NewMovePlayerPacket() *MovePlayerPacket {
-	return &MovePlayerPacket{Packet: packets.NewPacket(info.PacketIds200[info.MovePlayerPacket]), Position: *vectors.NewTripleVector(0, 0, 0), Rotation: *math.NewRotation(0, 0, 0)}
+	return &MovePlayerPacket{Packet: packets.NewPacket(info.PacketIds200[info.MovePlayerPacket]), Position: r3.Vector{}, Rotation: *math.NewRotation(0, 0, 0)}
 }
 
 func (pk *MovePlayerPacket) Encode() {
 	pk.PutRuntimeId(pk.RuntimeId)
-	pk.PutTripleVectorObject(pk.Position)
+	pk.PutVector(pk.Position)
 	pk.PutRotationObject(pk.Rotation, true)
 	pk.PutByte(pk.Mode)
 	pk.PutBool(pk.OnGround)
@@ -38,7 +38,7 @@ func (pk *MovePlayerPacket) Encode() {
 
 func (pk *MovePlayerPacket) Decode() {
 	pk.RuntimeId = pk.GetRuntimeId()
-	pk.Position.SetVector(pk.GetTripleVectorObject())
+	pk.Position = pk.GetVector()
 	pk.Rotation = pk.GetRotationObject(true)
 	pk.Mode = pk.GetByte()
 	pk.OnGround = pk.GetBool()

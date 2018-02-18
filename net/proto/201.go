@@ -5,7 +5,7 @@ import (
 	"github.com/irmine/gomine/net/packets/p201"
 	"github.com/irmine/gomine/net/packets/types"
 	"github.com/irmine/gomine/permissions"
-	"github.com/irmine/gomine/vectors"
+	"github.com/golang/geo/r3"
 )
 
 type Protocol201 struct {
@@ -28,9 +28,9 @@ func (protocol *Protocol201) GetStartGame(player interfaces.IPlayer) interfaces.
 	pk.EntityRuntimeId = player.GetRuntimeId()
 	pk.EntityUniqueId = player.GetUniqueId()
 	pk.PlayerGameMode = 1
-	pk.PlayerPosition = *vectors.NewTripleVector(20, 20, 20)
+	pk.PlayerPosition = r3.Vector{0, 40, 0}
 	pk.LevelGameMode = 1
-	pk.LevelSpawnPosition = *vectors.NewTripleVector(20, 20, 20)
+	pk.LevelSpawnPosition = r3.Vector{0, 40, 0}
 	pk.CommandsEnabled = true
 
 	var gameRules = player.GetServer().GetDefaultLevel().GetGameRules()

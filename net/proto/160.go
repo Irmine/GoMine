@@ -7,7 +7,7 @@ import (
 	"github.com/irmine/gomine/net/packets/types"
 	"github.com/irmine/gomine/permissions"
 	p160handler "github.com/irmine/gomine/players/handlers/p160"
-	"github.com/irmine/gomine/vectors"
+	"github.com/golang/geo/r3"
 )
 
 type Protocol160 struct {
@@ -30,7 +30,7 @@ func (protocol *Protocol160) GetAddPlayer(player interfaces.IPlayer) interfaces.
 	pk.Username = player.GetDisplayName()
 	pk.EntityRuntimeId = player.GetRuntimeId()
 	pk.EntityUniqueId = player.GetUniqueId()
-	pk.Position = *player.GetPosition()
+	pk.Position = player.GetPosition()
 	pk.Rotation = *player.GetRotation()
 
 	return pk
@@ -45,9 +45,9 @@ func (protocol *Protocol160) GetStartGame(player interfaces.IPlayer) interfaces.
 	pk.EntityRuntimeId = player.GetRuntimeId()
 	pk.EntityUniqueId = player.GetUniqueId()
 	pk.PlayerGameMode = 1
-	pk.PlayerPosition = *vectors.NewTripleVector(20, 20, 20)
+	pk.PlayerPosition = r3.Vector{0, 40, 0}
 	pk.LevelGameMode = 1
-	pk.LevelSpawnPosition = *vectors.NewTripleVector(20, 20, 20)
+	pk.LevelSpawnPosition = r3.Vector{0, 40, 0}
 	pk.CommandsEnabled = true
 
 	var gameRules = player.GetServer().GetDefaultLevel().GetGameRules()

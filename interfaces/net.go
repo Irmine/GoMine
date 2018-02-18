@@ -6,9 +6,9 @@ import (
 	"github.com/irmine/gomine/net/info"
 	"github.com/irmine/gomine/net/packets/types"
 	"github.com/irmine/gomine/utils"
-	"github.com/irmine/gomine/vectors"
 	"github.com/irmine/goraklib/server"
 	"github.com/irmine/gomine/packs"
+	"github.com/golang/geo/r3"
 )
 
 type IPacketHandler interface {
@@ -82,7 +82,7 @@ type IMinecraftSession interface {
 	SendCraftingData()
 	SendDisconnect(string, bool)
 	SendFullChunkData(IChunk)
-	SendMovePlayer(IPlayer, vectors.TripleVector, math.Rotation, byte, bool, uint64)
+	SendMovePlayer(IPlayer, r3.Vector, math.Rotation, byte, bool, uint64)
 	SendPlayerList(byte, map[string]IPlayer)
 	SendPlayStatus(int32)
 	SendRemoveEntity(IEntity)
@@ -116,7 +116,7 @@ type IProtocol interface {
 	GetCraftingData() IPacket
 	GetDisconnect(string, bool) IPacket
 	GetFullChunkData(IChunk) IPacket
-	GetMovePlayer(uint64, vectors.TripleVector, math.Rotation, byte, bool, uint64) IPacket
+	GetMovePlayer(uint64, r3.Vector, math.Rotation, byte, bool, uint64) IPacket
 	GetPlayerList(byte, map[string]IPlayer) IPacket
 	GetPlayStatus(int32) IPacket
 	GetRemoveEntity(int64) IPacket

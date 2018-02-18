@@ -5,8 +5,8 @@ import (
 	"github.com/irmine/gomine/entities/math"
 	"github.com/irmine/gomine/interfaces"
 	"github.com/irmine/gomine/net/packets/types"
-	"github.com/irmine/gomine/vectors"
 	"github.com/irmine/gomine/packs"
+	"github.com/golang/geo/r3"
 )
 
 func (session *MinecraftSession) SendAddEntity(entity interfaces.IEntity) {
@@ -33,7 +33,7 @@ func (session *MinecraftSession) SendFullChunkData(chunk interfaces.IChunk) {
 	session.SendPacket(session.protocol.GetFullChunkData(chunk))
 }
 
-func (session *MinecraftSession) SendMovePlayer(player interfaces.IPlayer, position vectors.TripleVector, rotation math.Rotation, mode byte, onGround bool, ridingRuntimeId uint64) {
+func (session *MinecraftSession) SendMovePlayer(player interfaces.IPlayer, position r3.Vector, rotation math.Rotation, mode byte, onGround bool, ridingRuntimeId uint64) {
 	session.SendPacket(session.protocol.GetMovePlayer(player.GetRuntimeId(), position, rotation, mode, onGround, ridingRuntimeId))
 }
 

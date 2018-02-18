@@ -12,8 +12,8 @@ import (
 	"github.com/irmine/gomine/net/packets/types"
 	"github.com/irmine/gomine/permissions"
 	p200handlers "github.com/irmine/gomine/players/handlers/p200"
-	"github.com/irmine/gomine/vectors"
 	"github.com/irmine/gomine/packs"
+	"github.com/golang/geo/r3"
 )
 
 type Protocol200 struct {
@@ -54,8 +54,8 @@ func (protocol *Protocol200) GetAddEntity(entity interfaces.IEntity) interfaces.
 	pk.UniqueId = entity.GetUniqueId()
 	pk.RuntimeId = entity.GetRuntimeId()
 	pk.EntityType = entity.GetEntityId()
-	pk.Position = *entity.GetPosition()
-	pk.Motion = *entity.GetMotion()
+	pk.Position = entity.GetPosition()
+	pk.Motion = entity.GetMotion()
 	pk.Rotation = *entity.GetRotation()
 	pk.Attributes = entity.GetAttributeMap()
 	pk.EntityData = entity.GetEntityData()
@@ -70,7 +70,7 @@ func (protocol *Protocol200) GetAddPlayer(player interfaces.IPlayer) interfaces.
 	pk.Username = player.GetName()
 	pk.EntityRuntimeId = player.GetRuntimeId()
 	pk.EntityUniqueId = player.GetUniqueId()
-	pk.Position = *player.GetPosition()
+	pk.Position = player.GetPosition()
 	pk.Rotation = *player.GetRotation()
 	pk.Platform = player.GetPlatform()
 
@@ -107,7 +107,7 @@ func (protocol *Protocol200) GetFullChunkData(chunk interfaces.IChunk) interface
 	return pk
 }
 
-func (protocol *Protocol200) GetMovePlayer(runtimeId uint64, position vectors.TripleVector, rotation math.Rotation, mode byte, onGround bool, ridingRuntimeId uint64) interfaces.IPacket {
+func (protocol *Protocol200) GetMovePlayer(runtimeId uint64, position r3.Vector, rotation math.Rotation, mode byte, onGround bool, ridingRuntimeId uint64) interfaces.IPacket {
 	var pk = p200.NewMovePlayerPacket()
 	pk.RuntimeId = runtimeId
 	pk.Position = position
@@ -253,9 +253,9 @@ func (protocol *Protocol200) GetStartGame(player interfaces.IPlayer) interfaces.
 	pk.EntityRuntimeId = player.GetRuntimeId()
 	pk.EntityUniqueId = player.GetUniqueId()
 	pk.PlayerGameMode = 1
-	pk.PlayerPosition = *vectors.NewTripleVector(20, 20, 20)
+	pk.PlayerPosition = r3.Vector{0, 40, 0}
 	pk.LevelGameMode = 1
-	pk.LevelSpawnPosition = *vectors.NewTripleVector(20, 20, 20)
+	pk.LevelSpawnPosition = r3.Vector{0, 40, 0}
 	pk.CommandsEnabled = true
 
 	var gameRules = player.GetServer().GetDefaultLevel().GetGameRules()

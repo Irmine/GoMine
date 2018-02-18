@@ -5,8 +5,8 @@ import (
 	"github.com/irmine/gomine/entities/math"
 	"github.com/irmine/gomine/net/packets/types"
 	"github.com/irmine/gomine/utils"
-	"github.com/irmine/gomine/vectors"
 	"github.com/irmine/binutils"
+	"github.com/golang/geo/r3"
 )
 
 type Packet struct {
@@ -93,14 +93,14 @@ func (pk *Packet) GetUniqueId() int64 {
 	return pk.GetVarLong()
 }
 
-func (pk *Packet) PutTripleVectorObject(obj vectors.TripleVector) {
-	pk.PutLittleFloat(obj.GetX())
-	pk.PutLittleFloat(obj.GetY())
-	pk.PutLittleFloat(obj.GetZ())
+func (pk *Packet) PutVector(obj r3.Vector) {
+	pk.PutLittleFloat(float32(obj.X))
+	pk.PutLittleFloat(float32(obj.Y))
+	pk.PutLittleFloat(float32(obj.Z))
 }
 
-func (pk *Packet) GetTripleVectorObject() *vectors.TripleVector {
-	return &vectors.TripleVector{X: pk.GetLittleFloat(), Y: pk.GetLittleFloat(), Z: pk.GetLittleFloat()}
+func (pk *Packet) GetVector() r3.Vector {
+	return r3.Vector{float64(pk.GetLittleFloat()), float64(pk.GetLittleFloat()), float64(pk.GetLittleFloat())}
 }
 
 func (pk *Packet) PutRotationObject(obj math.Rotation, isPlayer bool) {
@@ -231,7 +231,7 @@ func (pk *Packet) PutGameRules(gameRules map[string]types.GameRuleEntry) {
 	}
 }
 
-func (pk *Packet) PutBlockPos(vector vectors.TripleVector) {
+func (pk *Packet) PutBlockPos(vector r3.Vector) {
 	pk.PutVarInt(int32(vector.X))
 	pk.PutUnsignedVarInt(uint32(vector.Y))
 	pk.PutVarInt(int32(vector.Z))

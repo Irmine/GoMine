@@ -1,5 +1,7 @@
 package vectors
 
+import "github.com/golang/geo/r3"
+
 type CubesBox struct {
 	cubes []*Cube
 }
@@ -18,7 +20,7 @@ func (box *CubesBox) GetCubes() []*Cube {
 
 // Checks if the given vector is inside of this collision box.
 
-func (box *CubesBox) IsInside(vector TripleVector) bool {
+func (box *CubesBox) IsInside(vector r3.Vector) bool {
 	for _, cube := range box.cubes {
 		if cube.IsInside(vector) {
 			return true

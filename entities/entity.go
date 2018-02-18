@@ -7,7 +7,7 @@ import (
 	"github.com/irmine/gomine/entities/data"
 	"github.com/irmine/gomine/entities/math"
 	"github.com/irmine/gomine/interfaces"
-	"github.com/irmine/gomine/vectors"
+	"github.com/golang/geo/r3"
 )
 
 var RuntimeId uint64 = 0
@@ -22,26 +22,20 @@ const (
 
 type Entity struct {
 	attributeMap *data.AttributeMap
-	Motion       *vectors.TripleVector
+	Motion       r3.Vector
 	runtimeId    uint64
 	closed       bool
-
-	Position *vectors.TripleVector
-
-	Level     interfaces.ILevel
-	Dimension interfaces.IDimension
-	Rotation  *math.Rotation
-
-	NameTag string
-
-	SpawnedTo map[uint64]interfaces.IPlayer
-
-	mutex sync.Mutex
-
-	EntityData map[uint32][]interface{}
+	Position     r3.Vector
+	Level        interfaces.ILevel
+	Dimension    interfaces.IDimension
+	Rotation     *math.Rotation
+	NameTag      string
+	SpawnedTo    map[uint64]interfaces.IPlayer
+	mutex        sync.Mutex
+	EntityData   map[uint32][]interface{}
 }
 
-func NewEntity(position *vectors.TripleVector, rotation *math.Rotation, motion *vectors.TripleVector, level interfaces.ILevel, dimension interfaces.IDimension) *Entity {
+func NewEntity(position r3.Vector, rotation *math.Rotation, motion r3.Vector, level interfaces.ILevel, dimension interfaces.IDimension) *Entity {
 	RuntimeId++
 	ent := Entity{
 		data.NewAttributeMap(),
@@ -109,12 +103,12 @@ func (entity *Entity) GetDataFlag(flagId int) bool {
 }
 
 // GetPosition returns the current position of this entity.
-func (entity *Entity) GetPosition() *vectors.TripleVector {
+func (entity *Entity) GetPosition() r3.Vector {
 	return entity.Position
 }
 
 // SetPosition sets the position of this entity
-func (entity *Entity) SetPosition(v *vectors.TripleVector) {
+func (entity *Entity) SetPosition(v r3.Vector) {
 	var newChunkX = int32(math2.Floor(float64(v.X))) >> 4
 	var newChunkZ = int32(math2.Floor(float64(v.Z))) >> 4
 
@@ -187,12 +181,12 @@ func (entity *Entity) SetRotation(v *math.Rotation) {
 }
 
 // GetMotion returns the motion of this entity.
-func (entity *Entity) GetMotion() *vectors.TripleVector {
+func (entity *Entity) GetMotion() r3.Vector {
 	return entity.Motion
 }
 
 // SetMotion sets the motion of this entity.
-func (entity *Entity) SetMotion(v *vectors.TripleVector) {
+func (entity *Entity) SetMotion(v r3.Vector) {
 	entity.Motion = v
 }
 

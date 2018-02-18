@@ -3,7 +3,7 @@ package interfaces
 import (
 	"github.com/irmine/gomine/entities/data"
 	"github.com/irmine/gomine/entities/math"
-	"github.com/irmine/gomine/vectors"
+	"github.com/golang/geo/r3"
 )
 
 type IEntity interface {
@@ -16,16 +16,16 @@ type IEntity interface {
 	Kill()
 	Tick()
 	GetRuntimeId() uint64
-	GetPosition() *vectors.TripleVector
-	SetPosition(*vectors.TripleVector)
+	GetPosition() r3.Vector
+	SetPosition(r3.Vector)
 	GetDimension() IDimension
 	SetDimension(IDimension)
 	GetLevel() ILevel
 	SetLevel(level ILevel)
 	GetRotation() *math.Rotation
 	SetRotation(*math.Rotation)
-	GetMotion() *vectors.TripleVector
-	SetMotion(*vectors.TripleVector)
+	GetMotion() r3.Vector
+	SetMotion(r3.Vector)
 	SpawnTo(IPlayer)
 	SpawnToAll()
 	DespawnFrom(IPlayer)

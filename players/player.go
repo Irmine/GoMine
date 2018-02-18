@@ -10,39 +10,31 @@ import (
 	"github.com/irmine/gomine/net"
 	"github.com/irmine/gomine/net/packets/data"
 	"github.com/irmine/gomine/net/packets/types"
-	"github.com/irmine/gomine/vectors"
 	"github.com/irmine/goraklib/server"
 	"github.com/irmine/gomine/permissions"
 	"fmt"
+	"github.com/golang/geo/r3"
 )
 
 type Player struct {
 	*entities.Human
 	interfaces.IMinecraftSession
-
-	playerName  string
-	displayName string
-
-	spawned bool
-
+	playerName      string
+	displayName     string
+	spawned         bool
 	permissions     map[string]*permissions.Permission
 	permissionGroup *permissions.Group
-
-	onGround     bool
-	viewDistance int32
-
-	skinId       string
-	skinData     []byte
-	capeData     []byte
-	geometryName string
-	geometryData string
-
-	finalized bool
-
-	server interfaces.IServer
-
-	mux        sync.Mutex
-	usedChunks map[int]interfaces.IChunk
+	onGround        bool
+	viewDistance    int32
+	skinId          string
+	skinData        []byte
+	capeData        []byte
+	geometryName    string
+	geometryData    string
+	finalized       bool
+	server          interfaces.IServer
+	mux             sync.Mutex
+	usedChunks      map[int]interfaces.IChunk
 }
 
 // NewPlayer returns a new player with the given name.
@@ -86,8 +78,8 @@ func (player *Player) IsInWorld() bool {
 }
 
 // PlaceInWorld places this player inside of a level and dimension.
-func (player *Player) PlaceInWorld(position *vectors.TripleVector, rotation *math.Rotation, level interfaces.ILevel, dimension interfaces.IDimension) {
-	player.Human = entities.NewHuman(player.GetDisplayName(), position, rotation, vectors.NewTripleVector(0, 0, 0), level, dimension)
+func (player *Player) PlaceInWorld(position r3.Vector, rotation *math.Rotation, level interfaces.ILevel, dimension interfaces.IDimension) {
+	player.Human = entities.NewHuman(player.GetDisplayName(), position, rotation, r3.Vector{0, 0, 0}, level, dimension)
 }
 
 // IsFinalized checks if this player is finalized.
@@ -196,9 +188,9 @@ func (player *Player) RemovePermission(permission string) bool {
 }
 
 // Teleport teleports the player to a new position.
-func (player *Player) Teleport(v *vectors.TripleVector, rot *math.Rotation) {
+func (player *Player) Teleport(v r3.Vector, rot *math.Rotation) {
 	player.SetPosition(v)
-	player.SendMovePlayer(player, *v, *rot, data.MoveTeleport, player.onGround, 0)
+	player.SendMovePlayer(player, v, *rot, data.MoveTeleport, player.onGround, 0)
 }
 
 // SetSkinId sets the skin ID/name of the player.
@@ -260,8 +252,8 @@ func (player *Player) SendChunk(chunk interfaces.IChunk, index int) {
 }
 
 // SyncMove synchronizes the server's player movement with the client movement and adjusts chunks.
-func (player *Player) SyncMove(x, y, z, pitch, yaw, headYaw float32, onGround bool) {
-	player.SetPosition(vectors.NewTripleVector(x, y, z))
+func (player *Player) SyncMove(x, y, z float64, pitch, yaw, headYaw float32, onGround bool) {
+	player.SetPosition(r3.Vector{x, y, z})
 	player.Rotation.Pitch += pitch
 	player.Rotation.Yaw += yaw
 	player.Rotation.HeadYaw += headYaw

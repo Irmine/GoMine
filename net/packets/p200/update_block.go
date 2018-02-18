@@ -3,7 +3,7 @@ package p200
 import (
 	"github.com/irmine/gomine/net/info"
 	"github.com/irmine/gomine/net/packets"
-	"github.com/irmine/gomine/vectors"
+	"github.com/golang/geo/r3"
 )
 
 type UpdateBlockPacket struct {
@@ -18,7 +18,7 @@ func NewUpdateBlockPacket() *UpdateBlockPacket {
 }
 
 func (pk *UpdateBlockPacket) Encode() {
-	pk.PutBlockPos(vectors.TripleVector{float32(pk.X), float32(pk.Y), float32(pk.Z)})
+	pk.PutBlockPos(r3.Vector{float64(pk.X), float64(pk.Y), float64(pk.Z)})
 	pk.PutUnsignedVarInt(pk.BlockId)
 	pk.PutUnsignedVarInt((pk.Flags << 4) | pk.BlockMetadata)
 }

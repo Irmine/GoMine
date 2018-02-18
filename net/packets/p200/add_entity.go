@@ -5,7 +5,7 @@ import (
 	"github.com/irmine/gomine/entities/math"
 	"github.com/irmine/gomine/net/info"
 	"github.com/irmine/gomine/net/packets"
-	"github.com/irmine/gomine/vectors"
+	"github.com/golang/geo/r3"
 )
 
 type AddEntityPacket struct {
@@ -13,8 +13,8 @@ type AddEntityPacket struct {
 	UniqueId   int64
 	RuntimeId  uint64
 	EntityType uint32
-	Position   vectors.TripleVector
-	Motion     vectors.TripleVector
+	Position   r3.Vector
+	Motion     r3.Vector
 	Rotation   math.Rotation
 
 	Attributes *data.AttributeMap
@@ -22,15 +22,15 @@ type AddEntityPacket struct {
 }
 
 func NewAddEntityPacket() *AddEntityPacket {
-	return &AddEntityPacket{packets.NewPacket(info.PacketIds200[info.AddEntityPacket]), 0, 0, 0, vectors.TripleVector{}, vectors.TripleVector{}, math.Rotation{}, data.NewAttributeMap(), nil}
+	return &AddEntityPacket{packets.NewPacket(info.PacketIds200[info.AddEntityPacket]), 0, 0, 0, r3.Vector{}, r3.Vector{}, math.Rotation{}, data.NewAttributeMap(), nil}
 }
 
 func (pk *AddEntityPacket) Encode() {
 	pk.PutUniqueId(pk.UniqueId)
 	pk.PutRuntimeId(pk.RuntimeId)
 	pk.PutUnsignedVarInt(pk.EntityType)
-	pk.PutTripleVectorObject(pk.Position)
-	pk.PutTripleVectorObject(pk.Motion)
+	pk.PutVector(pk.Position)
+	pk.PutVector(pk.Motion)
 	pk.PutRotationObject(pk.Rotation, false)
 	pk.PutEntityAttributeMap(pk.Attributes)
 	pk.PutEntityData(pk.EntityData)
@@ -41,8 +41,8 @@ func (pk *AddEntityPacket) Decode() {
 	pk.UniqueId = pk.GetUniqueId()
 	pk.RuntimeId = pk.GetRuntimeId()
 	pk.EntityType = pk.GetUnsignedVarInt()
-	pk.Position.SetVector(pk.GetTripleVectorObject())
-	pk.Motion = *pk.GetTripleVectorObject()
+	pk.Position = pk.GetVector()
+	pk.Motion = pk.GetVector()
 	pk.Rotation = pk.GetRotationObject(false)
 	pk.Attributes = pk.GetEntityAttributeMap()
 	pk.EntityData = pk.GetEntityData()

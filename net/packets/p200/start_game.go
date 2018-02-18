@@ -6,59 +6,47 @@ import (
 	"github.com/irmine/gomine/net/info"
 	"github.com/irmine/gomine/net/packets"
 	"github.com/irmine/gomine/net/packets/types"
-	"github.com/irmine/gomine/vectors"
+	"github.com/golang/geo/r3"
 )
 
 type StartGamePacket struct {
 	*packets.Packet
-	EntityUniqueId  int64
-	EntityRuntimeId uint64
-
-	PlayerGameMode int32
-	PlayerPosition vectors.TripleVector
-
-	Yaw   float32
-	Pitch float32
-
-	LevelSeed     int32
-	Dimension     int32
-	Generator     int32
-	LevelGameMode int32
-	Difficulty    int32
-
-	LevelSpawnPosition   vectors.TripleVector
-	AchievementsDisabled bool
-	Time                 int32
-	EduMode              bool
-
-	RainLevel      float32
-	LightningLevel float32
-
-	MultiPlayerGame bool
-	BroadcastToLan  bool
-	BroadcastToXbox bool
-
-	CommandsEnabled     bool
-	ForcedResourcePacks bool
-
-	GameRules map[string]types.GameRuleEntry
-
-	BonusChest bool
-	StartMap   bool
-
+	EntityUniqueId         int64
+	EntityRuntimeId        uint64
+	PlayerGameMode         int32
+	PlayerPosition         r3.Vector
+	Yaw                    float32
+	Pitch                  float32
+	LevelSeed              int32
+	Dimension              int32
+	Generator              int32
+	LevelGameMode          int32
+	Difficulty             int32
+	LevelSpawnPosition     r3.Vector
+	AchievementsDisabled   bool
+	Time                   int32
+	EduMode                bool
+	RainLevel              float32
+	LightningLevel         float32
+	MultiPlayerGame        bool
+	BroadcastToLan         bool
+	BroadcastToXbox        bool
+	CommandsEnabled        bool
+	ForcedResourcePacks    bool
+	GameRules              map[string]types.GameRuleEntry
+	BonusChest             bool
+	StartMap               bool
 	TrustPlayers           bool
 	DefaultPermissionLevel int32
 	XBOXBroadcastMode      int32
 	XBOXBroadcastIntent    bool
-
-	LevelName       string
-	IsTrial         bool
-	CurrentTick     int64
-	EnchantmentSeed int32
-
-	ServerChunkTickRange  int32
-	HasPlatformBroadcast  bool
-	PlatformBroadcastMode uint32
+	LevelName              string
+	IsTrial                bool
+	CurrentTick            int64
+	EnchantmentSeed        int32
+	ServerChunkTickRange   int32
+	HasPlatformBroadcast   bool
+	PlatformBroadcastMode  uint32
 }
 
 func NewStartGamePacket() *StartGamePacket {
@@ -71,7 +59,7 @@ func (pk *StartGamePacket) Encode() {
 
 	pk.PutVarInt(pk.PlayerGameMode) // Player game mode.
 
-	pk.PutTripleVectorObject(pk.PlayerPosition) // Player pos.
+	pk.PutVector(pk.PlayerPosition) // Player pos.
 
 	pk.PutLittleFloat(pk.Yaw)   // Yaw
 	pk.PutLittleFloat(pk.Pitch) // Pitch

@@ -3,9 +3,9 @@ package interfaces
 import (
 	"github.com/irmine/gomine/entities/math"
 	"github.com/irmine/gomine/net/packets/types"
-	"github.com/irmine/gomine/vectors"
 	"github.com/irmine/goraklib/server"
 	"github.com/irmine/gomine/permissions"
+	"github.com/golang/geo/r3"
 )
 
 type IPlayerFactory interface {
@@ -46,9 +46,9 @@ type IPlayer interface {
 	SendChunk(IChunk, int)
 	NewMinecraftSession(IServer, *server.Session, types.SessionData) IMinecraftSession
 	New(IServer, IMinecraftSession, string) IPlayer
-	SyncMove(float32, float32, float32, float32, float32, float32, bool)
+	SyncMove(float64, float64, float64, float32, float32, float32, bool)
 	SendMessage(...interface{})
-	PlaceInWorld(*vectors.TripleVector, *math.Rotation, ILevel, IDimension)
+	PlaceInWorld(r3.Vector, *math.Rotation, ILevel, IDimension)
 	HasChunkInUse(int) bool
 	HasAnyChunkInUse() bool
 	SpawnPlayerTo(IPlayer)
