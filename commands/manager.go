@@ -2,33 +2,31 @@ package commands
 
 import (
 	"errors"
-
-	"github.com/irmine/gomine/interfaces"
 )
 
-type CommandHolder struct {
-	commands map[string]interfaces.ICommand
-	aliases  map[string]interfaces.ICommand
+type Manager struct {
+	commands map[string]*Command
+	aliases  map[string]*Command
 }
 
-// NewCommandHolder returns a new CommandHolder struct.
-func NewCommandHolder() *CommandHolder {
-	var holder = &CommandHolder{}
-	holder.commands = make(map[string]interfaces.ICommand)
-	holder.aliases = make(map[string]interfaces.ICommand)
+// NewManager returns a new Manager struct.
+func NewManager() *Manager {
+	var holder = &Manager{}
+	holder.commands = make(map[string]*Command)
+	holder.aliases = make(map[string]*Command)
 	return holder
 }
 
 // IsCommandRegistered checks if the command has been registered.
 // Also checks for aliases.
-func (holder *CommandHolder) IsCommandRegistered(commandName string) bool {
+func (holder *Manager) IsCommandRegistered(commandName string) bool {
 	var _, exists = holder.GetCommand(commandName)
 	return exists == nil
 }
 
 // DeregisterCommand deregisters a command from the command holder.
 // Also deregisters all command aliases.
-func (holder *CommandHolder) DeregisterCommand(commandName string) bool {
+func (holder *Manager) DeregisterCommand(commandName string) bool {
 	if !holder.IsCommandRegistered(commandName) {
 		return false
 	}
@@ -42,7 +40,7 @@ func (holder *CommandHolder) DeregisterCommand(commandName string) bool {
 }
 
 // GetCommand returns a command regardless whether it's an alias or the command name, or an error if none was found.
-func (holder *CommandHolder) GetCommand(commandName string) (interfaces.ICommand, error) {
+func (holder *Manager) GetCommand(commandName string) (*Command, error) {
 	var command, err = holder.GetCommandByName(commandName)
 	if err != nil {
 		command, err = holder.GetCommandByAlias(commandName)
@@ -51,27 +49,24 @@ func (holder *CommandHolder) GetCommand(commandName string) (interfaces.ICommand
 }
 
 // GetCommandByAlias returns a command by alias, and an error if none was found.
-func (holder *CommandHolder) GetCommandByAlias(aliasName string) (interfaces.ICommand, error) {
-	var command interfaces.ICommand
+func (holder *Manager) GetCommandByAlias(aliasName string) (*Command, error) {
 	if !holder.AliasExists(aliasName) {
-		return command, errors.New("command alias " + aliasName + " not found")
+		return nil, errors.New("command alias " + aliasName + " not found")
 	}
-	command = holder.aliases[aliasName]
-	return command, nil
+	return holder.aliases[aliasName], nil
 }
 
 // GetCommandByName returns a command by name, and an error if none was found.
-func (holder *CommandHolder) GetCommandByName(commandName string) (interfaces.ICommand, error) {
-	var command interfaces.ICommand
+func (holder *Manager) GetCommandByName(commandName string) (*Command, error) {
 	var _, exists = holder.commands[commandName]
 	if !exists {
-		return command, errors.New("command " + commandName + " not found")
+		return nil, errors.New("command " + commandName + " not found")
 	}
 	return holder.commands[commandName], nil
 }
 
 // RegisterCommand registers a command in the command holder with the including aliases.
-func (holder *CommandHolder) RegisterCommand(command interfaces.ICommand) {
+func (holder *Manager) RegisterCommand(command *Command) {
 	holder.commands[command.GetName()] = command
 	for _, alias := range command.GetAliases() {
 		holder.registerAlias(alias, command)
@@ -79,17 +74,17 @@ func (holder *CommandHolder) RegisterCommand(command interfaces.ICommand) {
 }
 
 // AliasExists checks if the given alias exists or not.
-func (holder *CommandHolder) AliasExists(aliasName string) bool {
+func (holder *Manager) AliasExists(aliasName string) bool {
 	var _, exists = holder.aliases[aliasName]
 	return exists
 }
 
 // registerAlias registers a new alias for the given command.
-func (holder *CommandHolder) registerAlias(aliasName string, command interfaces.ICommand) {
+func (holder *Manager) registerAlias(aliasName string, command *Command) {
 	holder.aliases[aliasName] = command
 }
 
 // DeregisterAlias deregisters an alias.
-func (holder *CommandHolder) deregisterAlias(aliasName string) {
+func (holder *Manager) deregisterAlias(aliasName string) {
 	delete(holder.aliases, aliasName)
 }

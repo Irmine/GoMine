@@ -3,11 +3,9 @@ package p200
 import (
 	"strings"
 
-	"github.com/irmine/gomine/commands"
 	"github.com/irmine/gomine/interfaces"
 	"github.com/irmine/gomine/net/packets/p200"
 	"github.com/irmine/gomine/players/handlers"
-	"github.com/irmine/gomine/utils"
 	"github.com/irmine/goraklib/server"
 )
 
@@ -22,23 +20,26 @@ func NewCommandRequestHandler() CommandRequestHandler {
 // Handle handles commands issues by players.
 func (handler CommandRequestHandler) Handle(packet interfaces.IPacket, player interfaces.IPlayer, session *server.Session, server interfaces.IServer) bool {
 	if pk, ok := packet.(*p200.CommandRequestPacket); ok {
-		pk.CommandText = pk.CommandText[1:]
 		var args = strings.Split(pk.CommandText, " ")
+		var commandName = args[0]
+		var i = 1
+		for !server.GetCommandManager().IsCommandRegistered(commandName) {
+			commandName += " " + args[i]
+			if i == len(args)-1 {
+				break
+			}
+		}
 
-		var commandName = strings.TrimSpace(args[0])
-		var holder = server.GetCommandHolder()
+		var manager = server.GetCommandManager()
 
-		if !holder.IsCommandRegistered(commandName) {
-			player.SendMessage(utils.BrightRed + "Command could not be found")
+		if !manager.IsCommandRegistered(commandName) {
+			server.GetLogger().Error("Command could not be found.")
 			return false
 		}
+		args = args[i:]
 
-		var command, _ = holder.GetCommand(commandName)
-		var parsedInput, valid = command.Parse(player, args[1:], server)
-
-		if valid {
-			commands.ParseIntoInputAndExecute(player, command, parsedInput)
-		}
+		var command, _ = manager.GetCommand(commandName)
+		command.Execute(server, args)
 
 		return true
 	}

@@ -7,6 +7,7 @@ import (
 	"github.com/irmine/goraklib/server"
 	"github.com/irmine/gomine/packs"
 	"github.com/irmine/gomine/permissions"
+	"github.com/irmine/gomine/commands"
 )
 
 type IServer interface {
@@ -16,7 +17,7 @@ type IServer interface {
 	GetServerPath() string
 	GetLogger() ILogger
 	GetConfiguration() *resources.GoMineConfig
-	GetCommandHolder() ICommandHolder
+	GetCommandManager() *commands.Manager
 	GetLoadedLevels() map[int]ILevel
 	IsLevelLoaded(string) bool
 	IsLevelGenerated(string) bool
