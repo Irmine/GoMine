@@ -39,9 +39,9 @@ var readIndexes = map[string]string{
 	"whitelist":     "Whitelist",
 }
 
-// QueryResult is a struct containing all information received by querying a server.
-// QueryResults should be constructed in order to send too.
-type QueryResult struct {
+// Result is a struct containing all information received by querying a server.
+// Results should be constructed in order to send too.
+type Result struct {
 	MOTD           string
 	ListPlugins    bool
 	PluginNames    []string
@@ -58,7 +58,7 @@ type QueryResult struct {
 }
 
 // GetLong returns the long encoded query result.
-func (result QueryResult) GetLong() []byte {
+func (result Result) GetLong() []byte {
 	var plugs = result.ServerEngine
 	if result.ListPlugins {
 		plugs += ":"
@@ -110,8 +110,8 @@ func (result QueryResult) GetLong() []byte {
 }
 
 // ParseLong parses an encoded long query result.
-func (result QueryResult) ParseLong(data []byte) QueryResult {
-	var r = &QueryResult{}
+func (result Result) ParseLong(data []byte) Result {
+	var r = &Result{}
 	var str = string(data)
 	var arr = strings.Split(str, "\x00")
 	var m = map[string]interface{}{}
@@ -160,7 +160,7 @@ func (result QueryResult) ParseLong(data []byte) QueryResult {
 }
 
 // GetShort returns the short encoded query result.
-func (result QueryResult) GetShort() []byte {
+func (result Result) GetShort() []byte {
 	var strs = []string{result.MOTD, result.GameMode, result.WorldName, strconv.Itoa(result.OnlinePlayers), strconv.Itoa(result.MaximumPlayers)}
 	var str = strings.Join(strs, " ")
 

@@ -47,7 +47,7 @@ type Server struct {
 	playerFactory     *players.PlayerFactory
 	networkAdapter    *net.NetworkAdapter
 	pluginManager     *plugins.PluginManager
-	queryManager      query.QueryManager
+	queryManager      query.Manager
 }
 
 // NewServer returns a new server with the given server path.
@@ -69,7 +69,7 @@ func NewServer(serverPath string) *Server {
 
 	s.pluginManager = plugins.NewPluginManager(s)
 
-	s.queryManager = query.NewQueryManager(s)
+	s.queryManager = query.NewManager(s)
 
 	if s.config.UseEncryption {
 		var curve = elliptic.P384()
@@ -367,7 +367,7 @@ func (server *Server) GenerateQueryResult(shortData bool) []byte {
 		ps = append(ps, player.GetDisplayName())
 	}
 
-	var result = query.QueryResult{
+	var result = query.Result{
 		MOTD:           server.GetMotd(),
 		ListPlugins:    server.config.AllowPluginQuery,
 		PluginNames:    plugs,
@@ -396,7 +396,7 @@ func (server *Server) HandleRaw(packet server.RawPacket) {
 			return
 		}
 
-		var q = query.NewQueryFromRaw(packet)
+		var q = query.NewFromRaw(packet)
 		q.DecodeServer()
 
 		server.queryManager.HandleQuery(q)

@@ -11,24 +11,24 @@ import (
 	"github.com/irmine/goraklib/server"
 )
 
-// QueryManager handles the sequence of incoming queries.
-type QueryManager struct {
+// Manager handles the sequence of incoming queries.
+type Manager struct {
 	server interfaces.IServer
 	token  []byte
 }
 
-// NewQueryManager returns a new query manager with the given server.
-func NewQueryManager(server interfaces.IServer) QueryManager {
+// NewManager returns a new query manager with the given server.
+func NewManager(server interfaces.IServer) Manager {
 	var b = make([]byte, 4)
 	rand.Read(b)
-	return QueryManager{server, b}
+	return Manager{server, b}
 }
 
 // HandleQuery handles an incoming query.
-func (manager *QueryManager) HandleQuery(query *Query) {
+func (manager *Manager) HandleQuery(query *Query) {
 	switch query.Header {
 	case QueryChallenge:
-		var q = NewQuery(query.Address, query.Port)
+		var q = New(query.Address, query.Port)
 		q.Header = QueryChallenge
 		q.QueryId = query.QueryId
 		q.Token = manager.token
@@ -40,7 +40,7 @@ func (manager *QueryManager) HandleQuery(query *Query) {
 			return
 		}
 
-		var q = NewQuery(query.Address, query.Port)
+		var q = New(query.Address, query.Port)
 		q.Header = QueryStatistics
 		q.QueryId = query.QueryId
 		q.Statistics = manager.server.GenerateQueryResult(query.IsShort)
@@ -50,7 +50,7 @@ func (manager *QueryManager) HandleQuery(query *Query) {
 }
 
 // sendQuery sends a query to the address and port set in it.
-func (manager *QueryManager) sendQuery(query *Query) {
+func (manager *Manager) sendQuery(query *Query) {
 	query.EncodeServer()
 	var raw = server.NewRawPacket()
 	raw.Buffer = query.Buffer
@@ -63,7 +63,7 @@ func (manager *QueryManager) sendQuery(query *Query) {
 // The call times out after the given timeout duration if no response is given.
 //
 // NOTE: This function is time consuming and should be used one a different goroutine where adequate.
-func Send(address string, port uint16, timeout time.Duration) (QueryResult, error) {
+func Send(address string, port uint16, timeout time.Duration) (Result, error) {
 	defer func() {
 		if err := recover(); err != nil {
 			fmt.Println(err)
@@ -79,10 +79,10 @@ func Send(address string, port uint16, timeout time.Duration) (QueryResult, erro
 	connection.SetReadDeadline(time.Now().Add(timeout))
 
 	if err2 != nil {
-		return QueryResult{}, err2
+		return Result{}, err2
 	}
 
-	var q = NewQuery(address, port)
+	var q = New(address, port)
 	q.Header = QueryChallenge
 	q.QueryId = int32(time.Now().Unix())
 	q.EncodeClient()
@@ -92,16 +92,16 @@ func Send(address string, port uint16, timeout time.Duration) (QueryResult, erro
 	var buf = make([]byte, 128)
 	var bytesRead, err3 = connection.Read(buf)
 	if err3 != nil {
-		return QueryResult{}, err3
+		return Result{}, err3
 	}
 
 	buf = buf[:bytesRead]
 
-	q = NewQuery(address, port)
+	q = New(address, port)
 	q.Buffer = buf
 	q.DecodeClient()
 
-	var statQuery = NewQuery(address, port)
+	var statQuery = New(address, port)
 	statQuery.Header = QueryStatistics
 	statQuery.QueryId = int32(time.Now().Unix())
 	statQuery.Token = q.Token
@@ -112,17 +112,17 @@ func Send(address string, port uint16, timeout time.Duration) (QueryResult, erro
 	buf = make([]byte, 4096)
 	var byteCount, err4 = connection.Read(buf)
 	if err4 != nil {
-		return QueryResult{}, err4
+		return Result{}, err4
 	}
 	connection.Close()
 
 	buf = buf[:byteCount]
 
-	q = NewQuery(address, port)
+	q = New(address, port)
 	q.Buffer = buf
 	q.DecodeClient()
 
-	var res = QueryResult{}.ParseLong(q.Data)
+	var res = Result{}.ParseLong(q.Data)
 	res.Port = port
 	res.Address = address
 

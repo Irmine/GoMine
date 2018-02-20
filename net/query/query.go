@@ -33,14 +33,14 @@ type Query struct {
 }
 
 // NewQueryFromRaw returns a query from a raw packet.
-func NewQueryFromRaw(packet server.RawPacket) *Query {
+func NewFromRaw(packet server.RawPacket) *Query {
 	var stream = binutils.NewStream()
 	stream.Buffer = packet.Buffer
 	return &Query{stream, packet.Address, packet.Port, 0, 0, []byte{}, []byte{}, false, []byte{}}
 }
 
 // NewQuery returns a new query with an address and port.
-func NewQuery(address string, port uint16) *Query {
+func New(address string, port uint16) *Query {
 	return &Query{binutils.NewStream(), address, port, 0, 0, []byte{}, []byte{}, false, []byte{}}
 }
 
