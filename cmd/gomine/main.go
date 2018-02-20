@@ -58,8 +58,8 @@ func parseFlags() {
 
 // setUpDirectories sets up all directories needed for GoMine.
 func setUpDirectories(path string) {
-	os.Mkdir(path+"extensions", os.ModeDir)
-	os.Mkdir(path+"extensions/plugins", os.ModeDir)
-	os.Mkdir(path+"extensions/behavior_packs", os.ModeDir)
-	os.Mkdir(path+"extensions/resource_packs", os.ModeDir)
+	os.Mkdir(path+"extensions", 0777)
+	os.Mkdir(path+"extensions/plugins", 0777)
+	os.Mkdir(path+"extensions/behavior_packs", 0777)
+	os.Mkdir(path+"extensions/resource_packs", 0777)
 }
