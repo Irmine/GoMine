@@ -3,11 +3,12 @@ package interfaces
 import (
 	"crypto/ecdsa"
 
-	"github.com/irmine/gomine/resources"
-	"github.com/irmine/goraklib/server"
+	"github.com/irmine/gomine/commands"
 	"github.com/irmine/gomine/packs"
 	"github.com/irmine/gomine/permissions"
-	"github.com/irmine/gomine/commands"
+	"github.com/irmine/gomine/resources"
+	"github.com/irmine/gomine/utils"
+	"github.com/irmine/goraklib/server"
 )
 
 type IServer interface {
@@ -15,7 +16,7 @@ type IServer interface {
 	Start()
 	Shutdown()
 	GetServerPath() string
-	GetLogger() ILogger
+	GetLogger() *utils.Logger
 	GetConfiguration() *resources.GoMineConfig
 	GetCommandManager() *commands.Manager
 	GetLoadedLevels() map[int]ILevel

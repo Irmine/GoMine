@@ -8,8 +8,9 @@ import (
 	"errors"
 	"io/ioutil"
 
-	"github.com/irmine/gomine/interfaces"
 	"github.com/irmine/binutils"
+	"github.com/irmine/gomine/interfaces"
+	"github.com/irmine/gomine/utils"
 )
 
 const McpeFlag = 0xFE
@@ -23,11 +24,11 @@ type MinecraftPacketBatch struct {
 
 	session         interfaces.IMinecraftSession
 	needsEncryption bool
-	logger          interfaces.ILogger
+	logger          *utils.Logger
 }
 
 // NewMinecraftPacketBatch returns a new Minecraft Packet Batch used to decode/encode batches from Encapsulated Packets.
-func NewMinecraftPacketBatch(session interfaces.IMinecraftSession, logger interfaces.ILogger) *MinecraftPacketBatch {
+func NewMinecraftPacketBatch(session interfaces.IMinecraftSession, logger *utils.Logger) *MinecraftPacketBatch {
 	var batch = &MinecraftPacketBatch{}
 	batch.Stream = binutils.NewStream()
 	batch.session = session

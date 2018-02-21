@@ -37,7 +37,7 @@ type Server struct {
 	privateKey        *ecdsa.PrivateKey
 	token             []byte
 	serverPath        string
-	logger            interfaces.ILogger
+	logger            *utils.Logger
 	config            *resources.GoMineConfig
 	consoleReader     *ConsoleReader
 	commandHolder     *commands.Manager
@@ -153,7 +153,7 @@ func (server *Server) GetServerPath() string {
 
 // GetLogger returns the server's logger.
 // It is prefixed by a [GoMine] prefix.
-func (server *Server) GetLogger() interfaces.ILogger {
+func (server *Server) GetLogger() *utils.Logger {
 	return server.logger
 }
 
