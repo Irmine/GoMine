@@ -63,10 +63,10 @@ func (reader *ConsoleReader) attemptReadCommand(commandText string, server inter
 	var commandName = args[0]
 	var i = 1
 	for !server.GetCommandManager().IsCommandRegistered(commandName) {
-		commandName += " " + args[i]
-		if i == len(args)-1 {
+		if i == len(args) {
 			break
 		}
+		commandName += " " + args[i]
 		i++
 	}
 
