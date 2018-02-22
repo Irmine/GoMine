@@ -11,10 +11,7 @@ type Manager struct {
 
 // NewManager returns a new Manager struct.
 func NewManager() *Manager {
-	var holder = &Manager{}
-	holder.commands = make(map[string]*Command)
-	holder.aliases = make(map[string]*Command)
-	return holder
+	return &Manager{make(map[string]*Command), make(map[string]*Command)}
 }
 
 // IsCommandRegistered checks if the command has been registered.
