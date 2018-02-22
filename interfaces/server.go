@@ -4,6 +4,7 @@ import (
 	"crypto/ecdsa"
 
 	"github.com/irmine/gomine/commands"
+	"github.com/irmine/gomine/net/query"
 	"github.com/irmine/gomine/packs"
 	"github.com/irmine/gomine/permissions"
 	"github.com/irmine/gomine/resources"
@@ -48,5 +49,5 @@ type IServer interface {
 	GetPublicKey() *ecdsa.PublicKey
 	GetServerToken() []byte
 	HandleRaw(server.RawPacket)
-	GenerateQueryResult(bool) []byte
+	GenerateQueryResult() query.Result
 }

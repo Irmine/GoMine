@@ -69,7 +69,7 @@ func NewServer(serverPath string) *Server {
 
 	s.pluginManager = plugins.NewPluginManager(s)
 
-	s.queryManager = query.NewManager(s)
+	s.queryManager = query.NewManager()
 
 	if s.config.UseEncryption {
 		var curve = elliptic.P384()
@@ -356,7 +356,7 @@ func (server *Server) GetServerToken() []byte {
 }
 
 // GenerateQueryResult returns the query data of the server in a byte array.
-func (server *Server) GenerateQueryResult(shortData bool) []byte {
+func (server *Server) GenerateQueryResult() query.Result {
 	var plugs []string
 	for _, plug := range server.pluginManager.GetPlugins() {
 		plugs = append(plugs, plug.GetName()+" v"+plug.GetVersion())
@@ -383,10 +383,7 @@ func (server *Server) GenerateQueryResult(shortData bool) []byte {
 		Address:        server.config.ServerIp,
 	}
 
-	if shortData {
-		return result.GetShort()
-	}
-	return result.GetLong()
+	return result
 }
 
 // HandleRaw handles a raw packet, for instance a query packet.
@@ -410,6 +407,11 @@ func (server *Server) Tick(currentTick int64) {
 	if !server.isRunning {
 		return
 	}
+
+	if currentTick%20 == 0 {
+		server.queryManager.SetQueryResult(server.GenerateQueryResult())
+	}
+
 	for _, level := range server.levels {
 		level.TickLevel()
 	}

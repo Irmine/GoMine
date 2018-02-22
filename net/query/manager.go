@@ -6,22 +6,24 @@ import (
 	"net"
 	"strconv"
 	"time"
-
-	"github.com/irmine/gomine/interfaces"
-	"github.com/irmine/goraklib/server"
 )
 
 // Manager handles the sequence of incoming queries.
 type Manager struct {
-	server interfaces.IServer
 	token  []byte
+	result Result
 }
 
 // NewManager returns a new query manager with the given server.
-func NewManager(server interfaces.IServer) Manager {
+func NewManager() Manager {
 	var b = make([]byte, 4)
 	rand.Read(b)
-	return Manager{server, b}
+	return Manager{b, Result{}}
+}
+
+// SetQueryResult sets the query result data a query will receive when querying us.
+func (manager *Manager) SetQueryResult(result Result) {
+	manager.result = result
 }
 
 // HandleQuery handles an incoming query.
@@ -43,23 +45,32 @@ func (manager *Manager) HandleQuery(query *Query) {
 		var q = New(query.Address, query.Port)
 		q.Header = QueryStatistics
 		q.QueryId = query.QueryId
-		q.Statistics = manager.server.GenerateQueryResult(query.IsShort)
+
+		if query.IsShort {
+			q.Statistics = manager.result.GetShort()
+		} else {
+			q.Statistics = manager.result.GetLong()
+		}
 
 		manager.sendQuery(q)
 	}
 }
 
 // sendQuery sends a query to the address and port set in it.
-func (manager *Manager) sendQuery(query *Query) {
+func (manager *Manager) sendQuery(query *Query) error {
 	query.EncodeServer()
-	var raw = server.NewRawPacket()
-	raw.Buffer = query.Buffer
-	raw.Address = query.Address
-	raw.Port = query.Port
-	manager.server.GetNetworkAdapter().GetRakLibServer().SendRaw(raw)
+
+	var conn, err = net.Dial("udp", query.Address+":"+strconv.Itoa(int(query.Port)))
+	if err != nil {
+		return err
+	}
+	conn.Write(query.Buffer)
+
+	conn.Close()
+	return nil
 }
 
-// QueryServer queries a server with the given address and port.
+// Send queries a server with the given address and port.
 // The call times out after the given timeout duration if no response is given.
 //
 // NOTE: This function is time consuming and should be used one a different goroutine where adequate.
