@@ -1,13 +1,30 @@
 package packets
 
 import (
-	"github.com/irmine/gomine/entities/data"
-	"github.com/irmine/gomine/entities/math"
+	"github.com/golang/geo/r3"
+	"github.com/irmine/binutils"
 	"github.com/irmine/gomine/net/packets/types"
 	"github.com/irmine/gomine/utils"
-	"github.com/irmine/binutils"
-	"github.com/golang/geo/r3"
+	"github.com/irmine/worlds/entities/data"
 )
+
+type IPacket interface {
+	SetBuffer([]byte)
+	GetBuffer() []byte
+	GetId() int
+	SetId(int)
+	EncodeHeader()
+	Encode()
+	DecodeHeader()
+	Decode()
+	ResetStream()
+	GetOffset() int
+	SetOffset(int)
+	Discard()
+	IsDiscarded() bool
+	EncodeId()
+	DecodeId()
+}
 
 type Packet struct {
 	*binutils.Stream
@@ -100,40 +117,39 @@ func (pk *Packet) PutVector(obj r3.Vector) {
 }
 
 func (pk *Packet) GetVector() r3.Vector {
-	return r3.Vector{float64(pk.GetLittleFloat()), float64(pk.GetLittleFloat()), float64(pk.GetLittleFloat())}
+	return r3.Vector{X: float64(pk.GetLittleFloat()), Y: float64(pk.GetLittleFloat()), Z: float64(pk.GetLittleFloat())}
 }
 
-func (pk *Packet) PutRotationObject(obj math.Rotation, isPlayer bool) {
-	pk.PutLittleFloat(obj.Pitch)
-	pk.PutLittleFloat(obj.Yaw)
+func (pk *Packet) PutRotation(rot data.Rotation, isPlayer bool) {
+	pk.PutLittleFloat(float32(rot.Pitch))
+	pk.PutLittleFloat(float32(rot.Yaw))
 	if isPlayer {
-		pk.PutLittleFloat(obj.HeadYaw)
+		pk.PutLittleFloat(float32(rot.HeadYaw))
 	}
 }
 
-func (pk *Packet) GetRotationObject(isPlayer bool) math.Rotation {
-	var yaw = pk.GetLittleFloat()
-	var pitch = pk.GetLittleFloat()
-	var headYaw float32 = 0
+func (pk *Packet) GetRotation(isPlayer bool) data.Rotation {
+	var yaw = float64(pk.GetLittleFloat())
+	var pitch = float64(pk.GetLittleFloat())
+	var headYaw float64 = 0
 	if isPlayer {
-		headYaw = pk.GetLittleFloat()
+		headYaw = float64(pk.GetLittleFloat())
 	}
-	return *math.NewRotation(yaw, pitch, headYaw)
+	return data.Rotation{yaw, pitch, headYaw}
 }
 
-func (pk *Packet) PutEntityAttributeMap(attr *data.AttributeMap) {
-	attrList := attr.GetAttributes()
-	pk.PutUnsignedVarInt(uint32(len(attrList)))
-	for _, v := range attrList {
+func (pk *Packet) PutAttributeMap(attMap data.AttributeMap) {
+	pk.PutUnsignedVarInt(uint32(len(attMap)))
+	for _, v := range attMap {
 		pk.PutLittleFloat(v.GetMinValue())
 		pk.PutLittleFloat(v.GetMaxValue())
 		pk.PutLittleFloat(v.GetValue())
 		pk.PutLittleFloat(v.GetDefaultValue())
-		pk.PutString(v.GetName())
+		pk.PutString(string(v.GetName()))
 	}
 }
 
-func (pk *Packet) GetEntityAttributeMap() *data.AttributeMap {
+func (pk *Packet) GetAttributeMap() data.AttributeMap {
 	attributes := data.NewAttributeMap()
 	c := pk.GetUnsignedVarInt()
 
@@ -142,7 +158,7 @@ func (pk *Packet) GetEntityAttributeMap() *data.AttributeMap {
 		max := pk.GetLittleFloat()
 		value := pk.GetLittleFloat()
 		pk.GetLittleFloat()
-		name := pk.GetString()
+		name := data.AttributeName(pk.GetString())
 
 		if attributes.Exists(name) {
 			attributes.SetAttribute(data.NewAttribute(name, value, max))
@@ -158,23 +174,23 @@ func (pk *Packet) PutEntityData(dat map[uint32][]interface{}) {
 		pk.PutUnsignedVarInt(k)
 		pk.PutUnsignedVarInt(v[0].(uint32))
 		switch v[0] {
-		case data.Byte:
+		case 0:
 			pk.PutByte(v[1].(byte))
-		case data.Short:
+		case 1:
 			pk.PutLittleShort(v[1].(int16))
-		case data.Int:
+		case 2:
 			pk.PutVarInt(v[1].(int32))
-		case data.Float:
+		case 3:
 			pk.PutLittleFloat(v[1].(float32))
-		case data.String:
+		case 4:
 			pk.PutString(v[1].(string))
-		case data.Slot:
+		case 5:
 			//todo
-		case data.Pos:
+		case 6:
 			//todo
-		case data.Long:
+		case 7:
 			pk.PutVarLong(v[1].(int64))
-		case data.TripleFloat:
+		case 8:
 			//todo
 		}
 	}
@@ -188,23 +204,23 @@ func (pk *Packet) GetEntityData() map[uint32][]interface{} {
 		t := pk.GetUnsignedVarInt()
 		var v interface{}
 		switch t {
-		case data.Byte:
+		case 0:
 			v = pk.GetByte()
-		case data.Short:
+		case 1:
 			v = pk.GetLittleShort()
-		case data.Int:
+		case 2:
 			v = pk.GetVarInt()
-		case data.Float:
+		case 3:
 			v = pk.GetLittleFloat()
-		case data.String:
+		case 4:
 			v = pk.GetString()
-		case data.Slot:
+		case 5:
 			//todo
-		case data.Pos:
+		case 6:
 			//todo
-		case data.Long:
+		case 7:
 			v = pk.GetVarLong()
-		case data.TripleFloat:
+		case 8:
 			//todo
 		}
 		dat[k][0] = t

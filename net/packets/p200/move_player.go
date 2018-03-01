@@ -1,18 +1,18 @@
 package p200
 
 import (
-	"github.com/irmine/gomine/entities/math"
+	"github.com/golang/geo/r3"
 	"github.com/irmine/gomine/net/info"
 	"github.com/irmine/gomine/net/packets"
 	"github.com/irmine/gomine/net/packets/data"
-	"github.com/golang/geo/r3"
+	data2 "github.com/irmine/worlds/entities/data"
 )
 
 type MovePlayerPacket struct {
 	*packets.Packet
 	RuntimeId            uint64
 	Position             r3.Vector
-	Rotation             math.Rotation
+	Rotation             data2.Rotation
 	Mode                 byte
 	OnGround             bool
 	RidingRuntimeId      uint64
@@ -20,13 +20,13 @@ type MovePlayerPacket struct {
 }
 
 func NewMovePlayerPacket() *MovePlayerPacket {
-	return &MovePlayerPacket{Packet: packets.NewPacket(info.PacketIds200[info.MovePlayerPacket]), Position: r3.Vector{}, Rotation: *math.NewRotation(0, 0, 0)}
+	return &MovePlayerPacket{Packet: packets.NewPacket(info.PacketIds200[info.MovePlayerPacket]), Position: r3.Vector{}, Rotation: data2.Rotation{}}
 }
 
 func (pk *MovePlayerPacket) Encode() {
 	pk.PutRuntimeId(pk.RuntimeId)
 	pk.PutVector(pk.Position)
-	pk.PutRotationObject(pk.Rotation, true)
+	pk.PutRotation(pk.Rotation, true)
 	pk.PutByte(pk.Mode)
 	pk.PutBool(pk.OnGround)
 	pk.PutRuntimeId(pk.RidingRuntimeId)
@@ -39,7 +39,7 @@ func (pk *MovePlayerPacket) Encode() {
 func (pk *MovePlayerPacket) Decode() {
 	pk.RuntimeId = pk.GetRuntimeId()
 	pk.Position = pk.GetVector()
-	pk.Rotation = pk.GetRotationObject(true)
+	pk.Rotation = pk.GetRotation(true)
 	pk.Mode = pk.GetByte()
 	pk.OnGround = pk.GetBool()
 	pk.RidingRuntimeId = pk.GetRuntimeId()

@@ -1,15 +1,15 @@
 package p200
 
 import (
-	"github.com/irmine/gomine/entities/data"
 	"github.com/irmine/gomine/net/info"
 	"github.com/irmine/gomine/net/packets"
+	"github.com/irmine/worlds/entities/data"
 )
 
 type UpdateAttributesPacket struct {
 	*packets.Packet
 	RuntimeId  uint64
-	Attributes *data.AttributeMap
+	Attributes data.AttributeMap
 }
 
 func NewUpdateAttributesPacket() *UpdateAttributesPacket {
@@ -18,10 +18,10 @@ func NewUpdateAttributesPacket() *UpdateAttributesPacket {
 
 func (pk *UpdateAttributesPacket) Encode() {
 	pk.PutRuntimeId(pk.RuntimeId)
-	pk.PutEntityAttributeMap(pk.Attributes)
+	pk.PutAttributeMap(pk.Attributes)
 }
 
 func (pk *UpdateAttributesPacket) Decode() {
 	pk.RuntimeId = pk.GetRuntimeId()
-	pk.Attributes = pk.GetEntityAttributeMap()
+	pk.Attributes = pk.GetAttributeMap()
 }

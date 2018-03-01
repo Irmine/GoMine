@@ -1,21 +1,30 @@
 package net
 
 import (
-	"github.com/irmine/gomine/interfaces"
+	"fmt"
+	"github.com/irmine/gomine/net/packets"
 	"github.com/irmine/gomine/net/packets/types"
+	protocol2 "github.com/irmine/gomine/net/protocol"
+	"github.com/irmine/gomine/permissions"
+	"github.com/irmine/gomine/players"
 	"github.com/irmine/gomine/utils"
 	"github.com/irmine/goraklib/protocol"
 	"github.com/irmine/goraklib/server"
+	"github.com/irmine/worlds"
 )
 
 type MinecraftSession struct {
-	server   interfaces.IServer
-	session  *server.Session
+	adapter *NetworkAdapter
+	session *server.Session
+	logger  *utils.Logger
+
+	player *players.Player
+
 	uuid     utils.UUID
 	xuid     string
 	clientId int
 
-	protocol         interfaces.IProtocol
+	protocol         protocol2.Protocol
 	protocolNumber   int32
 	minecraftVersion string
 
@@ -27,26 +36,80 @@ type MinecraftSession struct {
 	usesEncryption        bool
 	xboxLiveAuthenticated bool
 
-	initialized bool
+	viewDistance int32
+	chunkLoader  *worlds.Loader
+
+	permissions     map[string]*permissions.Permission
+	permissionGroup *permissions.Group
 }
 
-func NewMinecraftSession(server interfaces.IServer, session *server.Session, data types.SessionData) *MinecraftSession {
-	return &MinecraftSession{
-		server,
-		session,
-		data.ClientUUID,
-		data.ClientXUID,
-		data.ClientId,
-		server.GetNetworkAdapter().GetProtocolPool().GetProtocol(data.ProtocolNumber),
-		data.ProtocolNumber,
-		data.GameVersion,
-		data.Language,
-		int32(data.DeviceOS),
-		utils.NewEncryptionHandler(),
-		false,
-		false,
-		true,
+// NewMinecraftSession returns a new Minecraft session with the given RakNet session.
+func NewMinecraftSession(adapter *NetworkAdapter, session *server.Session) *MinecraftSession {
+	return &MinecraftSession{adapter, session, adapter.logger, nil, utils.UUID{}, "", 0, nil, 0, "", "", 0, utils.NewEncryptionHandler(), false, false, 0, nil, nil, nil}
+}
+
+// SetData sets the basic session data of the Minecraft Session
+func (session *MinecraftSession) SetData(permissionManager *permissions.Manager, data types.SessionData) {
+	session.permissions = make(map[string]*permissions.Permission)
+	session.permissionGroup = permissionManager.GetDefaultGroup()
+
+	session.uuid = data.ClientUUID
+	session.xuid = data.ClientXUID
+	session.clientId = data.ClientId
+	session.protocolNumber = data.ProtocolNumber
+	session.protocol = session.adapter.GetProtocolManager().GetProtocol(data.ProtocolNumber)
+	session.minecraftVersion = data.GameVersion
+	session.language = data.Language
+	session.clientPlatform = int32(data.DeviceOS)
+	session.chunkLoader = worlds.NewLoader(nil, 0, 0)
+}
+
+// GetPlayer returns the player associated with the Minecraft session.
+// This player may not yet exist during the login sequence, and this function may return nil.
+func (session *MinecraftSession) GetPlayer() *players.Player {
+	return session.player
+}
+
+// SetPlayer sets the player associated with the Minecraft session.
+// Network actions will be executed on this player.
+func (session *MinecraftSession) SetPlayer(player *players.Player) {
+	session.player = player
+}
+
+// GetName returns the name of the player under the session.
+func (session *MinecraftSession) GetName() string {
+	if session.player == nil {
+		return ""
 	}
+	return session.player.GetName()
+}
+
+// GetDisplayName returns the display name of the player under the session.
+func (session *MinecraftSession) GetDisplayName() string {
+	if session.player == nil {
+		return ""
+	}
+	return session.player.GetDisplayName()
+}
+
+// HasSpawned checks if the player of the session has spawned.
+func (session *MinecraftSession) HasSpawned() bool {
+	return session.GetPlayer().GetDimension() != nil
+}
+
+// SetViewDistance sets the view distance of this player.
+func (session *MinecraftSession) SetViewDistance(distance int32) {
+	session.viewDistance = distance
+}
+
+// GetViewDistance returns the view distance of this player.
+func (session *MinecraftSession) GetViewDistance() int32 {
+	return session.viewDistance
+}
+
+// GetChunkLoader returns the chunk loader of the session.
+func (session *MinecraftSession) GetChunkLoader() *worlds.Loader {
+	return session.chunkLoader
 }
 
 // GetPlatform returns the platform the client uses to player the game.
@@ -60,12 +123,12 @@ func (session *MinecraftSession) GetProtocolNumber() int32 {
 }
 
 // GetProtocol returns the protocol of the client.
-func (session *MinecraftSession) GetProtocol() interfaces.IProtocol {
+func (session *MinecraftSession) GetProtocol() protocol2.Protocol {
 	return session.protocol
 }
 
 // SetProtocol sets the protocol of this minecraft session.
-func (session *MinecraftSession) SetProtocol(protocol interfaces.IProtocol) {
+func (session *MinecraftSession) SetProtocol(protocol protocol2.Protocol) {
 	session.protocolNumber = protocol.GetProtocolNumber()
 	session.protocol = protocol
 }
@@ -73,11 +136,6 @@ func (session *MinecraftSession) SetProtocol(protocol interfaces.IProtocol) {
 // GetGameVersion returns the Minecraft version the player used to join the server.
 func (session *MinecraftSession) GetGameVersion() string {
 	return session.minecraftVersion
-}
-
-// GetServer returns the main GoMine server.
-func (session *MinecraftSession) GetServer() interfaces.IServer {
-	return session.server
 }
 
 // GetSession returns the GoRakLib session of this session.
@@ -142,49 +200,93 @@ func (session *MinecraftSession) SetXBOXLiveAuthenticated(value bool) {
 	session.xboxLiveAuthenticated = value
 }
 
+// SendMessage sends a text message to the Minecraft session.
+func (session *MinecraftSession) SendMessage(message ...interface{}) {
+	session.SendText(types.Text{Message: fmt.Sprint(message)})
+}
+
+// GetPermissionGroup returns the permission group this session is in.
+func (session *MinecraftSession) GetPermissionGroup() *permissions.Group {
+	return session.permissionGroup
+}
+
+// SetPermissionGroup sets the permission group of this session.
+func (session *MinecraftSession) SetPermissionGroup(group *permissions.Group) {
+	session.permissionGroup = group
+}
+
+// HasPermission checks if this session has a permission.
+func (session *MinecraftSession) HasPermission(permission string) bool {
+	if session.GetPermissionGroup().HasPermission(permission) {
+		return true
+	}
+	var _, exists = session.permissions[permission]
+	return exists
+}
+
+// AddPermission adds a permission to the session.
+// Returns true if a permission with the same name was overwritten.
+func (session *MinecraftSession) AddPermission(permission *permissions.Permission) bool {
+	var hasPermission = session.HasPermission(permission.GetName())
+
+	session.permissions[permission.GetName()] = permission
+
+	return hasPermission
+}
+
+// RemovePermission deletes a permission from the session.
+// This does not delete the permission from the group the session is in.
+func (session *MinecraftSession) RemovePermission(permission string) bool {
+	if !session.HasPermission(permission) {
+		return false
+	}
+	delete(session.permissions, permission)
+
+	return true
+}
+
 // SendPacket sends a packet to this session.
-func (session *MinecraftSession) SendPacket(packet interfaces.IPacket) {
+func (session *MinecraftSession) SendPacket(packet packets.IPacket) {
 	if session.session == nil {
 		return
 	}
-	var b = NewMinecraftPacketBatch(session, session.server.GetLogger())
+	var b = NewMinecraftPacketBatch(session, session.logger)
 	b.AddPacket(packet)
 
 	session.SendBatch(b)
 }
 
 // SendBatch sends a batch to this session.
-func (session *MinecraftSession) SendBatch(batch interfaces.IMinecraftPacketBatch) {
+func (session *MinecraftSession) SendBatch(batch *MinecraftPacketBatch) {
 	if session.session == nil {
 		return
 	}
 	session.session.SendConnectedPacket(batch, protocol.ReliabilityReliableOrdered, server.PriorityMedium)
 }
 
-// IsInitialized checks if the session is initialized.
-func (session *MinecraftSession) IsInitialized() bool {
-	return session.initialized
-}
-
 // HandlePacket handles packets of this session.
-func (session *MinecraftSession) HandlePacket(packet interfaces.IPacket, player interfaces.IPlayer) {
-	priorityHandlers := session.GetProtocol().GetHandlersById(packet.GetId())
+func (session *MinecraftSession) HandlePacket(packet packets.IPacket) {
+	priorityHandlers := session.protocol.GetHandlersById(packet.GetId())
+
+	fmt.Println(packet.GetId())
 
 	var handled = false
 handling:
 	for _, h := range priorityHandlers {
-		for _, handler := range h {
-			if packet.IsDiscarded() {
-				break handling
-			}
+		for _, iHandler := range h {
+			if handler, ok := iHandler.(*PacketHandler); ok {
+				if packet.IsDiscarded() {
+					break handling
+				}
 
-			ret := handler.Handle(packet, player, session.session, session.server)
-			if !handled {
-				handled = ret
+				ret := handler.function(packet, session.logger, session)
+				if !handled {
+					handled = ret
+				}
 			}
 		}
 	}
 	if !handled {
-		session.server.GetLogger().Debug("Unhandled Minecraft packet with ID:", packet.GetId())
+		session.logger.Debug("Unhandled Minecraft packet with ID:", packet.GetId())
 	}
 }

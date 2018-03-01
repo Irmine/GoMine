@@ -1,11 +1,11 @@
 package p160
 
 import (
-	"github.com/irmine/gomine/entities/math"
+	"github.com/golang/geo/r3"
 	"github.com/irmine/gomine/net/info"
 	"github.com/irmine/gomine/net/packets"
 	"github.com/irmine/gomine/utils"
-	"github.com/golang/geo/r3"
+	"github.com/irmine/worlds/entities/data"
 )
 
 type AddPlayerPacket struct {
@@ -16,7 +16,7 @@ type AddPlayerPacket struct {
 	EntityRuntimeId uint64
 	Position        r3.Vector
 	Motion          r3.Vector
-	Rotation        math.Rotation
+	Rotation        data.Rotation
 	// HandItem TODO: Items.
 	Metadata          map[uint32][]interface{}
 	Flags             uint32
@@ -41,7 +41,7 @@ func (pk *AddPlayerPacket) Encode() {
 
 	pk.PutVector(pk.Position)
 	pk.PutVector(pk.Motion)
-	pk.PutRotationObject(pk.Rotation, true)
+	pk.PutRotation(pk.Rotation, true)
 
 	pk.PutVarInt(0) // TODO
 	pk.PutEntityData(pk.Metadata)

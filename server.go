@@ -4,27 +4,24 @@ import (
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
-	"errors"
-	"os"
 
 	"github.com/irmine/goraklib/server"
 
+	"encoding/hex"
 	"github.com/irmine/gomine/commands"
-	"github.com/irmine/gomine/commands/defaults"
-	"github.com/irmine/gomine/interfaces"
 	"github.com/irmine/gomine/net"
 	"github.com/irmine/gomine/net/info"
+	"github.com/irmine/gomine/net/packets/data"
+	"github.com/irmine/gomine/net/protocol"
 	"github.com/irmine/gomine/net/query"
 	"github.com/irmine/gomine/packs"
 	"github.com/irmine/gomine/permissions"
-	"github.com/irmine/gomine/players"
-	"github.com/irmine/gomine/plugins"
 	"github.com/irmine/gomine/resources"
 	"github.com/irmine/gomine/utils"
-	"github.com/irmine/gomine/worlds"
+	"github.com/irmine/gomine/worlds/generators"
+	"github.com/irmine/worlds"
+	"github.com/irmine/worlds/providers"
 )
-
-var levelId = 0
 
 const (
 	GoMineName    = "GoMine"
@@ -43,10 +40,10 @@ type Server struct {
 	commandHolder     *commands.Manager
 	packManager       *packs.Manager
 	permissionManager *permissions.Manager
-	levels            map[int]interfaces.ILevel
-	playerFactory     *players.PlayerFactory
+	levelManager      *worlds.Manager
+	sessionManager    *net.SessionManager
 	networkAdapter    *net.NetworkAdapter
-	pluginManager     *plugins.PluginManager
+	pluginManager     *PluginManager
 	queryManager      query.Manager
 }
 
@@ -57,17 +54,24 @@ func NewServer(serverPath string) *Server {
 	s.serverPath = serverPath
 	s.config = resources.NewGoMineConfig(serverPath)
 	s.logger = utils.NewLogger(GoMineName, serverPath, s.GetConfiguration().DebugMode)
-	s.levels = make(map[int]interfaces.ILevel)
+	s.levelManager = worlds.NewManager(serverPath)
 	s.consoleReader = NewConsoleReader(s)
 	s.commandHolder = commands.NewManager()
-	s.networkAdapter = net.NewNetworkAdapter(s)
+
+	s.sessionManager = net.NewSessionManager()
+	s.networkAdapter = net.NewNetworkAdapter(s.logger, *s.config, s.sessionManager)
+	s.networkAdapter.RawPacketsFunction = s.HandleRaw
+	s.networkAdapter.DisconnectFunction = s.HandleDisconnect
+
+	s.networkAdapter.GetProtocolManager().RegisterProtocol(NewP160(s))
+	s.networkAdapter.GetProtocolManager().RegisterProtocol(NewP200(s))
+	s.networkAdapter.GetProtocolManager().RegisterProtocol(NewP201(s))
 
 	s.packManager = packs.NewManager(serverPath)
 
-	s.playerFactory = players.NewPlayerFactory(s)
 	s.permissionManager = permissions.NewManager()
 
-	s.pluginManager = plugins.NewPluginManager(s)
+	s.pluginManager = NewPluginManager(s)
 
 	s.queryManager = query.NewManager()
 
@@ -92,10 +96,9 @@ func NewServer(serverPath string) *Server {
 
 // RegisterDefaultCommands registers all default commands of the server.
 func (server *Server) RegisterDefaultCommands() {
-	server.commandHolder.RegisterCommand(defaults.NewStop(server))
-	server.commandHolder.RegisterCommand(defaults.NewList(server))
-	server.commandHolder.RegisterCommand(defaults.NewTest())
-	server.commandHolder.RegisterCommand(defaults.NewPing())
+	server.commandHolder.RegisterCommand(NewStop(server))
+	server.commandHolder.RegisterCommand(NewList(server))
+	server.commandHolder.RegisterCommand(NewPing())
 }
 
 // IsRunning checks if the server is running.
@@ -110,9 +113,13 @@ func (server *Server) Start() {
 	}
 	server.GetLogger().Info("GoMine " + GoMineVersion + " is now starting...")
 
-	server.RegisterDefaultCommands()
+	server.levelManager.SetDefaultLevel(worlds.NewLevel("world", server.GetServerPath()))
+	var dimension = worlds.NewDimension("overworld", server.levelManager.GetDefaultLevel(), worlds.OverworldId)
+	server.levelManager.GetDefaultLevel().SetDefaultDimension(dimension)
+	dimension.SetChunkProvider(providers.NewAnvil(server.GetServerPath() + "worlds/world/overworld/region/"))
+	dimension.SetGenerator(generators.Flat{})
 
-	server.LoadLevels()
+	server.RegisterDefaultCommands()
 
 	server.packManager.LoadResourcePacks() // Behavior packs may depend on resource packs, so always load resource packs first.
 	server.packManager.LoadBehaviorPacks()
@@ -162,86 +169,6 @@ func (server *Server) GetConfiguration() *resources.GoMineConfig {
 	return server.config
 }
 
-// GetLoadedLevels returns all loaded levels of the server.
-func (server *Server) GetLoadedLevels() map[int]interfaces.ILevel {
-	return server.levels
-}
-
-func (server *Server) LoadLevels() {
-	server.LoadLevel(server.config.DefaultLevel)
-}
-
-// IsLevelLoaded returns whether a level is loaded or not.
-func (server *Server) IsLevelLoaded(levelName string) bool {
-	for _, level := range server.levels {
-		if level.GetName() == levelName {
-			return true
-		}
-	}
-	return false
-}
-
-// IsLevelGenerated returns whether a level is generated or not. (Includes loaded levels)
-func (server *Server) IsLevelGenerated(levelName string) bool {
-	if server.IsLevelLoaded(levelName) {
-		return true
-	}
-	var path = server.GetServerPath() + "worlds/" + levelName
-	var _, err = os.Stat(path)
-	if err != nil {
-		return false
-	}
-	return true
-}
-
-// LoadLevel loads a generated level. Returns true if the level was loaded successfully.
-func (server *Server) LoadLevel(levelName string) bool {
-	if !server.IsLevelGenerated(levelName) {
-		// server.GenerateLevel(level) We need file writing for this. TODO.
-	}
-	if server.IsLevelLoaded(levelName) {
-		return false
-	}
-	server.levels[levelId] = worlds.NewLevel(levelName, levelId, server, make(map[int]interfaces.IChunk))
-	levelId++
-	return true
-}
-
-// GetDefaultLevel returns the default level and loads/generates it if needed.
-func (server *Server) GetDefaultLevel() interfaces.ILevel {
-	if !server.IsLevelLoaded(server.config.DefaultLevel) {
-		server.LoadLevel(server.config.DefaultLevel)
-	}
-	var level, _ = server.GetLevelByName(server.config.DefaultLevel)
-	return level
-}
-
-// GetLevelById returns a level by its ID. Returns an error if a level with the ID is not loaded.
-func (server *Server) GetLevelById(id int) (interfaces.ILevel, error) {
-	var level interfaces.ILevel
-	if level, ok := server.levels[id]; ok {
-		return level, nil
-	}
-	return level, errors.New("level with given ID is not loaded")
-}
-
-// GetLevelByName returns a level by its name. Returns an error if the level is not loaded.
-func (server *Server) GetLevelByName(name string) (interfaces.ILevel, error) {
-	var level interfaces.ILevel
-	if !server.IsLevelGenerated(name) {
-		return level, errors.New("level with given name is not generated")
-	}
-	if !server.IsLevelLoaded(name) {
-		return level, errors.New("level with given name is not loaded")
-	}
-	for _, level := range server.GetLoadedLevels() {
-		if level.GetName() == name {
-			return level, nil
-		}
-	}
-	return level, nil
-}
-
 // GetConsoleReader returns the console command reader.
 func (server *Server) GetConsoleReader() *ConsoleReader {
 	return server.consoleReader
@@ -289,7 +216,7 @@ func (server *Server) GetMaximumPlayers() uint {
 }
 
 // GetNetworkAdapter returns the NetworkAdapter of the server.
-func (server *Server) GetNetworkAdapter() interfaces.INetworkAdapter {
+func (server *Server) GetNetworkAdapter() *net.NetworkAdapter {
 	return server.networkAdapter
 }
 
@@ -304,9 +231,14 @@ func (server *Server) GetPermissionManager() *permissions.Manager {
 	return server.permissionManager
 }
 
-// GetPlayerFactory returns the player factory of the server.
-func (server *Server) GetPlayerFactory() interfaces.IPlayerFactory {
-	return server.playerFactory
+// GetLevelManager returns the level manager of the server.
+func (server *Server) GetLevelManager() *worlds.Manager {
+	return server.levelManager
+}
+
+// GetSessionManager returns the Minecraft session manager of the server.
+func (server *Server) GetSessionManager() *net.SessionManager {
+	return server.sessionManager
 }
 
 // GetCurrentTick returns the current tick the server is on.
@@ -320,22 +252,22 @@ func (server *Server) GetPackManager() *packs.Manager {
 }
 
 // GetPluginManager returns the plugin manager of the server.
-func (server *Server) GetPluginManager() *plugins.PluginManager {
+func (server *Server) GetPluginManager() *PluginManager {
 	return server.pluginManager
 }
 
 // BroadcastMessageTo broadcasts a message to all receivers.
-func (server *Server) BroadcastMessageTo(message string, receivers []interfaces.IPlayer) {
-	for _, player := range receivers {
-		player.SendMessage(message)
+func (server *Server) BroadcastMessageTo(message string, receivers []*net.MinecraftSession) {
+	for _, session := range receivers {
+		session.SendMessage(message)
 	}
 	server.logger.LogChat(message)
 }
 
 // Broadcast broadcasts a message to all players and the console in the server.
 func (server *Server) BroadcastMessage(message string) {
-	for _, player := range server.GetPlayerFactory().GetPlayers() {
-		player.SendMessage(message)
+	for _, session := range server.GetSessionManager().GetSessions() {
+		session.SendMessage(message)
 	}
 	server.logger.LogChat(message)
 }
@@ -363,8 +295,8 @@ func (server *Server) GenerateQueryResult() query.Result {
 	}
 
 	var ps []string
-	for _, player := range server.playerFactory.GetPlayers() {
-		ps = append(ps, player.GetDisplayName())
+	for name := range server.sessionManager.GetSessions() {
+		ps = append(ps, name)
 	}
 
 	var result = query.Result{
@@ -375,8 +307,8 @@ func (server *Server) GenerateQueryResult() query.Result {
 		GameMode:       "SMP",
 		Version:        server.GetMinecraftVersion(),
 		ServerEngine:   server.GetEngineName(),
-		WorldName:      server.GetDefaultLevel().GetName(),
-		OnlinePlayers:  int(server.GetPlayerFactory().GetPlayerCount()),
+		WorldName:      server.levelManager.GetDefaultLevel().GetName(),
+		OnlinePlayers:  int(server.GetSessionManager().GetSessionCount()),
 		MaximumPlayers: int(server.config.MaximumPlayers),
 		Whitelist:      "off",
 		Port:           server.config.ServerPort,
@@ -387,7 +319,7 @@ func (server *Server) GenerateQueryResult() query.Result {
 }
 
 // HandleRaw handles a raw packet, for instance a query packet.
-func (server *Server) HandleRaw(packet server.RawPacket) {
+func (server *Server) HandleRaw(packet server.RawPacket, logger *utils.Logger) {
 	if string(packet.Buffer[0:2]) == string(query.QueryHeader) {
 		if !server.config.AllowQuery {
 			return
@@ -397,6 +329,24 @@ func (server *Server) HandleRaw(packet server.RawPacket) {
 		q.DecodeServer()
 
 		server.queryManager.HandleQuery(q)
+		return
+	}
+	logger.Debug("Unhandled raw packet:", hex.EncodeToString(packet.Buffer))
+}
+
+func (server *Server) HandleDisconnect(session *net.MinecraftSession, logger *utils.Logger) {
+	server.GetSessionManager().RemoveMinecraftSession(session)
+
+	if session.GetPlayer().Dimension != nil {
+		for _, online := range server.GetSessionManager().GetSessions() {
+			online.SendPlayerList(data.ListTypeRemove, map[string]protocol.PlayerListEntry{online.GetPlayer().GetName(): online.GetPlayer()})
+		}
+
+		session.GetPlayer().DespawnFromAll()
+
+		session.GetPlayer().Close()
+
+		server.BroadcastMessage(utils.Yellow + session.GetDisplayName() + " has left the server")
 	}
 }
 
@@ -412,15 +362,11 @@ func (server *Server) Tick(currentTick int64) {
 		server.queryManager.SetQueryResult(server.GenerateQueryResult())
 	}
 
-	for _, level := range server.levels {
-		level.TickLevel()
-	}
-
-	for _, p := range server.playerFactory.GetPlayers() {
-		p.Tick()
+	for _, level := range server.levelManager.GetLevels() {
+		level.Tick()
 	}
 
 	server.networkAdapter.Tick()
 
-	server.networkAdapter.GetRakLibServer().SetConnectedSessionCount(server.GetPlayerFactory().GetPlayerCount())
+	server.networkAdapter.GetRakLibServer().SetConnectedSessionCount(uint(server.GetSessionManager().GetSessionCount()))
 }

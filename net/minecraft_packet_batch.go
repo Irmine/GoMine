@@ -9,7 +9,7 @@ import (
 	"io/ioutil"
 
 	"github.com/irmine/binutils"
-	"github.com/irmine/gomine/interfaces"
+	"github.com/irmine/gomine/net/packets"
 	"github.com/irmine/gomine/utils"
 )
 
@@ -20,15 +20,15 @@ type MinecraftPacketBatch struct {
 
 	raw []byte
 
-	packets []interfaces.IPacket
+	packets []packets.IPacket
 
-	session         interfaces.IMinecraftSession
+	session         *MinecraftSession
 	needsEncryption bool
 	logger          *utils.Logger
 }
 
 // NewMinecraftPacketBatch returns a new Minecraft Packet Batch used to decode/encode batches from Encapsulated Packets.
-func NewMinecraftPacketBatch(session interfaces.IMinecraftSession, logger *utils.Logger) *MinecraftPacketBatch {
+func NewMinecraftPacketBatch(session *MinecraftSession, logger *utils.Logger) *MinecraftPacketBatch {
 	var batch = &MinecraftPacketBatch{}
 	batch.Stream = binutils.NewStream()
 	batch.session = session
@@ -36,11 +36,7 @@ func NewMinecraftPacketBatch(session interfaces.IMinecraftSession, logger *utils
 	if session == nil {
 		batch.needsEncryption = false
 	} else {
-		if session.IsInitialized() {
-			batch.needsEncryption = session.UsesEncryption()
-		} else {
-			batch.needsEncryption = false
-		}
+		batch.needsEncryption = session.UsesEncryption()
 	}
 
 	batch.logger = logger
@@ -110,7 +106,7 @@ func (batch *MinecraftPacketBatch) fetchPackets(packetData [][]byte) {
 
 		if batch.session.GetProtocol() == nil {
 			var protoNumber = batch.peekProtocol(data)
-			batch.session.SetProtocol(batch.session.GetServer().GetNetworkAdapter().GetProtocolPool().GetProtocol(protoNumber))
+			batch.session.SetProtocol(batch.session.adapter.GetProtocolManager().GetProtocol(protoNumber))
 		}
 
 		if !batch.session.GetProtocol().IsPacketRegistered(packetId) {
@@ -204,12 +200,12 @@ func (batch *MinecraftPacketBatch) decompress() error {
 }
 
 // AddPacket adds a packet to the batch when encoding.
-func (batch *MinecraftPacketBatch) AddPacket(packet interfaces.IPacket) {
+func (batch *MinecraftPacketBatch) AddPacket(packet packets.IPacket) {
 	batch.packets = append(batch.packets, packet)
 }
 
 // GetPackets returns all packets inside of the batch.
 // This only returns correctly when done after decoding, or before encoding.
-func (batch *MinecraftPacketBatch) GetPackets() []interfaces.IPacket {
+func (batch *MinecraftPacketBatch) GetPackets() []packets.IPacket {
 	return batch.packets
 }

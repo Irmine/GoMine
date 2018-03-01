@@ -28,26 +28,12 @@ func (pk *TextPacket) Decode() {
 	pk.IsTranslation = pk.GetBool()
 
 	switch pk.TextType {
-	case data.TextChat:
-		fallthrough
-	case data.TextAnnouncement:
-		fallthrough
-	case data.TextWhisper:
+	case data.TextChat, data.TextAnnouncement, data.TextWhisper:
 		pk.SourceName = pk.GetString()
-		pk.SourceDisplayName = pk.GetString()
-		pk.SourcePlatform = pk.GetVarInt()
 		fallthrough
-	case data.TextRaw:
-		fallthrough
-	case data.TextTip:
-		fallthrough
-	case data.TextSystem:
+	case data.TextRaw, data.TextTip, data.TextSystem:
 		pk.Message = pk.GetString()
-	case data.TextTranslation:
-		fallthrough
-	case data.TextPopup:
-		fallthrough
-	case data.TextJukeboxPopup:
+	case data.TextTranslation, data.TextPopup, data.TextJukeboxPopup:
 		pk.Message = pk.GetString()
 		var translationParameterCount = pk.GetUnsignedVarInt()
 		for i := uint32(0); i < translationParameterCount; i++ {
@@ -63,26 +49,12 @@ func (pk *TextPacket) Encode() {
 	pk.PutBool(pk.IsTranslation)
 
 	switch pk.TextType {
-	case data.TextChat:
-		fallthrough
-	case data.TextWhisper:
-		fallthrough
-	case data.TextAnnouncement:
+	case data.TextChat, data.TextWhisper, data.TextAnnouncement:
 		pk.PutString(pk.SourceName)
-		pk.PutString(pk.SourceDisplayName)
-		pk.PutVarInt(pk.SourcePlatform)
 		fallthrough
-	case data.TextRaw:
-		fallthrough
-	case data.TextTip:
-		fallthrough
-	case data.TextSystem:
+	case data.TextRaw, data.TextTip, data.TextSystem:
 		pk.PutString(pk.Message)
-	case data.TextTranslation:
-		fallthrough
-	case data.TextPopup:
-		fallthrough
-	case data.TextJukeboxPopup:
+	case data.TextTranslation, data.TextPopup, data.TextJukeboxPopup:
 		pk.PutString(pk.Message)
 		var count = len(pk.TranslationParameters)
 		pk.PutUnsignedVarInt(uint32(count))

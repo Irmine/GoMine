@@ -1,11 +1,10 @@
 package p200
 
 import (
-	"github.com/irmine/gomine/entities/data"
-	"github.com/irmine/gomine/entities/math"
+	"github.com/golang/geo/r3"
 	"github.com/irmine/gomine/net/info"
 	"github.com/irmine/gomine/net/packets"
-	"github.com/golang/geo/r3"
+	"github.com/irmine/worlds/entities/data"
 )
 
 type AddEntityPacket struct {
@@ -15,14 +14,14 @@ type AddEntityPacket struct {
 	EntityType uint32
 	Position   r3.Vector
 	Motion     r3.Vector
-	Rotation   math.Rotation
+	Rotation   data.Rotation
 
-	Attributes *data.AttributeMap
+	Attributes data.AttributeMap
 	EntityData map[uint32][]interface{}
 }
 
 func NewAddEntityPacket() *AddEntityPacket {
-	return &AddEntityPacket{packets.NewPacket(info.PacketIds200[info.AddEntityPacket]), 0, 0, 0, r3.Vector{}, r3.Vector{}, math.Rotation{}, data.NewAttributeMap(), nil}
+	return &AddEntityPacket{packets.NewPacket(info.PacketIds200[info.AddEntityPacket]), 0, 0, 0, r3.Vector{}, r3.Vector{}, data.Rotation{}, data.NewAttributeMap(), nil}
 }
 
 func (pk *AddEntityPacket) Encode() {
@@ -31,8 +30,8 @@ func (pk *AddEntityPacket) Encode() {
 	pk.PutUnsignedVarInt(pk.EntityType)
 	pk.PutVector(pk.Position)
 	pk.PutVector(pk.Motion)
-	pk.PutRotationObject(pk.Rotation, false)
-	pk.PutEntityAttributeMap(pk.Attributes)
+	pk.PutRotation(pk.Rotation, false)
+	pk.PutAttributeMap(pk.Attributes)
 	pk.PutEntityData(pk.EntityData)
 	pk.PutUnsignedVarInt(0)
 }
@@ -43,7 +42,7 @@ func (pk *AddEntityPacket) Decode() {
 	pk.EntityType = pk.GetUnsignedVarInt()
 	pk.Position = pk.GetVector()
 	pk.Motion = pk.GetVector()
-	pk.Rotation = pk.GetRotationObject(false)
-	pk.Attributes = pk.GetEntityAttributeMap()
+	pk.Rotation = pk.GetRotation(false)
+	pk.Attributes = pk.GetAttributeMap()
 	pk.EntityData = pk.GetEntityData()
 }

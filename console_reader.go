@@ -4,8 +4,6 @@ import (
 	"bufio"
 	"os"
 	"strings"
-
-	"github.com/irmine/gomine/interfaces"
 )
 
 type ConsoleReader struct {
@@ -14,7 +12,7 @@ type ConsoleReader struct {
 }
 
 // NewConsoleReader returns a new Console Reader.
-func NewConsoleReader(server interfaces.IServer) *ConsoleReader {
+func NewConsoleReader(server *Server) *ConsoleReader {
 	var reader = &ConsoleReader{bufio.NewReader(os.Stdin), false}
 	reader.StartReading()
 
@@ -46,7 +44,7 @@ func (reader *ConsoleReader) IsReading() bool {
 
 // ReadLine reads any commands if entered.
 // Reading lines is blocking, and other goroutines should always be used.
-func (reader *ConsoleReader) ReadLine(server interfaces.IServer) string {
+func (reader *ConsoleReader) ReadLine(server *Server) string {
 	var command, _ = reader.reader.ReadString('\n')
 	command = strings.Trim(command, "\n")
 
@@ -58,7 +56,7 @@ func (reader *ConsoleReader) ReadLine(server interfaces.IServer) string {
 }
 
 // attemptReadCommand attempts to execute the command entered in the console.
-func (reader *ConsoleReader) attemptReadCommand(commandText string, server interfaces.IServer) bool {
+func (reader *ConsoleReader) attemptReadCommand(commandText string, server *Server) bool {
 	var args = strings.Split(commandText, " ")
 	var commandName = args[0]
 	var i = 1
