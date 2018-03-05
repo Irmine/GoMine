@@ -4,8 +4,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/irmine/goraklib/server"
 	"github.com/irmine/binutils"
+	"net"
 )
 
 const (
@@ -33,10 +33,10 @@ type Query struct {
 }
 
 // NewQueryFromRaw returns a query from a raw packet.
-func NewFromRaw(packet server.RawPacket) *Query {
+func NewFromRaw(buffer []byte, addr *net.UDPAddr) *Query {
 	var stream = binutils.NewStream()
-	stream.Buffer = packet.Buffer
-	return &Query{stream, packet.Address, packet.Port, 0, 0, []byte{}, []byte{}, false, []byte{}}
+	stream.Buffer = buffer
+	return &Query{stream, addr.IP.String(), uint16(addr.Port), 0, 0, []byte{}, []byte{}, false, []byte{}}
 }
 
 // NewQuery returns a new query with an address and port.

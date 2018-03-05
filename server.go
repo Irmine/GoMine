@@ -5,9 +5,8 @@ import (
 	"crypto/elliptic"
 	"crypto/rand"
 
-	"github.com/irmine/goraklib/server"
-
 	"encoding/hex"
+	"fmt"
 	"github.com/irmine/gomine/commands"
 	"github.com/irmine/gomine/net"
 	"github.com/irmine/gomine/net/info"
@@ -19,8 +18,10 @@ import (
 	"github.com/irmine/gomine/resources"
 	"github.com/irmine/gomine/utils"
 	"github.com/irmine/gomine/worlds/generators"
+	"github.com/irmine/goraklib/server"
 	"github.com/irmine/worlds"
 	"github.com/irmine/worlds/providers"
+	net2 "net"
 )
 
 const (
@@ -60,12 +61,10 @@ func NewServer(serverPath string) *Server {
 
 	s.sessionManager = net.NewSessionManager()
 	s.networkAdapter = net.NewNetworkAdapter(s.logger, *s.config, s.sessionManager)
-	s.networkAdapter.RawPacketsFunction = s.HandleRaw
-	s.networkAdapter.DisconnectFunction = s.HandleDisconnect
+	s.networkAdapter.GetRakLibManager().RawPacketFunction = s.HandleRaw
+	s.networkAdapter.GetRakLibManager().DisconnectFunction = s.HandleDisconnect
 
-	s.networkAdapter.GetProtocolManager().RegisterProtocol(NewP160(s))
-	s.networkAdapter.GetProtocolManager().RegisterProtocol(NewP200(s))
-	s.networkAdapter.GetProtocolManager().RegisterProtocol(NewP201(s))
+	s.RegisterDefaultProtocols()
 
 	s.packManager = packs.NewManager(serverPath)
 
@@ -92,6 +91,13 @@ func NewServer(serverPath string) *Server {
 	}
 
 	return s
+}
+
+func (server *Server) RegisterDefaultProtocols() {
+	server.networkAdapter.GetProtocolManager().RegisterProtocol(NewP160(server))
+	server.networkAdapter.GetProtocolManager().RegisterProtocol(NewP200(server))
+	server.networkAdapter.GetProtocolManager().RegisterProtocol(NewP201(server))
+	server.networkAdapter.GetProtocolManager().RegisterProtocol(NewP220(server))
 }
 
 // RegisterDefaultCommands registers all default commands of the server.
@@ -319,22 +325,27 @@ func (server *Server) GenerateQueryResult() query.Result {
 }
 
 // HandleRaw handles a raw packet, for instance a query packet.
-func (server *Server) HandleRaw(packet server.RawPacket, logger *utils.Logger) {
-	if string(packet.Buffer[0:2]) == string(query.QueryHeader) {
+func (server *Server) HandleRaw(packet []byte, addr *net2.UDPAddr) {
+	if string(packet[0:2]) == string(query.QueryHeader) {
 		if !server.config.AllowQuery {
 			return
 		}
 
-		var q = query.NewFromRaw(packet)
+		var q = query.NewFromRaw(packet, addr)
 		q.DecodeServer()
 
 		server.queryManager.HandleQuery(q)
 		return
 	}
-	logger.Debug("Unhandled raw packet:", hex.EncodeToString(packet.Buffer))
+	server.logger.Debug("Unhandled raw packet:", hex.EncodeToString(packet))
 }
 
-func (server *Server) HandleDisconnect(session *net.MinecraftSession, logger *utils.Logger) {
+// HandleDisconnect handles a disconnection from a session.
+func (server *Server) HandleDisconnect(s *server.Session) {
+	session, ok := server.GetSessionManager().GetSessionByRakNetSession(s)
+	if !ok {
+		return
+	}
 	server.GetSessionManager().RemoveMinecraftSession(session)
 
 	if session.GetPlayer().Dimension != nil {
@@ -350,6 +361,11 @@ func (server *Server) HandleDisconnect(session *net.MinecraftSession, logger *ut
 	}
 }
 
+// GeneratePongData generates the GoRakLib pong data for the UnconnectedPong RakNet packet.
+func (server *Server) GeneratePongData() string {
+	return fmt.Sprint("MCPE;", server.GetMotd(), ";", info.LatestProtocol, ";", server.GetMinecraftNetworkVersion(), ";", server.GetSessionManager().GetSessionCount(), ";", server.config.MaximumPlayers, ";", server.networkAdapter.GetRakLibManager().ServerId, ";", server.GetEngineName(), ";", server.config.DefaultGameMode, ";")
+}
+
 // Tick ticks the entire server. (Levels, scheduler, GoRakLib server etc.)
 // Internal. Not to be used by plugins.
 func (server *Server) Tick(currentTick int64) {
@@ -357,16 +373,12 @@ func (server *Server) Tick(currentTick int64) {
 	if !server.isRunning {
 		return
 	}
-
 	if currentTick%20 == 0 {
 		server.queryManager.SetQueryResult(server.GenerateQueryResult())
+		server.networkAdapter.GetRakLibManager().PongData = server.GeneratePongData()
 	}
 
 	for _, level := range server.levelManager.GetLevels() {
 		level.Tick()
 	}
-
-	server.networkAdapter.Tick()
-
-	server.networkAdapter.GetRakLibServer().SetConnectedSessionCount(uint(server.GetSessionManager().GetSessionCount()))
 }

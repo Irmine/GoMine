@@ -144,8 +144,8 @@ func (session *MinecraftSession) GetSession() *server.Session {
 }
 
 // GetPing returns the ping of the session in milliseconds.
-func (session *MinecraftSession) GetPing() uint64 {
-	return session.session.GetPing()
+func (session *MinecraftSession) GetPing() int64 {
+	return session.session.CurrentPing
 }
 
 // GetUUID returns the UUID of this session.
@@ -261,14 +261,14 @@ func (session *MinecraftSession) SendBatch(batch *MinecraftPacketBatch) {
 	if session.session == nil {
 		return
 	}
-	session.session.SendConnectedPacket(batch, protocol.ReliabilityReliableOrdered, server.PriorityMedium)
+	session.session.SendPacket(batch, protocol.ReliabilityReliableOrdered, server.PriorityMedium)
 }
 
 // HandlePacket handles packets of this session.
 func (session *MinecraftSession) HandlePacket(packet packets.IPacket) {
 	priorityHandlers := session.protocol.GetHandlersById(packet.GetId())
 
-	fmt.Println(packet.GetId())
+	println("Got packet:", packet.GetId())
 
 	var handled = false
 handling:

@@ -1,36 +1,36 @@
 package net
 
 import (
-	"github.com/irmine/gomine/net/info"
 	"github.com/irmine/gomine/net/packets"
 	protocol2 "github.com/irmine/gomine/net/protocol"
 	"github.com/irmine/gomine/resources"
 	"github.com/irmine/gomine/utils"
 	"github.com/irmine/goraklib/protocol"
 	"github.com/irmine/goraklib/server"
+	"net"
 )
 
 type NetworkAdapter struct {
 	logger          *utils.Logger
-	rakLibServer    *server.GoRakLibServer
+	rakLibManager   *server.Manager
 	protocolManager protocol2.Manager
 	sessionManager  *SessionManager
-
-	DisconnectFunction func(session *MinecraftSession, logger *utils.Logger)
-	RawPacketsFunction func(packet server.RawPacket, logger *utils.Logger)
 }
 
 // NewNetworkAdapter returns a new Network adapter to adapt to the RakNet server.
 func NewNetworkAdapter(logger *utils.Logger, config resources.GoMineConfig, sessionManager *SessionManager) *NetworkAdapter {
-	var rakServer = server.NewGoRakLibServer(config.ServerName, config.ServerIp, config.ServerPort)
-	rakServer.SetMinecraftProtocol(info.LatestProtocol)
-	rakServer.SetMinecraftVersion(info.LatestGameVersionNetwork)
-	rakServer.SetMaxConnectedSessions(config.MaximumPlayers)
-	rakServer.SetDefaultGameMode("Creative")
-	rakServer.SetMotd(config.ServerMotd)
+	var manager = server.NewManager()
+	var adapter = &NetworkAdapter{logger, manager, protocol2.NewManager(), sessionManager}
 
-	var adapter = &NetworkAdapter{logger, rakServer, protocol2.NewManager(), sessionManager, func(session *MinecraftSession, logger *utils.Logger) {}, func(packet server.RawPacket, logger *utils.Logger) {}}
-
+	manager.PacketFunction = func(packet []byte, session *server.Session) {
+		var minecraftSession *MinecraftSession
+		var ok bool
+		if minecraftSession, ok = adapter.sessionManager.GetSessionByRakNetSession(session); !ok {
+			minecraftSession = NewMinecraftSession(adapter, session)
+		}
+		adapter.HandlePacket(minecraftSession, packet)
+	}
+	manager.Start(config.ServerIp, int(config.ServerPort))
 	return adapter
 }
 
@@ -39,68 +39,37 @@ func (adapter *NetworkAdapter) GetProtocolManager() protocol2.Manager {
 	return adapter.protocolManager
 }
 
-// GetRakLibServer returns the GoRakLib server.
-func (adapter *NetworkAdapter) GetRakLibServer() *server.GoRakLibServer {
-	return adapter.rakLibServer
-}
-
-// Tick ticks the adapter, ticking the GoRakLib server and processing packets.
-func (adapter *NetworkAdapter) Tick() {
-	go adapter.rakLibServer.Tick()
-
-	for _, session := range adapter.rakLibServer.GetSessionManager().GetSessions() {
-		go func(session *server.Session) {
-			var (
-				minecraftSession *MinecraftSession
-				ok               bool
-			)
-			if minecraftSession, ok = adapter.sessionManager.GetSessionByRakNetSession(session); !ok {
-				minecraftSession = NewMinecraftSession(adapter, session)
-			}
-
-			adapter.HandlePackets(minecraftSession)
-		}(session)
-	}
-
-	for _, pk := range adapter.rakLibServer.GetRawPackets() {
-		adapter.RawPacketsFunction(pk, adapter.logger)
-	}
-
-	for _, session := range adapter.rakLibServer.GetSessionManager().GetDisconnectedSessions() {
-		if minecraftSession, ok := adapter.sessionManager.GetSessionByRakNetSession(session); ok {
-			adapter.DisconnectFunction(minecraftSession, adapter.logger)
-		}
-	}
+// GetRakLibManager returns the GoRakLib manager of the network adapter.
+func (adapter *NetworkAdapter) GetRakLibManager() *server.Manager {
+	return adapter.rakLibManager
 }
 
 // HandlePackets handles all packets of the given session + player.
-func (adapter *NetworkAdapter) HandlePackets(session *MinecraftSession) {
-	for _, encapsulatedPacket := range session.GetSession().GetReadyEncapsulatedPackets() {
-		batch := NewMinecraftPacketBatch(session, adapter.logger)
-		batch.Buffer = encapsulatedPacket.Buffer
-		batch.Decode()
+func (adapter *NetworkAdapter) HandlePacket(session *MinecraftSession, buffer []byte) {
+	batch := NewMinecraftPacketBatch(session, adapter.logger)
+	batch.Buffer = buffer
+	batch.Decode()
 
-		for _, packet := range batch.GetPackets() {
-			if session.GetProtocolNumber() < 120 {
-				packet.DecodeId()
-			} else {
-				packet.DecodeHeader()
-			}
-			packet.Decode()
-
-			session.HandlePacket(packet)
+	for _, packet := range batch.GetPackets() {
+		if session.GetProtocolNumber() < 120 {
+			packet.DecodeId()
+		} else {
+			packet.DecodeHeader()
 		}
+		packet.Decode()
+
+		session.HandlePacket(packet)
 	}
 }
 
 // GetSession returns a GoRakLib session by an address and port.
 func (adapter *NetworkAdapter) GetSession(address string, port uint16) *server.Session {
-	var session, _ = adapter.rakLibServer.GetSessionManager().GetSession(address, port)
+	var session, _ = adapter.rakLibManager.Sessions.GetSession(&net.UDPAddr{IP: net.ParseIP(address), Port: int(port)})
 	return session
 }
 
 // SendPacket sends a packet to the given Minecraft session with the given priority.
-func (adapter *NetworkAdapter) SendPacket(pk packets.IPacket, session *MinecraftSession, priority byte) {
+func (adapter *NetworkAdapter) SendPacket(pk packets.IPacket, session *MinecraftSession, priority server.Priority) {
 	var b = NewMinecraftPacketBatch(session, adapter.logger)
 	b.AddPacket(pk)
 
@@ -108,8 +77,8 @@ func (adapter *NetworkAdapter) SendPacket(pk packets.IPacket, session *Minecraft
 }
 
 // SendBatch sends a Minecraft packet batch to the given GoRakLib session with the given priority.
-func (adapter *NetworkAdapter) SendBatch(batch *MinecraftPacketBatch, session *server.Session, priority byte) {
-	session.SendConnectedPacket(batch, protocol.ReliabilityReliableOrdered, priority)
+func (adapter *NetworkAdapter) SendBatch(batch *MinecraftPacketBatch, session *server.Session, priority server.Priority) {
+	session.SendPacket(batch, protocol.ReliabilityReliableOrdered, priority)
 }
 
 // GetLogger returns the logger of the network adapter.

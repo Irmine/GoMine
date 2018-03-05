@@ -1,6 +1,7 @@
 package net
 
 import (
+	"fmt"
 	"github.com/irmine/gomine/utils"
 	"github.com/irmine/goraklib/server"
 	"sync"
@@ -32,7 +33,7 @@ func (manager *SessionManager) AddMinecraftSession(session *MinecraftSession) {
 	manager.nameMap[session.GetPlayer().GetName()] = session
 	manager.uuidMap[session.GetUUID()] = session
 	manager.xuidMap[session.GetXUID()] = session
-	manager.sessionMap[server.GetSessionIndex(session.GetSession())] = session
+	manager.sessionMap[fmt.Sprint(session.GetSession())] = session
 	manager.mutex.Unlock()
 }
 
@@ -42,7 +43,7 @@ func (manager *SessionManager) RemoveMinecraftSession(session *MinecraftSession)
 	delete(manager.nameMap, session.GetPlayer().GetName())
 	delete(manager.uuidMap, session.GetUUID())
 	delete(manager.xuidMap, session.GetXUID())
-	delete(manager.sessionMap, server.GetSessionIndex(session.GetSession()))
+	delete(manager.sessionMap, fmt.Sprint(session.GetSession()))
 	manager.mutex.Unlock()
 }
 
@@ -71,7 +72,7 @@ func (manager *SessionManager) GetSession(name string) (*MinecraftSession, bool)
 // HasSessionWithRakNetSession checks if the session manager has a session with the given RakNet session.
 func (manager *SessionManager) HasSessionWithRakNetSession(rakNetSession *server.Session) bool {
 	manager.mutex.RLock()
-	var _, ok = manager.sessionMap[server.GetSessionIndex(rakNetSession)]
+	var _, ok = manager.sessionMap[fmt.Sprint(rakNetSession)]
 	manager.mutex.RUnlock()
 	return ok
 }
@@ -80,7 +81,7 @@ func (manager *SessionManager) HasSessionWithRakNetSession(rakNetSession *server
 // A bool is returned indicating success.
 func (manager *SessionManager) GetSessionByRakNetSession(rakNetSession *server.Session) (*MinecraftSession, bool) {
 	manager.mutex.RLock()
-	var session, ok = manager.sessionMap[server.GetSessionIndex(rakNetSession)]
+	var session, ok = manager.sessionMap[fmt.Sprint(rakNetSession)]
 	manager.mutex.RUnlock()
 	return session, ok
 }
