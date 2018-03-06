@@ -29,21 +29,21 @@ func (manager *Manager) SetQueryResult(result Result) {
 // HandleQuery handles an incoming query.
 func (manager *Manager) HandleQuery(query *Query) {
 	switch query.Header {
-	case QueryChallenge:
+	case Challenge:
 		var q = New(query.Address, query.Port)
-		q.Header = QueryChallenge
+		q.Header = Challenge
 		q.QueryId = query.QueryId
 		q.Token = manager.token
 
 		manager.sendQuery(q)
 
-	case QueryStatistics:
+	case Statistics:
 		if string(manager.token) != string(query.Token) {
 			return
 		}
 
 		var q = New(query.Address, query.Port)
-		q.Header = QueryStatistics
+		q.Header = Statistics
 		q.QueryId = query.QueryId
 
 		if query.IsShort {
@@ -94,7 +94,7 @@ func Send(address string, port uint16, timeout time.Duration) (Result, error) {
 	}
 
 	var q = New(address, port)
-	q.Header = QueryChallenge
+	q.Header = Challenge
 	q.QueryId = int32(time.Now().Unix())
 	q.EncodeClient()
 
@@ -113,7 +113,7 @@ func Send(address string, port uint16, timeout time.Duration) (Result, error) {
 	q.DecodeClient()
 
 	var statQuery = New(address, port)
-	statQuery.Header = QueryStatistics
+	statQuery.Header = Statistics
 	statQuery.QueryId = int32(time.Now().Unix())
 	statQuery.Token = q.Token
 	statQuery.EncodeClient()
