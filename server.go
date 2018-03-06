@@ -263,7 +263,7 @@ func (server *Server) GetPluginManager() *PluginManager {
 }
 
 // BroadcastMessageTo broadcasts a message to all receivers.
-func (server *Server) BroadcastMessageTo(message string, receivers []*net.MinecraftSession) {
+func (server *Server) BroadcastMessageTo(receivers []*net.MinecraftSession, message ...interface{}) {
 	for _, session := range receivers {
 		session.SendMessage(message)
 	}
@@ -271,7 +271,7 @@ func (server *Server) BroadcastMessageTo(message string, receivers []*net.Minecr
 }
 
 // Broadcast broadcasts a message to all players and the console in the server.
-func (server *Server) BroadcastMessage(message string) {
+func (server *Server) BroadcastMessage(message ...interface{}) {
 	for _, session := range server.GetSessionManager().GetSessions() {
 		session.SendMessage(message)
 	}
@@ -326,7 +326,7 @@ func (server *Server) GenerateQueryResult() query.Result {
 
 // HandleRaw handles a raw packet, for instance a query packet.
 func (server *Server) HandleRaw(packet []byte, addr *net2.UDPAddr) {
-	if string(packet[0:2]) == string(query.QueryHeader) {
+	if string(packet[0:2]) == string(query.Header) {
 		if !server.config.AllowQuery {
 			return
 		}
@@ -357,7 +357,7 @@ func (server *Server) HandleDisconnect(s *server.Session) {
 
 		session.GetPlayer().Close()
 
-		server.BroadcastMessage(utils.Yellow + session.GetDisplayName() + " has left the server")
+		server.BroadcastMessage(utils.Yellow+session.GetDisplayName(), "has left the server")
 	}
 }
 
