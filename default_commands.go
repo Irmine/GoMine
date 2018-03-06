@@ -27,7 +27,7 @@ func NewList(server *Server) *commands.Command {
 func NewPing() *commands.Command {
 	var ping = commands.NewCommand("ping", "Returns your latency", "gomine.ping", []string{}, func(sender commands.Sender) {
 		if session, ok := sender.(*net.MinecraftSession); ok {
-			session.SendMessage(utils.Yellow + "Your current latency/ping is: " + strconv.Itoa(int(session.GetPing())))
+			session.SendMessage(utils.Yellow+"Your current latency/ping is:", session.GetPing())
 		} else {
 			sender.SendMessage(utils.Red + "Please run this command as a player.")
 		}
