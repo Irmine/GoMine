@@ -51,15 +51,15 @@ func (protocol *P160) GetStartGame(player protocol.StartGameEntry) packets.IPack
 	pk.LevelSpawnPosition = r3.Vector{0, 40, 0}
 	pk.CommandsEnabled = true
 
-	var gameRules = player.GetLevel().GetGameRules()
+	var gameRules = player.GetDimension().GetLevel().GetGameRules()
 	var gameRuleEntries = map[string]types.GameRuleEntry{}
 	for name, gameRule := range gameRules {
 		gameRuleEntries[string(name)] = types.GameRuleEntry{Name: string(gameRule.GetName()), Value: gameRule.GetValue()}
 	}
 
 	pk.GameRules = gameRuleEntries
-	pk.LevelName = player.GetLevel().GetName()
-	pk.CurrentTick = player.GetLevel().GetCurrentTick()
+	pk.LevelName = player.GetDimension().GetLevel().GetName()
+	pk.CurrentTick = player.GetDimension().GetLevel().GetCurrentTick()
 	pk.Time = 0
 	pk.AchievementsDisabled = true
 	pk.BroadcastToXbox = true

@@ -40,5 +40,5 @@ type StartGameEntry interface {
 	GetRuntimeId() uint64
 	GetUniqueId() int64
 	GetPosition() r3.Vector
-	GetLevel() *worlds.Level
+	GetDimension() *worlds.Dimension
 }

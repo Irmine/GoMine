@@ -35,7 +35,7 @@ func NewString(name string, optional bool) *Argument {
 	return arg
 }
 
-// NewStringEnum returns a new String argument with the given name and optional value.
+// NewStringEnum returns a new String Enum argument with the given name and optional value.
 func NewStringEnum(name string, optional bool, options []string) *Argument {
 	var arg = &Argument{name, optional, 1, "", func(value string) bool {
 		for _, option := range options {

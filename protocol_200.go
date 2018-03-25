@@ -179,20 +179,20 @@ func (protocol *P200) GetResourcePackDataInfo(pack packs.Pack) packets.IPacket {
 	return pk
 }
 
-func (protocol *P200) GetResourcePackInfo(mustAccept bool, resourcePacks []packs.Pack, behaviorPacks []packs.Pack) packets.IPacket {
+func (protocol *P200) GetResourcePackInfo(mustAccept bool, resourcePacks *packs.Stack, behaviorPacks *packs.Stack) packets.IPacket {
 	var pk = p200.NewResourcePackInfoPacket()
 	pk.MustAccept = mustAccept
 
 	var resourceEntries []types.ResourcePackInfoEntry
 	var behaviorEntries []types.ResourcePackInfoEntry
-	for _, pack := range resourcePacks {
+	for _, pack := range *resourcePacks {
 		resourceEntries = append(resourceEntries, types.ResourcePackInfoEntry{
 			UUID:     pack.GetUUID(),
 			Version:  pack.GetVersion(),
 			PackSize: pack.GetFileSize(),
 		})
 	}
-	for _, pack := range behaviorPacks {
+	for _, pack := range *behaviorPacks {
 		behaviorEntries = append(behaviorEntries, types.ResourcePackInfoEntry{
 			UUID:     pack.GetUUID(),
 			Version:  pack.GetVersion(),
@@ -206,18 +206,18 @@ func (protocol *P200) GetResourcePackInfo(mustAccept bool, resourcePacks []packs
 	return pk
 }
 
-func (protocol *P200) GetResourcePackStack(mustAccept bool, resourcePacks []packs.Pack, behaviorPacks []packs.Pack) packets.IPacket {
+func (protocol *P200) GetResourcePackStack(mustAccept bool, resourcePacks *packs.Stack, behaviorPacks *packs.Stack) packets.IPacket {
 	var pk = p200.NewResourcePackStackPacket()
 	pk.MustAccept = mustAccept
 	var resourceEntries []types.ResourcePackStackEntry
 	var behaviorEntries []types.ResourcePackStackEntry
-	for _, pack := range resourcePacks {
+	for _, pack := range *resourcePacks {
 		resourceEntries = append(resourceEntries, types.ResourcePackStackEntry{
 			UUID:    pack.GetUUID(),
 			Version: pack.GetVersion(),
 		})
 	}
-	for _, pack := range behaviorPacks {
+	for _, pack := range *behaviorPacks {
 		behaviorEntries = append(behaviorEntries, types.ResourcePackStackEntry{
 			UUID:    pack.GetUUID(),
 			Version: pack.GetVersion(),
@@ -259,15 +259,15 @@ func (protocol *P200) GetStartGame(player protocol.StartGameEntry) packets.IPack
 	pk.LevelSpawnPosition = r3.Vector{0, 40, 0}
 	pk.CommandsEnabled = true
 
-	var gameRules = player.GetLevel().GetGameRules()
+	var gameRules = player.GetDimension().GetLevel().GetGameRules()
 	var gameRuleEntries = map[string]types.GameRuleEntry{}
 	for name, gameRule := range gameRules {
 		gameRuleEntries[string(name)] = types.GameRuleEntry{Name: string(gameRule.GetName()), Value: gameRule.GetValue()}
 	}
 
 	pk.GameRules = gameRuleEntries
-	pk.LevelName = player.GetLevel().GetName()
-	pk.CurrentTick = player.GetLevel().GetCurrentTick()
+	pk.LevelName = player.GetDimension().GetLevel().GetName()
+	pk.CurrentTick = player.GetDimension().GetLevel().GetCurrentTick()
 	pk.Time = 0
 	pk.AchievementsDisabled = true
 	pk.BroadcastToXbox = true

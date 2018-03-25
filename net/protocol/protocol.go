@@ -37,8 +37,8 @@ type Protocol interface {
 	GetRemoveEntity(int64) packets.IPacket
 	GetResourcePackChunkData(string, int32, int64, []byte) packets.IPacket
 	GetResourcePackDataInfo(packs.Pack) packets.IPacket
-	GetResourcePackInfo(bool, []packs.Pack, []packs.Pack) packets.IPacket
-	GetResourcePackStack(bool, []packs.Pack, []packs.Pack) packets.IPacket
+	GetResourcePackInfo(bool, *packs.Stack, *packs.Stack) packets.IPacket
+	GetResourcePackStack(bool, *packs.Stack, *packs.Stack) packets.IPacket
 	GetServerHandshake(string) packets.IPacket
 	GetSetEntityData(uint64, map[uint32][]interface{}) packets.IPacket
 	GetStartGame(StartGameEntry) packets.IPacket

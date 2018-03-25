@@ -186,7 +186,7 @@ func (batch *MinecraftPacketBatch) decompress() error {
 	batch.logger.LogError(err)
 
 	if err != nil {
-		println(hex.EncodeToString(batch.raw))
+		batch.logger.Debug(hex.EncodeToString(batch.raw))
 		return err
 	}
 	if zlibReader == nil {

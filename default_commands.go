@@ -7,6 +7,17 @@ import (
 	"strconv"
 )
 
+func NewTest(server *Server) *commands.Command {
+	cmd := commands.NewCommand("chunk", "Lists the current chunk", "none", []string{}, func(sender commands.Sender) {
+		if session, ok := sender.(*net.MinecraftSession); ok {
+			server.logger.Debug(session.GetPlayer().GetChunk().X, session.GetPlayer().GetChunk().Z)
+			session.SendMessage(session.GetPlayer().GetChunk().X, session.GetPlayer().GetChunk().Z)
+		}
+	})
+	cmd.ExemptFromPermissionCheck(true)
+	return cmd
+}
+
 func NewList(server *Server) *commands.Command {
 	var list = commands.NewCommand("list", "Lists all players online", "gomine.list", []string{}, func(sender commands.Sender) {
 		var s = "s"

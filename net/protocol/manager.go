@@ -11,7 +11,7 @@ func NewManager() Manager {
 // GetProtocol returns a protocol by its protocol number.
 func (pool Manager) GetProtocol(protocolNumber int32) Protocol {
 	if !pool.IsProtocolRegistered(protocolNumber) {
-		return pool[200]
+		return pool[200] // Protocol currently default coded to 200. TODO: Change to return an error and have handler of code handle it instead.
 	}
 	return pool[protocolNumber]
 }

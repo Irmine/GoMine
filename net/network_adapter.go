@@ -30,7 +30,12 @@ func NewNetworkAdapter(logger *utils.Logger, config resources.GoMineConfig, sess
 		}
 		adapter.HandlePacket(minecraftSession, packet)
 	}
-	manager.Start(config.ServerIp, int(config.ServerPort))
+	manager.DisconnectFunction = func(session *server.Session) {
+		logger.Debug(session, "disconnected!")
+	}
+	manager.ConnectFunction = func(session *server.Session) {
+		logger.Debug(session, "connected!")
+	}
 	return adapter
 }
 

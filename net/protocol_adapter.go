@@ -58,11 +58,11 @@ func (session *MinecraftSession) SendResourcePackDataInfo(pack packs.Pack) {
 	session.SendPacket(session.protocol.GetResourcePackDataInfo(pack))
 }
 
-func (session *MinecraftSession) SendResourcePackInfo(mustAccept bool, resourcePacks []packs.Pack, behaviorPacks []packs.Pack) {
+func (session *MinecraftSession) SendResourcePackInfo(mustAccept bool, resourcePacks *packs.Stack, behaviorPacks *packs.Stack) {
 	session.SendPacket(session.protocol.GetResourcePackInfo(mustAccept, resourcePacks, behaviorPacks))
 }
 
-func (session *MinecraftSession) SendResourcePackStack(mustAccept bool, resourcePacks []packs.Pack, behaviorPacks []packs.Pack) {
+func (session *MinecraftSession) SendResourcePackStack(mustAccept bool, resourcePacks *packs.Stack, behaviorPacks *packs.Stack) {
 	session.SendPacket(session.protocol.GetResourcePackStack(mustAccept, resourcePacks, behaviorPacks))
 }
 

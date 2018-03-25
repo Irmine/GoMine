@@ -12,13 +12,13 @@ import (
 	"github.com/irmine/gomine/net/info"
 	"github.com/irmine/gomine/net/packets/data"
 	"github.com/irmine/gomine/net/protocol"
-	"github.com/irmine/gomine/net/query"
 	"github.com/irmine/gomine/packs"
 	"github.com/irmine/gomine/permissions"
 	"github.com/irmine/gomine/resources"
 	"github.com/irmine/gomine/utils"
 	"github.com/irmine/gomine/worlds/generators"
 	"github.com/irmine/goraklib/server"
+	"github.com/irmine/query"
 	"github.com/irmine/worlds"
 	"github.com/irmine/worlds/providers"
 	net2 "net"
@@ -61,6 +61,7 @@ func NewServer(serverPath string) *Server {
 
 	s.sessionManager = net.NewSessionManager()
 	s.networkAdapter = net.NewNetworkAdapter(s.logger, *s.config, s.sessionManager)
+	s.networkAdapter.GetRakLibManager().PongData = s.GeneratePongData()
 	s.networkAdapter.GetRakLibManager().RawPacketFunction = s.HandleRaw
 	s.networkAdapter.GetRakLibManager().DisconnectFunction = s.HandleDisconnect
 
@@ -93,6 +94,7 @@ func NewServer(serverPath string) *Server {
 	return s
 }
 
+// RegisterDefaultProtocols registers all default protocols of GoMine.
 func (server *Server) RegisterDefaultProtocols() {
 	server.networkAdapter.GetProtocolManager().RegisterProtocol(NewP160(server))
 	server.networkAdapter.GetProtocolManager().RegisterProtocol(NewP200(server))
@@ -105,6 +107,7 @@ func (server *Server) RegisterDefaultCommands() {
 	server.commandHolder.RegisterCommand(NewStop(server))
 	server.commandHolder.RegisterCommand(NewList(server))
 	server.commandHolder.RegisterCommand(NewPing())
+	server.commandHolder.RegisterCommand(NewTest(server))
 }
 
 // IsRunning checks if the server is running.
@@ -117,7 +120,7 @@ func (server *Server) Start() {
 	if server.isRunning {
 		return
 	}
-	server.GetLogger().Info("GoMine " + GoMineVersion + " is now starting...")
+	server.GetLogger().Info("GoMine "+GoMineVersion+" is now starting...", "("+server.GetServerPath()+")")
 
 	server.levelManager.SetDefaultLevel(worlds.NewLevel("world", server.GetServerPath()))
 	var dimension = worlds.NewDimension("overworld", server.levelManager.GetDefaultLevel(), worlds.OverworldId)
@@ -133,6 +136,7 @@ func (server *Server) Start() {
 	server.pluginManager.LoadPlugins()
 
 	server.isRunning = true
+	server.networkAdapter.GetRakLibManager().Start(server.config.ServerIp, int(server.config.ServerPort))
 }
 
 // Shutdown shuts down the server, saving and disabling everything.
@@ -142,9 +146,13 @@ func (server *Server) Shutdown() {
 	}
 	server.GetLogger().Info("Server is shutting down.")
 
-	server.isRunning = false
+	server.logger.Notice("Server stopped.")
 
-	server.GetLogger().Notice("Server stopped.")
+	server.logger.Terminate()        // Terminate the logger to stop writing asynchronously.
+	server.logger.ProcessQueue(true) // Process the logger queue one last time forced and synchronously to make sure everything gets written.
+	server.logger.Sync()
+
+	server.isRunning = false
 }
 
 // GetMinecraftVersion returns the latest Minecraft game version.
@@ -227,7 +235,6 @@ func (server *Server) GetNetworkAdapter() *net.NetworkAdapter {
 }
 
 // Returns the Message Of The Day of the server.
-
 func (server *Server) GetMotd() string {
 	return server.config.ServerMotd
 }
@@ -342,11 +349,13 @@ func (server *Server) HandleRaw(packet []byte, addr *net2.UDPAddr) {
 
 // HandleDisconnect handles a disconnection from a session.
 func (server *Server) HandleDisconnect(s *server.Session) {
+	server.logger.Debug(s, "disconnected!")
 	session, ok := server.GetSessionManager().GetSessionByRakNetSession(s)
+
+	server.GetSessionManager().RemoveMinecraftSession(session)
 	if !ok {
 		return
 	}
-	server.GetSessionManager().RemoveMinecraftSession(session)
 
 	if session.GetPlayer().Dimension != nil {
 		for _, online := range server.GetSessionManager().GetSessions() {
@@ -363,22 +372,26 @@ func (server *Server) HandleDisconnect(s *server.Session) {
 
 // GeneratePongData generates the GoRakLib pong data for the UnconnectedPong RakNet packet.
 func (server *Server) GeneratePongData() string {
-	return fmt.Sprint("MCPE;", server.GetMotd(), ";", info.LatestProtocol, ";", server.GetMinecraftNetworkVersion(), ";", server.GetSessionManager().GetSessionCount(), ";", server.config.MaximumPlayers, ";", server.networkAdapter.GetRakLibManager().ServerId, ";", server.GetEngineName(), ";", server.config.DefaultGameMode, ";")
+	return fmt.Sprint("MCPE;", server.GetMotd(), ";", info.LatestProtocol, ";", server.GetMinecraftNetworkVersion(), ";", server.GetSessionManager().GetSessionCount(), ";", server.config.MaximumPlayers, ";", server.networkAdapter.GetRakLibManager().ServerId, ";", server.GetEngineName(), ";Creative;")
 }
 
 // Tick ticks the entire server. (Levels, scheduler, GoRakLib server etc.)
 // Internal. Not to be used by plugins.
-func (server *Server) Tick(currentTick int64) {
-	server.tick = currentTick
+func (server *Server) Tick() {
 	if !server.isRunning {
 		return
 	}
-	if currentTick%20 == 0 {
+	if server.tick%20 == 0 {
 		server.queryManager.SetQueryResult(server.GenerateQueryResult())
 		server.networkAdapter.GetRakLibManager().PongData = server.GeneratePongData()
 	}
 
-	for _, level := range server.levelManager.GetLevels() {
-		level.Tick()
+	for _, session := range server.sessionManager.GetSessions() {
+		session.Tick()
 	}
+
+	for range server.levelManager.GetLevels() {
+		//level.Tick()
+	}
+	server.tick++
 }

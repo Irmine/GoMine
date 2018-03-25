@@ -15,7 +15,6 @@ import (
 	"github.com/irmine/gomine/players"
 	"github.com/irmine/gomine/utils"
 	"github.com/irmine/worlds/chunks"
-	"math"
 	"math/big"
 	"strings"
 	"time"
@@ -25,7 +24,7 @@ func NewClientHandshakeHandler_200(server *Server) *net.PacketHandler {
 	return net.NewPacketHandler(func(packet packets.IPacket, logger *utils.Logger, session *net.MinecraftSession) bool {
 		if _, ok := packet.(*p200.ClientHandshakePacket); ok {
 			session.SendPlayStatus(data.StatusLoginSuccess)
-			session.SendResourcePackInfo(server.GetConfiguration().ForceResourcePacks, server.GetPackManager().GetResourceStack().GetPacks(), server.GetPackManager().GetBehaviorStack().GetPacks())
+			session.SendResourcePackInfo(server.GetConfiguration().ForceResourcePacks, server.GetPackManager().GetResourceStack(), server.GetPackManager().GetBehaviorStack())
 			return true
 		}
 		return false
@@ -36,7 +35,7 @@ func NewCommandRequestHandler_200(server *Server) *net.PacketHandler {
 	return net.NewPacketHandler(func(packet packets.IPacket, logger *utils.Logger, session *net.MinecraftSession) bool {
 		if pk, ok := packet.(*p200.CommandRequestPacket); ok {
 			var args = strings.Split(pk.CommandText, " ")
-			var commandName = args[0]
+			var commandName = strings.TrimLeft(args[0], "/")
 			var i = 1
 			for !server.GetCommandManager().IsCommandRegistered(commandName) {
 				if i == len(args) {
@@ -46,7 +45,7 @@ func NewCommandRequestHandler_200(server *Server) *net.PacketHandler {
 				i++
 			}
 			if !server.GetCommandManager().IsCommandRegistered(commandName) {
-				server.GetLogger().Error("Command could not be found.")
+				session.SendMessage("Command could not be found.")
 				return false
 			}
 			args = args[i:]
@@ -114,7 +113,7 @@ func NewLoginHandler_200(server *Server) *net.PacketHandler {
 			} else {
 				session.SendPlayStatus(data.StatusLoginSuccess)
 
-				session.SendResourcePackInfo(server.GetConfiguration().ForceResourcePacks, server.GetPackManager().GetResourceStack().GetPacks(), server.GetPackManager().GetBehaviorStack().GetPacks())
+				session.SendResourcePackInfo(server.GetConfiguration().ForceResourcePacks, server.GetPackManager().GetResourceStack(), server.GetPackManager().GetBehaviorStack())
 			}
 			server.GetSessionManager().AddMinecraftSession(session)
 			return true
@@ -123,16 +122,14 @@ func NewLoginHandler_200(server *Server) *net.PacketHandler {
 	})
 }
 
-func NewMovePlayerHandler_200(server *Server) *net.PacketHandler {
+func NewMovePlayerHandler_200(_ *Server) *net.PacketHandler {
 	return net.NewPacketHandler(func(packet packets.IPacket, logger *utils.Logger, session *net.MinecraftSession) bool {
 		if pk, ok := packet.(*p200.MovePlayerPacket); ok {
 			if session.GetPlayer().GetDimension() == nil {
 				return false
 			}
 
-			session.GetPlayer().SyncMove(pk.Position.X, pk.Position.Y, pk.Position.Z, pk.Rotation.Pitch, pk.Rotation.Yaw, pk.Rotation.HeadYaw, pk.OnGround)
-			session.GetChunkLoader().Warp(session.GetPlayer().GetDimension(), int32(math.Floor(pk.Position.X)), int32(math.Floor(pk.Position.Z)))
-			session.GetChunkLoader().Request(session.GetViewDistance())
+			session.SyncMove(pk.Position.X, pk.Position.Y, pk.Position.Z, pk.Rotation.Pitch, pk.Rotation.Yaw, pk.Rotation.HeadYaw, pk.OnGround)
 
 			for _, viewer := range session.GetPlayer().GetViewers() {
 				viewer.SendPacket(pk)
@@ -151,13 +148,11 @@ func NewRequestChunkRadiusHandler_200(server *Server) *net.PacketHandler {
 			session.SetViewDistance(chunkRadiusPacket.Radius)
 			session.SendChunkRadiusUpdated(session.GetViewDistance())
 
-			var hasChunksInUse = session.GetChunkLoader().GetLoadedChunkCount() > 1
-			println(hasChunksInUse)
-			println("Got a request")
-			session.GetChunkLoader().Warp(session.GetPlayer().GetDimension(), int32(math.Floor(session.GetPlayer().GetPosition().X)), int32(math.Floor(session.GetPlayer().GetPosition().Z)))
-			session.GetChunkLoader().Request(session.GetViewDistance())
+			hasChunks := session.NeedsChunks
+			session.NeedsChunks = true
+			println(hasChunks)
 
-			if !hasChunksInUse {
+			if !hasChunks {
 				var sessions = server.GetSessionManager().GetSessions()
 				var viewers = make(map[string]protocol.PlayerListEntry)
 				for name, online := range sessions {
@@ -179,11 +174,10 @@ func NewRequestChunkRadiusHandler_200(server *Server) *net.PacketHandler {
 				session.GetPlayer().SpawnToAll()
 
 				session.SendUpdateAttributes(session.GetPlayer().GetRuntimeId(), session.GetPlayer().GetAttributeMap())
+				server.BroadcastMessage(utils.Yellow+session.GetDisplayName(), "has joined the server")
 
-				server.BroadcastMessage(utils.Yellow + session.GetDisplayName() + " has joined the server")
+				session.SendPlayStatus(data.StatusSpawn)
 			}
-
-			session.SendPlayStatus(data.StatusSpawn)
 
 			return true
 		}
@@ -223,11 +217,10 @@ func NewResourcePackClientResponseHandler_200(server *Server) *net.PacketHandler
 					session.SendResourcePackDataInfo(server.GetPackManager().GetPack(packUUID))
 				}
 			case data.StatusHaveAllPacks:
-				session.SendResourcePackStack(server.GetConfiguration().ForceResourcePacks, server.GetPackManager().GetResourceStack().GetPacks(), server.GetPackManager().GetBehaviorStack().GetPacks())
+				session.SendResourcePackStack(server.GetConfiguration().ForceResourcePacks, server.GetPackManager().GetResourceStack(), server.GetPackManager().GetBehaviorStack())
 			case data.StatusCompleted:
 				server.GetLevelManager().GetDefaultLevel().GetDefaultDimension().LoadChunk(0, 0, func(chunk *chunks.Chunk) {
 					server.GetLevelManager().GetDefaultLevel().GetDefaultDimension().AddEntity(session.GetPlayer(), r3.Vector{X: 0, Y: 40, Z: 0})
-					println("Sending start game")
 					session.SendStartGame(session.GetPlayer())
 					session.SendCraftingData()
 				})

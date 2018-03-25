@@ -30,7 +30,7 @@ func (manager *SessionManager) GetSessions() map[string]*MinecraftSession {
 // AddMinecraftSession adds the given Minecraft session to the manager.
 func (manager *SessionManager) AddMinecraftSession(session *MinecraftSession) {
 	manager.mutex.Lock()
-	manager.nameMap[session.GetPlayer().GetName()] = session
+	manager.nameMap[session.GetName()] = session
 	manager.uuidMap[session.GetUUID()] = session
 	manager.xuidMap[session.GetXUID()] = session
 	manager.sessionMap[fmt.Sprint(session.GetSession())] = session
@@ -39,12 +39,14 @@ func (manager *SessionManager) AddMinecraftSession(session *MinecraftSession) {
 
 // RemoveMinecraftSession removes a Minecraft session from the manager.
 func (manager *SessionManager) RemoveMinecraftSession(session *MinecraftSession) {
-	manager.mutex.Lock()
-	delete(manager.nameMap, session.GetPlayer().GetName())
-	delete(manager.uuidMap, session.GetUUID())
-	delete(manager.xuidMap, session.GetXUID())
-	delete(manager.sessionMap, fmt.Sprint(session.GetSession()))
-	manager.mutex.Unlock()
+	if session != nil {
+		manager.mutex.Lock()
+		delete(manager.nameMap, session.GetPlayer().GetName())
+		delete(manager.uuidMap, session.GetUUID())
+		delete(manager.xuidMap, session.GetXUID())
+		delete(manager.sessionMap, fmt.Sprint(session.GetSession()))
+		manager.mutex.Unlock()
+	}
 }
 
 // GetSessionCount returns the session count of the manager.

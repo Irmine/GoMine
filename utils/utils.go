@@ -37,7 +37,7 @@ func DecodeJwt(v string) []string {
 		str, err := base64.RawURLEncoding.DecodeString(split)
 
 		if err != nil {
-			println(err)
+			fmt.Println(err)
 			continue
 		}
 

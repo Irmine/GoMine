@@ -11,6 +11,8 @@ import (
 	"github.com/irmine/goraklib/protocol"
 	"github.com/irmine/goraklib/server"
 	"github.com/irmine/worlds"
+	"github.com/irmine/worlds/chunks"
+	"math"
 )
 
 type MinecraftSession struct {
@@ -41,11 +43,13 @@ type MinecraftSession struct {
 
 	permissions     map[string]*permissions.Permission
 	permissionGroup *permissions.Group
+
+	NeedsChunks bool
 }
 
 // NewMinecraftSession returns a new Minecraft session with the given RakNet session.
 func NewMinecraftSession(adapter *NetworkAdapter, session *server.Session) *MinecraftSession {
-	return &MinecraftSession{adapter, session, adapter.logger, nil, utils.UUID{}, "", 0, nil, 0, "", "", 0, utils.NewEncryptionHandler(), false, false, 0, nil, nil, nil}
+	return &MinecraftSession{adapter, session, adapter.logger, nil, utils.UUID{}, "", 0, nil, 0, "", "", 0, utils.NewEncryptionHandler(), false, false, 0, nil, nil, nil, false}
 }
 
 // SetData sets the basic session data of the Minecraft Session
@@ -62,6 +66,10 @@ func (session *MinecraftSession) SetData(permissionManager *permissions.Manager,
 	session.language = data.Language
 	session.clientPlatform = int32(data.DeviceOS)
 	session.chunkLoader = worlds.NewLoader(nil, 0, 0)
+	session.chunkLoader.LoadFunction = func(chunk *chunks.Chunk) {
+		session.SendFullChunkData(chunk)
+		session.logger.Debug("Chunk loaded:", chunk.X, chunk.Z)
+	}
 }
 
 // GetPlayer returns the player associated with the Minecraft session.
@@ -261,14 +269,12 @@ func (session *MinecraftSession) SendBatch(batch *MinecraftPacketBatch) {
 	if session.session == nil {
 		return
 	}
-	session.session.SendPacket(batch, protocol.ReliabilityReliableOrdered, server.PriorityMedium)
+	session.session.SendPacket(batch, protocol.ReliabilityReliable, server.PriorityMedium)
 }
 
 // HandlePacket handles packets of this session.
 func (session *MinecraftSession) HandlePacket(packet packets.IPacket) {
 	priorityHandlers := session.protocol.GetHandlersById(packet.GetId())
-
-	println("Got packet:", packet.GetId())
 
 	var handled = false
 handling:
@@ -288,5 +294,26 @@ handling:
 	}
 	if !handled {
 		session.logger.Debug("Unhandled Minecraft packet with ID:", packet.GetId())
+	}
+}
+
+// SyncMove synchronizes the server's player movement with the client movement.
+func (session *MinecraftSession) SyncMove(x, y, z float64, pitch, yaw, headYaw float64, onGround bool) {
+	newChunkX, newChunkZ := int32(math.Floor(x))>>4, int32(math.Floor(z))>>4
+	newChunk, _ := session.GetPlayer().Dimension.GetChunk(newChunkX, newChunkZ)
+	if session.player.GetChunk() != newChunk {
+		session.player.GetChunk().RemoveViewer(session)
+		newChunk.AddViewer(session)
+		for _, entity := range newChunk.GetEntities() {
+			session.SendAddEntity(entity.(protocol2.AddEntityEntry))
+		}
+	}
+	session.player.SyncMove(x, y, z, pitch, yaw, headYaw, onGround)
+}
+
+func (session *MinecraftSession) Tick() {
+	if session.NeedsChunks && session.HasSpawned() {
+		session.GetChunkLoader().Warp(session.GetPlayer().GetDimension(), int32(math.Floor(session.player.Position.X))>>4, int32(math.Floor(session.player.Position.Z))>>4)
+		session.GetChunkLoader().Request(session.GetViewDistance(), 3)
 	}
 }
