@@ -15,13 +15,14 @@ import (
 	"github.com/irmine/gomine/packs"
 	"github.com/irmine/gomine/permissions"
 	"github.com/irmine/gomine/resources"
-	"github.com/irmine/gomine/utils"
+	"github.com/irmine/gomine/text"
 	"github.com/irmine/gomine/worlds/generators"
 	"github.com/irmine/goraklib/server"
 	"github.com/irmine/query"
 	"github.com/irmine/worlds"
 	"github.com/irmine/worlds/providers"
 	net2 "net"
+	"os"
 )
 
 const (
@@ -35,7 +36,6 @@ type Server struct {
 	privateKey        *ecdsa.PrivateKey
 	token             []byte
 	serverPath        string
-	logger            *utils.Logger
 	config            *resources.GoMineConfig
 	consoleReader     *ConsoleReader
 	commandHolder     *commands.Manager
@@ -54,13 +54,18 @@ func NewServer(serverPath string) *Server {
 
 	s.serverPath = serverPath
 	s.config = resources.NewGoMineConfig(serverPath)
-	s.logger = utils.NewLogger(GoMineName, serverPath, s.GetConfiguration().DebugMode)
+	text.DefaultLogger.DebugMode = s.GetConfiguration().DebugMode
+	file, _ := os.OpenFile("gomine.log", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0700)
+	text.DefaultLogger.AddOutput(func(message []byte) {
+		file.Write(message)
+	})
+
 	s.levelManager = worlds.NewManager(serverPath)
 	s.consoleReader = NewConsoleReader(s)
 	s.commandHolder = commands.NewManager()
 
 	s.sessionManager = net.NewSessionManager()
-	s.networkAdapter = net.NewNetworkAdapter(s.logger, *s.config, s.sessionManager)
+	s.networkAdapter = net.NewNetworkAdapter(*s.config, s.sessionManager)
 	s.networkAdapter.GetRakLibManager().PongData = s.GeneratePongData()
 	s.networkAdapter.GetRakLibManager().RawPacketFunction = s.HandleRaw
 	s.networkAdapter.GetRakLibManager().DisconnectFunction = s.HandleDisconnect
@@ -80,10 +85,10 @@ func NewServer(serverPath string) *Server {
 
 		var err error
 		s.privateKey, err = ecdsa.GenerateKey(curve, rand.Reader)
-		s.logger.LogError(err)
+		text.DefaultLogger.LogError(err)
 
 		if !curve.IsOnCurve(s.privateKey.X, s.privateKey.Y) {
-			s.logger.Error("Invalid private key generated")
+			text.DefaultLogger.Error("Invalid private key generated")
 		}
 
 		var token = make([]byte, 128)
@@ -120,7 +125,7 @@ func (server *Server) Start() {
 	if server.isRunning {
 		return
 	}
-	server.GetLogger().Info("GoMine "+GoMineVersion+" is now starting...", "("+server.GetServerPath()+")")
+	text.DefaultLogger.Info("GoMine "+GoMineVersion+" is now starting...", "("+server.GetServerPath()+")")
 
 	server.levelManager.SetDefaultLevel(worlds.NewLevel("world", server.GetServerPath()))
 	var dimension = worlds.NewDimension("overworld", server.levelManager.GetDefaultLevel(), worlds.OverworldId)
@@ -144,13 +149,10 @@ func (server *Server) Shutdown() {
 	if !server.isRunning {
 		return
 	}
-	server.GetLogger().Info("Server is shutting down.")
+	text.DefaultLogger.Info("Server is shutting down.")
 
-	server.logger.Notice("Server stopped.")
-
-	server.logger.Terminate()        // Terminate the logger to stop writing asynchronously.
-	server.logger.ProcessQueue(true) // Process the logger queue one last time forced and synchronously to make sure everything gets written.
-	server.logger.Sync()
+	text.DefaultLogger.Notice("Server stopped.")
+	text.DefaultLogger.Wait()
 
 	server.isRunning = false
 }
@@ -170,12 +172,6 @@ func (server *Server) GetMinecraftNetworkVersion() string {
 // GetServerPath returns the server path the server is installed in.
 func (server *Server) GetServerPath() string {
 	return server.serverPath
-}
-
-// GetLogger returns the server's logger.
-// It is prefixed by a [GoMine] prefix.
-func (server *Server) GetLogger() *utils.Logger {
-	return server.logger
 }
 
 // GetConfiguration returns the configuration file of GoMine.
@@ -201,7 +197,7 @@ func (server *Server) HasPermission(string) bool {
 
 // SendMessage sends a message to the server to satisfy the ICommandSender interface.
 func (server *Server) SendMessage(message ...interface{}) {
-	server.GetLogger().Notice(message)
+	text.DefaultLogger.Notice(message)
 }
 
 // GetEngineName returns 'GoMine'.
@@ -274,7 +270,7 @@ func (server *Server) BroadcastMessageTo(receivers []*net.MinecraftSession, mess
 	for _, session := range receivers {
 		session.SendMessage(message)
 	}
-	server.logger.LogChat(message)
+	text.DefaultLogger.LogChat(message)
 }
 
 // Broadcast broadcasts a message to all players and the console in the server.
@@ -282,7 +278,7 @@ func (server *Server) BroadcastMessage(message ...interface{}) {
 	for _, session := range server.GetSessionManager().GetSessions() {
 		session.SendMessage(message)
 	}
-	server.logger.LogChat(message)
+	text.DefaultLogger.LogChat(message)
 }
 
 // GetPrivateKey returns the ECDSA private key of the server.
@@ -344,12 +340,12 @@ func (server *Server) HandleRaw(packet []byte, addr *net2.UDPAddr) {
 		server.queryManager.HandleQuery(q)
 		return
 	}
-	server.logger.Debug("Unhandled raw packet:", hex.EncodeToString(packet))
+	text.DefaultLogger.Debug("Unhandled raw packet:", hex.EncodeToString(packet))
 }
 
 // HandleDisconnect handles a disconnection from a session.
 func (server *Server) HandleDisconnect(s *server.Session) {
-	server.logger.Debug(s, "disconnected!")
+	text.DefaultLogger.Debug(s, "disconnected!")
 	session, ok := server.GetSessionManager().GetSessionByRakNetSession(s)
 
 	server.GetSessionManager().RemoveMinecraftSession(session)
@@ -366,7 +362,7 @@ func (server *Server) HandleDisconnect(s *server.Session) {
 
 		session.GetPlayer().Close()
 
-		server.BroadcastMessage(utils.Yellow+session.GetDisplayName(), "has left the server")
+		server.BroadcastMessage(text.Yellow+session.GetDisplayName(), "has left the server")
 	}
 }
 

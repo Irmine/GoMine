@@ -2,6 +2,7 @@ package gomine
 
 import (
 	"bufio"
+	"github.com/irmine/gomine/text"
 	"os"
 	"strings"
 )
@@ -71,7 +72,7 @@ func (reader *ConsoleReader) attemptReadCommand(commandText string, server *Serv
 	var manager = server.GetCommandManager()
 
 	if !manager.IsCommandRegistered(commandName) {
-		server.GetLogger().Error("Command could not be found.")
+		text.DefaultLogger.Error("Command could not be found.")
 		return false
 	}
 	args = args[i:]

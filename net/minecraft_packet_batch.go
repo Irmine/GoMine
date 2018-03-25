@@ -10,25 +10,21 @@ import (
 
 	"github.com/irmine/binutils"
 	"github.com/irmine/gomine/net/packets"
-	"github.com/irmine/gomine/utils"
+	"github.com/irmine/gomine/text"
 )
 
 const McpeFlag = 0xFE
 
 type MinecraftPacketBatch struct {
 	*binutils.Stream
-
-	raw []byte
-
-	packets []packets.IPacket
-
+	raw             []byte
+	packets         []packets.IPacket
 	session         *MinecraftSession
 	needsEncryption bool
-	logger          *utils.Logger
 }
 
 // NewMinecraftPacketBatch returns a new Minecraft Packet Batch used to decode/encode batches from Encapsulated Packets.
-func NewMinecraftPacketBatch(session *MinecraftSession, logger *utils.Logger) *MinecraftPacketBatch {
+func NewMinecraftPacketBatch(session *MinecraftSession) *MinecraftPacketBatch {
 	var batch = &MinecraftPacketBatch{}
 	batch.Stream = binutils.NewStream()
 	batch.session = session
@@ -39,8 +35,6 @@ func NewMinecraftPacketBatch(session *MinecraftSession, logger *utils.Logger) *M
 		batch.needsEncryption = session.UsesEncryption()
 	}
 
-	batch.logger = logger
-
 	return batch
 }
 
@@ -48,7 +42,7 @@ func NewMinecraftPacketBatch(session *MinecraftSession, logger *utils.Logger) *M
 func (batch *MinecraftPacketBatch) Decode() {
 	defer func() {
 		if err := recover(); err != nil {
-			batch.logger.Debug(err)
+			text.DefaultLogger.Debug(err)
 		}
 	}()
 
@@ -63,7 +57,7 @@ func (batch *MinecraftPacketBatch) Decode() {
 	}
 	var err = batch.decompress()
 	if err != nil {
-		batch.logger.LogError(err)
+		text.DefaultLogger.LogError(err)
 		return
 	}
 
@@ -110,7 +104,7 @@ func (batch *MinecraftPacketBatch) fetchPackets(packetData [][]byte) {
 		}
 
 		if !batch.session.GetProtocol().IsPacketRegistered(packetId) {
-			batch.logger.Debug("Unknown Minecraft packet with ID:", packetId)
+			text.DefaultLogger.Debug("Unknown Minecraft packet with ID:", packetId)
 			continue
 		}
 		packet := batch.session.GetProtocol().GetPacket(packetId)
@@ -183,10 +177,10 @@ func (batch *MinecraftPacketBatch) compress(stream *binutils.Stream) []byte {
 func (batch *MinecraftPacketBatch) decompress() error {
 	var reader = bytes.NewReader(batch.raw)
 	zlibReader, err := zlib.NewReader(reader)
-	batch.logger.LogError(err)
+	text.DefaultLogger.LogError(err)
 
 	if err != nil {
-		batch.logger.Debug(hex.EncodeToString(batch.raw))
+		text.DefaultLogger.Debug(hex.EncodeToString(batch.raw))
 		return err
 	}
 	if zlibReader == nil {

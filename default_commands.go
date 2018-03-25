@@ -3,14 +3,14 @@ package gomine
 import (
 	"github.com/irmine/gomine/commands"
 	"github.com/irmine/gomine/net"
-	"github.com/irmine/gomine/utils"
+	"github.com/irmine/gomine/text"
 	"strconv"
 )
 
 func NewTest(server *Server) *commands.Command {
 	cmd := commands.NewCommand("chunk", "Lists the current chunk", "none", []string{}, func(sender commands.Sender) {
 		if session, ok := sender.(*net.MinecraftSession); ok {
-			server.logger.Debug(session.GetPlayer().GetChunk().X, session.GetPlayer().GetChunk().Z)
+			text.DefaultLogger.Debug(session.GetPlayer().GetChunk().X, session.GetPlayer().GetChunk().Z)
 			session.SendMessage(session.GetPlayer().GetChunk().X, session.GetPlayer().GetChunk().Z)
 		}
 	})
@@ -25,9 +25,9 @@ func NewList(server *Server) *commands.Command {
 			s = ""
 		}
 
-		var playerList = utils.BrightGreen + "-----" + utils.White + " Player List (" + strconv.Itoa(len(server.GetSessionManager().GetSessions())) + " Player" + s + ") " + utils.BrightGreen + "-----\n"
+		var playerList = text.BrightGreen + "-----" + text.White + " Player List (" + strconv.Itoa(len(server.GetSessionManager().GetSessions())) + " Player" + s + ") " + text.BrightGreen + "-----\n"
 		for name, player := range server.GetSessionManager().GetSessions() {
-			playerList += utils.BrightGreen + name + ": " + utils.Yellow + utils.Bold + strconv.Itoa(int(player.GetPing())) + "ms" + utils.Reset + "\n"
+			playerList += text.BrightGreen + name + ": " + text.Yellow + text.Bold + strconv.Itoa(int(player.GetPing())) + "ms" + text.Reset + "\n"
 		}
 		sender.SendMessage(playerList)
 	})
@@ -38,9 +38,9 @@ func NewList(server *Server) *commands.Command {
 func NewPing() *commands.Command {
 	var ping = commands.NewCommand("ping", "Returns your latency", "gomine.ping", []string{}, func(sender commands.Sender) {
 		if session, ok := sender.(*net.MinecraftSession); ok {
-			session.SendMessage(utils.Yellow+"Your current latency/ping is:", session.GetPing())
+			session.SendMessage(text.Yellow+"Your current latency/ping is:", session.GetPing())
 		} else {
-			sender.SendMessage(utils.Red + "Please run this command as a player.")
+			sender.SendMessage(text.Red + "Please run this command as a player.")
 		}
 	})
 	ping.ExemptFromPermissionCheck(true)

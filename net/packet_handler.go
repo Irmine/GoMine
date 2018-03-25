@@ -2,20 +2,19 @@ package net
 
 import (
 	"github.com/irmine/gomine/net/packets"
-	"github.com/irmine/gomine/utils"
 )
 
 // Packet handlers can be registered to listen on certain packet IDs.
 // Handlers can be registered on unhandled packets in order to handle them from a plugin.
 // Every packet handler has a handling function that handles the incoming packet.
 type PacketHandler struct {
-	function func(packet packets.IPacket, logger *utils.Logger, session *MinecraftSession) bool
+	function func(packet packets.IPacket, session *MinecraftSession) bool
 	priority int
 }
 
 // NewPacketHandler returns a new packet handler with the given ID.
 // NewPacketHandler will by default use a priority of 5.
-func NewPacketHandler(function func(packet packets.IPacket, logger *utils.Logger, session *MinecraftSession) bool) *PacketHandler {
+func NewPacketHandler(function func(packet packets.IPacket, session *MinecraftSession) bool) *PacketHandler {
 	return &PacketHandler{function, 5}
 }
 

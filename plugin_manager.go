@@ -9,6 +9,7 @@ import (
 	"plugin"
 	"strings"
 
+	"github.com/irmine/gomine/text"
 	"github.com/irmine/gomine/utils"
 )
 
@@ -72,11 +73,11 @@ func (manager *PluginManager) LoadPlugins() {
 		err := manager.LoadPlugin(filePath)
 		if err != nil {
 			if err.Error() == NoPluginsSupported {
-				manager.server.GetLogger().Error("Go does currently not support plugins for your operating system.")
+				text.DefaultLogger.Error("Go does currently not support plugins for your operating system.")
 				return
 			}
 		}
-		manager.server.GetLogger().LogError(err)
+		text.DefaultLogger.LogError(err)
 	}
 }
 
@@ -89,8 +90,8 @@ func (manager *PluginManager) CompilePlugin(filePath string) (*plugin.Plugin, er
 	var output, err = cmd.CombinedOutput()
 
 	if err != nil {
-		manager.server.GetLogger().LogError(err)
-		manager.server.GetLogger().Error(string(output))
+		text.DefaultLogger.LogError(err)
+		text.DefaultLogger.Error(string(output))
 	}
 
 	plug, err := plugin.Open(compiledPath)
@@ -116,7 +117,7 @@ func (manager *PluginManager) LoadPlugin(filePath string) error {
 
 	if err != nil {
 		if strings.Contains(err.Error(), OutdatedPlugin) {
-			manager.server.GetLogger().Notice("Outdated plugin. Recompiling plugin... This might take a bit.")
+			text.DefaultLogger.Notice("Outdated plugin. Recompiling plugin... This might take a bit.")
 			var newPlugin, newErr = manager.RecompilePlugin(filePath)
 			if newErr != nil {
 				return newErr

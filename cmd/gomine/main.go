@@ -2,6 +2,7 @@ package main
 
 import (
 	. "github.com/irmine/gomine"
+	. "github.com/irmine/gomine/text"
 	. "os"
 	. "path/filepath"
 	"time"
@@ -17,7 +18,7 @@ func main() {
 	server := NewServer(path)
 
 	server.Start()
-	server.GetLogger().Info("Server startup done! Took:", time.Now().Sub(startTime))
+	DefaultLogger.Info("Server startup done! Took:", time.Now().Sub(startTime))
 
 	for range time.NewTicker(time.Second / 20).C {
 		if !server.IsRunning() {

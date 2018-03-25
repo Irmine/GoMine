@@ -7,6 +7,7 @@ import (
 	protocol2 "github.com/irmine/gomine/net/protocol"
 	"github.com/irmine/gomine/permissions"
 	"github.com/irmine/gomine/players"
+	"github.com/irmine/gomine/text"
 	"github.com/irmine/gomine/utils"
 	"github.com/irmine/goraklib/protocol"
 	"github.com/irmine/goraklib/server"
@@ -18,7 +19,6 @@ import (
 type MinecraftSession struct {
 	adapter *NetworkAdapter
 	session *server.Session
-	logger  *utils.Logger
 
 	player *players.Player
 
@@ -49,7 +49,7 @@ type MinecraftSession struct {
 
 // NewMinecraftSession returns a new Minecraft session with the given RakNet session.
 func NewMinecraftSession(adapter *NetworkAdapter, session *server.Session) *MinecraftSession {
-	return &MinecraftSession{adapter, session, adapter.logger, nil, utils.UUID{}, "", 0, nil, 0, "", "", 0, utils.NewEncryptionHandler(), false, false, 0, nil, nil, nil, false}
+	return &MinecraftSession{adapter, session, nil, utils.UUID{}, "", 0, nil, 0, "", "", 0, utils.NewEncryptionHandler(), false, false, 0, nil, nil, nil, false}
 }
 
 // SetData sets the basic session data of the Minecraft Session
@@ -68,7 +68,6 @@ func (session *MinecraftSession) SetData(permissionManager *permissions.Manager,
 	session.chunkLoader = worlds.NewLoader(nil, 0, 0)
 	session.chunkLoader.LoadFunction = func(chunk *chunks.Chunk) {
 		session.SendFullChunkData(chunk)
-		session.logger.Debug("Chunk loaded:", chunk.X, chunk.Z)
 	}
 }
 
@@ -258,7 +257,7 @@ func (session *MinecraftSession) SendPacket(packet packets.IPacket) {
 	if session.session == nil {
 		return
 	}
-	var b = NewMinecraftPacketBatch(session, session.logger)
+	var b = NewMinecraftPacketBatch(session)
 	b.AddPacket(packet)
 
 	session.SendBatch(b)
@@ -285,7 +284,7 @@ handling:
 					break handling
 				}
 
-				ret := handler.function(packet, session.logger, session)
+				ret := handler.function(packet, session)
 				if !handled {
 					handled = ret
 				}
@@ -293,7 +292,7 @@ handling:
 		}
 	}
 	if !handled {
-		session.logger.Debug("Unhandled Minecraft packet with ID:", packet.GetId())
+		text.DefaultLogger.Debug("Unhandled Minecraft packet with ID:", packet.GetId())
 	}
 }
 

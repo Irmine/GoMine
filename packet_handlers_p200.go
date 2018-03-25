@@ -13,6 +13,7 @@ import (
 	"github.com/irmine/gomine/net/packets/types"
 	"github.com/irmine/gomine/net/protocol"
 	"github.com/irmine/gomine/players"
+	"github.com/irmine/gomine/text"
 	"github.com/irmine/gomine/utils"
 	"github.com/irmine/worlds/chunks"
 	"math/big"
@@ -21,7 +22,7 @@ import (
 )
 
 func NewClientHandshakeHandler_200(server *Server) *net.PacketHandler {
-	return net.NewPacketHandler(func(packet packets.IPacket, logger *utils.Logger, session *net.MinecraftSession) bool {
+	return net.NewPacketHandler(func(packet packets.IPacket, session *net.MinecraftSession) bool {
 		if _, ok := packet.(*p200.ClientHandshakePacket); ok {
 			session.SendPlayStatus(data.StatusLoginSuccess)
 			session.SendResourcePackInfo(server.GetConfiguration().ForceResourcePacks, server.GetPackManager().GetResourceStack(), server.GetPackManager().GetBehaviorStack())
@@ -32,7 +33,7 @@ func NewClientHandshakeHandler_200(server *Server) *net.PacketHandler {
 }
 
 func NewCommandRequestHandler_200(server *Server) *net.PacketHandler {
-	return net.NewPacketHandler(func(packet packets.IPacket, logger *utils.Logger, session *net.MinecraftSession) bool {
+	return net.NewPacketHandler(func(packet packets.IPacket, session *net.MinecraftSession) bool {
 		if pk, ok := packet.(*p200.CommandRequestPacket); ok {
 			var args = strings.Split(pk.CommandText, " ")
 			var commandName = strings.TrimLeft(args[0], "/")
@@ -60,31 +61,31 @@ func NewCommandRequestHandler_200(server *Server) *net.PacketHandler {
 }
 
 func NewLoginHandler_200(server *Server) *net.PacketHandler {
-	return net.NewPacketHandler(func(packet packets.IPacket, logger *utils.Logger, session *net.MinecraftSession) bool {
+	return net.NewPacketHandler(func(packet packets.IPacket, session *net.MinecraftSession) bool {
 		if loginPacket, ok := packet.(*p200.LoginPacket); ok {
 			var _, ok = server.GetSessionManager().GetSession(loginPacket.Username)
 			if ok {
 				return false
 			}
 			if !server.GetNetworkAdapter().GetProtocolManager().IsProtocolRegistered(loginPacket.Protocol) {
-				server.GetLogger().Debug(loginPacket.Username, "tried joining with unsupported protocol:", loginPacket.Protocol)
+				text.DefaultLogger.Debug(loginPacket.Username, "tried joining with unsupported protocol:", loginPacket.Protocol)
 				return false
 			}
 
 			var successful, authenticated, pubKey = VerifyLoginRequest(loginPacket.Chains, server)
 			if !successful {
-				server.GetLogger().Debug(loginPacket.Username, "has joined with invalid login data.")
+				text.DefaultLogger.Debug(loginPacket.Username, "has joined with invalid login data.")
 				return true
 			}
 
 			if authenticated {
-				server.GetLogger().Debug(loginPacket.Username, "has joined while being logged into XBOX Live.")
+				text.DefaultLogger.Debug(loginPacket.Username, "has joined while being logged into XBOX Live.")
 			} else {
 				if server.GetConfiguration().XBOXLiveAuth {
-					server.GetLogger().Debug(loginPacket.Username, "has tried to join while not being logged into XBOX Live.")
+					text.DefaultLogger.Debug(loginPacket.Username, "has tried to join while not being logged into XBOX Live.")
 					return true
 				}
-				server.GetLogger().Debug(loginPacket.Username, "has joined while not being logged into XBOX Live.")
+				text.DefaultLogger.Debug(loginPacket.Username, "has joined while not being logged into XBOX Live.")
 			}
 
 			session.SetData(server.GetPermissionManager(), types.SessionData{loginPacket.ClientUUID, loginPacket.ClientXUID, loginPacket.ClientId, loginPacket.Protocol, loginPacket.ClientData.GameVersion, loginPacket.Language, loginPacket.ClientData.DeviceOS})
@@ -123,7 +124,7 @@ func NewLoginHandler_200(server *Server) *net.PacketHandler {
 }
 
 func NewMovePlayerHandler_200(_ *Server) *net.PacketHandler {
-	return net.NewPacketHandler(func(packet packets.IPacket, logger *utils.Logger, session *net.MinecraftSession) bool {
+	return net.NewPacketHandler(func(packet packets.IPacket, session *net.MinecraftSession) bool {
 		if pk, ok := packet.(*p200.MovePlayerPacket); ok {
 			if session.GetPlayer().GetDimension() == nil {
 				return false
@@ -143,7 +144,7 @@ func NewMovePlayerHandler_200(_ *Server) *net.PacketHandler {
 }
 
 func NewRequestChunkRadiusHandler_200(server *Server) *net.PacketHandler {
-	return net.NewPacketHandler(func(packet packets.IPacket, logger *utils.Logger, session *net.MinecraftSession) bool {
+	return net.NewPacketHandler(func(packet packets.IPacket, session *net.MinecraftSession) bool {
 		if chunkRadiusPacket, ok := packet.(*p200.RequestChunkRadiusPacket); ok {
 			session.SetViewDistance(chunkRadiusPacket.Radius)
 			session.SendChunkRadiusUpdated(session.GetViewDistance())
@@ -174,7 +175,7 @@ func NewRequestChunkRadiusHandler_200(server *Server) *net.PacketHandler {
 				session.GetPlayer().SpawnToAll()
 
 				session.SendUpdateAttributes(session.GetPlayer().GetRuntimeId(), session.GetPlayer().GetAttributeMap())
-				server.BroadcastMessage(utils.Yellow+session.GetDisplayName(), "has joined the server")
+				server.BroadcastMessage(text.Yellow+session.GetDisplayName(), "has joined the server")
 
 				session.SendPlayStatus(data.StatusSpawn)
 			}
@@ -187,7 +188,7 @@ func NewRequestChunkRadiusHandler_200(server *Server) *net.PacketHandler {
 }
 
 func NewResourcePackChunkRequestHandler_200(server *Server) *net.PacketHandler {
-	return net.NewPacketHandler(func(packet packets.IPacket, logger *utils.Logger, session *net.MinecraftSession) bool {
+	return net.NewPacketHandler(func(packet packets.IPacket, session *net.MinecraftSession) bool {
 		if request, ok := packet.(*p200.ResourcePackChunkRequestPacket); ok {
 			if !server.GetPackManager().IsPackLoaded(request.PackUUID) {
 				// TODO: Kick the player. We can't kick yet.
@@ -202,7 +203,7 @@ func NewResourcePackChunkRequestHandler_200(server *Server) *net.PacketHandler {
 }
 
 func NewResourcePackClientResponseHandler_200(server *Server) *net.PacketHandler {
-	return net.NewPacketHandler(func(packet packets.IPacket, logger *utils.Logger, session *net.MinecraftSession) bool {
+	return net.NewPacketHandler(func(packet packets.IPacket, session *net.MinecraftSession) bool {
 		if response, ok := packet.(*p200.ResourcePackClientResponsePacket); ok {
 			switch response.Status {
 			case data.StatusRefused:
@@ -232,7 +233,7 @@ func NewResourcePackClientResponseHandler_200(server *Server) *net.PacketHandler
 }
 
 func NewTextHandler_200(server *Server) *net.PacketHandler {
-	return net.NewPacketHandler(func(packet packets.IPacket, logger *utils.Logger, session *net.MinecraftSession) bool {
+	return net.NewPacketHandler(func(packet packets.IPacket, session *net.MinecraftSession) bool {
 		if textPacket, ok := packet.(*p200.TextPacket); ok {
 			if textPacket.TextType != data.TextChat {
 				return false
@@ -240,7 +241,7 @@ func NewTextHandler_200(server *Server) *net.PacketHandler {
 			for _, receiver := range server.GetSessionManager().GetSessions() {
 				receiver.SendText(types.Text{Message: textPacket.Message, SourceName: textPacket.SourceName, SourceDisplayName: textPacket.SourceDisplayName, SourcePlatform: textPacket.SourcePlatform, SourceXUID: session.GetXUID(), TextType: data.TextChat})
 			}
-			server.GetLogger().LogChat("<" + session.GetDisplayName() + "> " + textPacket.Message)
+			text.DefaultLogger.LogChat("<" + session.GetDisplayName() + "> " + textPacket.Message)
 			return true
 		}
 		return false
@@ -262,11 +263,11 @@ func VerifyLoginRequest(chains []types.Chain, server *Server) (successful bool, 
 		d := []byte(chain.Header.Raw + "." + chain.Payload.Raw)
 
 		var b64, errB64 = base64.RawStdEncoding.DecodeString(publicKeyRaw)
-		server.GetLogger().LogError(errB64)
+		text.DefaultLogger.LogError(errB64)
 
 		key, err := x509.ParsePKIXPublicKey(b64)
 		if err != nil {
-			server.GetLogger().LogError(err)
+			text.DefaultLogger.LogError(err)
 			return
 		}
 
@@ -302,11 +303,11 @@ func VerifyLoginRequest(chains []types.Chain, server *Server) (successful bool, 
 	}
 
 	var b64, errB64 = base64.RawStdEncoding.DecodeString(publicKeyRaw)
-	server.GetLogger().LogError(errB64)
+	text.DefaultLogger.LogError(errB64)
 
 	key, err := x509.ParsePKIXPublicKey(b64)
 	if err != nil {
-		server.GetLogger().LogError(err)
+		text.DefaultLogger.LogError(err)
 		return
 	}
 
