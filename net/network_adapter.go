@@ -3,7 +3,6 @@ package net
 import (
 	"github.com/irmine/gomine/net/packets"
 	protocol2 "github.com/irmine/gomine/net/protocol"
-	"github.com/irmine/gomine/resources"
 	"github.com/irmine/gomine/text"
 	"github.com/irmine/goraklib/protocol"
 	"github.com/irmine/goraklib/server"
@@ -17,7 +16,7 @@ type NetworkAdapter struct {
 }
 
 // NewNetworkAdapter returns a new Network adapter to adapt to the RakNet server.
-func NewNetworkAdapter(config resources.GoMineConfig, sessionManager *SessionManager) *NetworkAdapter {
+func NewNetworkAdapter(sessionManager *SessionManager) *NetworkAdapter {
 	var manager = server.NewManager()
 	var adapter = &NetworkAdapter{manager, protocol2.NewManager(), sessionManager}
 

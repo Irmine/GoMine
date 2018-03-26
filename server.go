@@ -49,15 +49,15 @@ type Server struct {
 }
 
 // NewServer returns a new server with the given server path.
-func NewServer(serverPath string) *Server {
+func NewServer(serverPath string, config *resources.GoMineConfig) *Server {
 	var s = &Server{}
 
 	s.serverPath = serverPath
-	s.config = resources.NewGoMineConfig(serverPath)
-	text.DefaultLogger.DebugMode = s.GetConfiguration().DebugMode
+	s.config = config
+	text.DefaultLogger.DebugMode = config.DebugMode
 	file, _ := os.OpenFile("gomine.log", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0700)
 	text.DefaultLogger.AddOutput(func(message []byte) {
-		file.Write(message)
+		file.WriteString(text.ColoredString(message).StripAll())
 	})
 
 	s.levelManager = worlds.NewManager(serverPath)
@@ -65,7 +65,7 @@ func NewServer(serverPath string) *Server {
 	s.commandHolder = commands.NewManager()
 
 	s.sessionManager = net.NewSessionManager()
-	s.networkAdapter = net.NewNetworkAdapter(*s.config, s.sessionManager)
+	s.networkAdapter = net.NewNetworkAdapter(s.sessionManager)
 	s.networkAdapter.GetRakLibManager().PongData = s.GeneratePongData()
 	s.networkAdapter.GetRakLibManager().RawPacketFunction = s.HandleRaw
 	s.networkAdapter.GetRakLibManager().DisconnectFunction = s.HandleDisconnect
@@ -80,7 +80,7 @@ func NewServer(serverPath string) *Server {
 
 	s.queryManager = query.NewManager()
 
-	if s.config.UseEncryption {
+	if config.UseEncryption {
 		var curve = elliptic.P384()
 
 		var err error

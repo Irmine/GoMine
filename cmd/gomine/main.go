@@ -2,6 +2,7 @@ package main
 
 import (
 	. "github.com/irmine/gomine"
+	"github.com/irmine/gomine/resources"
 	. "github.com/irmine/gomine/text"
 	. "os"
 	. "path/filepath"
@@ -10,12 +11,13 @@ import (
 
 func main() {
 	startTime := time.Now()
-	path, err := getServerPath()
+	path, err := GetServerPath()
 	if err != nil {
 		panic(err)
 	}
-	setUpDirectories(path)
-	server := NewServer(path)
+	SetUpDirectories(path)
+	config := resources.NewGoMineConfig(path)
+	server := NewServer(path, config)
 
 	server.Start()
 	DefaultLogger.Info("Server startup done! Took:", time.Now().Sub(startTime))
@@ -29,13 +31,13 @@ func main() {
 }
 
 // getServerPath returns the server path.
-func getServerPath() (string, error) {
+func GetServerPath() (string, error) {
 	executable, err := Executable()
 	return Dir(executable) + "/", err
 }
 
 // setUpDirectories sets up all directories needed for GoMine.
-func setUpDirectories(path string) {
+func SetUpDirectories(path string) {
 	Mkdir(path+"extensions", 0700)
 	Mkdir(path+"extensions/plugins", 0700)
 	Mkdir(path+"extensions/behavior_packs", 0700)
