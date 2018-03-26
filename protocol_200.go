@@ -4,6 +4,7 @@ import (
 	"math"
 
 	"github.com/golang/geo/r3"
+	"github.com/google/uuid"
 	"github.com/irmine/gomine/net/info"
 	"github.com/irmine/gomine/net/packets"
 	"github.com/irmine/gomine/net/packets/data"
@@ -12,7 +13,6 @@ import (
 	"github.com/irmine/gomine/net/protocol"
 	"github.com/irmine/gomine/packs"
 	"github.com/irmine/gomine/permissions"
-	"github.com/irmine/gomine/utils"
 	"github.com/irmine/worlds/chunks"
 	data2 "github.com/irmine/worlds/entities/data"
 )
@@ -64,7 +64,7 @@ func (protocol *P200) GetAddEntity(entity protocol.AddEntityEntry) packets.IPack
 	return pk
 }
 
-func (protocol *P200) GetAddPlayer(uuid utils.UUID, platform int32, player protocol.AddPlayerEntry) packets.IPacket {
+func (protocol *P200) GetAddPlayer(uuid uuid.UUID, platform int32, player protocol.AddPlayerEntry) packets.IPacket {
 	var pk = p200.NewAddPlayerPacket()
 	pk.UUID = uuid
 	pk.DisplayName = player.GetDisplayName()

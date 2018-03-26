@@ -2,13 +2,13 @@ package players
 
 import (
 	"github.com/golang/geo/r3"
-	"github.com/irmine/gomine/utils"
+	"github.com/google/uuid"
 	"github.com/irmine/worlds/entities"
 )
 
 type Player struct {
 	*entities.Entity
-	uuid     utils.UUID
+	uuid     uuid.UUID
 	xuid     string
 	platform int32
 
@@ -23,7 +23,7 @@ type Player struct {
 }
 
 // NewPlayer returns a new player with the given name.
-func NewPlayer(uuid utils.UUID, xuid string, platform int32, name string) *Player {
+func NewPlayer(uuid uuid.UUID, xuid string, platform int32, name string) *Player {
 	var player = &Player{Entity: entities.New(entities.Player)}
 
 	player.uuid = uuid
@@ -58,7 +58,7 @@ func (player *Player) SetDisplayName(name string) {
 }
 
 // GetUUID returns the UUID of the player.
-func (player *Player) GetUUID() utils.UUID {
+func (player *Player) GetUUID() uuid.UUID {
 	return player.uuid
 }
 

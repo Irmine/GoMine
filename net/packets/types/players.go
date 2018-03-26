@@ -1,9 +1,11 @@
 package types
 
-import "github.com/irmine/gomine/utils"
+import (
+	"github.com/google/uuid"
+)
 
 type PlayerListEntry struct {
-	UUID           utils.UUID
+	UUID           uuid.UUID
 	XUID           string
 	EntityUniqueId int64
 	Username       string
@@ -17,7 +19,7 @@ type PlayerListEntry struct {
 }
 
 type SessionData struct {
-	ClientUUID     utils.UUID
+	ClientUUID     uuid.UUID
 	ClientXUID     string
 	ClientId       int
 	ProtocolNumber int32

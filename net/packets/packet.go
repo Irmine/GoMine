@@ -2,9 +2,9 @@ package packets
 
 import (
 	"github.com/golang/geo/r3"
+	"github.com/google/uuid"
 	"github.com/irmine/binutils"
 	"github.com/irmine/gomine/net/packets/types"
-	"github.com/irmine/gomine/utils"
 	"github.com/irmine/worlds/entities/data"
 )
 
@@ -274,15 +274,18 @@ func (pk *Packet) PutPackStack(packs []types.ResourcePackStackEntry) {
 	}
 }
 
-func (pk *Packet) PutUUID(uuid utils.UUID) {
-	pk.PutLittleInt(uuid.GetParts()[1])
-	pk.PutLittleInt(uuid.GetParts()[0])
-	pk.PutLittleInt(uuid.GetParts()[3])
-	pk.PutLittleInt(uuid.GetParts()[2])
+func (pk *Packet) PutUUID(uuid uuid.UUID) {
+	b, err := uuid.MarshalBinary()
+	if err != nil {
+		panic(err)
+	}
+	for i, j := 0, len(b)-1; i < j; i, j = i+1, j-1 {
+		b[i], b[j] = b[j], b[i]
+	}
+	pk.PutBytes(b[8:])
+	pk.PutBytes(b[:8])
 }
 
-func (pk *Packet) GetUUID() utils.UUID {
-	var unorderedParts = [4]int32{pk.GetLittleInt(), pk.GetLittleInt(), pk.GetLittleInt(), pk.GetLittleInt()}
-	var parts = [4]int32{unorderedParts[1], unorderedParts[0], unorderedParts[3], unorderedParts[2]}
-	return utils.NewUUID(parts)
+func (pk *Packet) GetUUID() uuid.UUID {
+	return uuid.Must(uuid.FromBytes(pk.Get(16)))
 }

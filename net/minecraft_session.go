@@ -2,6 +2,7 @@ package net
 
 import (
 	"fmt"
+	"github.com/google/uuid"
 	"github.com/irmine/gomine/net/packets"
 	"github.com/irmine/gomine/net/packets/types"
 	protocol2 "github.com/irmine/gomine/net/protocol"
@@ -23,7 +24,7 @@ type MinecraftSession struct {
 
 	player *players.Player
 
-	uuid     utils.UUID
+	uuid     uuid.UUID
 	xuid     string
 	clientId int
 
@@ -50,7 +51,7 @@ type MinecraftSession struct {
 
 // NewMinecraftSession returns a new Minecraft session with the given RakNet session.
 func NewMinecraftSession(adapter *NetworkAdapter, session *server.Session) *MinecraftSession {
-	return &MinecraftSession{adapter, session, nil, utils.UUID{}, "", 0, nil, 0, "", "", 0, utils.NewEncryptionHandler(), false, false, 0, nil, nil, nil, false}
+	return &MinecraftSession{adapter, session, nil, uuid.New(), "", 0, nil, 0, "", "", 0, utils.NewEncryptionHandler(), false, false, 0, nil, nil, nil, false}
 }
 
 // SetData sets the basic session data of the Minecraft Session
@@ -157,7 +158,7 @@ func (session *MinecraftSession) GetPing() int64 {
 }
 
 // GetUUID returns the UUID of this session.
-func (session *MinecraftSession) GetUUID() utils.UUID {
+func (session *MinecraftSession) GetUUID() uuid.UUID {
 	return session.uuid
 }
 

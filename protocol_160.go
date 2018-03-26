@@ -2,13 +2,13 @@ package gomine
 
 import (
 	"github.com/golang/geo/r3"
+	"github.com/google/uuid"
 	"github.com/irmine/gomine/net/info"
 	"github.com/irmine/gomine/net/packets"
 	"github.com/irmine/gomine/net/packets/p160"
 	"github.com/irmine/gomine/net/packets/types"
 	"github.com/irmine/gomine/net/protocol"
 	"github.com/irmine/gomine/permissions"
-	"github.com/irmine/gomine/utils"
 )
 
 type P160 struct {
@@ -25,7 +25,7 @@ func NewP160(server *Server) *P160 {
 	return proto
 }
 
-func (protocol *P160) GetAddPlayer(uuid utils.UUID, platform int32, viewer protocol.AddPlayerEntry) packets.IPacket {
+func (protocol *P160) GetAddPlayer(uuid uuid.UUID, platform int32, viewer protocol.AddPlayerEntry) packets.IPacket {
 	var pk = p160.NewAddPlayerPacket()
 	pk.UUID = uuid
 	pk.Username = viewer.GetDisplayName()

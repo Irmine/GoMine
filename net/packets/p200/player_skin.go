@@ -1,15 +1,15 @@
 package p200
 
 import (
+	"github.com/google/uuid"
 	"github.com/irmine/gomine/net/info"
 	"github.com/irmine/gomine/net/packets"
-	"github.com/irmine/gomine/utils"
 )
 
 type PlayerSkinPacket struct {
 	*packets.Packet
 
-	UUID        utils.UUID
+	UUID        uuid.UUID
 	SkinId      string
 	NewSkinName string
 	OldSkinName string
@@ -21,7 +21,7 @@ type PlayerSkinPacket struct {
 }
 
 func NewPlayerSkinPacket() *PlayerSkinPacket {
-	return &PlayerSkinPacket{packets.NewPacket(info.PacketIds200[info.PlayerSkinPacket]), utils.UUID{}, "", "", "", []byte{}, []byte{}, "", ""}
+	return &PlayerSkinPacket{packets.NewPacket(info.PacketIds200[info.PlayerSkinPacket]), uuid.New(), "", "", "", []byte{}, []byte{}, "", ""}
 }
 
 func (pk *PlayerSkinPacket) Encode() {

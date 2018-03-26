@@ -2,15 +2,15 @@ package p200
 
 import (
 	"github.com/golang/geo/r3"
+	"github.com/google/uuid"
 	"github.com/irmine/gomine/net/info"
 	"github.com/irmine/gomine/net/packets"
-	"github.com/irmine/gomine/utils"
 	"github.com/irmine/worlds/entities/data"
 )
 
 type AddPlayerPacket struct {
 	*packets.Packet
-	UUID            utils.UUID
+	UUID            uuid.UUID
 	Username        string
 	DisplayName     string
 	Platform        int32

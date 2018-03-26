@@ -2,11 +2,11 @@ package protocol
 
 import (
 	"github.com/golang/geo/r3"
+	"github.com/google/uuid"
 	"github.com/irmine/gomine/net/info"
 	"github.com/irmine/gomine/net/packets"
 	"github.com/irmine/gomine/net/packets/types"
 	"github.com/irmine/gomine/packs"
-	"github.com/irmine/gomine/utils"
 	"github.com/irmine/worlds/chunks"
 	"github.com/irmine/worlds/entities/data"
 )
@@ -26,7 +26,7 @@ type Protocol interface {
 	IsPacketRegistered(packetId int) bool
 
 	GetAddEntity(AddEntityEntry) packets.IPacket
-	GetAddPlayer(utils.UUID, int32, AddPlayerEntry) packets.IPacket
+	GetAddPlayer(uuid.UUID, int32, AddPlayerEntry) packets.IPacket
 	GetChunkRadiusUpdated(int32) packets.IPacket
 	GetCraftingData() packets.IPacket
 	GetDisconnect(string, bool) packets.IPacket

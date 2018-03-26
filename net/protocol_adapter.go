@@ -2,10 +2,10 @@ package net
 
 import (
 	"github.com/golang/geo/r3"
+	"github.com/google/uuid"
 	"github.com/irmine/gomine/net/packets/types"
 	"github.com/irmine/gomine/net/protocol"
 	"github.com/irmine/gomine/packs"
-	"github.com/irmine/gomine/utils"
 	"github.com/irmine/worlds/chunks"
 	"github.com/irmine/worlds/entities/data"
 )
@@ -14,7 +14,7 @@ func (session *MinecraftSession) SendAddEntity(entity protocol.AddEntityEntry) {
 	session.SendPacket(session.protocol.GetAddEntity(entity))
 }
 
-func (session *MinecraftSession) SendAddPlayer(uuid utils.UUID, platform int32, player protocol.AddPlayerEntry) {
+func (session *MinecraftSession) SendAddPlayer(uuid uuid.UUID, platform int32, player protocol.AddPlayerEntry) {
 	session.SendPacket(session.protocol.GetAddPlayer(uuid, platform, player))
 }
 

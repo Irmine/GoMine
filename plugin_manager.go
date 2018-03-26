@@ -9,8 +9,8 @@ import (
 	"plugin"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/irmine/gomine/text"
-	"github.com/irmine/gomine/utils"
 )
 
 const (
@@ -84,7 +84,7 @@ func (manager *PluginManager) LoadPlugins() {
 // CompilePlugin compiles a plugin.go at the given path during runtime, and opens it. This action is extremely time consuming.
 func (manager *PluginManager) CompilePlugin(filePath string) (*plugin.Plugin, error) {
 	var compiledPath = strings.Replace(strings.Replace(filePath, ".go", "", 1), "\\", "/", -1)
-	compiledPath += "~" + utils.GenerateRandomUUID() + ".so"
+	compiledPath += "~" + uuid.Must(uuid.NewRandom()).String() + ".so"
 
 	var cmd = exec.Command("go", "build", "-buildmode=plugin", "-i", "-o", compiledPath, filePath)
 	var output, err = cmd.CombinedOutput()

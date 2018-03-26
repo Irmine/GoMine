@@ -2,7 +2,7 @@ package protocol
 
 import (
 	"github.com/golang/geo/r3"
-	"github.com/irmine/gomine/utils"
+	"github.com/google/uuid"
 	"github.com/irmine/worlds"
 	"github.com/irmine/worlds/entities/data"
 )
@@ -27,7 +27,7 @@ type AddPlayerEntry interface {
 type PlayerListEntry interface {
 	AddPlayerEntry
 	GetXUID() string
-	GetUUID() utils.UUID
+	GetUUID() uuid.UUID
 	GetSkinId() string
 	GetSkinData() []byte
 	GetCapeData() []byte

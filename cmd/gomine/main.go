@@ -32,13 +32,13 @@ func main() {
 	}
 }
 
-// getServerPath returns the server path.
+// GetServerPath returns the server path.
 func GetServerPath() (string, error) {
 	executable, err := Executable()
 	return Dir(executable) + "/", err
 }
 
-// setUpDirectories sets up all directories needed for GoMine.
+// SetUpDirectories sets up all directories needed for GoMine.
 func SetUpDirectories(path string) {
 	Mkdir(path+"extensions", 0700)
 	Mkdir(path+"extensions/plugins", 0700)

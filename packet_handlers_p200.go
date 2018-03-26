@@ -151,7 +151,6 @@ func NewRequestChunkRadiusHandler_200(server *Server) *net.PacketHandler {
 
 			hasChunks := session.NeedsChunks
 			session.NeedsChunks = true
-			println(hasChunks)
 
 			if !hasChunks {
 				var sessions = server.GetSessionManager().GetSessions()

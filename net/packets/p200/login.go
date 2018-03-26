@@ -5,18 +5,19 @@ import (
 	"encoding/json"
 	"strings"
 
+	"github.com/google/uuid"
+	"github.com/irmine/binutils"
 	"github.com/irmine/gomine/net/info"
 	"github.com/irmine/gomine/net/packets"
 	"github.com/irmine/gomine/net/packets/types"
 	"github.com/irmine/gomine/utils"
-	"github.com/irmine/binutils"
 )
 
 type LoginPacket struct {
 	*packets.Packet
 	Username          string
 	Protocol          int32
-	ClientUUID        utils.UUID
+	ClientUUID        uuid.UUID
 	ClientId          int
 	ClientXUID        string
 	IdentityPublicKey string
@@ -34,7 +35,7 @@ type LoginPacket struct {
 }
 
 func NewLoginPacket() *LoginPacket {
-	pk := &LoginPacket{packets.NewPacket(info.PacketIds200[info.LoginPacket]), "", 0, utils.UUID{}, 0, "", "", "", "", "", []byte{}, []byte{}, "", "", types.ClientDataKeys{}, []types.Chain{}}
+	pk := &LoginPacket{packets.NewPacket(info.PacketIds200[info.LoginPacket]), "", 0, uuid.New(), 0, "", "", "", "", "", []byte{}, []byte{}, "", "", types.ClientDataKeys{}, []types.Chain{}}
 	return pk
 }
 
@@ -63,7 +64,7 @@ func (pk *LoginPacket) Decode() {
 			pk.Username = v.(string)
 		}
 		if v, ok := WebToken.ExtraData["identity"]; ok {
-			pk.ClientUUID = utils.UUIDFromString(v.(string))
+			pk.ClientUUID = uuid.Must(uuid.Parse(v.(string)))
 		}
 		if v, ok := WebToken.ExtraData["XUID"]; ok {
 			pk.ClientXUID = v.(string)

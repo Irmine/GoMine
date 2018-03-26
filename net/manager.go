@@ -2,7 +2,7 @@ package net
 
 import (
 	"fmt"
-	"github.com/irmine/gomine/utils"
+	"github.com/google/uuid"
 	"github.com/irmine/goraklib/server"
 	"sync"
 )
@@ -12,14 +12,14 @@ import (
 type SessionManager struct {
 	mutex      sync.RWMutex
 	nameMap    map[string]*MinecraftSession
-	uuidMap    map[utils.UUID]*MinecraftSession
+	uuidMap    map[uuid.UUID]*MinecraftSession
 	xuidMap    map[string]*MinecraftSession
 	sessionMap map[string]*MinecraftSession
 }
 
 // NewSessionManager returns a new session manager.
 func NewSessionManager() *SessionManager {
-	return &SessionManager{sync.RWMutex{}, make(map[string]*MinecraftSession), make(map[utils.UUID]*MinecraftSession), make(map[string]*MinecraftSession), make(map[string]*MinecraftSession)}
+	return &SessionManager{sync.RWMutex{}, make(map[string]*MinecraftSession), make(map[uuid.UUID]*MinecraftSession), make(map[string]*MinecraftSession), make(map[string]*MinecraftSession)}
 }
 
 // GetSessions returns the name => session map of the manager.
@@ -106,7 +106,7 @@ func (manager *SessionManager) GetSessionByXUID(xuid string) (*MinecraftSession,
 }
 
 // HasSessionWithUUID checks if the session manager has a session with the given UUID.
-func (manager *SessionManager) HasSessionWithUUID(uuid utils.UUID) bool {
+func (manager *SessionManager) HasSessionWithUUID(uuid uuid.UUID) bool {
 	manager.mutex.RLock()
 	var _, ok = manager.uuidMap[uuid]
 	manager.mutex.RUnlock()
@@ -115,7 +115,7 @@ func (manager *SessionManager) HasSessionWithUUID(uuid utils.UUID) bool {
 
 // GetSessionByUUID attempts to retrieve a session by its UUID.
 // A bool is returned indicating success.
-func (manager *SessionManager) GetSessionByUUID(uuid utils.UUID) (*MinecraftSession, bool) {
+func (manager *SessionManager) GetSessionByUUID(uuid uuid.UUID) (*MinecraftSession, bool) {
 	manager.mutex.RLock()
 	var session, ok = manager.uuidMap[uuid]
 	manager.mutex.RUnlock()
