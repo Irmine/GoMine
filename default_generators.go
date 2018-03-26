@@ -1,4 +1,4 @@
-package generators
+package gomine
 
 import "github.com/irmine/worlds/chunks"
 

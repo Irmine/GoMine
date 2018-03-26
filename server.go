@@ -17,7 +17,6 @@ import (
 	"github.com/irmine/gomine/permissions"
 	"github.com/irmine/gomine/resources"
 	"github.com/irmine/gomine/text"
-	"github.com/irmine/gomine/worlds/generators"
 	"github.com/irmine/goraklib/server"
 	"github.com/irmine/query"
 	"github.com/irmine/worlds"
@@ -137,7 +136,7 @@ func (server *Server) Start() error {
 	var dimension = worlds.NewDimension("overworld", server.levelManager.GetDefaultLevel(), worlds.OverworldId)
 	server.levelManager.GetDefaultLevel().SetDefaultDimension(dimension)
 	dimension.SetChunkProvider(providers.NewAnvil(server.GetServerPath() + "worlds/world/overworld/region/"))
-	dimension.SetGenerator(generators.Flat{})
+	dimension.SetGenerator(Flat{})
 
 	server.RegisterDefaultCommands()
 
