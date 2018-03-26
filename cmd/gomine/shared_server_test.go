@@ -28,7 +28,9 @@ func StartServer(port uint16) {
 	config.ServerPort = port
 	server := gomine.NewServer(path, config)
 
-	server.Start()
+	if err := server.Start(); err != nil {
+		panic(err)
+	}
 	text.DefaultLogger.Info("Server startup done! Took:", time.Now().Sub(startTime))
 
 	for range time.NewTicker(time.Second / 20).C {

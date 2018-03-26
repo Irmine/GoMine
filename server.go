@@ -6,6 +6,7 @@ import (
 	"crypto/rand"
 
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"github.com/irmine/gomine/commands"
 	"github.com/irmine/gomine/net"
@@ -47,6 +48,10 @@ type Server struct {
 	pluginManager     *PluginManager
 	queryManager      query.Manager
 }
+
+// AlreadyStarted gets returned during server startup,
+// if the server has already been started.
+var AlreadyStarted = errors.New("server is already started")
 
 // NewServer returns a new server with the given server path.
 func NewServer(serverPath string, config *resources.GoMineConfig) *Server {
@@ -121,9 +126,10 @@ func (server *Server) IsRunning() bool {
 }
 
 // Start starts the server and loads levels, plugins, resource packs etc.
-func (server *Server) Start() {
+// Start returns an error if one occurred during starting.
+func (server *Server) Start() error {
 	if server.isRunning {
-		return
+		return AlreadyStarted
 	}
 	text.DefaultLogger.Info("GoMine "+GoMineVersion+" is now starting...", "("+server.GetServerPath()+")")
 
@@ -141,7 +147,7 @@ func (server *Server) Start() {
 	server.pluginManager.LoadPlugins()
 
 	server.isRunning = true
-	server.networkAdapter.GetRakLibManager().Start(server.config.ServerIp, int(server.config.ServerPort))
+	return server.networkAdapter.GetRakLibManager().Start(server.config.ServerIp, int(server.config.ServerPort))
 }
 
 // Shutdown shuts down the server, saving and disabling everything.

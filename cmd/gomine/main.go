@@ -19,7 +19,9 @@ func main() {
 	config := resources.NewGoMineConfig(path)
 	server := NewServer(path, config)
 
-	server.Start()
+	if err := server.Start(); err != nil {
+		panic(err)
+	}
 	DefaultLogger.Info("Server startup done! Took:", time.Now().Sub(startTime))
 
 	for range time.NewTicker(time.Second / 20).C {
