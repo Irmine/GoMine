@@ -34,7 +34,7 @@ func (group *Group) AddPermission(permission *Permission) {
 	group.permissions[permission.GetName()] = permission
 }
 
-// RemovePermission removes a permission with the given naem from the group.
+// RemovePermission removes a permission with the given name from the group.
 func (group *Group) RemovePermission(permission string) {
 	delete(group.permissions, permission)
 }
