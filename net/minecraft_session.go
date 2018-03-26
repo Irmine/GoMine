@@ -14,6 +14,7 @@ import (
 	"github.com/irmine/worlds"
 	"github.com/irmine/worlds/chunks"
 	"math"
+	"strings"
 )
 
 type MinecraftSession struct {
@@ -209,7 +210,7 @@ func (session *MinecraftSession) SetXBOXLiveAuthenticated(value bool) {
 
 // SendMessage sends a text message to the Minecraft session.
 func (session *MinecraftSession) SendMessage(message ...interface{}) {
-	session.SendText(types.Text{Message: fmt.Sprint(message)})
+	session.SendText(types.Text{Message: strings.Trim(fmt.Sprint(message), "[]")})
 }
 
 // GetPermissionGroup returns the permission group this session is in.
