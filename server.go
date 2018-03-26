@@ -60,7 +60,7 @@ func NewServer(serverPath string, config *resources.GoMineConfig) *Server {
 	s.serverPath = serverPath
 	s.config = config
 	text.DefaultLogger.DebugMode = config.DebugMode
-	file, _ := os.OpenFile("gomine.log", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0700)
+	file, _ := os.OpenFile(serverPath+"gomine.log", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0700)
 	text.DefaultLogger.AddOutput(func(message []byte) {
 		file.WriteString(text.ColoredString(message).StripAll())
 	})
