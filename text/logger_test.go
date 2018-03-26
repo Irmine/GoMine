@@ -11,9 +11,9 @@ func TestLogger(t *testing.T) {
 	logger.AddOutput(func(message []byte) {
 		os.Stdout.Write(message)
 	})
-	logger.Write("Raw message")
+	logger.WriteString("Raw message")
 	logger.Info("Logger working.")
-	logger.Debug("Debug message.")
+	logger.Debug("Debug message.", "another debug")
 	var err error
 	logger.LogError(err) // err is nil, does not print anything.
 	err = errors.New("error")

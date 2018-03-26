@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"runtime/debug"
+	"strings"
 )
 
 const (
@@ -49,6 +50,8 @@ type Logger struct {
 // The default logger will write only to Stdout.
 var DefaultLogger = NewLogger("GoMine", false)
 
+// init initializes the output of the default logger.
+// It writes to Stdout by default.
 func init() {
 	DefaultLogger.AddOutput(func(message []byte) {
 		os.Stdout.Write(message)
@@ -74,13 +77,20 @@ func (logger *Logger) AddOutput(f func(message []byte)) {
 	logger.OutputFunctions = append(logger.OutputFunctions, f)
 }
 
-// Write writes a message to the logger.
-// Messages first go through fmt.Sprintln(message),
-// and all Minecraft colours get converted to ANSI,
+// Write writes a byte array to the logger.
+// All Minecraft colors are first replaced with ANSI colors.
 // after which they get added to the message queue.
 // The message will then get processed on a different goroutine.
-func (logger *Logger) Write(message ...interface{}) {
-	logger.MessageQueue <- ColoredString(fmt.Sprintln(message)).ToANSI() + AnsiReset
+func (logger *Logger) Write(message []byte) {
+	logger.MessageQueue <- ColoredString(string(message)).ToANSI() + AnsiReset + "\n"
+}
+
+// Write writes a string to the logger.
+// All Minecraft colors are first replaced with ANSI colors.
+// after which they get added to the message queue.
+// The message will then get processed on a different goroutine.
+func (logger *Logger) WriteString(message string) {
+	logger.MessageQueue <- ColoredString(message).ToANSI() + AnsiReset + "\n"
 }
 
 // process continuously processes queued messages in the logger.
@@ -113,47 +123,47 @@ func (logger *Logger) Wait() {
 
 // Notice logs a notice message.
 func (logger *Logger) Notice(messages ...interface{}) {
-	logger.Write(Yellow+Notice, messages)
+	logger.WriteString(Yellow + Notice + " " + strings.Trim(fmt.Sprint(messages), "[]"))
 }
 
 // Debug logs a debug message.
 func (logger *Logger) Debug(messages ...interface{}) {
-	logger.Write(Orange+Debug, messages)
+	logger.WriteString(Orange + Debug + " " + strings.Trim(fmt.Sprint(messages), "[]"))
 }
 
 // Info logs an info message.
 func (logger *Logger) Info(messages ...interface{}) {
-	logger.Write(BrightCyan+Info, messages)
+	logger.WriteString(BrightCyan + Info + " " + strings.Trim(fmt.Sprint(messages), "[]"))
 }
 
 // Alert logs an alert.
 func (logger *Logger) Alert(messages ...interface{}) {
-	logger.Write(BrightRed+Alert, messages)
+	logger.WriteString(BrightRed + Alert + " " + strings.Trim(fmt.Sprint(messages), "[]"))
 }
 
 // Warning logs a warning message.
 func (logger *Logger) Warning(messages ...interface{}) {
-	logger.Write(BrightRed+Bold+Warning, messages)
+	logger.WriteString(BrightRed + Bold + Warning + " " + strings.Trim(fmt.Sprint(messages), "[]"))
 }
 
 // Critical logs a critical warning message.
 func (logger *Logger) Critical(messages ...interface{}) {
-	logger.Write(BrightRed+Underlined+Bold+Critical, messages)
+	logger.WriteString(BrightRed + Underlined + Bold + Critical + " " + strings.Trim(fmt.Sprint(messages), "[]"))
 }
 
 // Error logs an error message.
 func (logger *Logger) Error(messages ...interface{}) {
-	logger.Write(Red+Error, messages)
+	logger.WriteString(Red + Error + " " + strings.Trim(fmt.Sprint(messages), "[]"))
 }
 
 // LogChat logs a chat message to the logger.
 func (logger *Logger) LogChat(messages ...interface{}) {
-	logger.Write(BrightCyan+Chat, messages)
+	logger.WriteString(BrightCyan + Chat + " " + strings.Trim(fmt.Sprint(messages), "[]"))
 }
 
 // LogStack logs the stack trace.
 func (logger *Logger) LogStack() {
-	logger.Write(Yellow+StackTrace, string(debug.Stack()))
+	logger.WriteString(Yellow + StackTrace + " " + string(debug.Stack()))
 }
 
 // LogError logs an actual error to the logger.
