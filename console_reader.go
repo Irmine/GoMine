@@ -61,7 +61,7 @@ func (reader *ConsoleReader) attemptReadCommand(commandText string, server *Serv
 	var args = strings.Split(commandText, " ")
 	var commandName = args[0]
 	var i = 1
-	for !server.GetCommandManager().IsCommandRegistered(commandName) {
+	for !server.CommandManager.IsCommandRegistered(commandName) {
 		if i == len(args) {
 			break
 		}
@@ -69,7 +69,7 @@ func (reader *ConsoleReader) attemptReadCommand(commandText string, server *Serv
 		i++
 	}
 
-	var manager = server.GetCommandManager()
+	var manager = server.CommandManager
 
 	if !manager.IsCommandRegistered(commandName) {
 		text.DefaultLogger.Error("Command could not be found.")

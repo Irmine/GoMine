@@ -55,7 +55,7 @@ func (manager *PluginManager) IsPluginLoaded(name string) bool {
 
 // LoadPlugins loads all plugins in the 'extensions/plugins' folder.
 func (manager *PluginManager) LoadPlugins() {
-	var path = manager.server.GetServerPath() + "extensions/plugins/"
+	var path = manager.server.ServerPath + "extensions/plugins/"
 	var files, _ = ioutil.ReadDir(path)
 
 	for _, file := range files {

@@ -15,7 +15,7 @@ func NewTextHandler_160(server *Server) *net.PacketHandler {
 			if textPacket.TextType != data.TextChat {
 				return false
 			}
-			for _, receiver := range server.GetSessionManager().GetSessions() {
+			for _, receiver := range server.SessionManager.GetSessions() {
 				receiver.SendText(types.Text{Message: textPacket.Message, SourceName: session.GetPlayer().GetName(), SourceDisplayName: session.GetPlayer().GetDisplayName(), SourceXUID: session.GetXUID(), TextType: data.TextChat})
 			}
 			text.DefaultLogger.LogChat("<" + session.GetPlayer().GetDisplayName() + "> " + textPacket.Message)

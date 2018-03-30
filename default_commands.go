@@ -21,12 +21,12 @@ func NewTest(server *Server) *commands.Command {
 func NewList(server *Server) *commands.Command {
 	var list = commands.NewCommand("list", "Lists all players online", "gomine.list", []string{}, func(sender commands.Sender) {
 		var s = "s"
-		if len(server.GetSessionManager().GetSessions()) == 1 {
+		if len(server.SessionManager.GetSessions()) == 1 {
 			s = ""
 		}
 
-		var playerList = text.BrightGreen + "-----" + text.White + " Player List (" + strconv.Itoa(len(server.GetSessionManager().GetSessions())) + " Player" + s + ") " + text.BrightGreen + "-----\n"
-		for name, player := range server.GetSessionManager().GetSessions() {
+		var playerList = text.BrightGreen + "-----" + text.White + " Player List (" + strconv.Itoa(len(server.SessionManager.GetSessions())) + " Player" + s + ") " + text.BrightGreen + "-----\n"
+		for name, player := range server.SessionManager.GetSessions() {
 			playerList += text.BrightGreen + name + ": " + text.Yellow + text.Bold + strconv.Itoa(int(player.GetPing())) + "ms" + text.Reset + "\n"
 		}
 		sender.SendMessage(playerList)

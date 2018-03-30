@@ -25,7 +25,7 @@ func NewClientHandshakeHandler_200(server *Server) *net.PacketHandler {
 	return net.NewPacketHandler(func(packet packets.IPacket, session *net.MinecraftSession) bool {
 		if _, ok := packet.(*p200.ClientHandshakePacket); ok {
 			session.SendPlayStatus(data.StatusLoginSuccess)
-			session.SendResourcePackInfo(server.GetConfiguration().ForceResourcePacks, server.GetPackManager().GetResourceStack(), server.GetPackManager().GetBehaviorStack())
+			session.SendResourcePackInfo(server.Config.ForceResourcePacks, server.PackManager.GetResourceStack(), server.PackManager.GetBehaviorStack())
 			return true
 		}
 		return false
@@ -38,19 +38,19 @@ func NewCommandRequestHandler_200(server *Server) *net.PacketHandler {
 			var args = strings.Split(pk.CommandText, " ")
 			var commandName = strings.TrimLeft(args[0], "/")
 			var i = 1
-			for !server.GetCommandManager().IsCommandRegistered(commandName) {
+			for !server.CommandManager.IsCommandRegistered(commandName) {
 				if i == len(args) {
 					break
 				}
 				commandName += " " + args[i]
 				i++
 			}
-			if !server.GetCommandManager().IsCommandRegistered(commandName) {
+			if !server.CommandManager.IsCommandRegistered(commandName) {
 				session.SendMessage("Command could not be found.")
 				return false
 			}
 			args = args[i:]
-			var command, _ = server.GetCommandManager().GetCommand(commandName)
+			var command, _ = server.CommandManager.GetCommand(commandName)
 			command.Execute(session, args)
 
 			return true
@@ -63,11 +63,11 @@ func NewCommandRequestHandler_200(server *Server) *net.PacketHandler {
 func NewLoginHandler_200(server *Server) *net.PacketHandler {
 	return net.NewPacketHandler(func(packet packets.IPacket, session *net.MinecraftSession) bool {
 		if loginPacket, ok := packet.(*p200.LoginPacket); ok {
-			var _, ok = server.GetSessionManager().GetSession(loginPacket.Username)
+			var _, ok = server.SessionManager.GetSession(loginPacket.Username)
 			if ok {
 				return false
 			}
-			if !server.GetNetworkAdapter().GetProtocolManager().IsProtocolRegistered(loginPacket.Protocol) {
+			if !server.NetworkAdapter.GetProtocolManager().IsProtocolRegistered(loginPacket.Protocol) {
 				text.DefaultLogger.Debug(loginPacket.Username, "tried joining with unsupported protocol:", loginPacket.Protocol)
 				return false
 			}
@@ -81,14 +81,14 @@ func NewLoginHandler_200(server *Server) *net.PacketHandler {
 			if authenticated {
 				text.DefaultLogger.Debug(loginPacket.Username, "has joined while being logged into XBOX Live.")
 			} else {
-				if server.GetConfiguration().XBOXLiveAuth {
+				if server.Config.XBOXLiveAuth {
 					text.DefaultLogger.Debug(loginPacket.Username, "has tried to join while not being logged into XBOX Live.")
 					return true
 				}
 				text.DefaultLogger.Debug(loginPacket.Username, "has joined while not being logged into XBOX Live.")
 			}
 
-			session.SetData(server.GetPermissionManager(), types.SessionData{loginPacket.ClientUUID, loginPacket.ClientXUID, loginPacket.ClientId, loginPacket.Protocol, loginPacket.ClientData.GameVersion, loginPacket.Language, loginPacket.ClientData.DeviceOS})
+			session.SetData(server.PermissionManager, types.SessionData{loginPacket.ClientUUID, loginPacket.ClientXUID, loginPacket.ClientId, loginPacket.Protocol, loginPacket.ClientData.GameVersion, loginPacket.Language, loginPacket.ClientData.DeviceOS})
 			session.SetPlayer(players.NewPlayer(loginPacket.ClientUUID, loginPacket.ClientXUID, int32(loginPacket.ClientData.DeviceOS), loginPacket.Username))
 
 			session.GetEncryptionHandler().Data = &utils.EncryptionData{
@@ -106,7 +106,7 @@ func NewLoginHandler_200(server *Server) *net.PacketHandler {
 			session.GetPlayer().SetGeometryData(loginPacket.GeometryData)
 			session.SetXBOXLiveAuthenticated(authenticated)
 
-			if server.GetConfiguration().UseEncryption {
+			if server.Config.UseEncryption {
 				var jwt = utils.ConstructEncryptionJwt(server.GetPrivateKey(), server.GetServerToken())
 				session.SendServerHandshake(jwt)
 
@@ -114,9 +114,9 @@ func NewLoginHandler_200(server *Server) *net.PacketHandler {
 			} else {
 				session.SendPlayStatus(data.StatusLoginSuccess)
 
-				session.SendResourcePackInfo(server.GetConfiguration().ForceResourcePacks, server.GetPackManager().GetResourceStack(), server.GetPackManager().GetBehaviorStack())
+				session.SendResourcePackInfo(server.Config.ForceResourcePacks, server.PackManager.GetResourceStack(), server.PackManager.GetBehaviorStack())
 			}
-			server.GetSessionManager().AddMinecraftSession(session)
+			server.SessionManager.AddMinecraftSession(session)
 			return true
 		}
 		return false
@@ -153,7 +153,7 @@ func NewRequestChunkRadiusHandler_200(server *Server) *net.PacketHandler {
 			session.NeedsChunks = true
 
 			if !hasChunks {
-				var sessions = server.GetSessionManager().GetSessions()
+				var sessions = server.SessionManager.GetSessions()
 				var viewers = make(map[string]protocol.PlayerListEntry)
 				for name, online := range sessions {
 					if online.HasSpawned() {
@@ -163,7 +163,7 @@ func NewRequestChunkRadiusHandler_200(server *Server) *net.PacketHandler {
 				}
 				session.SendPlayerList(data.ListTypeAdd, viewers)
 
-				for _, online := range server.GetSessionManager().GetSessions() {
+				for _, online := range server.SessionManager.GetSessions() {
 					if session.GetUUID() != online.GetUUID() {
 						online.GetPlayer().SpawnTo(session)
 						online.GetPlayer().SpawnPlayerTo(session)
@@ -189,11 +189,11 @@ func NewRequestChunkRadiusHandler_200(server *Server) *net.PacketHandler {
 func NewResourcePackChunkRequestHandler_200(server *Server) *net.PacketHandler {
 	return net.NewPacketHandler(func(packet packets.IPacket, session *net.MinecraftSession) bool {
 		if request, ok := packet.(*p200.ResourcePackChunkRequestPacket); ok {
-			if !server.GetPackManager().IsPackLoaded(request.PackUUID) {
+			if !server.PackManager.IsPackLoaded(request.PackUUID) {
 				// TODO: Kick the player. We can't kick yet.
 				return false
 			}
-			var pack = server.GetPackManager().GetPack(request.PackUUID)
+			var pack = server.PackManager.GetPack(request.PackUUID)
 			session.SendResourcePackChunkData(request.PackUUID, request.ChunkIndex, int64(data.ResourcePackChunkSize*request.ChunkIndex), pack.GetChunk(int(data.ResourcePackChunkSize*request.ChunkIndex), data.ResourcePackChunkSize))
 			return true
 		}
@@ -210,17 +210,17 @@ func NewResourcePackClientResponseHandler_200(server *Server) *net.PacketHandler
 				return false
 			case data.StatusSendPacks:
 				for _, packUUID := range response.PackUUIDs {
-					if !server.GetPackManager().IsPackLoaded(packUUID) {
+					if !server.PackManager.IsPackLoaded(packUUID) {
 						// TODO: Kick the player. We can't kick yet.
 						return false
 					}
-					session.SendResourcePackDataInfo(server.GetPackManager().GetPack(packUUID))
+					session.SendResourcePackDataInfo(server.PackManager.GetPack(packUUID))
 				}
 			case data.StatusHaveAllPacks:
-				session.SendResourcePackStack(server.GetConfiguration().ForceResourcePacks, server.GetPackManager().GetResourceStack(), server.GetPackManager().GetBehaviorStack())
+				session.SendResourcePackStack(server.Config.ForceResourcePacks, server.PackManager.GetResourceStack(), server.PackManager.GetBehaviorStack())
 			case data.StatusCompleted:
-				server.GetLevelManager().GetDefaultLevel().GetDefaultDimension().LoadChunk(0, 0, func(chunk *chunks.Chunk) {
-					server.GetLevelManager().GetDefaultLevel().GetDefaultDimension().AddEntity(session.GetPlayer(), r3.Vector{X: 0, Y: 40, Z: 0})
+				server.LevelManager.GetDefaultLevel().GetDefaultDimension().LoadChunk(0, 0, func(chunk *chunks.Chunk) {
+					server.LevelManager.GetDefaultLevel().GetDefaultDimension().AddEntity(session.GetPlayer(), r3.Vector{X: 0, Y: 40, Z: 0})
 					session.SendStartGame(session.GetPlayer())
 					session.SendCraftingData()
 				})
@@ -237,7 +237,7 @@ func NewTextHandler_200(server *Server) *net.PacketHandler {
 			if textPacket.TextType != data.TextChat {
 				return false
 			}
-			for _, receiver := range server.GetSessionManager().GetSessions() {
+			for _, receiver := range server.SessionManager.GetSessions() {
 				receiver.SendText(types.Text{Message: textPacket.Message, SourceName: textPacket.SourceName, SourceDisplayName: textPacket.SourceDisplayName, SourcePlatform: textPacket.SourcePlatform, SourceXUID: session.GetXUID(), TextType: data.TextChat})
 			}
 			text.DefaultLogger.LogChat("<" + session.GetDisplayName() + "> " + textPacket.Message)
