@@ -4,7 +4,9 @@ import (
 	"github.com/golang/geo/r3"
 	"github.com/google/uuid"
 	"github.com/irmine/binutils"
+	"github.com/irmine/gomine/items"
 	"github.com/irmine/gomine/net/packets/types"
+	"github.com/irmine/gonbt"
 	"github.com/irmine/worlds/entities/data"
 )
 
@@ -70,13 +72,6 @@ func (pk *Packet) IsDiscarded() bool {
 	return pk.discarded
 }
 
-func (pk *Packet) EncodeHeader() {
-	pk.ResetStream()
-	pk.EncodeId()
-	pk.PutByte(pk.SenderIdentifier)
-	pk.PutByte(pk.ReceiverIdentifier)
-}
-
 func (pk *Packet) EncodeId() {
 	pk.PutUnsignedVarInt(uint32(pk.GetId()))
 }
@@ -86,6 +81,13 @@ func (pk *Packet) DecodeId() {
 	if pid != pk.PacketId {
 		panic("Packet IDs do not match")
 	}
+}
+
+func (pk *Packet) EncodeHeader() {
+	pk.ResetStream()
+	pk.EncodeId()
+	pk.PutByte(pk.SenderIdentifier)
+	pk.PutByte(pk.ReceiverIdentifier)
 }
 
 func (pk *Packet) DecodeHeader() {
@@ -166,6 +168,47 @@ func (pk *Packet) GetAttributeMap() data.AttributeMap {
 	}
 
 	return attributes
+}
+
+func (pk *Packet) PutItem(item *items.Stack) {
+	pk.PutVarInt(int32(item.GetId()))
+	pk.PutVarInt(item.GetAuxValue())
+
+	writer := gonbt.NewWriter(true, binutils.LittleEndian)
+	compound := gonbt.NewCompound("", make(map[string]gonbt.INamedTag))
+	item.EmitNBT(compound)
+	writer.WriteUncompressedCompound(compound)
+	data := writer.GetBuffer()
+	pk.PutLittleShort(int16(len(data)))
+	pk.PutBytes(data)
+
+	// Fields for canPlaceOn and canBreak are not implemented.
+	// TODO
+	pk.PutVarInt(0)
+	pk.PutVarInt(0)
+}
+
+func (pk *Packet) GetItem() *items.Stack {
+	id := pk.GetVarInt()
+	if id == 0 {
+		i, _ := items.DefaultManager.GetByStringId("minecraft:air", 0)
+		return i
+	}
+	aux := pk.GetVarInt()
+	itemData := aux >> 8
+	count := aux & 0xff
+
+	item, _ := items.DefaultManager.Get(int16(id), int16(itemData), byte(count))
+	nbtData := pk.Get(int(pk.GetLittleShort()))
+	reader := gonbt.NewReader(nbtData, true, binutils.LittleEndian)
+	item.ParseNBT(reader.ReadUncompressedIntoCompound())
+
+	// Fields for canPlaceOn and canBreak are not implemented.
+	// TODO
+	pk.GetVarInt()
+	pk.GetVarInt()
+
+	return item
 }
 
 func (pk *Packet) PutEntityData(dat map[uint32][]interface{}) {
