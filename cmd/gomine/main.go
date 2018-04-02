@@ -6,6 +6,7 @@ import (
 	. "github.com/irmine/gomine/text"
 	. "os"
 	. "path/filepath"
+	"strings"
 	"time"
 )
 
@@ -35,7 +36,7 @@ func main() {
 // GetServerPath returns the server path.
 func GetServerPath() (string, error) {
 	executable, err := Executable()
-	return Dir(executable) + "/", err
+	return strings.Replace(Dir(executable)+"/", `\`, "/", -1), err
 }
 
 // SetUpDirectories sets up all directories needed for GoMine.
