@@ -24,12 +24,12 @@ func NewMovePlayerPacket() *MovePlayerPacket {
 }
 
 func (pk *MovePlayerPacket) Encode() {
-	pk.PutRuntimeId(pk.RuntimeId)
+	pk.PutEntityRuntimeId(pk.RuntimeId)
 	pk.PutVector(pk.Position)
-	pk.PutRotation(pk.Rotation, true)
+	pk.PutPlayerRotation(pk.Rotation)
 	pk.PutByte(pk.Mode)
 	pk.PutBool(pk.OnGround)
-	pk.PutRuntimeId(pk.RidingRuntimeId)
+	pk.PutEntityRuntimeId(pk.RidingRuntimeId)
 	if pk.Mode == data.MoveTeleport {
 		pk.PutLittleInt(pk.ExtraInt1)
 		pk.PutLittleInt(pk.ExtraInt2)
@@ -37,12 +37,12 @@ func (pk *MovePlayerPacket) Encode() {
 }
 
 func (pk *MovePlayerPacket) Decode() {
-	pk.RuntimeId = pk.GetRuntimeId()
+	pk.RuntimeId = pk.GetEntityRuntimeId()
 	pk.Position = pk.GetVector()
-	pk.Rotation = pk.GetRotation(true)
+	pk.Rotation = pk.GetPlayerRotation()
 	pk.Mode = pk.GetByte()
 	pk.OnGround = pk.GetBool()
-	pk.RidingRuntimeId = pk.GetRuntimeId()
+	pk.RidingRuntimeId = pk.GetEntityRuntimeId()
 	if pk.Mode == data.MoveTeleport {
 		pk.ExtraInt1 = pk.GetLittleInt()
 		pk.ExtraInt2 = pk.GetLittleInt()

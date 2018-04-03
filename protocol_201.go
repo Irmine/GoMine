@@ -1,12 +1,12 @@
 package gomine
 
 import (
-	"github.com/golang/geo/r3"
 	"github.com/irmine/gomine/net/packets"
 	"github.com/irmine/gomine/net/packets/p201"
 	"github.com/irmine/gomine/net/packets/types"
 	"github.com/irmine/gomine/net/protocol"
 	"github.com/irmine/gomine/permissions"
+	"github.com/irmine/worlds/blocks"
 )
 
 type P201 struct {
@@ -31,7 +31,7 @@ func (protocol *P201) GetStartGame(player protocol.StartGameEntry) packets.IPack
 	pk.PlayerGameMode = 1
 	pk.PlayerPosition = player.GetPosition()
 	pk.LevelGameMode = 1
-	pk.LevelSpawnPosition = r3.Vector{0, 40, 0}
+	pk.LevelSpawnPosition = blocks.NewPosition(0, 40, 0)
 	pk.CommandsEnabled = true
 
 	var gameRules = player.GetDimension().GetLevel().GetGameRules()

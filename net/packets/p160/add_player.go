@@ -36,12 +36,12 @@ func (pk *AddPlayerPacket) Encode() {
 	pk.PutUUID(pk.UUID)
 	pk.PutString(pk.Username)
 
-	pk.PutUniqueId(pk.EntityUniqueId)
-	pk.PutRuntimeId(pk.EntityRuntimeId)
+	pk.PutEntityUniqueId(pk.EntityUniqueId)
+	pk.PutEntityRuntimeId(pk.EntityRuntimeId)
 
 	pk.PutVector(pk.Position)
 	pk.PutVector(pk.Motion)
-	pk.PutRotation(pk.Rotation, true)
+	pk.PutPlayerRotation(pk.Rotation)
 
 	pk.PutVarInt(0) // TODO
 	pk.PutEntityData(pk.Metadata)

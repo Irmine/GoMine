@@ -23,7 +23,7 @@ func (pk *PlayerListPacket) Encode() {
 	for _, entry := range pk.Entries {
 		if pk.ListType == byte(data.ListTypeAdd) {
 			pk.PutUUID(entry.UUID)
-			pk.PutUniqueId(entry.EntityUniqueId)
+			pk.PutEntityUniqueId(entry.EntityUniqueId)
 
 			pk.PutString(entry.DisplayName)
 			pk.PutString(entry.SkinId)

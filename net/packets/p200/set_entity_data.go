@@ -16,11 +16,11 @@ func NewSetEntityDataPacket() *SetEntityDataPacket {
 }
 
 func (pk *SetEntityDataPacket) Encode() {
-	pk.PutRuntimeId(pk.RuntimeId)
+	pk.PutEntityRuntimeId(pk.RuntimeId)
 	pk.PutEntityData(pk.EntityData)
 }
 
 func (pk *SetEntityDataPacket) Decode() {
-	pk.RuntimeId = pk.GetRuntimeId()
+	pk.RuntimeId = pk.GetEntityRuntimeId()
 	pk.EntityData = pk.GetEntityData()
 }

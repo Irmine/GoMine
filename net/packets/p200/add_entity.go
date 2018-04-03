@@ -25,24 +25,24 @@ func NewAddEntityPacket() *AddEntityPacket {
 }
 
 func (pk *AddEntityPacket) Encode() {
-	pk.PutUniqueId(pk.UniqueId)
-	pk.PutRuntimeId(pk.RuntimeId)
+	pk.PutEntityUniqueId(pk.UniqueId)
+	pk.PutEntityRuntimeId(pk.RuntimeId)
 	pk.PutUnsignedVarInt(pk.EntityType)
 	pk.PutVector(pk.Position)
 	pk.PutVector(pk.Motion)
-	pk.PutRotation(pk.Rotation, false)
+	pk.PutEntityRotation(pk.Rotation)
 	pk.PutAttributeMap(pk.Attributes)
 	pk.PutEntityData(pk.EntityData)
 	pk.PutUnsignedVarInt(0)
 }
 
 func (pk *AddEntityPacket) Decode() {
-	pk.UniqueId = pk.GetUniqueId()
-	pk.RuntimeId = pk.GetRuntimeId()
+	pk.UniqueId = pk.GetEntityUniqueId()
+	pk.RuntimeId = pk.GetEntityRuntimeId()
 	pk.EntityType = pk.GetUnsignedVarInt()
 	pk.Position = pk.GetVector()
 	pk.Motion = pk.GetVector()
-	pk.Rotation = pk.GetRotation(false)
+	pk.Rotation = pk.GetEntityRotation()
 	pk.Attributes = pk.GetAttributeMap()
 	pk.EntityData = pk.GetEntityData()
 }

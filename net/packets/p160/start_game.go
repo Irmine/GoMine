@@ -3,10 +3,11 @@ package p160
 import (
 	"encoding/base64"
 
+	"github.com/golang/geo/r3"
 	"github.com/irmine/gomine/net/info"
 	"github.com/irmine/gomine/net/packets"
 	"github.com/irmine/gomine/net/packets/types"
-	"github.com/golang/geo/r3"
+	"github.com/irmine/worlds/blocks"
 )
 
 type StartGamePacket struct {
@@ -22,7 +23,7 @@ type StartGamePacket struct {
 	Generator              int32
 	LevelGameMode          int32
 	Difficulty             int32
-	LevelSpawnPosition     r3.Vector
+	LevelSpawnPosition     blocks.Position
 	AchievementsDisabled   bool
 	Time                   int32
 	EduMode                bool
@@ -50,8 +51,8 @@ func NewStartGamePacket() *StartGamePacket {
 }
 
 func (pk *StartGamePacket) Encode() {
-	pk.PutUniqueId(pk.EntityUniqueId)   // Entity Unique ID
-	pk.PutRuntimeId(pk.EntityRuntimeId) // Entity runtime ID
+	pk.PutEntityUniqueId(pk.EntityUniqueId)   // Entity Unique ID
+	pk.PutEntityRuntimeId(pk.EntityRuntimeId) // Entity runtime ID
 
 	pk.PutVarInt(pk.PlayerGameMode) // Player game mode.
 
@@ -66,10 +67,10 @@ func (pk *StartGamePacket) Encode() {
 	pk.PutVarInt(pk.LevelGameMode) // World gamemode
 	pk.PutVarInt(pk.Difficulty)    // Difficulty
 
-	pk.PutBlockPos(pk.LevelSpawnPosition) // Spawn pos.
-	pk.PutBool(pk.AchievementsDisabled)   // Achievements disabled
-	pk.PutVarInt(pk.Time)                 // Time
-	pk.PutBool(pk.EduMode)                // Education mode
+	pk.PutBlockPosition(pk.LevelSpawnPosition) // Spawn pos.
+	pk.PutBool(pk.AchievementsDisabled)        // Achievements disabled
+	pk.PutVarInt(pk.Time)                      // Time
+	pk.PutBool(pk.EduMode)                     // Education mode
 
 	pk.PutLittleFloat(pk.RainLevel)      // Rain level
 	pk.PutLittleFloat(pk.LightningLevel) // Lightning level

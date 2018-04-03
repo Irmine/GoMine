@@ -3,30 +3,27 @@ package p200
 import (
 	"github.com/irmine/gomine/net/info"
 	"github.com/irmine/gomine/net/packets"
-	"github.com/golang/geo/r3"
+	"github.com/irmine/worlds/blocks"
 )
 
 type UpdateBlockPacket struct {
 	*packets.Packet
-	X, Z                          int32
-	Y                             uint32
+	Position                      blocks.Position
 	BlockId, BlockMetadata, Flags uint32
 }
 
 func NewUpdateBlockPacket() *UpdateBlockPacket {
-	return &UpdateBlockPacket{packets.NewPacket(info.PacketIds200[info.UpdateBlockPacket]), 0, 0, 0, 0, 0, 0}
+	return &UpdateBlockPacket{Packet: packets.NewPacket(info.PacketIds200[info.UpdateBlockPacket])}
 }
 
 func (pk *UpdateBlockPacket) Encode() {
-	pk.PutBlockPos(r3.Vector{float64(pk.X), float64(pk.Y), float64(pk.Z)})
+	pk.PutBlockPosition(pk.Position)
 	pk.PutUnsignedVarInt(pk.BlockId)
 	pk.PutUnsignedVarInt((pk.Flags << 4) | pk.BlockMetadata)
 }
 
 func (pk *UpdateBlockPacket) Decode() {
-	pk.X = pk.GetVarInt()
-	pk.Y = pk.GetUnsignedVarInt()
-	pk.Z = pk.GetVarInt()
+	pk.Position = pk.GetBlockPosition()
 	pk.BlockId = pk.GetUnsignedVarInt()
 	v := pk.GetUnsignedVarInt()
 	pk.BlockMetadata = v & 240

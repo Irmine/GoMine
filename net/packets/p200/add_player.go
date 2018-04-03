@@ -41,13 +41,13 @@ func (pk *AddPlayerPacket) Encode() {
 	pk.PutString(pk.DisplayName)
 	pk.PutVarInt(pk.Platform)
 
-	pk.PutUniqueId(pk.EntityUniqueId)
-	pk.PutRuntimeId(pk.EntityRuntimeId)
+	pk.PutEntityUniqueId(pk.EntityUniqueId)
+	pk.PutEntityRuntimeId(pk.EntityRuntimeId)
 	pk.PutString(pk.UnknownString)
 
 	pk.PutVector(pk.Position)
 	pk.PutVector(pk.Motion)
-	pk.PutRotation(pk.Rotation, true)
+	pk.PutPlayerRotation(pk.Rotation)
 
 	pk.PutVarInt(0) // TODO
 	pk.PutEntityData(pk.Metadata)

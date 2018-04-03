@@ -17,11 +17,11 @@ func NewUpdateAttributesPacket() *UpdateAttributesPacket {
 }
 
 func (pk *UpdateAttributesPacket) Encode() {
-	pk.PutRuntimeId(pk.RuntimeId)
+	pk.PutEntityRuntimeId(pk.RuntimeId)
 	pk.PutAttributeMap(pk.Attributes)
 }
 
 func (pk *UpdateAttributesPacket) Decode() {
-	pk.RuntimeId = pk.GetRuntimeId()
+	pk.RuntimeId = pk.GetEntityRuntimeId()
 	pk.Attributes = pk.GetAttributeMap()
 }

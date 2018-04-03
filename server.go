@@ -9,7 +9,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/irmine/gomine/commands"
-	"github.com/irmine/gomine/items"
 	"github.com/irmine/gomine/net"
 	"github.com/irmine/gomine/net/info"
 	"github.com/irmine/gomine/net/packets/data"
@@ -46,7 +45,6 @@ type Server struct {
 	SessionManager    *net.SessionManager
 	NetworkAdapter    *net.NetworkAdapter
 	PluginManager     *PluginManager
-	ItemManager       *items.Manager
 	QueryManager      query.Manager
 }
 
@@ -76,8 +74,6 @@ func NewServer(serverPath string, config *resources.GoMineConfig) *Server {
 	s.NetworkAdapter.GetRakLibManager().RawPacketFunction = s.HandleRaw
 	s.NetworkAdapter.GetRakLibManager().DisconnectFunction = s.HandleDisconnect
 
-	s.ItemManager = items.NewManager()
-	s.ItemManager.RegisterDefaults()
 	s.RegisterDefaultProtocols()
 
 	s.PackManager = packs.NewManager(serverPath)

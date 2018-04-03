@@ -15,7 +15,7 @@ func NewRemoveEntityPacket() *RemoveEntityPacket {
 }
 
 func (pk *RemoveEntityPacket) Encode() {
-	pk.PutUniqueId(pk.EntityUniqueId)
+	pk.PutEntityUniqueId(pk.EntityUniqueId)
 }
 
 func (pk *RemoveEntityPacket) Decode() {

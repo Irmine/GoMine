@@ -1,12 +1,12 @@
 package packs
 
 import (
-	"os"
-	"io/ioutil"
-	"crypto/sha256"
 	"archive/zip"
+	"crypto/sha256"
 	"encoding/json"
 	"errors"
+	"io/ioutil"
+	"os"
 	"strconv"
 	"strings"
 )
@@ -191,5 +191,5 @@ func (pack *Base) GetChunk(offset int, length int) []byte {
 	if offset+length > len(pack.content) {
 		length = int(pack.size) - offset
 	}
-	return pack.content[offset:offset+length]
+	return pack.content[offset : offset+length]
 }
