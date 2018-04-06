@@ -108,7 +108,7 @@ func (t Type) Equals(t2 Type) bool {
 func parseNBT(compound *gonbt.Compound, stack *Stack) {
 	if compound.HasTagWithType(Display, gonbt.TAG_Compound) {
 		stack.DisplayName = compound.GetCompound(Display).GetString(DisplayName, stack.name)
-		for _, tag := range compound.GetList(DisplayLore, gonbt.TAG_String).GetTags() {
+		for _, tag := range compound.GetCompound(Display).GetList(DisplayLore, gonbt.TAG_String).GetTags() {
 			stack.Lore = append(stack.Lore, tag.Interface().(string))
 		}
 	}
