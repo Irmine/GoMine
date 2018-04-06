@@ -30,10 +30,6 @@ type Type struct {
 	// breakable defines if the item is breakable.
 	// Breakable items will have decrementing durability.
 	breakable bool
-	// cachedNBT is an NBT compound which gets set when parsing NBT.
-	// This cached NBT is used to ensure no NBT gets lost while parsing,
-	// and forms the base for NBT that gets emitted by the type.
-	cachedNBT *gonbt.Compound
 }
 
 // NewType returns a new non-breakable type.
@@ -48,7 +44,7 @@ func NewType(stringId string) Type {
 	for _, frag := range fragments {
 		name += strings.Title(frag) + " "
 	}
-	return Type{parseNBT, emitNBT, strings.TrimRight(name, " "), stringId, false, gonbt.NewCompound("", make(map[string]gonbt.INamedTag))}
+	return Type{parseNBT, emitNBT, strings.TrimRight(name, " "), stringId, false}
 }
 
 // NewType returns a new breakable type.
@@ -83,10 +79,27 @@ func (t Type) IsBreakable() bool {
 	return t.breakable
 }
 
-// String returns a string representation of the item.
-// It implements fmt.Stringer.
+// String returns a string representation of a type.
+// It implements fmt.Stringer, and returns a string as such:
+// Emerald (minecraft:emerald)
 func (t Type) String() string {
-	return fmt.Sprint(t.name, " (", t.stringId)
+	return fmt.Sprint(t.name, " (", t.stringId, ")")
+}
+
+// GetAuxValue returns the aux value for the item stack with item data.
+// This aux value is used for writing stacks over network.
+func (t Type) GetAuxValue(stack *Stack, data int16) int32 {
+	if t.IsBreakable() {
+		data = stack.Durability
+	}
+	return int32(((data & 0x7fff) << 8) | int16(stack.Count))
+}
+
+// Equals checks if two item types are considered equal.
+// Item types are merely checked against each other's
+// string IDs, but should not require more comparisons.
+func (t Type) Equals(t2 Type) bool {
+	return t.stringId == t2.stringId
 }
 
 // parseNBT implements default behaviour for parsing NBT.

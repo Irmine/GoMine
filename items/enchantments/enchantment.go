@@ -27,8 +27,8 @@ func (t Type) GetId() int16 {
 // enchantment, and the value of it.
 type Instance struct {
 	Type
-	// Value is the enchantment value.
+	// Level is the enchantment level.
 	// This value indicates the strength of the
 	// enchantment.
-	Value byte
+	Level byte
 }

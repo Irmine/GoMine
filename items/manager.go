@@ -1,5 +1,7 @@
 package items
 
+import "github.com/irmine/gonbt"
+
 // Manager supplies helper functions for item type registering.
 // Item types get registered by their string ID,
 // and can be retrieved using these.
@@ -121,7 +123,7 @@ func (registry *Manager) Get(stringId string, count byte) (*Stack, bool) {
 	if !ok {
 		t = registry.stringIds["minecraft:air"]
 	}
-	return &Stack{Type: t, Count: count, DisplayName: t.name}, ok
+	return &Stack{Type: t, Count: count, DisplayName: t.name, cachedNBT: gonbt.NewCompound("", make(map[string]gonbt.INamedTag))}, ok
 }
 
 // GetTypes returns all registered item types.
