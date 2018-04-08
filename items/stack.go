@@ -16,7 +16,7 @@ type Stack struct {
 	Type
 	// Count is the current count of an item.
 	// The count of an item is usually 16/64.
-	Count byte
+	Count int
 	// Durability is the current left durability of the stack.
 	// Durability on non-breakable item types has no effect.
 	Durability int16
@@ -61,18 +61,59 @@ func (stack Stack) String() string {
 	return fmt.Sprint("x", stack.Count, stack.Type)
 }
 
+// CanStackWith checks if two stacks can stack with each other.
+// A bool is returned which indicates if the two can stack,
+// and an integer is returned which specifies the count of
+// of the item that can still be stacked on this stack.
+// The returned integer may be 0, if the stack is already
+// at the max stack size.
+func (stack Stack) CanStackOn(stack2 *Stack) (bool, int) {
+	if !stack.Type.Equals(stack2.Type) || stack.DisplayName != stack2.DisplayName || !stack.EqualsEnchantments(stack2) || !stack.EqualsLore(stack2) {
+		return false, 0
+	}
+	count := stack2.maxStackSize - stack2.Count
+	countLeft := stack.Count
+	if countLeft < count {
+		count = countLeft
+	}
+	return true, count
+}
+
+// StackOn attempts to stack a stack on another stack.
+// A first bool is returned which indicates if the two stacked
+// successfully. A second bool is returned which is true as long as
+// the item stack is not at count 0.
+// An integer is returned to specify the count of items that got stacked
+// on the other stack. The integer returned may be 0, which happens if the
+// other stack is already at max stack size.
+func (stack *Stack) StackOn(stack2 *Stack) (success bool, notZero bool, stackCount int) {
+	canStack, count := stack.CanStackOn(stack2)
+	countLeft := stack.Count != 0
+	if !canStack {
+		return false, countLeft, count
+	}
+	stack2.Count += count
+	stack.Count -= count
+	return true, countLeft, count
+}
+
 // Equals checks if two item stacks are considered equal.
 // Equals checks if the item type is equal and if the count is equal.
 // For more deep checks, EqualsExact should be used.
-func (stack Stack) Equals(stack2 Stack) bool {
-	return stack.Type.Equals(stack2.Type)
+func (stack Stack) Equals(stack2 *Stack) bool {
+	return stack.Type.Equals(stack2.Type) && stack2.Count == stack.Count && stack.Durability == stack2.Durability && stack.DisplayName == stack2.DisplayName
 }
 
 // EqualsExact checks if two item stacks are considered exact equal.
 // EqualsExact does all the checks Equals does,
-// and checks if the lore and enchantments are equal,
-// as well as the custom name and durability.
-func (stack Stack) EqualsExact(stack2 Stack) bool {
+// and checks if the lore and enchantments are equal.
+func (stack Stack) EqualsExact(stack2 *Stack) bool {
+	return stack.Equals(stack2) && stack.EqualsLore(stack2) && stack.EqualsEnchantments(stack2)
+}
+
+// EqualsLore checks if the lore of two item
+// stacks are equal to each other.
+func (stack Stack) EqualsLore(stack2 *Stack) bool {
 	if len(stack.Lore) != len(stack2.Lore) {
 		return false
 	}
@@ -81,6 +122,12 @@ func (stack Stack) EqualsExact(stack2 Stack) bool {
 			return false
 		}
 	}
+	return true
+}
+
+// EqualsEnchantments checks if enchantments of two
+// item stacks are equal to each other.
+func (stack Stack) EqualsEnchantments(stack2 *Stack) bool {
 	if len(stack.enchantments) != len(stack2.enchantments) {
 		return false
 	}
@@ -89,5 +136,5 @@ func (stack Stack) EqualsExact(stack2 Stack) bool {
 			return false
 		}
 	}
-	return stack.Equals(stack2) && stack.DisplayName == stack2.DisplayName && stack.Durability == stack2.Durability
+	return true
 }

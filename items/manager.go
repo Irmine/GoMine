@@ -117,8 +117,7 @@ func (registry *Manager) Deregister(stringId string) bool {
 // A bool gets returned to indicate whether any item was found.
 // If no item type could be found with the given string ID,
 // a default air item and a bool false gets returned.
-// It is recommended to use this function over Get where possible.
-func (registry *Manager) Get(stringId string, count byte) (*Stack, bool) {
+func (registry *Manager) Get(stringId string, count int) (*Stack, bool) {
 	t, ok := registry.stringIds[stringId]
 	if !ok {
 		t = registry.stringIds["minecraft:air"]
@@ -137,5 +136,5 @@ func (registry *Manager) GetTypes() map[string]Type {
 // in order to register the proper default items.
 func (registry *Manager) RegisterDefaults() {
 	registry.Register(NewType("minecraft:air"), false)
-	registry.Register(NewType("minecraft:glass_bottle"), true)
+	registry.Register(NewType("minecraft:stone"), true)
 }

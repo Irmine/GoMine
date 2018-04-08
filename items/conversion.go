@@ -12,18 +12,20 @@ import (
 // The keys of these maps are created using the
 // getKey method.
 var IdToType = map[string]Type{
-	getKey(0, 0): DefaultManager.stringIds["minecraft:air"],
+	GetKey(0, 0): DefaultManager.stringIds["minecraft:air"],
+	GetKey(1, 0): DefaultManager.stringIds["minecraft:stone"],
 }
 
 // TypeToId is a map used to convert
 // a block state to an ID + data combination.
 var TypeToId = map[string]string{
-	fmt.Sprint(DefaultManager.stringIds["minecraft:air"]): getKey(0, 0),
+	fmt.Sprint(DefaultManager.stringIds["minecraft:air"]):   GetKey(0, 0),
+	fmt.Sprint(DefaultManager.stringIds["minecraft:stone"]): GetKey(1, 0),
 }
 
 // getKey returns the key of an ID + data combination,
 // which is used in both maps.
-func getKey(id int16, data int16) string {
+func GetKey(id int16, data int16) string {
 	return fmt.Sprint(id, ":", data)
 }
 

@@ -30,6 +30,10 @@ type Type struct {
 	// breakable defines if the item is breakable.
 	// Breakable items will have decrementing durability.
 	breakable bool
+	// maxStackSize is the maximum size of a stack of this item.
+	// Item stacks itself are not limited, but the stack size
+	// of occurrences in an inventory of the item are.
+	maxStackSize int
 }
 
 // NewType returns a new non-breakable type.
@@ -44,7 +48,7 @@ func NewType(stringId string) Type {
 	for _, frag := range fragments {
 		name += strings.Title(frag) + " "
 	}
-	return Type{parseNBT, emitNBT, strings.TrimRight(name, " "), stringId, false}
+	return Type{ParseNBT, EmitNBT, strings.TrimRight(name, " "), stringId, false, 64}
 }
 
 // NewType returns a new breakable type.
@@ -79,11 +83,18 @@ func (t Type) IsBreakable() bool {
 	return t.breakable
 }
 
+// GetMaximumStackSize returns the maximum stack size of an item.
+// Item stacks of the type are not limited to this size themselves,
+// but are when set into an inventory.
+func (t Type) GetMaximumStackSize() int {
+	return t.maxStackSize
+}
+
 // String returns a string representation of a type.
 // It implements fmt.Stringer, and returns a string as such:
-// Emerald (minecraft:emerald)
+// Emerald(minecraft:emerald)
 func (t Type) String() string {
-	return fmt.Sprint(t.name, " (", t.stringId, ")")
+	return fmt.Sprint(t.name, "(", t.stringId, ")")
 }
 
 // GetAuxValue returns the aux value for the item stack with item data.
@@ -102,10 +113,10 @@ func (t Type) Equals(t2 Type) bool {
 	return t.stringId == t2.stringId
 }
 
-// parseNBT implements default behaviour for parsing NBT.
+// ParseNBT implements default behaviour for parsing NBT.
 // This is the default function passed in for `NBTParseFunction`.
 // The cached NBT gets set when parsing NBT.
-func parseNBT(compound *gonbt.Compound, stack *Stack) {
+func ParseNBT(compound *gonbt.Compound, stack *Stack) {
 	if compound.HasTagWithType(Display, gonbt.TAG_Compound) {
 		stack.DisplayName = compound.GetCompound(Display).GetString(DisplayName, stack.name)
 		for _, tag := range compound.GetCompound(Display).GetList(DisplayLore, gonbt.TAG_String).GetTags() {
@@ -115,10 +126,10 @@ func parseNBT(compound *gonbt.Compound, stack *Stack) {
 	stack.cachedNBT = compound
 }
 
-// emitNBT implements default behaviour for emitting NBT.
+// EmitNBT implements default behaviour for emitting NBT.
 // This is the default function passed in for `NBTEmitFunction`.
 // The compound first gets set to the cached compound of the item type.
-func emitNBT(compound *gonbt.Compound, stack *Stack) {
+func EmitNBT(compound *gonbt.Compound, stack *Stack) {
 	compound = stack.cachedNBT
 	compound.SetCompound(Display, make(map[string]gonbt.INamedTag))
 	if stack.DisplayName != "" {

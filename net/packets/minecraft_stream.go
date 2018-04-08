@@ -1,6 +1,7 @@
 package packets
 
 import (
+	"fmt"
 	"github.com/golang/geo/r3"
 	"github.com/google/uuid"
 	"github.com/irmine/binutils"
@@ -151,12 +152,13 @@ func (stream *MinecraftStream) GetAttributeMap() data.AttributeMap {
 // Item stacks also get their NBT written to network,
 // through the call of Stack.EmitNBT().
 func (stream *MinecraftStream) PutItem(item *items.Stack) {
-	stream.PutVarInt(int32(item.GetId()))
-	stream.PutVarInt(item.GetAuxValue())
+	id, v := items.FromKey(items.TypeToId[fmt.Sprint(item.Type)])
+	stream.PutVarInt(int32(id))
+	stream.PutVarInt(item.GetAuxValue(item, v))
 
 	writer := gonbt.NewWriter(true, binutils.LittleEndian)
 	compound := gonbt.NewCompound("", make(map[string]gonbt.INamedTag))
-	item.EmitNBT(compound)
+	item.NBTEmitFunction(compound, item)
 	writer.WriteUncompressedCompound(compound)
 	d := writer.GetBuffer()
 	stream.PutLittleShort(int16(len(d)))
@@ -174,17 +176,19 @@ func (stream *MinecraftStream) PutItem(item *items.Stack) {
 func (stream *MinecraftStream) GetItem() *items.Stack {
 	id := stream.GetVarInt()
 	if id == 0 {
-		i, _ := items.DefaultManager.GetByStringId("minecraft:air", 0)
+		i, _ := items.DefaultManager.Get("minecraft:air", 0)
 		return i
 	}
 	aux := stream.GetVarInt()
 	itemData := aux >> 8
+
+	t := items.IdToType[items.GetKey(int16(id), int16(itemData))]
 	count := aux & 0xff
 
-	item, _ := items.DefaultManager.Get(int16(id), int16(itemData), byte(count))
+	item, _ := items.DefaultManager.Get(t.GetId(), int(count))
 	nbtData := stream.Get(int(stream.GetLittleShort()))
 	reader := gonbt.NewReader(nbtData, true, binutils.LittleEndian)
-	item.ParseNBT(reader.ReadUncompressedIntoCompound())
+	item.NBTParseFunction(reader.ReadUncompressedIntoCompound(), item)
 
 	// Fields for canPlaceOn and canBreak are not implemented.
 	// TODO

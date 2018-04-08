@@ -36,4 +36,14 @@ func Test(t *testing.T) {
 	} else {
 		fmt.Println("Inventory does not contain 35 glass bottles.")
 	}
+
+	item, _ = manager.Get("minecraft:emerald", 10)
+	inv.RemoveItem(item)
+
+	fmt.Println(inv)
+
+	item, _ = manager.Get("minecraft:emerald", 90)
+	inv.AddItem(item)
+
+	fmt.Println(inv)
 }
