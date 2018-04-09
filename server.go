@@ -23,6 +23,7 @@ import (
 	"github.com/irmine/worlds/providers"
 	net2 "net"
 	"os"
+	"strings"
 )
 
 const (
@@ -37,7 +38,7 @@ type Server struct {
 	token             []byte
 	ServerPath        string
 	Config            *resources.GoMineConfig
-	ConsoleReader     *ConsoleReader
+	CommandReader     *text.CommandReader
 	CommandManager    *commands.Manager
 	PackManager       *packs.Manager
 	PermissionManager *permissions.Manager
@@ -65,7 +66,9 @@ func NewServer(serverPath string, config *resources.GoMineConfig) *Server {
 	})
 
 	s.LevelManager = worlds.NewManager(serverPath)
-	s.ConsoleReader = NewConsoleReader(s)
+	s.CommandReader = text.NewCommandReader(os.Stdin)
+	s.CommandReader.AddReadFunc(s.attemptReadCommand)
+
 	s.CommandManager = commands.NewManager()
 
 	s.SessionManager = net.NewSessionManager()
@@ -345,4 +348,27 @@ func (server *Server) Tick() {
 		//level.Tick()
 	}
 	server.tick++
+}
+
+func (server *Server) attemptReadCommand(commandText string) {
+	args := strings.Split(commandText, " ")
+	commandName := args[0]
+	i := 1
+	for !server.CommandManager.IsCommandRegistered(commandName) {
+		if i == len(args) {
+			break
+		}
+		commandName += " " + args[i]
+		i++
+	}
+	manager := server.CommandManager
+
+	if !manager.IsCommandRegistered(commandName) {
+		text.DefaultLogger.Error("Command could not be found.")
+		return
+	}
+	args = args[i:]
+
+	command, _ := manager.GetCommand(commandName)
+	command.Execute(server, args)
 }
