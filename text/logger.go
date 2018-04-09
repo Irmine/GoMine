@@ -110,7 +110,7 @@ func (logger *Logger) process() {
 }
 
 // Wait waits until the logger is done logging all messages
-// currently in the message queue. The curent goroutine will be
+// currently in the message queue. The current goroutine will be
 // blocked until the logger is done processing all messages,
 // and the writing goroutine will be stopped.
 // After waiting, the writing process gets restarted.
