@@ -1,6 +1,7 @@
 package packs
 
 import (
+	"github.com/irmine/gomine/text"
 	"io/ioutil"
 	"path/filepath"
 )
@@ -74,6 +75,7 @@ func (manager *Manager) LoadResourcePacks() []error {
 		}
 
 		manager.resourcePacks[resourcePack.manifest.Header.UUID] = resourcePack
+		text.DefaultLogger.Info("Loaded resource pack:", text.Yellow+resourcePack.manifest.Header.Name)
 		manager.GetResourceStack().Push(resourcePack)
 	}
 	return errors
