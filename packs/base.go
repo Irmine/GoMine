@@ -29,7 +29,7 @@ type Pack interface {
 	GetPath() string
 }
 
-// Base is a struct that forms the base of every pack.
+// PacketManagerBase is a struct that forms the base of every pack.
 // It has functions for loading, validating and pack data.
 type Base struct {
 	packPath string

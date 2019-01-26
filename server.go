@@ -62,7 +62,10 @@ func NewServer(serverPath string, config *resources.GoMineConfig) *Server {
 	text.DefaultLogger.DebugMode = config.DebugMode
 	file, _ := os.OpenFile(serverPath+"gomine.log", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0700)
 	text.DefaultLogger.AddOutput(func(message []byte) {
-		file.WriteString(text.ColoredString(message).StripAll())
+		_, err := file.WriteString(text.ColoredString(message).StripAll())
+		if err != nil {
+			text.DefaultLogger.LogError(err)
+		}
 	})
 
 	s.LevelManager = worlds.NewManager(serverPath)
@@ -72,19 +75,14 @@ func NewServer(serverPath string, config *resources.GoMineConfig) *Server {
 	s.CommandManager = commands.NewManager()
 
 	s.SessionManager = net.NewSessionManager()
-	s.NetworkAdapter = net.NewNetworkAdapter(s.SessionManager)
+	s.NetworkAdapter = net.NewNetworkAdapter(NewPacketManager(s), s.SessionManager)
 	s.NetworkAdapter.GetRakLibManager().PongData = s.GeneratePongData()
 	s.NetworkAdapter.GetRakLibManager().RawPacketFunction = s.HandleRaw
 	s.NetworkAdapter.GetRakLibManager().DisconnectFunction = s.HandleDisconnect
 
-	s.RegisterDefaultProtocols()
-
 	s.PackManager = packs.NewManager(serverPath)
-
 	s.PermissionManager = permissions.NewManager()
-
 	s.PluginManager = NewPluginManager(s)
-
 	s.QueryManager = query.NewManager()
 
 	if config.UseEncryption {
@@ -99,19 +97,14 @@ func NewServer(serverPath string, config *resources.GoMineConfig) *Server {
 		}
 
 		var token = make([]byte, 128)
-		rand.Read(token)
+		_, err = rand.Read(token)
+		if err != nil {
+			text.DefaultLogger.Error(err)
+		}
 		s.token = token
 	}
 
 	return s
-}
-
-// RegisterDefaultProtocols registers all default protocols of GoMine.
-func (server *Server) RegisterDefaultProtocols() {
-	server.NetworkAdapter.GetProtocolManager().RegisterProtocol(NewP160(server))
-	server.NetworkAdapter.GetProtocolManager().RegisterProtocol(NewP200(server))
-	server.NetworkAdapter.GetProtocolManager().RegisterProtocol(NewP201(server))
-	server.NetworkAdapter.GetProtocolManager().RegisterProtocol(NewP220(server))
 }
 
 // RegisterDefaultCommands registers all default commands of the server.

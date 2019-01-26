@@ -28,7 +28,6 @@ type MinecraftSession struct {
 	xuid     string
 	clientId int
 
-	protocol         protocol2.Protocol
 	protocolNumber   int32
 	minecraftVersion string
 
@@ -51,7 +50,7 @@ type MinecraftSession struct {
 
 // NewMinecraftSession returns a new Minecraft session with the given RakNet session.
 func NewMinecraftSession(adapter *NetworkAdapter, session *server.Session) *MinecraftSession {
-	return &MinecraftSession{adapter, session, nil, uuid.New(), "", 0, nil, 0, "", "", 0, utils.NewEncryptionHandler(), false, false, 0, nil, nil, nil, false}
+	return &MinecraftSession{adapter, session, nil, uuid.New(), "", 0, 0, "", "", 0, utils.NewEncryptionHandler(), false, false, 0, nil, nil, nil, false}
 }
 
 // SetData sets the basic session data of the Minecraft Session
@@ -63,7 +62,6 @@ func (session *MinecraftSession) SetData(permissionManager *permissions.Manager,
 	session.xuid = data.ClientXUID
 	session.clientId = data.ClientId
 	session.protocolNumber = data.ProtocolNumber
-	session.protocol = session.adapter.GetProtocolManager().GetProtocol(data.ProtocolNumber)
 	session.minecraftVersion = data.GameVersion
 	session.language = data.Language
 	session.clientPlatform = int32(data.DeviceOS)
@@ -126,20 +124,9 @@ func (session *MinecraftSession) GetPlatform() int32 {
 	return session.clientPlatform
 }
 
-// GetProtocolNumber returns the protocol number the client used to join the server.
+// GetProtocolNumber returns the mcpe number the client used to join the server.
 func (session *MinecraftSession) GetProtocolNumber() int32 {
 	return session.protocolNumber
-}
-
-// GetProtocol returns the protocol of the client.
-func (session *MinecraftSession) GetProtocol() protocol2.Protocol {
-	return session.protocol
-}
-
-// SetProtocol sets the protocol of this minecraft session.
-func (session *MinecraftSession) SetProtocol(protocol protocol2.Protocol) {
-	session.protocolNumber = protocol.GetProtocolNumber()
-	session.protocol = protocol
 }
 
 // GetGameVersion returns the Minecraft version the player used to join the server.
@@ -275,7 +262,7 @@ func (session *MinecraftSession) SendBatch(batch *MinecraftPacketBatch) {
 
 // HandlePacket handles packets of this session.
 func (session *MinecraftSession) HandlePacket(packet packets.IPacket) {
-	priorityHandlers := session.protocol.GetHandlersById(packet.GetId())
+	priorityHandlers := session.adapter.packetManager.GetHandlersById(packet.GetId())
 
 	var handled = false
 handling:

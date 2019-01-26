@@ -23,7 +23,7 @@ type IPacket interface {
 	GetId() int
 }
 
-// Packet is a Minecraft protocol packet.
+// Packet is a Minecraft mcpe packet.
 // Packets have a given ID and contain two prefix
 // bytes, which are used for split screen.
 // Packets can be discarded during handling
@@ -84,23 +84,19 @@ func (pk *Packet) DecodeId() {
 }
 
 // EncodeHeader encodes the header of a packet,
-// with protocol >= 200.
+// with mcpe >= 200.
 // First the packet ID gets encoded,
 // after which the sender and receiver ID bytes get written.
 func (pk *Packet) EncodeHeader() {
 	pk.EncodeId()
-	pk.PutByte(pk.SenderIdentifier)
-	pk.PutByte(pk.ReceiverIdentifier)
 }
 
 // DecodeHeader decodes a header of a packet,
-// with protocol >= 200.
+// with mcpe >= 200.
 // First the packet ID gets decoded,
 // after which the sender and receiver ID bytes.
 func (pk *Packet) DecodeHeader() {
 	pk.DecodeId()
-	pk.SenderIdentifier = pk.GetByte()
-	pk.ReceiverIdentifier = pk.GetByte()
 }
 
 func (pk *Packet) Encode() {}

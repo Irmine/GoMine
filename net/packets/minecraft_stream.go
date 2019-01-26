@@ -14,7 +14,7 @@ import (
 
 // MinecraftStream extends the binutils stream,
 // and implements methods for writing types specific
-// to the Minecraft protocol.
+// to the Minecraft mcpe.
 type MinecraftStream struct {
 	// MinecraftStream embeds binutils.Stream.
 	// Usual binary encoding/decoding functions can

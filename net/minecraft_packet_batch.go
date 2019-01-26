@@ -98,23 +98,18 @@ func (batch *MinecraftPacketBatch) fetchPackets(packetData [][]byte) {
 		}
 		packetId := int(data[0])
 
-		if batch.session.GetProtocol() == nil {
-			var protoNumber = batch.peekProtocol(data)
-			batch.session.SetProtocol(batch.session.adapter.GetProtocolManager().GetProtocol(protoNumber))
-		}
-
-		if !batch.session.GetProtocol().IsPacketRegistered(packetId) {
+		if !batch.session.adapter.packetManager.IsPacketRegistered(packetId) {
 			text.DefaultLogger.Debug("Unknown Minecraft packet with ID:", packetId)
 			continue
 		}
-		packet := batch.session.GetProtocol().GetPacket(packetId)
+		packet := batch.session.adapter.packetManager.GetPacket(packetId)
 
 		packet.SetBuffer(data)
 		batch.packets = append(batch.packets, packet)
 	}
 }
 
-// peekProtocol peeks in the packet's payload, looking for the protocol.
+// peekProtocol peeks in the packet's payload, looking for the mcpe.
 func (batch *MinecraftPacketBatch) peekProtocol(packetData []byte) int32 {
 	if packetData[0] != 0x01 {
 		return 0

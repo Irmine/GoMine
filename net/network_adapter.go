@@ -11,14 +11,14 @@ import (
 
 type NetworkAdapter struct {
 	rakLibManager   *server.Manager
-	protocolManager protocol2.Manager
+	packetManager   protocol2.IPacketManager
 	sessionManager  *SessionManager
 }
 
 // NewNetworkAdapter returns a new Network adapter to adapt to the RakNet server.
-func NewNetworkAdapter(sessionManager *SessionManager) *NetworkAdapter {
+func NewNetworkAdapter(packetManager protocol2.IPacketManager, sessionManager *SessionManager) *NetworkAdapter {
 	var manager = server.NewManager()
-	var adapter = &NetworkAdapter{manager, protocol2.NewManager(), sessionManager}
+	var adapter = &NetworkAdapter{manager, packetManager, sessionManager}
 
 	manager.PacketFunction = func(packet []byte, session *server.Session) {
 		var minecraftSession *MinecraftSession
@@ -35,11 +35,6 @@ func NewNetworkAdapter(sessionManager *SessionManager) *NetworkAdapter {
 		text.DefaultLogger.Debug(session, "connected!")
 	}
 	return adapter
-}
-
-// GetProtocolPool returns the protocol pool of the network adapter.
-func (adapter *NetworkAdapter) GetProtocolManager() protocol2.Manager {
-	return adapter.protocolManager
 }
 
 // GetRakLibManager returns the GoRakLib manager of the network adapter.

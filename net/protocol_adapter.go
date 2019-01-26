@@ -11,81 +11,81 @@ import (
 )
 
 func (session *MinecraftSession) SendAddEntity(entity protocol.AddEntityEntry) {
-	session.SendPacket(session.protocol.GetAddEntity(entity))
+	session.SendPacket(session.adapter.packetManager.GetAddEntity(entity))
 }
 
 func (session *MinecraftSession) SendAddPlayer(uuid uuid.UUID, platform int32, player protocol.AddPlayerEntry) {
-	session.SendPacket(session.protocol.GetAddPlayer(uuid, platform, player))
+	session.SendPacket(session.adapter.packetManager.GetAddPlayer(uuid, platform, player))
 }
 
 func (session *MinecraftSession) SendChunkRadiusUpdated(radius int32) {
-	session.SendPacket(session.protocol.GetChunkRadiusUpdated(radius))
+	session.SendPacket(session.adapter.packetManager.GetChunkRadiusUpdated(radius))
 }
 
 func (session *MinecraftSession) SendCraftingData() {
-	session.SendPacket(session.protocol.GetCraftingData())
+	session.SendPacket(session.adapter.packetManager.GetCraftingData())
 }
 
 func (session *MinecraftSession) SendDisconnect(message string, hideDisconnect bool) {
-	session.SendPacket(session.protocol.GetDisconnect(message, hideDisconnect))
+	session.SendPacket(session.adapter.packetManager.GetDisconnect(message, hideDisconnect))
 }
 
 func (session *MinecraftSession) SendFullChunkData(chunk *chunks.Chunk) {
-	session.SendPacket(session.protocol.GetFullChunkData(chunk))
+	session.SendPacket(session.adapter.packetManager.GetFullChunkData(chunk))
 }
 
 func (session *MinecraftSession) SendMovePlayer(runtimeId uint64, position r3.Vector, rotation data.Rotation, mode byte, onGround bool, ridingRuntimeId uint64) {
-	session.SendPacket(session.protocol.GetMovePlayer(runtimeId, position, rotation, mode, onGround, ridingRuntimeId))
+	session.SendPacket(session.adapter.packetManager.GetMovePlayer(runtimeId, position, rotation, mode, onGround, ridingRuntimeId))
 }
 
 func (session *MinecraftSession) SendPlayerList(listType byte, players map[string]protocol.PlayerListEntry) {
-	session.SendPacket(session.protocol.GetPlayerList(listType, players))
+	session.SendPacket(session.adapter.packetManager.GetPlayerList(listType, players))
 }
 
 func (session *MinecraftSession) SendPlayStatus(status int32) {
-	session.SendPacket(session.protocol.GetPlayStatus(status))
+	session.SendPacket(session.adapter.packetManager.GetPlayStatus(status))
 }
 
 func (session *MinecraftSession) SendRemoveEntity(uniqueId int64) {
-	session.SendPacket(session.protocol.GetRemoveEntity(uniqueId))
+	session.SendPacket(session.adapter.packetManager.GetRemoveEntity(uniqueId))
 }
 
 func (session *MinecraftSession) SendResourcePackChunkData(packUUID string, chunkIndex int32, progress int64, data []byte) {
-	session.SendPacket(session.protocol.GetResourcePackChunkData(packUUID, chunkIndex, progress, data))
+	session.SendPacket(session.adapter.packetManager.GetResourcePackChunkData(packUUID, chunkIndex, progress, data))
 }
 
 func (session *MinecraftSession) SendResourcePackDataInfo(pack packs.Pack) {
-	session.SendPacket(session.protocol.GetResourcePackDataInfo(pack))
+	session.SendPacket(session.adapter.packetManager.GetResourcePackDataInfo(pack))
 }
 
 func (session *MinecraftSession) SendResourcePackInfo(mustAccept bool, resourcePacks *packs.Stack, behaviorPacks *packs.Stack) {
-	session.SendPacket(session.protocol.GetResourcePackInfo(mustAccept, resourcePacks, behaviorPacks))
+	session.SendPacket(session.adapter.packetManager.GetResourcePackInfo(mustAccept, resourcePacks, behaviorPacks))
 }
 
 func (session *MinecraftSession) SendResourcePackStack(mustAccept bool, resourcePacks *packs.Stack, behaviorPacks *packs.Stack) {
-	session.SendPacket(session.protocol.GetResourcePackStack(mustAccept, resourcePacks, behaviorPacks))
+	session.SendPacket(session.adapter.packetManager.GetResourcePackStack(mustAccept, resourcePacks, behaviorPacks))
 }
 
 func (session *MinecraftSession) SendServerHandshake(encryptionJwt string) {
-	session.SendPacket(session.protocol.GetServerHandshake(encryptionJwt))
+	session.SendPacket(session.adapter.packetManager.GetServerHandshake(encryptionJwt))
 }
 
 func (session *MinecraftSession) SendSetEntityData(runtimeId uint64, data map[uint32][]interface{}) {
-	session.SendPacket(session.protocol.GetSetEntityData(runtimeId, data))
+	session.SendPacket(session.adapter.packetManager.GetSetEntityData(runtimeId, data))
 }
 
-func (session *MinecraftSession) SendStartGame(player protocol.StartGameEntry) {
-	session.SendPacket(session.protocol.GetStartGame(player))
+func (session *MinecraftSession) SendStartGame(player protocol.StartGameEntry, runtimeIdsTable []byte) {
+	session.SendPacket(session.adapter.packetManager.GetStartGame(player, runtimeIdsTable))
 }
 
 func (session *MinecraftSession) SendText(text types.Text) {
-	session.SendPacket(session.protocol.GetText(text))
+	session.SendPacket(session.adapter.packetManager.GetText(text))
 }
 
 func (session *MinecraftSession) Transfer(address string, port uint16) {
-	session.SendPacket(session.protocol.GetTransfer(address, port))
+	session.SendPacket(session.adapter.packetManager.GetTransfer(address, port))
 }
 
 func (session *MinecraftSession) SendUpdateAttributes(runtimeId uint64, attributes data.AttributeMap) {
-	session.SendPacket(session.protocol.GetUpdateAttributes(runtimeId, attributes))
+	session.SendPacket(session.adapter.packetManager.GetUpdateAttributes(runtimeId, attributes))
 }
