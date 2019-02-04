@@ -5,7 +5,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/irmine/gomine/net/packets"
 	"github.com/irmine/gomine/net/packets/types"
-	protocol2 "github.com/irmine/gomine/net/protocol"
 	"github.com/irmine/gomine/permissions"
 	"github.com/irmine/gomine/players"
 	"github.com/irmine/gomine/text"
@@ -13,6 +12,7 @@ import (
 	"github.com/irmine/goraklib/protocol"
 	"github.com/irmine/goraklib/server"
 	"github.com/irmine/worlds"
+	"github.com/irmine/worlds/blocks"
 	"github.com/irmine/worlds/chunks"
 	"math"
 	"strings"
@@ -45,7 +45,7 @@ type MinecraftSession struct {
 	permissions     map[string]*permissions.Permission
 	permissionGroup *permissions.Group
 
-	NeedsChunks bool
+	Connected   bool
 }
 
 // NewMinecraftSession returns a new Minecraft session with the given RakNet session.
@@ -66,8 +66,19 @@ func (session *MinecraftSession) SetData(permissionManager *permissions.Manager,
 	session.language = data.Language
 	session.clientPlatform = int32(data.DeviceOS)
 	session.chunkLoader = worlds.NewLoader(nil, 0, 0)
+	session.chunkLoader.PublisherUpdateFunction = func() {
+		var vector = session.player.Position
+		var position = blocks.NewPosition(int32(vector.X), uint32(vector.Y), int32(vector.Z))
+		session.SendNetworkChunkPublisherUpdate(position, uint32(session.GetViewDistance() * 16))
+	}
 	session.chunkLoader.LoadFunction = func(chunk *chunks.Chunk) {
 		session.SendFullChunkData(chunk)
+		chunk.AddViewer(session)
+		chunk.AddEntity(session.player)
+	}
+	session.chunkLoader.UnloadFunction = func(chunk *chunks.Chunk) {
+		chunk.RemoveViewer(session)
+		chunk.RemoveEntity(session.player.GetRuntimeId())
 	}
 }
 
@@ -124,7 +135,7 @@ func (session *MinecraftSession) GetPlatform() int32 {
 	return session.clientPlatform
 }
 
-// GetProtocolNumber returns the mcpe number the client used to join the server.
+// GetProtocolNumber returns the bedrock number the client used to join the server.
 func (session *MinecraftSession) GetProtocolNumber() int32 {
 	return session.protocolNumber
 }
@@ -241,6 +252,11 @@ func (session *MinecraftSession) RemovePermission(permission string) bool {
 	return true
 }
 
+func (session *MinecraftSession) SendSkin(target *MinecraftSession) {
+	var player = session.GetPlayer()
+	target.SendPlayerSkin(player.GetUUID(), player.GetSkinId(), player.GetGeometryName(), player.GetGeometryData(), player.GetSkinData(), player.GetCapeData())
+}
+
 // SendPacket sends a packet to this session.
 func (session *MinecraftSession) SendPacket(packet packets.IPacket) {
 	if session.session == nil {
@@ -285,23 +301,45 @@ handling:
 	}
 }
 
+func (session *MinecraftSession) Close(reason string, hideDisconnectionScreen bool) {
+	if session.Connected {
+		loadedChunks := session.GetChunkLoader().GetLoadedChunks()
+
+		for _, session := range session.adapter.sessionManager.GetSessions() {
+			session.SendRemoveEntity(session.player.Entity.GetUniqueId())
+			session.player.RemoveViewer(session)
+		}
+
+		for _, chunk := range loadedChunks {
+			chunk.RemoveViewer(session)
+			chunk.RemoveEntity(session.player.Entity.GetRuntimeId())
+		}
+
+		session.player.Close()
+	}
+	session.SendDisconnect(reason, hideDisconnectionScreen)
+}
+
+func (session *MinecraftSession) Kick(reason string, hideDisconnectionScreen bool, isAdmin bool) {
+	if isAdmin {
+		reason = "Kicked By Admin. Reason: " + reason
+		session.Close(reason, hideDisconnectionScreen)
+		text.DefaultLogger.Info(session.GetDisplayName() + " Disconnected.", reason)
+	}else{
+		session.Close(reason, hideDisconnectionScreen)
+		text.DefaultLogger.Info(session.GetDisplayName() + " Disconnected.", reason)
+	}
+}
+
 // SyncMove synchronizes the server's player movement with the client movement.
 func (session *MinecraftSession) SyncMove(x, y, z float64, pitch, yaw, headYaw float64, onGround bool) {
-	newChunkX, newChunkZ := int32(math.Floor(x))>>4, int32(math.Floor(z))>>4
-	newChunk, _ := session.GetPlayer().Dimension.GetChunk(newChunkX, newChunkZ)
-	if session.player.GetChunk() != newChunk {
-		session.player.GetChunk().RemoveViewer(session)
-		newChunk.AddViewer(session)
-		for _, entity := range newChunk.GetEntities() {
-			session.SendAddEntity(entity.(protocol2.AddEntityEntry))
-		}
-	}
 	session.player.SyncMove(x, y, z, pitch, yaw, headYaw, onGround)
 }
 
 func (session *MinecraftSession) Tick() {
-	if session.NeedsChunks && session.HasSpawned() {
+	if session.Connected && session.HasSpawned() {
 		session.GetChunkLoader().Warp(session.GetPlayer().GetDimension(), int32(math.Floor(session.player.Position.X))>>4, int32(math.Floor(session.player.Position.Z))>>4)
-		session.GetChunkLoader().Request(session.GetViewDistance(), 3)
+		session.GetChunkLoader().Request(session.GetViewDistance(), 4)
+		session.player.SendMovement()
 	}
 }

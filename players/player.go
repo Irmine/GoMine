@@ -1,9 +1,9 @@
 package players
 
 import (
-	"github.com/golang/geo/r3"
 	"github.com/google/uuid"
 	"github.com/irmine/worlds/entities"
+	"math"
 )
 
 type Player struct {
@@ -74,7 +74,7 @@ func (player *Player) GetPlatform() int32 {
 
 // SpawnPlayerTo spawns this player to the given other player.
 func (player *Player) SpawnPlayerTo(viewer entities.Viewer) {
-	viewer.SendAddPlayer(player.GetUUID(), player.platform, player)
+	viewer.SendAddPlayer(player.GetUUID(), player)
 }
 
 // SpawnPlayerToAll spawns this player to all other players.
@@ -140,10 +140,23 @@ func (player *Player) SetGeometryData(data string) {
 }
 
 // SyncMove synchronizes the server's player movement with the client movement.
-func (player *Player) SyncMove(x, y, z float64, pitch, yaw, headYaw float64, onGround bool) {
-	player.SetPosition(r3.Vector{x, y, z})
-	player.Rotation.Pitch += float64(pitch)
-	player.Rotation.Yaw += float64(yaw)
-	player.Rotation.HeadYaw = float64(headYaw)
+func (player *Player) SyncMove(x, y, z, pitch, yaw, headYaw float64, onGround bool) {
+	player.Position.X = x
+	player.Position.Y = y
+	player.Position.Z = z
+	player.Rotation.Pitch = math.Mod(pitch, 360)
+	player.Rotation.Yaw = math.Mod(yaw, 360)
+	player.Rotation.HeadYaw = headYaw
 	player.OnGround = onGround
+}
+
+func (player Player) SendMovement() {
+	for _, v := range player.GetChunk().GetViewers() {
+		if v.GetUUID() == player.GetUUID() {
+			continue
+		}
+		if viewer, ok := v.(entities.Viewer); ok {
+			viewer.SendMovePlayer(player.GetRuntimeId(), player.Position, player.Rotation, 0, player.OnGround, player.GetRidingId())
+		}
+	}
 }

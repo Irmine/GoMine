@@ -6,6 +6,7 @@ import (
 	"github.com/irmine/gomine/net/packets/types"
 	"github.com/irmine/gomine/net/protocol"
 	"github.com/irmine/gomine/packs"
+	"github.com/irmine/worlds/blocks"
 	"github.com/irmine/worlds/chunks"
 	"github.com/irmine/worlds/entities/data"
 )
@@ -14,8 +15,8 @@ func (session *MinecraftSession) SendAddEntity(entity protocol.AddEntityEntry) {
 	session.SendPacket(session.adapter.packetManager.GetAddEntity(entity))
 }
 
-func (session *MinecraftSession) SendAddPlayer(uuid uuid.UUID, platform int32, player protocol.AddPlayerEntry) {
-	session.SendPacket(session.adapter.packetManager.GetAddPlayer(uuid, platform, player))
+func (session *MinecraftSession) SendAddPlayer(uuid uuid.UUID, player protocol.AddPlayerEntry) {
+	session.SendPacket(session.adapter.packetManager.GetAddPlayer(uuid, player))
 }
 
 func (session *MinecraftSession) SendChunkRadiusUpdated(radius int32) {
@@ -88,4 +89,24 @@ func (session *MinecraftSession) Transfer(address string, port uint16) {
 
 func (session *MinecraftSession) SendUpdateAttributes(runtimeId uint64, attributes data.AttributeMap) {
 	session.SendPacket(session.adapter.packetManager.GetUpdateAttributes(runtimeId, attributes))
+}
+
+func (session *MinecraftSession) SendNetworkChunkPublisherUpdate(position blocks.Position, radius uint32) {
+	session.SendPacket(session.adapter.packetManager.GetNetworkChunkPublisherUpdatePacket(position, radius))
+}
+
+func (session *MinecraftSession) SendMoveEntity(runtimeId uint64, position r3.Vector, rot data.Rotation, flags byte, teleport bool) {
+	session.SendPacket(session.adapter.packetManager.GetMoveEntity(runtimeId, position, rot, flags, teleport))
+}
+
+func (session *MinecraftSession) SendPlayerSkin(uuid2 uuid.UUID, skinId, geometryName, geometryData string, skinData, capeData []byte) {
+	session.SendPacket(session.adapter.packetManager.GetPlayerSkin(uuid2, skinId, geometryName, geometryData, skinData, capeData))
+}
+
+func (session *MinecraftSession) SendPlayerAction(runtimeId uint64, action int32, position blocks.Position, face int32) {
+	session.SendPacket(session.adapter.packetManager.GetPlayerAction(runtimeId, action, position, face))
+}
+
+func (session *MinecraftSession) SendAnimate(action int32, runtimeId uint64, float float32) {
+	session.SendPacket(session.adapter.packetManager.GetAnimate(action, runtimeId, float))
 }

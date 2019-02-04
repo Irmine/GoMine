@@ -31,9 +31,8 @@ type SessionData struct {
 type Text struct {
 	Message               string
 	SourceName            string
-	SourceDisplayName     string
-	SourcePlatform        int32
 	SourceXUID            string
+	PlatformChatId        string
 	TextType              byte
 	IsTranslation         bool
 	TranslationParameters []string

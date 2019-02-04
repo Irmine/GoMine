@@ -30,6 +30,7 @@ func NewNetworkAdapter(packetManager protocol2.IPacketManager, sessionManager *S
 	}
 	manager.DisconnectFunction = func(session *server.Session) {
 		text.DefaultLogger.Debug(session, "disconnected!")
+
 	}
 	manager.ConnectFunction = func(session *server.Session) {
 		text.DefaultLogger.Debug(session, "connected!")

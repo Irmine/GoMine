@@ -49,6 +49,10 @@ func NewPing() *commands.Command {
 
 func NewStop(server *Server) *commands.Command {
 	return commands.NewCommand("stop", "Stops the server", "gomine.stop", []string{"shutdown"}, func() {
+		for _, session := range server.SessionManager.GetSessions() {
+			session.Kick("Server Stopped", false, true)
+		}
+
 		server.Shutdown()
 	})
 }

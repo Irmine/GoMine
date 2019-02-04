@@ -22,6 +22,11 @@ const (
 )
 
 const (
+	MoveEntityGround = iota + 1
+	MoveEntityTeleport
+)
+
+const (
 	StatusRefused = iota + 1
 	StatusSendPacks
 	StatusHaveAllPacks

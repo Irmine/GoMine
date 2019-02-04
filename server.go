@@ -4,6 +4,8 @@ import (
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
+	"github.com/irmine/worlds/generation/defaults"
+	"github.com/irmine/worlds/providers"
 
 	"encoding/hex"
 	"errors"
@@ -20,7 +22,6 @@ import (
 	"github.com/irmine/goraklib/server"
 	"github.com/irmine/query"
 	"github.com/irmine/worlds"
-	"github.com/irmine/worlds/providers"
 	net2 "net"
 	"os"
 	"strings"
@@ -130,9 +131,9 @@ func (server *Server) Start() error {
 
 	server.LevelManager.SetDefaultLevel(worlds.NewLevel("world", server.ServerPath))
 	var dimension = worlds.NewDimension("overworld", server.LevelManager.GetDefaultLevel(), worlds.OverworldId)
-	server.LevelManager.GetDefaultLevel().SetDefaultDimension(dimension)
 	dimension.SetChunkProvider(providers.NewAnvil(server.ServerPath + "worlds/world/overworld/region/"))
-	dimension.SetGenerator(Flat{})
+	server.LevelManager.GetDefaultLevel().SetDefaultDimension(dimension)
+	dimension.SetGenerator(defaults.NewFlatGenerator())
 
 	server.RegisterDefaultCommands()
 
@@ -309,9 +310,8 @@ func (server *Server) HandleDisconnect(s *server.Session) {
 			online.SendPlayerList(data.ListTypeRemove, map[string]protocol.PlayerListEntry{online.GetPlayer().GetName(): online.GetPlayer()})
 		}
 
-		session.GetPlayer().DespawnFromAll()
-
 		session.GetPlayer().Close()
+		session.Connected = false
 
 		server.BroadcastMessage(text.Yellow+session.GetDisplayName(), "has left the server")
 	}

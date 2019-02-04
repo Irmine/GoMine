@@ -7,6 +7,7 @@ import (
 	"github.com/irmine/gomine/net/packets"
 	"github.com/irmine/gomine/net/packets/types"
 	"github.com/irmine/gomine/packs"
+	"github.com/irmine/worlds/blocks"
 	"github.com/irmine/worlds/chunks"
 	"github.com/irmine/worlds/entities/data"
 )
@@ -23,7 +24,7 @@ type IPacketManager interface {
 	IsPacketRegistered(packetId int) bool
 
 	GetAddEntity(AddEntityEntry) packets.IPacket
-	GetAddPlayer(uuid.UUID, int32, AddPlayerEntry) packets.IPacket
+	GetAddPlayer(uuid.UUID, AddPlayerEntry) packets.IPacket
 	GetChunkRadiusUpdated(int32) packets.IPacket
 	GetCraftingData() packets.IPacket
 	GetDisconnect(string, bool) packets.IPacket
@@ -42,6 +43,11 @@ type IPacketManager interface {
 	GetText(types.Text) packets.IPacket
 	GetTransfer(string, uint16) packets.IPacket
 	GetUpdateAttributes(uint64, data.AttributeMap) packets.IPacket
+	GetNetworkChunkPublisherUpdatePacket(position blocks.Position, radius uint32) packets.IPacket
+	GetMoveEntity(uint64, r3.Vector, data.Rotation, byte, bool) packets.IPacket
+	GetPlayerSkin(uuid2 uuid.UUID, skinId, geometryName, geometryData string, skinData, capeData []byte) packets.IPacket
+	GetPlayerAction(runtimeId uint64, action int32, position blocks.Position, face int32) packets.IPacket
+	GetAnimate(action int32, runtimeId uint64, float float32) packets.IPacket
 }
 
 // PacketManagerBase is a struct providing the base for a PacketManagerBase.
@@ -57,7 +63,7 @@ func NewPacketManagerBase(idList info.PacketIdList, packets map[int]func() packe
 	return &PacketManagerBase{idList, packets, handlers}
 }
 
-// GetIdList returns the packet name => Id list of the mcpe.
+// GetIdList returns the packet name => Id list of the bedrock.
 func (Base *PacketManagerBase) GetIdList() info.PacketIdList {
 	return Base.idList
 }

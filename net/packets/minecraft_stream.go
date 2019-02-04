@@ -14,7 +14,7 @@ import (
 
 // MinecraftStream extends the binutils stream,
 // and implements methods for writing types specific
-// to the Minecraft mcpe.
+// to the Minecraft bedrock.
 type MinecraftStream struct {
 	// MinecraftStream embeds binutils.Stream.
 	// Usual binary encoding/decoding functions can
@@ -85,10 +85,26 @@ func (stream *MinecraftStream) GetBlockPosition() blocks.Position {
 	return blocks.NewPosition(stream.GetVarInt(), stream.GetUnsignedVarInt(), stream.GetVarInt())
 }
 
+// PutEntityRotation writes the rotation of an entity in bytes.
+// The rotation of an entity will only contain yaw and pitch.
+func (stream *MinecraftStream) PutEntityRotationBytes(rotation data.Rotation) {
+	stream.PutRotationByte(byte(rotation.Pitch))
+	stream.PutRotationByte(byte(rotation.Yaw))
+	stream.PutRotationByte(byte(rotation.Yaw))
+}
+
+// GetEntityRotation reads the rotation of an entity in bytes.
+// The rotation of an entity has no different head yaw,
+// which will therefore always be the same as the yaw when returned.
+func (stream *MinecraftStream) GetEntityRotationBytes() data.Rotation {
+	return data.Rotation{Pitch: float64(stream.getRotationByte()), Yaw: float64(stream.getRotationByte()), HeadYaw: float64(stream.getRotationByte())}
+}
+
 // PutEntityRotation writes the rotation of an entity.
 // The rotation of an entity will only contain yaw and pitch.
 func (stream *MinecraftStream) PutEntityRotation(rotation data.Rotation) {
 	stream.PutLittleFloat(float32(rotation.Pitch))
+	stream.PutLittleFloat(float32(rotation.Yaw))
 	stream.PutLittleFloat(float32(rotation.Yaw))
 }
 
@@ -96,7 +112,7 @@ func (stream *MinecraftStream) PutEntityRotation(rotation data.Rotation) {
 // The rotation of an entity has no different head yaw,
 // which will therefore always be the same as the yaw when returned.
 func (stream *MinecraftStream) GetEntityRotation() data.Rotation {
-	return data.Rotation{Yaw: float64(stream.GetLittleFloat()), HeadYaw: 0, Pitch: float64(stream.GetLittleFloat())}
+	return data.Rotation{Pitch: float64(stream.GetLittleFloat()), Yaw: float64(stream.GetLittleFloat()), HeadYaw: float64(stream.GetLittleFloat())}
 }
 
 // PutPlayerRotation writes the rotation of a player.
@@ -104,14 +120,22 @@ func (stream *MinecraftStream) GetEntityRotation() data.Rotation {
 func (stream *MinecraftStream) PutPlayerRotation(rot data.Rotation) {
 	stream.PutLittleFloat(float32(rot.Pitch))
 	stream.PutLittleFloat(float32(rot.Yaw))
-	stream.PutLittleFloat(float32(rot.HeadYaw))
+	stream.PutLittleFloat(float32(rot.Yaw))
 }
 
 // GetPlayerRotation reads the rotation of a player.
 // Players are supposed to have a different head yaw than normal yaw,
 // but since recent updates the head yaw and yaw are always the same.
 func (stream *MinecraftStream) GetPlayerRotation() data.Rotation {
-	return data.Rotation{Yaw: float64(stream.GetLittleFloat()), Pitch: float64(stream.GetLittleFloat()), HeadYaw: float64(stream.GetLittleFloat())}
+	return data.Rotation{Pitch: float64(stream.GetLittleFloat()), Yaw: float64(stream.GetLittleFloat()), HeadYaw: float64(stream.GetLittleFloat())}
+}
+
+func (stream *MinecraftStream) PutRotationByte(rot byte){
+	stream.PutByte(rot / (360 / 256))
+}
+
+func (stream *MinecraftStream) getRotationByte() byte {
+	return stream.GetByte() * (360 / 256)
 }
 
 // PutAttributeMap writes the attribute map of an entity.
@@ -200,14 +224,109 @@ func (stream *MinecraftStream) GetItem() *items.Stack {
 
 // PutEntityData writes the data properties of an entity.
 // TODO: Make a proper implementation.
-func (stream *MinecraftStream) PutEntityData(data map[uint32][]interface{}) {
-	stream.PutUnsignedVarInt(0)
+func (stream *MinecraftStream) PutEntityData(entityData map[uint32][]interface{}) {
+	var count= uint32(len(entityData))
+	stream.PutUnsignedVarInt(count)
+	for key, dataValues := range entityData {
+		stream.PutUnsignedVarInt(key)
+		var flagId, ok = dataValues[0].(uint32)
+		if !ok {
+			stream.PutUnsignedVarInt(999999) // invalid flag id
+			continue
+		}
+
+		stream.PutUnsignedVarInt(flagId)
+
+		switch flagId {
+		case data.EntityDataByte:
+			if value, ok := dataValues[1].(byte); ok {
+				stream.PutByte(value)
+			}
+			break
+		case data.EntityDataShort:
+			if value, ok := dataValues[1].(int16); ok {
+				stream.PutLittleShort(value)
+			}
+			break
+		case data.EntityDataInt:
+			if value, ok := dataValues[1].(int32); ok {
+				stream.PutVarInt(value)
+			}
+			break
+		case data.EntityDataFloat:
+			if value, ok := dataValues[1].(float32); ok {
+				stream.PutLittleFloat(value)
+			}
+			break
+		case data.EntityDataString:
+			if value, ok := dataValues[1].(string); ok {
+				stream.PutString(value)
+			}
+			break
+		case data.EntityDataItem:
+			if value, ok := dataValues[1].(*items.Stack); ok {
+				stream.PutItem(value)
+			}
+			break
+		case data.EntityDataPos:
+			if value, ok := dataValues[1].(blocks.Position); ok {
+				stream.PutBlockPosition(value)
+			}
+			break
+		case data.EntityDataLong:
+			if value, ok := dataValues[1].(int64); ok {
+				stream.PutVarLong(value)
+			}
+			break
+		case data.EntityDataVector:
+			if value, ok := dataValues[1].(r3.Vector); ok {
+				stream.PutVector(value)
+			}
+			break
+		}
+	}
 }
 
 // GetEntityData reads an entity data property map from an entity.
-// TODO: Make a proper implementation.
 func (stream *MinecraftStream) GetEntityData() map[uint32][]interface{} {
-	return make(map[uint32][]interface{})
+	entityData := make(map[uint32][]interface{})
+	count := stream.GetUnsignedVarInt()
+	if count > 0 {
+		for i := uint32(0); i < count; i++ {
+			var key = stream.GetUnsignedVarInt()
+			var flagId = stream.GetUnsignedVarInt()
+			switch flagId {
+			case data.EntityDataByte:
+				entityData[key] = []interface{}{flagId, stream.GetByte()}
+				break
+			case data.EntityDataShort:
+				entityData[key] = []interface{}{flagId, stream.GetLittleShort()}
+				break
+			case data.EntityDataInt:
+				entityData[key] = []interface{}{flagId, stream.GetVarInt()}
+				break
+			case data.EntityDataFloat:
+				entityData[key] = []interface{}{flagId, stream.GetLittleFloat()}
+				break
+			case data.EntityDataString:
+				entityData[key] = []interface{}{flagId, stream.GetString()}
+				break
+			case data.EntityDataItem:
+				entityData[key] = []interface{}{flagId, stream.GetItem()}
+				break
+			case data.EntityDataPos:
+				entityData[key] = []interface{}{flagId, stream.GetBlockPosition()}
+				break
+			case data.EntityDataLong:
+				entityData[key] = []interface{}{flagId, stream.GetVarLong()}
+				break
+			case data.EntityDataVector:
+				entityData[key] = []interface{}{flagId, stream.GetVector()}
+				break
+			}
+		}
+	}
+	return entityData
 }
 
 // PutGameRules writes a map of game rules.

@@ -109,7 +109,7 @@ func (batch *MinecraftPacketBatch) fetchPackets(packetData [][]byte) {
 	}
 }
 
-// peekProtocol peeks in the packet's payload, looking for the mcpe.
+// peekProtocol peeks in the packet's payload, looking for the bedrock.
 func (batch *MinecraftPacketBatch) peekProtocol(packetData []byte) int32 {
 	if packetData[0] != 0x01 {
 		return 0

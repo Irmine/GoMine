@@ -22,11 +22,15 @@ func main() {
 	must(server.Start())
 	text.DefaultLogger.Info("Server startup done! Took:", time.Now().Sub(startTime))
 
-	for range time.NewTicker(time.Second / 20).C {
-		if !server.IsRunning() {
-			break
+	var ticker = time.NewTicker(time.Millisecond * 50)
+	for {
+		select{
+		case <- ticker.C:
+			if !server.IsRunning() {
+				break
+			}
+			server.Tick()
 		}
-		server.Tick()
 	}
 }
 

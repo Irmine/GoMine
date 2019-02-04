@@ -5,8 +5,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/irmine/gomine/net/info"
 	"github.com/irmine/gomine/net/packets"
+	"github.com/irmine/gomine/net/packets/bedrock"
 	"github.com/irmine/gomine/net/packets/data"
-	"github.com/irmine/gomine/net/packets/mcpe"
 	"github.com/irmine/gomine/net/packets/types"
 	"github.com/irmine/gomine/net/protocol"
 	"github.com/irmine/gomine/packs"
@@ -24,15 +24,19 @@ type PacketManager struct {
 func NewPacketManager(server *Server) *PacketManager {
 	var ids = info.PacketIds
 	var proto = &PacketManager{protocol.NewPacketManagerBase(info.PacketIds, map[int]func() packets.IPacket{
-		ids[info.LoginPacket]:                      func() packets.IPacket { return mcpe.NewLoginPacket() },
-		ids[info.ClientHandshakePacket]:            func() packets.IPacket { return mcpe.NewClientHandshakePacket() },
-		ids[info.ResourcePackClientResponsePacket]: func() packets.IPacket { return mcpe.NewResourcePackClientResponsePacket() },
-		ids[info.RequestChunkRadiusPacket]:         func() packets.IPacket { return mcpe.NewRequestChunkRadiusPacket() },
-		ids[info.MovePlayerPacket]:                 func() packets.IPacket { return mcpe.NewMovePlayerPacket() },
-		ids[info.CommandRequestPacket]:             func() packets.IPacket { return mcpe.NewCommandRequestPacket() },
-		ids[info.ResourcePackChunkRequestPacket]:   func() packets.IPacket { return mcpe.NewResourcePackChunkRequestPacket() },
-		ids[info.TextPacket]:                       func() packets.IPacket { return mcpe.NewTextPacket() },
-		ids[info.PlayerListPacket]:                 func() packets.IPacket { return mcpe.NewPlayerListPacket() },
+		ids[info.LoginPacket]:                      func() packets.IPacket { return bedrock.NewLoginPacket() },
+		ids[info.ClientHandshakePacket]:            func() packets.IPacket { return bedrock.NewClientHandshakePacket() },
+		ids[info.ResourcePackClientResponsePacket]: func() packets.IPacket { return bedrock.NewResourcePackClientResponsePacket() },
+		ids[info.RequestChunkRadiusPacket]:         func() packets.IPacket { return bedrock.NewRequestChunkRadiusPacket() },
+		ids[info.MovePlayerPacket]:                 func() packets.IPacket { return bedrock.NewMovePlayerPacket() },
+		ids[info.CommandRequestPacket]:             func() packets.IPacket { return bedrock.NewCommandRequestPacket() },
+		ids[info.ResourcePackChunkRequestPacket]:   func() packets.IPacket { return bedrock.NewResourcePackChunkRequestPacket() },
+		ids[info.TextPacket]:                       func() packets.IPacket { return bedrock.NewTextPacket() },
+		ids[info.PlayerListPacket]:                 func() packets.IPacket { return bedrock.NewPlayerListPacket() },
+		ids[info.InteractPacket]:                   func() packets.IPacket { return bedrock.NewInteractPacket() },
+		ids[info.SetEntityDataPacket]:              func() packets.IPacket { return bedrock.NewSetEntityDataPacket() },
+		ids[info.PlayerActionPacket]:               func() packets.IPacket { return bedrock.NewPlayerActionPacket() },
+		ids[info.AnimatePacket]:                    func() packets.IPacket { return bedrock.NewAnimatePacket() },
 	}, map[int][][]protocol.Handler{})}
 	proto.initHandlers(server)
 
@@ -48,10 +52,14 @@ func (protocol *PacketManager) initHandlers(server *Server) {
 	protocol.RegisterHandler(info.CommandRequestPacket, NewCommandRequestHandler(server))
 	protocol.RegisterHandler(info.ResourcePackChunkRequestPacket, NewResourcePackChunkRequestHandler(server))
 	protocol.RegisterHandler(info.TextPacket, NewTextHandler(server))
+	protocol.RegisterHandler(info.InteractPacket, NewInteractHandler(server))
+	protocol.RegisterHandler(info.SetEntityDataPacket, NewSetEntityDataHandler(server))
+	protocol.RegisterHandler(info.PlayerActionPacket, NewPlayerActionHandler(server))
+	protocol.RegisterHandler(info.AnimatePacket, NewAnimateHandler(server))
 }
 
 func (protocol *PacketManager) GetAddEntity(entity protocol.AddEntityEntry) packets.IPacket {
-	var pk = mcpe.NewAddEntityPacket()
+	var pk = bedrock.NewAddEntityPacket()
 	pk.UniqueId = entity.GetUniqueId()
 	pk.RuntimeId = entity.GetRuntimeId()
 	pk.EntityType = entity.GetEntityType()
@@ -64,36 +72,34 @@ func (protocol *PacketManager) GetAddEntity(entity protocol.AddEntityEntry) pack
 	return pk
 }
 
-func (protocol *PacketManager) GetAddPlayer(uuid uuid.UUID, platform int32, player protocol.AddPlayerEntry) packets.IPacket {
-	var pk = mcpe.NewAddPlayerPacket()
+func (protocol *PacketManager) GetAddPlayer(uuid uuid.UUID, player protocol.AddPlayerEntry) packets.IPacket {
+	var pk = bedrock.NewAddPlayerPacket()
 	pk.UUID = uuid
-	pk.DisplayName = player.GetDisplayName()
 	pk.Username = player.GetName()
 	pk.EntityRuntimeId = player.GetRuntimeId()
 	pk.EntityUniqueId = player.GetUniqueId()
 	pk.Position = player.GetPosition()
 	pk.Rotation = player.GetRotation()
-	pk.Platform = platform
 	pk.Motion = player.GetMotion()
 
 	return pk
 }
 
 func (protocol *PacketManager) GetChunkRadiusUpdated(radius int32) packets.IPacket {
-	var pk = mcpe.NewChunkRadiusUpdatedPacket()
+	var pk = bedrock.NewChunkRadiusUpdatedPacket()
 	pk.Radius = radius
 
 	return pk
 }
 
 func (protocol *PacketManager) GetCraftingData() packets.IPacket {
-	var pk = mcpe.NewCraftingDataPacket()
+	var pk = bedrock.NewCraftingDataPacket()
 
 	return pk
 }
 
 func (protocol *PacketManager) GetDisconnect(message string, hideDisconnectScreen bool) packets.IPacket {
-	var pk = mcpe.NewDisconnectPacket()
+	var pk = bedrock.NewDisconnectPacket()
 	pk.HideDisconnectionScreen = hideDisconnectScreen
 	pk.Message = message
 
@@ -101,15 +107,14 @@ func (protocol *PacketManager) GetDisconnect(message string, hideDisconnectScree
 }
 
 func (protocol *PacketManager) GetFullChunkData(chunk *chunks.Chunk) packets.IPacket {
-	var pk = mcpe.NewFullChunkDataPacket()
+	var pk = bedrock.NewFullChunkDataPacket()
 	pk.ChunkX, pk.ChunkZ = chunk.X, chunk.Z
 	pk.ChunkData = chunk.ToBinary()
-
 	return pk
 }
 
 func (protocol *PacketManager) GetMovePlayer(runtimeId uint64, position r3.Vector, rotation data2.Rotation, mode byte, onGround bool, ridingRuntimeId uint64) packets.IPacket {
-	var pk = mcpe.NewMovePlayerPacket()
+	var pk = bedrock.NewMovePlayerPacket()
 	pk.RuntimeId = runtimeId
 	pk.Position = position
 	pk.Rotation = rotation
@@ -121,7 +126,7 @@ func (protocol *PacketManager) GetMovePlayer(runtimeId uint64, position r3.Vecto
 }
 
 func (protocol *PacketManager) GetPlayerList(listType byte, players map[string]protocol.PlayerListEntry) packets.IPacket {
-	var pk = mcpe.NewPlayerListPacket()
+	var pk = bedrock.NewPlayerListPacket()
 	pk.ListType = listType
 	var entries = map[string]types.PlayerListEntry{}
 	for name, player := range players {
@@ -145,21 +150,21 @@ func (protocol *PacketManager) GetPlayerList(listType byte, players map[string]p
 }
 
 func (protocol *PacketManager) GetPlayStatus(status int32) packets.IPacket {
-	var pk = mcpe.NewPlayStatusPacket()
+	var pk = bedrock.NewPlayStatusPacket()
 	pk.Status = status
 
 	return pk
 }
 
 func (protocol *PacketManager) GetRemoveEntity(uniqueId int64) packets.IPacket {
-	var pk = mcpe.NewRemoveEntityPacket()
+	var pk = bedrock.NewRemoveEntityPacket()
 	pk.EntityUniqueId = uniqueId
 
 	return pk
 }
 
 func (protocol *PacketManager) GetResourcePackChunkData(packUUID string, chunkIndex int32, progress int64, data []byte) packets.IPacket {
-	var pk = mcpe.NewResourcePackChunkDataPacket()
+	var pk = bedrock.NewResourcePackChunkDataPacket()
 	pk.PackUUID = packUUID
 	pk.ChunkIndex = chunkIndex
 	pk.Progress = progress
@@ -169,7 +174,7 @@ func (protocol *PacketManager) GetResourcePackChunkData(packUUID string, chunkIn
 }
 
 func (protocol *PacketManager) GetResourcePackDataInfo(pack packs.Pack) packets.IPacket {
-	var pk = mcpe.NewResourcePackDataInfoPacket()
+	var pk = bedrock.NewResourcePackDataInfoPacket()
 	pk.PackUUID = pack.GetUUID()
 	pk.MaxChunkSize = data.ResourcePackChunkSize
 	pk.ChunkCount = int32(math.Ceil(float64(pack.GetFileSize()) / float64(data.ResourcePackChunkSize)))
@@ -180,7 +185,7 @@ func (protocol *PacketManager) GetResourcePackDataInfo(pack packs.Pack) packets.
 }
 
 func (protocol *PacketManager) GetResourcePackInfo(mustAccept bool, resourcePacks *packs.Stack, behaviorPacks *packs.Stack) packets.IPacket {
-	var pk = mcpe.NewResourcePackInfoPacket()
+	var pk = bedrock.NewResourcePackInfoPacket()
 	pk.MustAccept = mustAccept
 
 	var resourceEntries []types.ResourcePackInfoEntry
@@ -207,7 +212,7 @@ func (protocol *PacketManager) GetResourcePackInfo(mustAccept bool, resourcePack
 }
 
 func (protocol *PacketManager) GetResourcePackStack(mustAccept bool, resourcePacks *packs.Stack, behaviorPacks *packs.Stack) packets.IPacket {
-	var pk = mcpe.NewResourcePackStackPacket()
+	var pk = bedrock.NewResourcePackStackPacket()
 	pk.MustAccept = mustAccept
 	var resourceEntries []types.ResourcePackStackEntry
 	var behaviorEntries []types.ResourcePackStackEntry
@@ -231,14 +236,14 @@ func (protocol *PacketManager) GetResourcePackStack(mustAccept bool, resourcePac
 }
 
 func (protocol *PacketManager) GetServerHandshake(encryptionJwt string) packets.IPacket {
-	var pk = mcpe.NewServerHandshakePacket()
+	var pk = bedrock.NewServerHandshakePacket()
 	pk.Jwt = encryptionJwt
 
 	return pk
 }
 
 func (protocol *PacketManager) GetSetEntityData(runtimeId uint64, data map[uint32][]interface{}) packets.IPacket {
-	var pk = mcpe.NewSetEntityDataPacket()
+	var pk = bedrock.NewSetEntityDataPacket()
 	pk.RuntimeId = runtimeId
 	pk.EntityData = data
 
@@ -246,7 +251,7 @@ func (protocol *PacketManager) GetSetEntityData(runtimeId uint64, data map[uint3
 }
 
 func (protocol *PacketManager) GetStartGame(player protocol.StartGameEntry, runtimeIdsTable []byte) packets.IPacket {
-	var pk = mcpe.NewStartGamePacket()
+	var pk = bedrock.NewStartGamePacket()
 	pk.Generator = 1
 	pk.LevelSeed = 312402
 	pk.TrustPlayers = true
@@ -258,6 +263,7 @@ func (protocol *PacketManager) GetStartGame(player protocol.StartGameEntry, runt
 	pk.LevelGameMode = 1
 	pk.LevelSpawnPosition = blocks.NewPosition(0, 40, 0)
 	pk.CommandsEnabled = true
+	pk.StartMap = false
 
 	var gameRules = player.GetDimension().GetLevel().GetGameRules()
 	var gameRuleEntries = map[string]types.GameRuleEntry{}
@@ -278,13 +284,11 @@ func (protocol *PacketManager) GetStartGame(player protocol.StartGameEntry, runt
 }
 
 func (protocol *PacketManager) GetText(text types.Text) packets.IPacket {
-	var pk = mcpe.NewTextPacket()
+	var pk = bedrock.NewTextPacket()
 	pk.TextType = text.TextType
-	pk.IsTranslation = text.IsTranslation
-	pk.TranslationParameters = text.TranslationParameters
+	pk.Translation = text.IsTranslation
+	pk.Params = text.TranslationParameters
 	pk.SourceName = text.SourceName
-	pk.SourceDisplayName = text.SourceDisplayName
-	pk.SourcePlatform = text.SourcePlatform
 	pk.XUID = text.SourceXUID
 	pk.Message = text.Message
 
@@ -292,7 +296,7 @@ func (protocol *PacketManager) GetText(text types.Text) packets.IPacket {
 }
 
 func (protocol *PacketManager) GetTransfer(address string, port uint16) packets.IPacket {
-	var pk = mcpe.NewTransferPacket()
+	var pk = bedrock.NewTransferPacket()
 	pk.Address = address
 	pk.Port = port
 
@@ -300,9 +304,66 @@ func (protocol *PacketManager) GetTransfer(address string, port uint16) packets.
 }
 
 func (protocol *PacketManager) GetUpdateAttributes(runtimeId uint64, attributeMap data2.AttributeMap) packets.IPacket {
-	var pk = mcpe.NewUpdateAttributesPacket()
+	var pk = bedrock.NewUpdateAttributesPacket()
 	pk.RuntimeId = runtimeId
 	pk.Attributes = attributeMap
+
+	return pk
+}
+
+func (protocol *PacketManager) GetNetworkChunkPublisherUpdatePacket(position blocks.Position, radius uint32) packets.IPacket {
+	var pk = bedrock.NewNetworkChunkPublisherUpdatePacket()
+	pk.Position = position
+	pk.Radius = radius
+
+	return pk
+}
+
+func (protocol *PacketManager) GetMoveEntity(runtimeId uint64, position r3.Vector, rot data2.Rotation, flags byte, teleport bool) packets.IPacket {
+	var pk = bedrock.NewMoveEntityPacket()
+
+	pk.RuntimeId = runtimeId
+	pk.Position = position
+	pk.Rotation = rot
+	pk.Flags = flags
+
+	if teleport {
+		pk.Flags |= data.MoveEntityTeleport
+	}
+
+	return pk
+}
+
+func (protocol *PacketManager) GetPlayerSkin(uuid2 uuid.UUID, skinId, geometryName, geometryData string, skinData, capeData []byte) packets.IPacket {
+	var pk = bedrock.NewPlayerSkinPacket()
+
+	pk.UUID = uuid2
+	pk.SkinId = skinId
+	pk.SkinData = skinData
+	pk.CapeData = capeData
+	pk.GeometryName = geometryName
+	pk.GeometryData = geometryData
+
+	return pk
+}
+
+func (protocol *PacketManager) GetPlayerAction(runtimeId uint64, action int32, position blocks.Position, face int32) packets.IPacket {
+	var pk = bedrock.NewPlayerActionPacket()
+
+	pk.RuntimeId = runtimeId
+	pk.Action = action
+	pk.Position = position
+	pk.Face = face
+
+	return pk
+}
+
+func (protocol *PacketManager) GetAnimate(action int32, runtimeId uint64, float float32) packets.IPacket {
+	var pk = bedrock.NewAnimatePacket()
+
+	pk.RuntimeId = runtimeId
+	pk.Action = action
+	pk.Float = float
 
 	return pk
 }

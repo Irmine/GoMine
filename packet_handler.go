@@ -7,9 +7,10 @@ import (
 	"encoding/base64"
 	"github.com/golang/geo/r3"
 	"github.com/irmine/gomine/net"
+	"github.com/irmine/gomine/net/info"
 	"github.com/irmine/gomine/net/packets"
+	"github.com/irmine/gomine/net/packets/bedrock"
 	"github.com/irmine/gomine/net/packets/data"
-	"github.com/irmine/gomine/net/packets/mcpe"
 	"github.com/irmine/gomine/net/packets/types"
 	"github.com/irmine/gomine/net/protocol"
 	"github.com/irmine/gomine/players"
@@ -26,7 +27,7 @@ var runtimeIdsTable []byte
 
 func NewClientHandshakeHandler(server *Server) *net.PacketHandler {
 	return net.NewPacketHandler(func(packet packets.IPacket, session *net.MinecraftSession) bool {
-		if _, ok := packet.(*mcpe.ClientHandshakePacket); ok {
+		if _, ok := packet.(*bedrock.ClientHandshakePacket); ok {
 			session.SendPlayStatus(data.StatusLoginSuccess)
 			session.SendResourcePackInfo(server.Config.ForceResourcePacks, server.PackManager.GetResourceStack(), server.PackManager.GetBehaviorStack())
 			return true
@@ -37,7 +38,7 @@ func NewClientHandshakeHandler(server *Server) *net.PacketHandler {
 
 func NewCommandRequestHandler(server *Server) *net.PacketHandler {
 	return net.NewPacketHandler(func(packet packets.IPacket, session *net.MinecraftSession) bool {
-		if pk, ok := packet.(*mcpe.CommandRequestPacket); ok {
+		if pk, ok := packet.(*bedrock.CommandRequestPacket); ok {
 			var args = strings.Split(pk.CommandText, " ")
 			var commandName = strings.TrimLeft(args[0], "/")
 			var i = 1
@@ -65,13 +66,24 @@ func NewCommandRequestHandler(server *Server) *net.PacketHandler {
 
 func NewLoginHandler(server *Server) *net.PacketHandler {
 	return net.NewPacketHandler(func(packet packets.IPacket, session *net.MinecraftSession) bool {
-		if loginPacket, ok := packet.(*mcpe.LoginPacket); ok {
+		if loginPacket, ok := packet.(*bedrock.LoginPacket); ok {
 			var _, ok = server.SessionManager.GetSession(loginPacket.Username)
 			if ok {
 				return false
 			}
 
+			if loginPacket.Protocol > info.LatestProtocol {
+				session.Kick("Outdated server.", false, true)
+				return false
+			}
+
+			if loginPacket.Protocol < info.LatestProtocol {
+				session.Kick("Outdated client.", false, true)
+				return false
+			}
+
 			var successful, authenticated, pubKey = VerifyLoginRequest(loginPacket.Chains, server)
+
 			if !successful {
 				text.DefaultLogger.Debug(loginPacket.Username, "has joined with invalid login data.")
 				return true
@@ -82,6 +94,7 @@ func NewLoginHandler(server *Server) *net.PacketHandler {
 			} else {
 				if server.Config.XBOXLiveAuth {
 					text.DefaultLogger.Debug(loginPacket.Username, "has tried to join while not being logged into XBOX Live.")
+					session.Kick("XBOX Live account required.", false, false)
 					return true
 				}
 				text.DefaultLogger.Debug(loginPacket.Username, "has joined while not being logged into XBOX Live.")
@@ -108,13 +121,12 @@ func NewLoginHandler(server *Server) *net.PacketHandler {
 			if server.Config.UseEncryption {
 				var jwt = utils.ConstructEncryptionJwt(server.GetPrivateKey(), server.GetServerToken())
 				session.SendServerHandshake(jwt)
-
 				session.EnableEncryption()
 			} else {
 				session.SendPlayStatus(data.StatusLoginSuccess)
-
 				session.SendResourcePackInfo(server.Config.ForceResourcePacks, server.PackManager.GetResourceStack(), server.PackManager.GetBehaviorStack())
 			}
+
 			server.SessionManager.AddMinecraftSession(session)
 			return true
 		}
@@ -124,59 +136,54 @@ func NewLoginHandler(server *Server) *net.PacketHandler {
 
 func NewMovePlayerHandler(_ *Server) *net.PacketHandler {
 	return net.NewPacketHandler(func(packet packets.IPacket, session *net.MinecraftSession) bool {
-		if pk, ok := packet.(*mcpe.MovePlayerPacket); ok {
+		if pk, ok := packet.(*bedrock.MovePlayerPacket); ok {
 			if session.GetPlayer().GetDimension() == nil {
 				return false
 			}
-
 			session.SyncMove(pk.Position.X, pk.Position.Y, pk.Position.Z, pk.Rotation.Pitch, pk.Rotation.Yaw, pk.Rotation.HeadYaw, pk.OnGround)
-
-			for _, viewer := range session.GetPlayer().GetViewers() {
-				viewer.SendPacket(pk)
-			}
-
 			return true
 		}
-
 		return false
 	})
 }
 
 func NewRequestChunkRadiusHandler(server *Server) *net.PacketHandler {
 	return net.NewPacketHandler(func(packet packets.IPacket, session *net.MinecraftSession) bool {
-		if chunkRadiusPacket, ok := packet.(*mcpe.RequestChunkRadiusPacket); ok {
+		if chunkRadiusPacket, ok := packet.(*bedrock.RequestChunkRadiusPacket); ok {
 			session.SetViewDistance(chunkRadiusPacket.Radius)
 			session.SendChunkRadiusUpdated(session.GetViewDistance())
 
-			hasChunks := session.NeedsChunks
-			session.NeedsChunks = true
+			session.Connected = true
 
-			if !hasChunks {
-				var sessions = server.SessionManager.GetSessions()
-				var viewers = make(map[string]protocol.PlayerListEntry)
-				for name, online := range sessions {
-					if online.HasSpawned() {
-						viewers[name] = online.GetPlayer()
-						online.SendPlayerList(data.ListTypeAdd, map[string]protocol.PlayerListEntry{session.GetName(): session.GetPlayer()})
-					}
+			var sessions = server.SessionManager.GetSessions()
+			var viewers = make(map[string]protocol.PlayerListEntry)
+			for name, online := range sessions {
+				if online.HasSpawned() {
+					viewers[name] = online.GetPlayer()
+					online.SendPlayerList(data.ListTypeAdd, map[string]protocol.PlayerListEntry{session.GetName(): session.GetPlayer()})
 				}
-				session.SendPlayerList(data.ListTypeAdd, viewers)
-
-				for _, online := range server.SessionManager.GetSessions() {
-					if session.GetUUID() != online.GetUUID() {
-						online.GetPlayer().SpawnTo(session)
-						online.GetPlayer().SpawnPlayerTo(session)
-					}
-				}
-
-				session.GetPlayer().SpawnPlayerToAll()
-				session.GetPlayer().SpawnToAll()
-
-				session.SendUpdateAttributes(session.GetPlayer().GetRuntimeId(), session.GetPlayer().GetAttributeMap())
-				server.BroadcastMessage(text.Yellow+session.GetDisplayName(), "has joined the server")
-
-				session.SendPlayStatus(data.StatusSpawn)
 			}
+
+			session.SendPlayerList(data.ListTypeAdd, viewers)
+
+			for _, online := range server.SessionManager.GetSessions() {
+				if session.GetUUID() != online.GetUUID() {
+					online.GetPlayer().SpawnPlayerTo(session)
+					online.GetPlayer().AddViewer(session)
+
+					session.GetPlayer().SpawnPlayerTo(online)
+					session.GetPlayer().AddViewer(online)
+
+					online.SendSkin(session)
+					session.SendSkin(online)
+				}
+			}
+
+			session.SendSetEntityData(session.GetPlayer().GetRuntimeId(), session.GetPlayer().GetEntityData())
+			session.SendUpdateAttributes(session.GetPlayer().GetRuntimeId(), session.GetPlayer().GetAttributeMap())
+
+			server.BroadcastMessage(text.Yellow+session.GetDisplayName(), "has joined the server")
+			session.SendPlayStatus(data.StatusSpawn)
 
 			return true
 		}
@@ -187,7 +194,7 @@ func NewRequestChunkRadiusHandler(server *Server) *net.PacketHandler {
 
 func NewResourcePackChunkRequestHandler(server *Server) *net.PacketHandler {
 	return net.NewPacketHandler(func(packet packets.IPacket, session *net.MinecraftSession) bool {
-		if request, ok := packet.(*mcpe.ResourcePackChunkRequestPacket); ok {
+		if request, ok := packet.(*bedrock.ResourcePackChunkRequestPacket); ok {
 			if !server.PackManager.IsPackLoaded(request.PackUUID) {
 				// TODO: Kick the player. We can't kick yet.
 				return false
@@ -202,7 +209,7 @@ func NewResourcePackChunkRequestHandler(server *Server) *net.PacketHandler {
 
 func NewResourcePackClientResponseHandler(server *Server) *net.PacketHandler {
 	return net.NewPacketHandler(func(packet packets.IPacket, session *net.MinecraftSession) bool {
-		if response, ok := packet.(*mcpe.ResourcePackClientResponsePacket); ok {
+		if response, ok := packet.(*bedrock.ResourcePackClientResponsePacket); ok {
 			switch response.Status {
 			case data.StatusRefused:
 				// TODO: Kick the player. We can't kick yet.
@@ -219,7 +226,7 @@ func NewResourcePackClientResponseHandler(server *Server) *net.PacketHandler {
 				session.SendResourcePackStack(server.Config.ForceResourcePacks, server.PackManager.GetResourceStack(), server.PackManager.GetBehaviorStack())
 			case data.StatusCompleted:
 				server.LevelManager.GetDefaultLevel().GetDefaultDimension().LoadChunk(0, 0, func(chunk *chunks.Chunk) {
-					server.LevelManager.GetDefaultLevel().GetDefaultDimension().AddEntity(session.GetPlayer(), r3.Vector{X: 0, Y: 40, Z: 0})
+					server.LevelManager.GetDefaultLevel().GetDefaultDimension().AddEntity(session.GetPlayer(), r3.Vector{X: 0, Y: 7, Z: 0})
 					session.SendStartGame(session.GetPlayer(), GetRuntimeIdsTable())
 					session.SendCraftingData()
 				})
@@ -232,17 +239,71 @@ func NewResourcePackClientResponseHandler(server *Server) *net.PacketHandler {
 
 func NewTextHandler(server *Server) *net.PacketHandler {
 	return net.NewPacketHandler(func(packet packets.IPacket, session *net.MinecraftSession) bool {
-		if textPacket, ok := packet.(*mcpe.TextPacket); ok {
+		if textPacket, ok := packet.(*bedrock.TextPacket); ok {
 			if textPacket.TextType != data.TextChat {
 				return false
 			}
 			for _, receiver := range server.SessionManager.GetSessions() {
-				receiver.SendText(types.Text{Message: textPacket.Message, SourceName: textPacket.SourceName, SourceDisplayName: textPacket.SourceDisplayName, SourcePlatform: textPacket.SourcePlatform, SourceXUID: session.GetXUID(), TextType: data.TextChat})
+				receiver.SendText(types.Text{
+					Message: "<" + session.GetDisplayName() + "> " + textPacket.Message,
+					PlatformChatId: textPacket.PlatformChatId,
+					SourceXUID: session.GetXUID(),
+					TextType: data.TextChat,
+				})
 			}
 			text.DefaultLogger.LogChat("<" + session.GetDisplayName() + "> " + textPacket.Message)
 			return true
 		}
 		return false
+	})
+}
+
+func NewInteractHandler(_ *Server) *net.PacketHandler {
+	return net.NewPacketHandler(func(packet packets.IPacket, session *net.MinecraftSession) bool {
+		if /*interactPacket*/ _, ok := packet.(*bedrock.InteractPacket); ok {
+		}
+		return true
+	})
+}
+
+func NewSetEntityDataHandler(_ *Server) *net.PacketHandler {
+	return net.NewPacketHandler(func(packet packets.IPacket, session *net.MinecraftSession) bool {
+		if /*entityData*/ _, ok := packet.(*bedrock.SetEntityDataPacket); ok {
+		}
+		return true
+	})
+}
+
+func NewPlayerActionHandler(_ *Server) *net.PacketHandler {
+	return net.NewPacketHandler(func(packet packets.IPacket, session *net.MinecraftSession) bool {
+		//TODO: fix sending to others
+		//if playerAction, ok := packet.(*bedrock.PlayerActionPacket); ok {
+		//	switch playerAction.Action {
+		//	case bedrock.PlayerStartSneak:
+		//		session.GetPlayer().SetEntityProperty(data2.EntityDataIdFlags, data2.EntityDataSneaking, data2.EntityDataLong, true)
+		//		for _, viewer := range session.GetPlayer().GetViewers() {
+		//			if viewer, ok := viewer.(*net.MinecraftSession); ok {
+		//				viewer.SendSetEntityData(session.GetPlayer().GetRuntimeId(), session.GetPlayer().GetEntityData())
+		//			}
+		//		}
+		//		break
+		//	}
+		//}
+		//return true
+		return true
+	})
+}
+
+func NewAnimateHandler(_ *Server) *net.PacketHandler {
+	return net.NewPacketHandler(func(packet packets.IPacket, session *net.MinecraftSession) bool {
+		if animate, ok := packet.(*bedrock.AnimatePacket); ok {
+			for _, viewer := range session.GetPlayer().GetViewers() {
+				if viewer, ok := viewer.(*net.MinecraftSession); ok {
+					viewer.SendAnimate(animate.Action, animate.RuntimeId, animate.Float)
+				}
+			}
+		}
+		return true
 	})
 }
 
@@ -285,15 +346,7 @@ func VerifyLoginRequest(chains []types.Chain, _ *Server) (successful bool, authe
 		}
 
 		t := time.Now().Unix()
-		if chain.Payload.ExpirationTime <= t && chain.Payload.ExpirationTime != 0 {
-			return
-		}
-
-		if chain.Payload.NotBefore > t {
-			return
-		}
-
-		if chain.Payload.IssuedAt > chain.Payload.ExpirationTime {
+		if chain.Payload.ExpirationTime <= t && chain.Payload.ExpirationTime != 0 || chain.Payload.NotBefore > t || chain.Payload.IssuedAt > chain.Payload.ExpirationTime {
 			return
 		}
 
@@ -325,12 +378,12 @@ func GetRuntimeIdsTable() []byte {
 		}
 		stream := packets.NewMinecraftStream()
 		stream.ResetStream()
-		if data2, ok := data2.(map[string]interface{}); ok {
+		if data2, ok := data2.([]interface{}); ok {
 			stream.PutUnsignedVarInt(uint32(len(data2)))
 			for _, v := range data2 {
-				if v2, ok := v.(map[string]interface{}); ok {
+				if v2, ok := v.(map[interface{}]interface{}); ok {
 					stream.PutString(v2["name"].(string))
-					stream.PutLittleShort(v2["data"].(int16))
+					stream.PutLittleShort(int16(v2["data"].(int)))
 				}
 			}
 		}
