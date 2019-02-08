@@ -37,6 +37,7 @@ func NewPacketManager(server *Server) *PacketManager {
 		ids[info.SetEntityDataPacket]:              func() packets.IPacket { return bedrock.NewSetEntityDataPacket() },
 		ids[info.PlayerActionPacket]:               func() packets.IPacket { return bedrock.NewPlayerActionPacket() },
 		ids[info.AnimatePacket]:                    func() packets.IPacket { return bedrock.NewAnimatePacket() },
+		ids[info.InventoryTransactionPacket]:       func() packets.IPacket { return bedrock.NewInventoryTransactionPacket() },
 	}, map[int][][]protocol.Handler{})}
 	proto.initHandlers(server)
 
@@ -53,9 +54,9 @@ func (protocol *PacketManager) initHandlers(server *Server) {
 	protocol.RegisterHandler(info.ResourcePackChunkRequestPacket, NewResourcePackChunkRequestHandler(server))
 	protocol.RegisterHandler(info.TextPacket, NewTextHandler(server))
 	protocol.RegisterHandler(info.InteractPacket, NewInteractHandler(server))
-	protocol.RegisterHandler(info.SetEntityDataPacket, NewSetEntityDataHandler(server))
 	protocol.RegisterHandler(info.PlayerActionPacket, NewPlayerActionHandler(server))
 	protocol.RegisterHandler(info.AnimatePacket, NewAnimateHandler(server))
+	protocol.RegisterHandler(info.InventoryTransactionPacket, NewInventoryTransactionHandler(server))
 }
 
 func (protocol *PacketManager) GetAddEntity(entity protocol.AddEntityEntry) packets.IPacket {
@@ -254,16 +255,14 @@ func (protocol *PacketManager) GetStartGame(player protocol.StartGameEntry, runt
 	var pk = bedrock.NewStartGamePacket()
 	pk.Generator = 1
 	pk.LevelSeed = 312402
-	pk.TrustPlayers = true
 	pk.DefaultPermissionLevel = permissions.LevelMember
 	pk.EntityRuntimeId = player.GetRuntimeId()
 	pk.EntityUniqueId = player.GetUniqueId()
 	pk.PlayerGameMode = 1
 	pk.PlayerPosition = player.GetPosition()
 	pk.LevelGameMode = 1
-	pk.LevelSpawnPosition = blocks.NewPosition(0, 40, 0)
+	pk.LevelSpawnPosition = blocks.NewPosition(0, 7, 0)
 	pk.CommandsEnabled = true
-	pk.StartMap = false
 
 	var gameRules = player.GetDimension().GetLevel().GetGameRules()
 	var gameRuleEntries = map[string]types.GameRuleEntry{}
@@ -276,9 +275,11 @@ func (protocol *PacketManager) GetStartGame(player protocol.StartGameEntry, runt
 	pk.CurrentTick = player.GetDimension().GetLevel().GetCurrentTick()
 	pk.Time = 0
 	pk.AchievementsDisabled = true
-	pk.BroadcastToXbox = true
 	pk.BroadcastToLan = true
 	pk.RuntimeIdsTable = runtimeIdsTable
+
+	pk.PlatformBroadcastIntent = bedrock.GameBroadcastSettingPublic
+	pk.XBOXBroadcastIntent = bedrock.GameBroadcastSettingPublic
 
 	return pk
 }
@@ -364,6 +365,16 @@ func (protocol *PacketManager) GetAnimate(action int32, runtimeId uint64, float 
 	pk.RuntimeId = runtimeId
 	pk.Action = action
 	pk.Float = float
+
+	return pk
+}
+
+func (protocol *PacketManager) GetUpdateBlock(position blocks.Position, blockRuntimeId, dataLayerId uint32) packets.IPacket {
+	var pk = bedrock.NewUpdateBlockPacket()
+
+	pk.Position = position
+	pk.BlockRuntimeId = blockRuntimeId
+	pk.DataLayerId = dataLayerId
 
 	return pk
 }

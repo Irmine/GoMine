@@ -1,9 +1,9 @@
 package info
 
 const (
-	LatestProtocol           = 313
-	LatestGameVersion        = "v1.8.0"
-	LatestGameVersionNetwork = "1.8.0"
+	LatestProtocol           = 332
+	LatestGameVersion        = "v1.9.0"
+	LatestGameVersionNetwork = "1.9.0"
 )
 
 type PacketIdList map[PacketName]int

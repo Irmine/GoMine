@@ -110,3 +110,7 @@ func (session *MinecraftSession) SendPlayerAction(runtimeId uint64, action int32
 func (session *MinecraftSession) SendAnimate(action int32, runtimeId uint64, float float32) {
 	session.SendPacket(session.adapter.packetManager.GetAnimate(action, runtimeId, float))
 }
+
+func (session *MinecraftSession) SendUpdateBlock(position blocks.Position, blockRuntimeId, dataLayerId uint32) {
+	session.SendPacket(session.adapter.packetManager.GetUpdateBlock(position, blockRuntimeId, dataLayerId))
+}

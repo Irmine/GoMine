@@ -148,15 +148,31 @@ func (player *Player) SyncMove(x, y, z, pitch, yaw, headYaw float64, onGround bo
 	player.Rotation.Yaw = math.Mod(yaw, 360)
 	player.Rotation.HeadYaw = headYaw
 	player.OnGround = onGround
+	player.HasMovementUpdate = true
 }
 
-func (player Player) SendMovement() {
-	for _, v := range player.GetChunk().GetViewers() {
-		if v.GetUUID() == player.GetUUID() {
-			continue
-		}
-		if viewer, ok := v.(entities.Viewer); ok {
-			viewer.SendMovePlayer(player.GetRuntimeId(), player.Position, player.Rotation, 0, player.OnGround, player.GetRidingId())
-		}
+// Sends updated entity position and rotation to a certain viewer
+// this overrides the base entity function.
+func (player *Player) SendMovement(viewer entities.Viewer) {
+	viewer.SendMovePlayer(player.GetRuntimeId(), player.Position, player.Rotation, 0, player.OnGround, player.GetRidingId())
+}
+
+// Sends updated player position and rotation to all viewers,
+// this overrides the base entity function.
+func (player *Player) BroadcastMovement() {
+	for _, viewer := range player.GetViewers() {
+		viewer.SendMovePlayer(player.GetRuntimeId(), player.Position, player.Rotation, 0, player.OnGround, player.GetRidingId())
 	}
+}
+
+// Tick ticks the player, this overrides the base entity tick.
+func (player Player) Tick() {
+	if player.HasEntityDataUpdate {
+		player.BroadcastUpdatedEntityData()
+		player.HasEntityDataUpdate = false
+	}
+	if player.HasMovementUpdate {
+		player.HasMovementUpdate = false
+	}
+	player.BroadcastMovement()
 }

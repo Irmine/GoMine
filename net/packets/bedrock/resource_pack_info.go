@@ -11,14 +11,16 @@ type ResourcePackInfoPacket struct {
 	MustAccept    bool
 	BehaviorPacks []types.ResourcePackInfoEntry
 	ResourcePacks []types.ResourcePackInfoEntry
+	Bool1         bool
 }
 
 func NewResourcePackInfoPacket() *ResourcePackInfoPacket {
-	return &ResourcePackInfoPacket{packets.NewPacket(info.PacketIds[info.ResourcePackInfoPacket]), false, []types.ResourcePackInfoEntry{}, []types.ResourcePackInfoEntry{}}
+	return &ResourcePackInfoPacket{packets.NewPacket(info.PacketIds[info.ResourcePackInfoPacket]), false, []types.ResourcePackInfoEntry{}, []types.ResourcePackInfoEntry{}, false}
 }
 
 func (pk *ResourcePackInfoPacket) Encode() {
 	pk.PutBool(pk.MustAccept)
+	pk.PutBool(pk.Bool1)
 	pk.PutPackInfo(pk.BehaviorPacks)
 	pk.PutPackInfo(pk.ResourcePacks)
 }

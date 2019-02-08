@@ -16,14 +16,14 @@ import (
 	"github.com/irmine/gomine/players"
 	"github.com/irmine/gomine/text"
 	"github.com/irmine/gomine/utils"
+	"github.com/irmine/worlds/blocks"
 	"github.com/irmine/worlds/chunks"
-	"gopkg.in/yaml.v2"
+	data2 "github.com/irmine/worlds/entities/data"
+	utils2 "github.com/irmine/worlds/utils"
 	"math/big"
 	"strings"
 	"time"
 )
-
-var runtimeIdsTable []byte
 
 func NewClientHandshakeHandler(server *Server) *net.PacketHandler {
 	return net.NewPacketHandler(func(packet packets.IPacket, session *net.MinecraftSession) bool {
@@ -150,10 +150,9 @@ func NewMovePlayerHandler(_ *Server) *net.PacketHandler {
 func NewRequestChunkRadiusHandler(server *Server) *net.PacketHandler {
 	return net.NewPacketHandler(func(packet packets.IPacket, session *net.MinecraftSession) bool {
 		if chunkRadiusPacket, ok := packet.(*bedrock.RequestChunkRadiusPacket); ok {
-			session.SetViewDistance(chunkRadiusPacket.Radius)
-			session.SendChunkRadiusUpdated(session.GetViewDistance())
-
-			session.Connected = true
+			var viewDistance = server.GetAllowedViewDistance(chunkRadiusPacket.Radius)
+			session.SetViewDistance(viewDistance)
+			session.SendChunkRadiusUpdated(viewDistance)
 
 			var sessions = server.SessionManager.GetSessions()
 			var viewers = make(map[string]protocol.PlayerListEntry)
@@ -185,6 +184,7 @@ func NewRequestChunkRadiusHandler(server *Server) *net.PacketHandler {
 			server.BroadcastMessage(text.Yellow+session.GetDisplayName(), "has joined the server")
 			session.SendPlayStatus(data.StatusSpawn)
 
+			session.Connected = true
 			return true
 		}
 
@@ -227,7 +227,8 @@ func NewResourcePackClientResponseHandler(server *Server) *net.PacketHandler {
 			case data.StatusCompleted:
 				server.LevelManager.GetDefaultLevel().GetDefaultDimension().LoadChunk(0, 0, func(chunk *chunks.Chunk) {
 					server.LevelManager.GetDefaultLevel().GetDefaultDimension().AddEntity(session.GetPlayer(), r3.Vector{X: 0, Y: 7, Z: 0})
-					session.SendStartGame(session.GetPlayer(), GetRuntimeIdsTable())
+					server.LevelManager.GetDefaultLevel().GetDefaultDimension().AddViewer(session, r3.Vector{X: 0, Y: 7, Z: 0})
+					session.SendStartGame(session.GetPlayer(), blocks.GetRuntimeIdsTable())
 					session.SendCraftingData()
 				})
 			}
@@ -266,30 +267,25 @@ func NewInteractHandler(_ *Server) *net.PacketHandler {
 	})
 }
 
-func NewSetEntityDataHandler(_ *Server) *net.PacketHandler {
-	return net.NewPacketHandler(func(packet packets.IPacket, session *net.MinecraftSession) bool {
-		if /*entityData*/ _, ok := packet.(*bedrock.SetEntityDataPacket); ok {
-		}
-		return true
-	})
-}
-
 func NewPlayerActionHandler(_ *Server) *net.PacketHandler {
 	return net.NewPacketHandler(func(packet packets.IPacket, session *net.MinecraftSession) bool {
 		//TODO: fix sending to others
-		//if playerAction, ok := packet.(*bedrock.PlayerActionPacket); ok {
-		//	switch playerAction.Action {
-		//	case bedrock.PlayerStartSneak:
-		//		session.GetPlayer().SetEntityProperty(data2.EntityDataIdFlags, data2.EntityDataSneaking, data2.EntityDataLong, true)
-		//		for _, viewer := range session.GetPlayer().GetViewers() {
-		//			if viewer, ok := viewer.(*net.MinecraftSession); ok {
-		//				viewer.SendSetEntityData(session.GetPlayer().GetRuntimeId(), session.GetPlayer().GetEntityData())
-		//			}
-		//		}
-		//		break
-		//	}
-		//}
-		//return true
+		if playerAction, ok := packet.(*bedrock.PlayerActionPacket); ok {
+			switch playerAction.Action {
+			case bedrock.PlayerStartSneak:
+				session.GetPlayer().SetEntityProperty(data2.EntityDataSneaking, true)
+				break
+			case bedrock.PlayerStopSneak:
+				session.GetPlayer().SetEntityProperty(data2.EntityDataSneaking, false)
+				break
+			case bedrock.PlayerStartSprint:
+				session.GetPlayer().SetEntityProperty(data2.EntityDataSprinting, true)
+				break
+			case bedrock.PlayerStopSprint:
+				session.GetPlayer().SetEntityProperty(data2.EntityDataSprinting, false)
+				break
+			}
+		}
 		return true
 	})
 }
@@ -301,6 +297,31 @@ func NewAnimateHandler(_ *Server) *net.PacketHandler {
 				if viewer, ok := viewer.(*net.MinecraftSession); ok {
 					viewer.SendAnimate(animate.Action, animate.RuntimeId, animate.Float)
 				}
+			}
+		}
+		return true
+	})
+}
+
+func NewInventoryTransactionHandler(_ *Server) *net.PacketHandler {
+	return net.NewPacketHandler(func(packet packets.IPacket, session *net.MinecraftSession) bool {
+		if invTransaction, ok := packet.(*bedrock.InventoryTransactionPacket); ok {
+			var clickPos = invTransaction.BlockPosition
+			switch invTransaction.TransactionType {
+			case bedrock.UseItem:
+				switch invTransaction.ActionType {
+				case bedrock.ItemBreakBlock:
+					runtimeId, ok := blocks.GetRuntimeId(0, 0)
+					if ok {
+						var block= blocks.New(blocks.NewBlockState("air", int32(runtimeId), 0, 0))
+						session.GetPlayer().GetDimension().SetBlockAt(utils2.PositionToVector(clickPos), block)
+					}
+					break
+				case bedrock.ItemClickBlock:
+					// TODO: do block placing
+					break
+				}
+				break
 			}
 		}
 		return true
@@ -366,28 +387,4 @@ func VerifyLoginRequest(chains []types.Chain, _ *Server) (successful bool, authe
 
 	successful = true
 	return
-}
-
-func GetRuntimeIdsTable() []byte {
-	if len(runtimeIdsTable) == 0 {
-		var data2 interface{}
-		err := yaml.Unmarshal([]byte(utils.RuntimeIdsTable__), &data2)
-		if err != nil {
-			text.DefaultLogger.Error(err)
-			return nil
-		}
-		stream := packets.NewMinecraftStream()
-		stream.ResetStream()
-		if data2, ok := data2.([]interface{}); ok {
-			stream.PutUnsignedVarInt(uint32(len(data2)))
-			for _, v := range data2 {
-				if v2, ok := v.(map[interface{}]interface{}); ok {
-					stream.PutString(v2["name"].(string))
-					stream.PutLittleShort(int16(v2["data"].(int)))
-				}
-			}
-		}
-		runtimeIdsTable = stream.GetBuffer()
-	}
-	return runtimeIdsTable
 }

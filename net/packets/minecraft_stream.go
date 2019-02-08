@@ -199,7 +199,7 @@ func (stream *MinecraftStream) PutItem(item *items.Stack) {
 // If the item ID was unknown, an air item gets returned.
 func (stream *MinecraftStream) GetItem() *items.Stack {
 	id := stream.GetVarInt()
-	if id == 0 {
+	if id <= 0 {
 		i, _ := items.DefaultManager.Get("minecraft:air", 0)
 		return i
 	}
@@ -209,21 +209,49 @@ func (stream *MinecraftStream) GetItem() *items.Stack {
 	t := items.IdToType[items.GetKey(int16(id), int16(itemData))]
 	count := aux & 0xff
 
+	var nbtLength int16
+	var nbtData *gonbt.Compound
+
 	item, _ := items.DefaultManager.Get(t.GetId(), int(count))
-	nbtData := stream.Get(int(stream.GetLittleShort()))
-	reader := gonbt.NewReader(nbtData, true, binutils.LittleEndian)
-	item.NBTParseFunction(reader.ReadUncompressedIntoCompound(), item)
+	nbtLength = stream.GetLittleShort()
+	//text.DefaultLogger.Debug(nbtLength)
+	if nbtLength > 0 {
+		reader := gonbt.NewReader(stream.Get(int(nbtLength)), true, binutils.LittleEndian)
+		nbtData = reader.ReadUncompressedIntoCompound()
+	}else if nbtLength == -1 {
+		nbtCount := stream.GetUnsignedVarInt()
+		for i := uint32(0); i < nbtCount; i++ {
+			reader := gonbt.NewReader(stream.Buffer[stream.Offset:], true, binutils.LittleEndian)
+			nbtData = reader.ReadUncompressedIntoCompound()
+			stream.Offset += reader.GetOffset()
+		}
+	}
+
+	if nbtData != nil {
+		item.NBTParseFunction(nbtData, item)
+	}
 
 	// Fields for canPlaceOn and canBreak are not implemented.
 	// TODO
-	stream.GetVarInt()
-	stream.GetVarInt()
+	canPlace := stream.GetVarInt()
+	if canPlace > 0 {
+		for i := int32(0); i < canPlace; i++ {
+			stream.GetString()
+		}
+	}
+	canBreak := stream.GetVarInt()
+	if canBreak > 0 {
+		for i := int32(0); i < canBreak; i++ {
+			stream.GetString()
+		}
+	}
+
+	//text.DefaultLogger.Debug(canPlace, canBreak)
 
 	return item
 }
 
 // PutEntityData writes the data properties of an entity.
-// TODO: Make a proper implementation.
 func (stream *MinecraftStream) PutEntityData(entityData map[uint32][]interface{}) {
 	var count= uint32(len(entityData))
 	stream.PutUnsignedVarInt(count)
@@ -338,13 +366,13 @@ func (stream *MinecraftStream) PutGameRules(gameRules map[string]types.GameRuleE
 		stream.PutString(gameRule.Name)
 		switch value := gameRule.Value.(type) {
 		case bool:
-			stream.PutByte(1)
+			stream.PutUnsignedVarInt(1)
 			stream.PutBool(value)
 		case uint32:
-			stream.PutByte(2)
+			stream.PutUnsignedVarInt(2)
 			stream.PutUnsignedVarInt(value)
 		case float32:
-			stream.PutByte(3)
+			stream.PutUnsignedVarInt(3)
 			stream.PutLittleFloat(value)
 		}
 	}
@@ -361,6 +389,8 @@ func (stream *MinecraftStream) PutPackInfo(packs []types.ResourcePackInfoEntry) 
 		stream.PutLittleLong(pack.PackSize)
 		stream.PutString("")
 		stream.PutString("")
+		stream.PutString("")
+		stream.PutBool(false)
 	}
 }
 

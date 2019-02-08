@@ -48,6 +48,7 @@ type IPacketManager interface {
 	GetPlayerSkin(uuid2 uuid.UUID, skinId, geometryName, geometryData string, skinData, capeData []byte) packets.IPacket
 	GetPlayerAction(runtimeId uint64, action int32, position blocks.Position, face int32) packets.IPacket
 	GetAnimate(action int32, runtimeId uint64, float float32) packets.IPacket
+	GetUpdateBlock(position blocks.Position, blockRuntimeId, dataLayerId uint32) packets.IPacket
 }
 
 // PacketManagerBase is a struct providing the base for a PacketManagerBase.

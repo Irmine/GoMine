@@ -45,7 +45,7 @@ type MinecraftSession struct {
 	permissions     map[string]*permissions.Permission
 	permissionGroup *permissions.Group
 
-	Connected   bool
+	Connected         bool
 }
 
 // NewMinecraftSession returns a new Minecraft session with the given RakNet session.
@@ -305,9 +305,9 @@ func (session *MinecraftSession) Close(reason string, hideDisconnectionScreen bo
 	if session.Connected {
 		loadedChunks := session.GetChunkLoader().GetLoadedChunks()
 
-		for _, session := range session.adapter.sessionManager.GetSessions() {
-			session.SendRemoveEntity(session.player.Entity.GetUniqueId())
-			session.player.RemoveViewer(session)
+		for _, online := range session.adapter.sessionManager.GetSessions() {
+			online.SendRemoveEntity(session.player.Entity.GetUniqueId())
+			online.player.RemoveViewer(session)
 		}
 
 		for _, chunk := range loadedChunks {
@@ -337,9 +337,8 @@ func (session *MinecraftSession) SyncMove(x, y, z float64, pitch, yaw, headYaw f
 }
 
 func (session *MinecraftSession) Tick() {
-	if session.Connected && session.HasSpawned() {
+	if session.Connected {
 		session.GetChunkLoader().Warp(session.GetPlayer().GetDimension(), int32(math.Floor(session.player.Position.X))>>4, int32(math.Floor(session.player.Position.Z))>>4)
-		session.GetChunkLoader().Request(session.GetViewDistance(), 4)
-		session.player.SendMovement()
+		session.GetChunkLoader().Request(session.GetViewDistance(), 40)
 	}
 }

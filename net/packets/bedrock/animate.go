@@ -1,8 +1,8 @@
 package bedrock
 
 import (
-	"github.com/irmine/gomine/net/packets"
 	"github.com/irmine/gomine/net/info"
+	"github.com/irmine/gomine/net/packets"
 )
 
 const (

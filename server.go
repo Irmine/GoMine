@@ -212,6 +212,22 @@ func (server *Server) GetMotd() string {
 	return server.Config.ServerMotd
 }
 
+// Returns the max view distance allowed by the server
+func (server *Server) GetMaxViewDistance() int32 {
+	return server.Config.MaxViewDistance
+}
+
+// Returns the max view distance allowed by the server,
+// if it's 0 it returns the given distance which is the
+// distance given by a joining player
+func (server *Server) GetAllowedViewDistance(distance int32) int32 {
+	var maxViewDistance int32
+	if maxViewDistance = server.GetMaxViewDistance(); maxViewDistance <= 0 {
+		return distance
+	}
+	return maxViewDistance
+}
+
 // GetCurrentTick returns the current tick the server is on.
 func (server *Server) GetCurrentTick() int64 {
 	return server.tick
@@ -299,15 +315,15 @@ func (server *Server) HandleRaw(packet []byte, addr *net2.UDPAddr) {
 func (server *Server) HandleDisconnect(s *server.Session) {
 	text.DefaultLogger.Debug(s, "disconnected!")
 	session, ok := server.SessionManager.GetSessionByRakNetSession(s)
-
 	server.SessionManager.RemoveMinecraftSession(session)
+
 	if !ok {
 		return
 	}
 
 	if session.GetPlayer().Dimension != nil {
 		for _, online := range server.SessionManager.GetSessions() {
-			online.SendPlayerList(data.ListTypeRemove, map[string]protocol.PlayerListEntry{online.GetPlayer().GetName(): online.GetPlayer()})
+			online.SendPlayerList(data.ListTypeRemove, map[string]protocol.PlayerListEntry{session.GetPlayer().GetName(): session.GetPlayer()})
 		}
 
 		session.GetPlayer().Close()
@@ -337,9 +353,10 @@ func (server *Server) Tick() {
 		session.Tick()
 	}
 
-	for range server.LevelManager.GetLevels() {
-		//level.Tick()
+	for _, level := range server.LevelManager.GetLevels() {
+		level.Tick()
 	}
+
 	server.tick++
 }
 

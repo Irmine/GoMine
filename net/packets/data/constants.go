@@ -43,6 +43,7 @@ const (
 	TextSystem
 	TextWhisper
 	TextAnnouncement
+	TextJson
 )
 
 const (

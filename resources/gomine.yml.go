@@ -29,6 +29,8 @@ type GoMineConfig struct {
 
 	AllowQuery       bool `yaml:"Allow Query"`
 	AllowPluginQuery bool `yaml:"Allow Plugin Query"`
+
+	MaxViewDistance int32 `yaml:"Max View Distance"`
 }
 
 // NewGoMineConfig returns a new configuration struct.
@@ -66,6 +68,8 @@ func initializeConfig(serverPath string) {
 
 			AllowQuery:       true,
 			AllowPluginQuery: true,
+
+			MaxViewDistance: 8,
 		})
 		var file, _ = os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 		file.WriteString(string(data))

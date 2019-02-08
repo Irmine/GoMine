@@ -7,7 +7,7 @@ import (
 	"strconv"
 )
 
-func NewTest(server *Server) *commands.Command {
+func NewTest(_ *Server) *commands.Command {
 	cmd := commands.NewCommand("chunk", "Lists the current chunk", "none", []string{}, func(sender commands.Sender) {
 		if session, ok := sender.(*net.MinecraftSession); ok {
 			text.DefaultLogger.Debug(session.GetPlayer().GetChunk().X, session.GetPlayer().GetChunk().Z)

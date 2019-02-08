@@ -36,7 +36,7 @@ func (pk *TextPacket) Encode()  {
 	pk.PutBool(pk.Translation)
 
 	switch pk.TextType {
-	case data.TextRaw, data.TextTip, data.TextSystem:
+	case data.TextRaw, data.TextTip, data.TextSystem, data.TextJson:
 		pk.PutString(pk.Message)
 		break
 	case data.TextChat, data.TextWhisper, data.TextAnnouncement:
